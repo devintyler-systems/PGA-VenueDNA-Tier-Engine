@@ -249,10 +249,80 @@ See `library/engine/ROUND_ANALYSIS_SCHEMA.md` for the complete field-by-field de
 
 ---
 
-## Next Steps When Round 2 Files Arrive
+## Round Operator Runbook (R2 / R3 / Final)
 
-1. Download leaderboard and SG stats from PGA Tour
-2. (Optional) Download `round2_course_insights.csv` from DataGolf
-3. Place all files in `events/2026_TravelersChampionship/output/round2/`
-4. Run: `python engine/build_round_analysis.py --round 2`
-5. Reload the dashboard — Round 2 tab shows LIVE automatically
+Use this checklist each time new round files arrive. The workflow is identical for R2, R3, and Final (R4).
+
+### Step 1 — Place files
+
+Create the round folder and drop in the downloaded CSVs:
+
+```
+events/2026_TravelersChampionship/output/round2/
+  round2_leaderboard.csv               ← required
+  round2_player_strokes_gained.csv     ← required
+  round2_course_stats.csv              ← optional (hole-by-hole stats)
+  round2_course_insights.csv           ← optional (DataGolf proxy enrichment)
+```
+
+Rename files to match the exact naming convention above (`round{N}_*.csv`). The script will error fast if required files are missing.
+
+**Leaderboard CSV must have columns:** `PLAYER`, `POS`, `TOTAL`, `Total Strokes`
+**SG CSV must have columns:** `Player`, `SG-Off the Tee`, `SG-Approach to Green`, `SG- Around the Green`, `SG-Putting`, `SG-Total`
+
+### Step 2 — Validate (dry run)
+
+```bash
+cd events/2026_TravelersChampionship/engine
+python build_round_analysis.py --round 2 --check
+```
+
+Expected output if all files are ready:
+```
+=== CHECK MODE — Round 2 manifest ===
+  [OK]  .../output/round2/round2_leaderboard.csv
+  [OK]  .../output/round2/round2_player_strokes_gained.csv
+  [OK]  .../output/2026_travelers_championship_trait_form_matrix.csv
+  [OK]  .../deploy/data/event_payload.json
+  [--]  .../output/round2/round2_course_stats.csv  (optional — skipped)
+  [--]  .../output/round2/round2_course_insights.csv  (optional — skipped)
+
+All required files present. Run without --check to build.
+```
+
+### Step 3 — Build
+
+```bash
+python build_round_analysis.py --round 2
+```
+
+**Signs the build succeeded:**
+- `Matched N/N players to pre-tournament model` — match rate should be >85%; any `[unmatched]` lines list player names with their current positions
+- `[warn] Duplicate leaderboard rows skipped` — if this appears, your leaderboard CSV has duplicate rows (harmless, deduped automatically)
+- Trait audit prints 10 lines with signal values (`validated` / `mixed` / `neutral` / `weak` / `not_testable`)
+- Final lines: `Wrote: ...deploy/data/r2_analysis.json` and `Wrote: ...deploy/data/cumulative_learning.json`
+
+**Output files generated:**
+```
+output/2026_travelers_championship_r2_analysis.json   ← canonical archive
+output/2026_travelers_championship_cumulative_learning.json
+deploy/data/r2_analysis.json                          ← auto-deployed to dashboard
+deploy/data/cumulative_learning.json                  ← updated
+```
+
+### Step 4 — Verify in dashboard
+
+1. Reload `http://localhost:8080` (or restart `python -m http.server 8080` from `deploy/`)
+2. Click **Tournament Learning** tab
+3. Round 2 tab should show a green **LIVE** badge — click it
+4. Check: leaderboard snapshot shows current standings, trait audit shows signal values, Live Lean section shows next-round guidance
+5. Diagnostics panel (bottom of page) shows `build_timestamp` and source files used
+
+### Repeat for R3 and Final
+
+Same process — substitute `round3` or `round4` everywhere. Run `--round 4` for Final; the script auto-sets `is_final: true` and the app shows "FINAL ROUND RECAP" instead of next-round lean notes.
+
+```bash
+python build_round_analysis.py --round 3
+python build_round_analysis.py --round 4   # Final
+```

@@ -34,7 +34,7 @@ Note: Round 1 can also be built with the dedicated build_r1_analysis.py, which
 import argparse
 import json
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 # Import shared helpers (same directory as this script)
@@ -45,11 +45,15 @@ from round_helpers import load_csv, ascii_fold, fl_to_lf, avg, parse_float, pars
 parser = argparse.ArgumentParser(description="VenueDNA round analysis builder")
 parser.add_argument("--round", type=int, required=True, choices=[1, 2, 3, 4],
                     help="Round number (1-4; use 4 for Final)")
+parser.add_argument("--check", action="store_true",
+                    help="Validate input files only — print manifest and exit without building")
 args = parser.parse_args()
 
-ROUND    = args.round
-IS_FINAL = ROUND == 4
-TODAY    = date.today().isoformat()
+ROUND      = args.round
+IS_FINAL   = ROUND == 4
+CHECK_ONLY = args.check
+TODAY      = date.today().isoformat()
+BUILD_TS   = datetime.now().replace(microsecond=0).isoformat()
 
 # ── Event config (edit for each new event) ───────────────────────────────────
 ROOT        = Path(__file__).parent.parent
@@ -154,6 +158,25 @@ if not cs_loaded:
 if not ci_loaded:
     print(f"[info] round{ROUND}_course_insights.csv not found — enrichment layer skipped")
 
+if CHECK_ONLY:
+    print()
+    print(f"=== CHECK MODE — Round {ROUND} manifest ===")
+    print(f"  [OK]  {LB_PATH}")
+    print(f"  [OK]  {SG_PATH}")
+    print(f"  [OK]  {TFM_PATH}")
+    print(f"  [OK]  {PAY_PATH}")
+    if cs_loaded:
+        print(f"  [OK]  {CS_PATH}")
+    else:
+        print(f"  [--]  {CS_PATH}  (optional — skipped)")
+    if ci_loaded:
+        print(f"  [OK]  {CI_PATH}")
+    else:
+        print(f"  [--]  {CI_PATH}  (optional — skipped)")
+    print()
+    print("All required files present. Run without --check to build.")
+    raise SystemExit(0)
+
 # ── Load files ────────────────────────────────────────────────────────────────
 lb      = load_csv(LB_PATH)
 sg      = load_csv(SG_PATH)
@@ -219,12 +242,20 @@ if ci_loaded:
 # ── Join leaderboard to pre-tournament model ──────────────────────────────────
 # Note: field names (r1_name, r1_pos, r1_score) are canonical in the round schema
 # regardless of round number — this maintains compatibility with app.js.
-joined    = []
-unmatched = []
+joined      = []
+unmatched   = []
+seen_folded = set()
+duplicates  = []
 
 for row in lb:
+    if not any(row.values()):
+        continue  # skip empty rows
     r_name  = row["PLAYER"]
     folded  = ascii_fold(r_name)
+    if folded in seen_folded:
+        duplicates.append(r_name)
+        continue
+    seen_folded.add(folded)
     norm    = fl_to_lf(folded)
     pt      = pretournament.get(norm.lower())
     sg_row  = sg_by_folded.get(folded)
@@ -269,10 +300,15 @@ for row in lb:
 for r in joined:
     r["ci"] = ci_by_norm.get(r["norm_name"].lower())
 
+if duplicates:
+    print(f"[warn] Duplicate leaderboard rows skipped ({len(duplicates)}): {duplicates}")
+
 matched = [r for r in joined if r["matched"]]
 print(f"Matched {len(matched)}/{len(joined)} players to pre-tournament model")
 if unmatched:
-    print(f"  Unmatched: {unmatched}")
+    unmatched_with_pos = [(r["r1_name"], r.get("r1_pos_str", "?")) for r in joined if not r["matched"]]
+    for name, pos in unmatched_with_pos:
+        print(f"  [unmatched] {name} (pos {pos})")
 
 # ── Model performance ─────────────────────────────────────────────────────────
 def group_stats(group):
@@ -790,6 +826,7 @@ round_sources = [
 output = {
     "schema_version":         "1.1",
     "generated_at":           TODAY,
+    "build_timestamp":        BUILD_TS,
     "round":                  ROUND,
     "event_slug":             EVENT_SLUG,
     "metadata": {
@@ -847,7 +884,13 @@ for path in [CUM_OUT, CUM_DEP]:
 # ── Summary ───────────────────────────────────────────────────────────────────
 print()
 print(f"=== R{ROUND} ANALYSIS COMPLETE ===")
-print(f"Matched: {len(matched)}/{len(joined)}" + (f", unmatched: {unmatched}" if unmatched else ""))
+if unmatched:
+    print(f"Matched: {len(matched)}/{len(joined)}, unmatched ({len(unmatched)}):")
+    for r in joined:
+        if not r["matched"]:
+            print(f"  {r['r1_name']} (pos {r.get('r1_pos_str', '?')})")
+else:
+    print(f"Matched: {len(matched)}/{len(joined)}")
 print(f"Spearman rho: {spearman_rho}")
 print(f"PT Top 10 -> R{ROUND} top 10: {model_perf['pt_top10']['in_r1_top10']}/10")
 print(f"PT Top 10 -> R{ROUND} top 20: {model_perf['pt_top10']['in_r1_top20']}/10")

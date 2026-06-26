@@ -2104,8 +2104,8 @@ function renderRoundPanel(body, rData, roundNum) {
   /* ── 9. Data diagnostics note ── */
   const ms = d.match_summary;
   const enrDiagNote = ciLoaded && enrSummary
-    ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched to round1_course_insights.csv. Traits upgraded: <b>${enrSummary.traits_upgraded.join(', ') || 'none'}</b>. Confirmed: ${enrSummary.traits_confirmed.join(', ') || 'none'}. DG SG is correlated but distinct from PGAT official SG &mdash; used as supplemental proxy layer only, not merged with official stats.</div>`
-    : '<div>Course Insights: not loaded</div>';
+    ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched. Source: ${enrSummary.source || 'course_insights.csv'}. Traits upgraded: <b>${enrSummary.traits_upgraded.join(', ') || 'none'}</b>. Confirmed: ${enrSummary.traits_confirmed.join(', ') || 'none'}. DG SG is correlated but distinct from PGAT official SG &mdash; used as supplemental proxy layer only, not merged with official stats.</div>`
+    : '<div>Course Insights: not loaded for this round.</div>';
   const diagHTML = `
     <div class="ri-card ri-card-wide ri-diag-note">
       <h4>Data Notes &mdash; R${roundNum} Diagnostics</h4>
@@ -2113,9 +2113,9 @@ function renderRoundPanel(body, rData, roundNum) {
         <div><b>${ms.matched}/${ms.total_r1}</b> R${roundNum} players matched to pre-tournament model (${ms.match_rate_pct}%)</div>
         <div>Unmatched: ${ms.unmatched.join(', ') || 'none'}</div>
         <div>Sources: ${(d.round_sources || ['round_leaderboard.csv', 'round_player_strokes_gained.csv', 'trait_form_matrix.csv', 'event_payload.json']).join(' &middot; ')}</div>
-        <div>Trait deltas: pre-tournament percentile scores (trait_form_matrix.csv) for top-10 R1 group vs full field. Zero-sentinels imputed from tier avg per QA policy.</div>
+        <div>Trait deltas: pre-tournament percentile scores (trait_form_matrix.csv) for top-10 R${roundNum} group vs full field. Zero-sentinels imputed from tier avg per QA policy.</div>
         <div>SG proxies: SG:APP &rarr; APP_Wedge / APP_100-150 / APP_150-200 / Par5; SG:PUTT &rarr; Putt_ShortConv / Putt_Lag; SG:ARG &rarr; ARG_Rough / ARG_Bunker; SG:OTT &rarr; OTT_Accuracy / OTT_Distance. All are correlational proxies, not direct trait measurements.</div>
-        <div>Spearman &rho;=${rho.toFixed(3)} between pre-tournament rank and R1 position (n=${ms.matched}). Low correlation expected after one round in a 72-player no-cut field.</div>
+        <div>Spearman &rho;=${rho.toFixed(3)} between pre-tournament rank and R${roundNum} position (n=${ms.matched}). Low correlation expected early; sharpens through R3&ndash;Final.</div>
         ${enrDiagNote}
       </div>
     </div>`;
