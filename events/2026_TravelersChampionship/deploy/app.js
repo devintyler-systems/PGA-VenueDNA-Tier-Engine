@@ -1720,14 +1720,14 @@ function renderRoundPanel(body, rData, roundNum) {
 
   function supportingTags(conf, enr) {
     const confMap = {
-      'direct':          { cls: 'sc-direct',          lbl: 'DIRECT' },
-      'proxy-confirmed': { cls: 'sc-proxy-confirmed', lbl: 'PROXY' },
-      'weak-proxy':      { cls: 'sc-weak-proxy',      lbl: 'WEAK-PROXY' },
-      'not-testable':    { cls: 'sc-not-testable',    lbl: 'N/A' },
+      'direct':          { cls: 'sc-direct',          lbl: 'DIRECT',     title: 'Direct — stat directly tests this trait (e.g. Scrambling → ARG)' },
+      'proxy-confirmed': { cls: 'sc-proxy-confirmed', lbl: 'PROXY',      title: 'Proxy-confirmed — SG dimension + supplemental data both point same direction' },
+      'weak-proxy':      { cls: 'sc-weak-proxy',      lbl: 'WEAK-PROXY', title: 'Weak proxy — directional only; single SG dimension or limited enrichment' },
+      'not-testable':    { cls: 'sc-not-testable',    lbl: 'N/A',        title: 'Not testable — insufficient round data to confirm or deny' },
     };
     const tags = [];
     const cm = confMap[conf] || confMap['not-testable'];
-    tags.push(`<span class="sc-badge ${cm.cls}">${cm.lbl}</span>`);
+    tags.push(`<span class="sc-badge ${cm.cls}" title="${cm.title}">${cm.lbl}</span>`);
     if (enr?.available && enr.enrichment_signal === 'upgraded') {
       tags.push(`<span class="sc-badge ri-enr-up" title="${(enr.enrichment_note||'').replace(/"/g,'&quot;')}">UPGRADED</span>`);
     }
@@ -1907,10 +1907,12 @@ function renderRoundPanel(body, rData, roundNum) {
         Trait delta = pre-tournament trait profile avg (top-10 round leaders vs full field).
         Positive = leaders were already stronger in this trait before the tournament.
       </div>
-      <table class="ri-mv-table">
-        <thead><tr><th>Trait</th><th>Model Wt</th><th>Trait &Delta;</th><th>SG &Delta;</th><th>Signal</th></tr></thead>
-        <tbody>${mvRrows}</tbody>
-      </table>
+      <div class="mvr-scroll">
+        <table class="ri-mv-table">
+          <thead><tr><th>Trait</th><th>Model Wt</th><th>Trait &Delta;</th><th>SG &Delta;</th><th>Signal</th></tr></thead>
+          <tbody>${mvRrows}</tbody>
+        </table>
+      </div>
       <div class="ri-note" style="margin-top:.3rem">Signal tags: evidence quality (DIRECT / PROXY / WEAK-PROXY / N/A)${ciLoaded ? ' · UPGRADED = DataGolf proxy promoted the verdict' : ''}.</div>
     </div>`;
 
