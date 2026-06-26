@@ -62,6 +62,7 @@ let allowImputedInFilters = VENUEDNA_CONFIG.allowImputedInFiltersDefault;
 let r1Data = null;         // populated from r1_analysis.json when available
 let r2Data = null;         // populated from r2_analysis.json when available
 let r3Data = null;         // populated from r3_analysis.json when available
+let r4Data = null;         // populated from r4_analysis.json when available (Final)
 let cumulativeData = null; // populated from cumulative_learning.json when available
 
 /* ── Trait definitions (for filter panel + compare) ── */
@@ -510,6 +511,7 @@ async function init() {
   } catch (_) { /* optional */ }
   try { r2Data = await fetch(DATA_DIR + 'r2_analysis.json').then(r => r.json()); } catch (_) {}
   try { r3Data = await fetch(DATA_DIR + 'r3_analysis.json').then(r => r.json()); } catch (_) {}
+  try { r4Data = await fetch(DATA_DIR + 'r4_analysis.json').then(r => r.json()); } catch (_) {}
   try { cumulativeData = await fetch(DATA_DIR + 'cumulative_learning.json').then(r => r.json()); } catch (_) {}
   /* trait_map is built inside runImputationPass after imputation */
 
@@ -1836,7 +1838,7 @@ function renderRoundPanel(body, rData, roundNum) {
 
   const traitWinnersHTML = `
     <div class="ri-card ri-card-wide">
-      <h4>Trait Winners — R1 SG Evidence</h4>
+      <h4>Trait Winners — R${roundNum} SG Evidence</h4>
       <table class="ri-sg-table">
         <thead><tr><th>Category</th><th>Leaders avg</th><th>Field avg</th><th>Delta</th><th>Note</th></tr></thead>
         <tbody>${sgRows}</tbody>
@@ -1919,7 +1921,7 @@ function renderRoundPanel(body, rData, roundNum) {
 
   /* ── 5. Slippage Risk ── */
   const slipHTML = d.slippage_risk.length === 0
-    ? '<p class="ri-placeholder">No fragility flags in current R1 top 20.</p>'
+    ? `<p class="ri-placeholder">No fragility flags in current R${roundNum} top 20.</p>`
     : d.slippage_risk.map(r => `
       <div class="ri-player-row ri-player-risk">
         <div class="ri-player-name">${r.r1_name}</div>
@@ -2043,10 +2045,11 @@ function renderRoundPanel(body, rData, roundNum) {
     return `<li><b>${label}</b> &mdash; validated (${delta}${conf}${enrNote})</li>`;
   }).join('') || '<li>No traits reached validated threshold this round.</li>';
 
+  const nextRoundStr = lln.next_round ? `R${lln.next_round}` : 'Final';
   const leanDownItems = (lln.lean_down_traits || []).map(t => {
     const label = traitLabel(t.trait);
     const delta = t.delta != null ? `delta ${t.delta > 0 ? '+' : ''}${t.delta.toFixed(1)} pts` : '';
-    return `<li><b>${label}</b> &mdash; weak signal (${delta}); deprioritize R${roundNum + 1}</li>`;
+    return `<li><b>${label}</b> &mdash; weak signal (${delta}); deprioritize ${nextRoundStr}</li>`;
   }).join('');
 
   const puttCautionItem = lln.putt_caution
@@ -2063,7 +2066,7 @@ function renderRoundPanel(body, rData, roundNum) {
   const liveLeanHTML = `
     <div class="ri-card ri-card-wide ri-live-lean">
       <div class="ri-live-lean-header">
-        <span class="ri-live-badge">ROUND ${roundNum + 1} LIVE LEAN</span>
+        <span class="ri-live-badge">${lln.next_round ? `ROUND ${lln.next_round} LIVE LEAN` : 'FINAL ROUND RECAP'}</span>
         <span style="font-size:.68rem;color:var(--muted);margin-left:.5rem">
           Provisional in-tournament interpretation layer &mdash; NOT a permanent model rewrite
         </span>
@@ -2089,10 +2092,10 @@ function renderRoundPanel(body, rData, roundNum) {
           </ul>
         </div>
         <div>
-          <div class="ri-lean-label">Watch for R${roundNum + 1}</div>
+          <div class="ri-lean-label">${lln.next_round ? `Watch for R${lln.next_round}` : 'Final assessment'}</div>
           <ul class="ri-lean-list">
             ${watchItems}
-            <li>R${roundNum} rank correlation &rho;=${rho.toFixed(2)} &mdash; ${lln.rho_note || 'one round is highly noisy; field is bunched.'}</li>
+            <li>${lln.rho_note || `R${roundNum} rank correlation &rho;=${rho.toFixed(2)} &mdash; one round is highly noisy; field is bunched.`}</li>
           </ul>
         </div>
       </div>
@@ -2109,7 +2112,7 @@ function renderRoundPanel(body, rData, roundNum) {
       <div class="ri-diag-grid">
         <div><b>${ms.matched}/${ms.total_r1}</b> R${roundNum} players matched to pre-tournament model (${ms.match_rate_pct}%)</div>
         <div>Unmatched: ${ms.unmatched.join(', ') || 'none'}</div>
-        <div>Sources: round1_leaderboard.csv &middot; round1_player_strokes_gained.csv &middot; 2026_travelers_championship_trait_form_matrix.csv &middot; deploy/data/event_payload.json</div>
+        <div>Sources: ${(d.round_sources || ['round_leaderboard.csv', 'round_player_strokes_gained.csv', 'trait_form_matrix.csv', 'event_payload.json']).join(' &middot; ')}</div>
         <div>Trait deltas: pre-tournament percentile scores (trait_form_matrix.csv) for top-10 R1 group vs full field. Zero-sentinels imputed from tier avg per QA policy.</div>
         <div>SG proxies: SG:APP &rarr; APP_Wedge / APP_100-150 / APP_150-200 / Par5; SG:PUTT &rarr; Putt_ShortConv / Putt_Lag; SG:ARG &rarr; ARG_Rough / ARG_Bunker; SG:OTT &rarr; OTT_Accuracy / OTT_Distance. All are correlational proxies, not direct trait measurements.</div>
         <div>Spearman &rho;=${rho.toFixed(3)} between pre-tournament rank and R1 position (n=${ms.matched}). Low correlation expected after one round in a 72-player no-cut field.</div>
@@ -2124,7 +2127,7 @@ function renderRoundPanel(body, rData, roundNum) {
       <h4>R${roundNum} Leaderboard Snapshot <span style="font-size:.7rem;color:var(--muted);font-weight:400">(top 15)</span></h4>
       <div class="ri-lb-scroll">
         <table class="ri-lb-table">
-          <thead><tr><th>Pos</th><th>Player</th><th>R1</th><th>PT Rank</th><th>Tier</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>
+          <thead><tr><th>Pos</th><th>Player</th><th>R${roundNum}</th><th>PT Rank</th><th>Tier</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>
           <tbody>${lbTop15.map(r => {
             const isRiser  = d.weekend_risers.some(x => x.r1_name === r.r1_name);
             const isSlip   = d.slippage_risk.some(x => x.r1_name === r.r1_name);
@@ -2156,8 +2159,8 @@ function renderRoundPanel(body, rData, roundNum) {
   body.innerHTML = `
     <div class="ri-r1-layout">
       <div class="ri-r1-header">
-        <span class="ri-r1-label">Round 1 Complete</span>
-        <span class="ri-r1-sub">TPC River Highlands · Field avg ${scoreFmt(mp.groups.all_field.avg_r1_score)} · Par 70</span>
+        <span class="ri-r1-label">${d.metadata?.round_label || `Round ${roundNum}`}${d.metadata?.is_final ? ' — Final' : ' Complete'}</span>
+        <span class="ri-r1-sub">${d.metadata?.course_name || 'TPC River Highlands'} · Field avg ${scoreFmt(mp.groups.all_field.avg_r1_score)} · Par ${d.metadata?.par || 70}</span>
       </div>
       ${legendHTML}
       ${modelStripHTML}
@@ -2183,13 +2186,13 @@ function renderRoundInsights(payload) {
   const body = document.getElementById('ri-body');
   showRoundPanel('pre', ms, body);
 
-  /* Mark round tabs as live when data is available */
-  const LIVE_BADGE = ' <span style="font-size:.58rem;background:#14532d;border:1px solid #4ade80;color:#86efac;border-radius:999px;padding:.05rem .3rem;vertical-align:middle;margin-left:.25rem">LIVE</span>';
-  [['r1', r1Data, 'Round 1'], ['r2', r2Data, 'Round 2'], ['r3', r3Data, 'Round 3']].forEach(([key, data, label]) => {
-    if (data) {
-      const tab = document.querySelector(`.ri-tab[data-round="${key}"]`);
-      if (tab) tab.innerHTML = label + LIVE_BADGE;
-    }
+  /* Mark round tabs with LIVE (data present) or NO DATA (pending) status */
+  const LIVE_BADGE    = ' <span class="rs-live">LIVE</span>';
+  const PENDING_BADGE = ' <span class="rs-pending">—</span>';
+  [['r1', r1Data, 'Round 1'], ['r2', r2Data, 'Round 2'], ['r3', r3Data, 'Round 3'], ['final', r4Data, 'Final']].forEach(([key, data, label]) => {
+    const tab = document.querySelector(`.ri-tab[data-round="${key}"]`);
+    if (!tab) return;
+    tab.innerHTML = label + (data ? LIVE_BADGE : PENDING_BADGE);
   });
 
   document.querySelectorAll('.ri-tab').forEach(tab => {
@@ -2202,10 +2205,11 @@ function renderRoundInsights(payload) {
 }
 
 function showRoundPanel(round, ms, body) {
-  /* Route R1 to dedicated renderer when data is available */
-  if (round === 'r1' && r1Data) { renderRoundPanel(body, r1Data, 1); return; }
-  if (round === 'r2' && r2Data) { renderRoundPanel(body, r2Data, 2); return; }
-  if (round === 'r3' && r3Data) { renderRoundPanel(body, r3Data, 3); return; }
+  /* Route to renderRoundPanel when round data is available */
+  if (round === 'r1'    && r1Data) { renderRoundPanel(body, r1Data, 1); return; }
+  if (round === 'r2'    && r2Data) { renderRoundPanel(body, r2Data, 2); return; }
+  if (round === 'r3'    && r3Data) { renderRoundPanel(body, r3Data, 3); return; }
+  if (round === 'final' && r4Data) { renderRoundPanel(body, r4Data, 4); return; }
   if (round === 'pre') {
     const weights = ms.trait_weight_matrix;
     const bars = Object.entries(weights).map(([k,w]) => {

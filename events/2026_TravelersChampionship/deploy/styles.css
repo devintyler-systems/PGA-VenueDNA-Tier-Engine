@@ -534,3 +534,7 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 .ri-fav-row { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; padding: .3rem 0; border-bottom: 1px solid var(--border); font-size: .73rem; }
 .ri-fav-row:last-child { border-bottom: none; }
 .ri-fav-name { font-weight: 600; min-width: 9rem; color: var(--fav); }
+
+/* Round-tab status badges */
+.rs-live    { display: inline-block; font-size: .55rem; font-weight: 700; background: #14532d; border: 1px solid #4ade80; color: #86efac; border-radius: 999px; padding: .04rem .28rem; vertical-align: middle; margin-left: .22rem; letter-spacing: .03em; }
+.rs-pending { display: inline-block; font-size: .58rem; color: var(--muted); vertical-align: middle; margin-left: .15rem; opacity: .55; }

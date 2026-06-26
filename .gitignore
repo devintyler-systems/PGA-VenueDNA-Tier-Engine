@@ -24,3 +24,19 @@ desktop.ini
 # Local env
 .env
 *.env.local
+
+# Logs and temp files
+*.log
+*.tmp
+temp/
+tmp/
+
+# Python virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Large regeneratable intermediate pipeline artifacts
+# (QA records CSV can be rebuilt by qa_trait_validation.py)
+output/*_qa_records.csv
