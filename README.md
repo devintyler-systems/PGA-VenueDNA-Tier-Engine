@@ -249,6 +249,48 @@ See `library/engine/ROUND_ANALYSIS_SCHEMA.md` for the complete field-by-field de
 
 ---
 
+## Fast Round Update Checklist
+
+Copy-paste for each round. Substitute `2` for the actual round number.
+
+```powershell
+# 1. Place files (PowerShell)
+New-Item -ItemType Directory -Force "events\2026_TravelersChampionship\output\round2"
+# Drop files here:
+#   round2_leaderboard.csv              ← required
+#   round2_player_strokes_gained.csv    ← required
+#   round2_course_stats.csv             ← optional
+#   round2_course_insights.csv          ← optional
+
+# 2. Preflight — verify files before building
+cd events\2026_TravelersChampionship\engine
+python build_round_analysis.py --round 2 --check
+# → Fix any [MISS] or [WARN] lines before continuing
+# → Expected: "PASS — all required files present"
+
+# 3. Build
+python build_round_analysis.py --round 2
+# → Watch for: "Matched X/Y players (>85% = healthy)"
+# → Watch for: any [warn] lines (investigate before deploying)
+# → Final line: "→ Reload dashboard. Round 2 tab should show LIVE badge."
+
+# 4. Serve and verify (run from the project root)
+cd ..\deploy
+python -m http.server 8080
+# Open http://localhost:8080 → Tournament Learning tab → Round 2 → LIVE badge
+# Check: leaderboard snapshot, trait audit signals, Live Lean notes, Diagnostics build line
+```
+
+**Build output success indicators:**
+- `Matched X/Y (>85%)` — healthy join rate
+- `Trait audit:` — 10 rows with signal values (not all N/A)
+- `Files written: deploy/data/r2_analysis.json` — confirms deploy path
+- Round 2 tab shows green **LIVE** badge in the dashboard
+
+**If match rate is low (<80%):** Player names in the leaderboard CSV likely differ from the pre-tournament model. Check the `[unmatched]` list in build output — these players have no trait data and are scored without model backing.
+
+---
+
 ## Round Operator Runbook (R2 / R3 / Final)
 
 Use this checklist each time new round files arrive. The workflow is identical for R2, R3, and Final (R4).
@@ -315,8 +357,9 @@ deploy/data/cumulative_learning.json                  ← updated
 1. Reload `http://localhost:8080` (or restart `python -m http.server 8080` from `deploy/`)
 2. Click **Tournament Learning** tab
 3. Round 2 tab should show a green **LIVE** badge — click it
-4. Check: leaderboard snapshot shows current standings, trait audit shows signal values, Live Lean section shows next-round guidance
-5. Diagnostics panel (bottom of page) shows `build_timestamp` and source files used
+4. Round header shows: `Built YYYY-MM-DD HH:MM:SS · X/Y players matched · enrichment on/off`
+5. Check: leaderboard snapshot shows current standings, trait audit shows signal values, Live Lean section shows next-round guidance
+6. Diagnostics card (bottom of Tournament Learning panel) shows source files and match rate
 
 ### Repeat for R3 and Final
 

@@ -39,7 +39,7 @@ from pathlib import Path
 
 # Import shared helpers (same directory as this script)
 sys.path.insert(0, str(Path(__file__).parent))
-from round_helpers import load_csv, ascii_fold, fl_to_lf, avg, parse_float, parse_prox, parse_pct
+from round_helpers import load_csv, csv_columns, ascii_fold, fl_to_lf, avg, parse_float, parse_prox, parse_pct, parse_pos
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="VenueDNA round analysis builder")
@@ -160,22 +160,62 @@ if not ci_loaded:
 
 if CHECK_ONLY:
     print()
-    print(f"=== CHECK MODE — Round {ROUND} manifest ===")
-    print(f"  [OK]  {LB_PATH}")
-    print(f"  [OK]  {SG_PATH}")
-    print(f"  [OK]  {TFM_PATH}")
-    print(f"  [OK]  {PAY_PATH}")
-    if cs_loaded:
-        print(f"  [OK]  {CS_PATH}")
-    else:
-        print(f"  [--]  {CS_PATH}  (optional — skipped)")
-    if ci_loaded:
-        print(f"  [OK]  {CI_PATH}")
-    else:
-        print(f"  [--]  {CI_PATH}  (optional — skipped)")
+    print(f"=== CHECK MODE — {EVENT_NAME} Round {ROUND} ===")
+    print(f"Event path  : {ROOT}")
+    print(f"Round dir   : {ROUND_DIR}")
+    print(f"Build time  : {BUILD_TS}")
     print()
-    print("All required files present. Run without --check to build.")
-    raise SystemExit(0)
+
+    def _check_file(path, label, required, expected_cols=None):
+        if not path.exists():
+            tag = "MISS" if required else " -- "
+            print(f"  [{tag}] {label}")
+            return False
+        try:
+            rows = load_csv(path)
+            cols = list(rows[0].keys()) if rows else []
+            n    = len(rows)
+        except Exception as e:
+            print(f"  [ERR]  {label} — could not read: {e}")
+            return False
+        print(f"  [ OK]  {label}  ({n} rows)")
+        if expected_cols:
+            found   = set(cols)
+            missing = [c for c in expected_cols if c not in found]
+            if missing:
+                print(f"         [WARN] Missing expected columns: {missing}")
+                print(f"         Found: {cols}")
+            else:
+                print(f"         Columns OK: {[c for c in expected_cols if c in found]}")
+        return True
+
+    LB_COLS  = ["PLAYER", "POS", "TOTAL", "Total Strokes"]
+    SG_COLS  = ["Player", "SG-Off the Tee", "SG-Approach to Green", "SG-Putting", "SG-Total"]
+    ok = True
+    ok &= _check_file(LB_PATH,  f"round{ROUND}_leaderboard.csv",              required=True,  expected_cols=LB_COLS)
+    ok &= _check_file(SG_PATH,  f"round{ROUND}_player_strokes_gained.csv",    required=True,  expected_cols=SG_COLS)
+    ok &= _check_file(TFM_PATH, f"{EVENT_SLUG}_trait_form_matrix.csv",        required=True)
+    ok &= _check_file(PAY_PATH, "event_payload.json (deploy/data/)",           required=True)
+    _check_file(CS_PATH,  f"round{ROUND}_course_stats.csv",                   required=False)
+    _check_file(CI_PATH,  f"round{ROUND}_course_insights.csv",                required=False)
+
+    # Check SG ARG column variant
+    if SG_PATH.exists():
+        sg_cols = set(csv_columns(SG_PATH))
+        if "SG- Around the Green" in sg_cols:
+            print(f"\n  [info] SG ARG column: 'SG- Around the Green' (space variant)")
+        elif "SG-Around the Green" in sg_cols:
+            print(f"\n  [info] SG ARG column: 'SG-Around the Green' (no space)")
+        else:
+            print(f"\n  [WARN] Neither 'SG- Around the Green' nor 'SG-Around the Green' found — ARG will be null")
+
+    print()
+    if ok:
+        print("PASS — all required files present. Run without --check to build.")
+        raise SystemExit(0)
+    else:
+        print("FAIL — fix missing/invalid files before building.")
+        raise SystemExit(1)
 
 # ── Load files ────────────────────────────────────────────────────────────────
 lb      = load_csv(LB_PATH)
@@ -190,6 +230,29 @@ with open(PAY_PATH, encoding="utf-8") as f:
 print(f"Loaded: {len(lb)} leaderboard rows, {len(sg)} SG rows, {len(tfm)} trait matrix rows")
 if ci_loaded:
     print(f"Loaded: {len(ci_rows)} course insights rows")
+
+# ── Post-load column and count validation ─────────────────────────────────────
+if sg:
+    sg_col_set = set(sg[0].keys())
+    if "SG- Around the Green" in sg_col_set:
+        SG_ARG_COL = "SG- Around the Green"
+    elif "SG-Around the Green" in sg_col_set:
+        SG_ARG_COL = "SG-Around the Green"
+    else:
+        SG_ARG_COL = None
+        print(f"[warn] SG ARG column not found — neither spelling present; ARG values will be null")
+    for req_col in ["Player", "SG-Off the Tee", "SG-Approach to Green", "SG-Putting", "SG-Total"]:
+        if req_col not in sg_col_set:
+            print(f"[warn] SG file missing expected column: '{req_col}'")
+else:
+    SG_ARG_COL = None
+    print("[warn] SG file loaded 0 rows — SG data will be absent for all players")
+
+lb_names = {ascii_fold(r.get("PLAYER", "").strip()) for r in lb if r.get("PLAYER")}
+sg_names = {ascii_fold(r.get("Player", "").strip()) for r in sg if r.get("Player")}
+lb_not_in_sg = lb_names - sg_names
+if len(lb_not_in_sg) > 3:
+    print(f"[warn] {len(lb_not_in_sg)} leaderboard players not in SG file: {sorted(lb_not_in_sg)[:10]}")
 
 # ── Pre-tournament model lookup ───────────────────────────────────────────────
 pretournament = {}
@@ -250,7 +313,9 @@ duplicates  = []
 for row in lb:
     if not any(row.values()):
         continue  # skip empty rows
-    r_name  = row["PLAYER"]
+    r_name  = row.get("PLAYER", "").strip()
+    if not r_name:
+        continue
     folded  = ascii_fold(r_name)
     if folded in seen_folded:
         duplicates.append(r_name)
@@ -260,14 +325,11 @@ for row in lb:
     pt      = pretournament.get(norm.lower())
     sg_row  = sg_by_folded.get(folded)
 
-    pos_str = row["POS"]
-    pos_num = int(pos_str.replace("T", "")) if pos_str.replace("T", "").isdigit() else 72
-    score   = parse_float(row["TOTAL"]) or 0
+    pos_str = row.get("POS", "")
+    pos_num = parse_pos(pos_str)
+    score   = parse_float(row.get("TOTAL")) or 0
 
-    # SG column name varies slightly between sources — try both spellings
-    sg_arg_val = None
-    if sg_row:
-        sg_arg_val = parse_float(sg_row.get("SG- Around the Green") or sg_row.get("SG-Around the Green"))
+    sg_arg_val = parse_float(sg_row.get(SG_ARG_COL)) if (sg_row and SG_ARG_COL) else None
 
     record = {
         "r1_name":    r_name,
@@ -285,11 +347,11 @@ for row in lb:
         "pt_top20":   float(pt.get("top20_pct", 0)) if pt else None,
         "pt_flags":   (pt.get("anti_pattern_flags") or "") if pt else "",
         "pt_driver":  pt.get("primary_driver", "") if pt else "",
-        "sg_ott":     parse_float(sg_row["SG-Off the Tee"])        if sg_row else None,
-        "sg_app":     parse_float(sg_row["SG-Approach to Green"])   if sg_row else None,
+        "sg_ott":     parse_float(sg_row.get("SG-Off the Tee"))       if sg_row else None,
+        "sg_app":     parse_float(sg_row.get("SG-Approach to Green")) if sg_row else None,
         "sg_arg":     sg_arg_val,
-        "sg_putt":    parse_float(sg_row["SG-Putting"])             if sg_row else None,
-        "sg_tot":     parse_float(sg_row["SG-Total"])               if sg_row else None,
+        "sg_putt":    parse_float(sg_row.get("SG-Putting"))           if sg_row else None,
+        "sg_tot":     parse_float(sg_row.get("SG-Total"))             if sg_row else None,
         "traits":     lookup_traits(norm),
         "rank_delta": (pt["rank"] - pos_num) if pt else 0,
     }
@@ -736,8 +798,13 @@ else:
     }
 
 cumulative_learning["last_updated"]     = TODAY
+cumulative_learning["updated_at"]       = BUILD_TS
 cumulative_learning["rounds_completed"] = ROUND
 cumulative_learning["per_round"][str(ROUND)] = this_round_entry
+
+# Keep rounds_present as a sorted deduplicated list so callers know what's in the file
+rounds_present = sorted(set(cumulative_learning.get("rounds_present", []) + [ROUND]))
+cumulative_learning["rounds_present"] = rounds_present
 
 for tk, v in trait_audit.items():
     cs_entry = cumulative_learning["cumulative_signals"].setdefault(tk, {
@@ -828,6 +895,7 @@ output = {
     "generated_at":           TODAY,
     "build_timestamp":        BUILD_TS,
     "round":                  ROUND,
+    "enrichment_used":        ci_loaded,
     "event_slug":             EVENT_SLUG,
     "metadata": {
         "event_name":   EVENT_NAME,
@@ -881,33 +949,38 @@ for path in [CUM_OUT, CUM_DEP]:
         json.dump(cumulative_learning, f, indent=2)
     print(f"Wrote: {path}")
 
-# ── Summary ───────────────────────────────────────────────────────────────────
+# ── Final build summary ───────────────────────────────────────────────────────
+round_label_final = "Final Round" if IS_FINAL else f"Round {ROUND}"
+match_rate = round(len(matched) / len(joined) * 100, 1) if joined else 0
 print()
-print(f"=== R{ROUND} ANALYSIS COMPLETE ===")
+print(f"{'='*60}")
+print(f"  {EVENT_NAME} — {round_label_final} ANALYSIS COMPLETE")
+print(f"  Built: {BUILD_TS}")
+print(f"{'='*60}")
+print(f"  Players matched : {len(matched)}/{len(joined)} ({match_rate}%)")
 if unmatched:
-    print(f"Matched: {len(matched)}/{len(joined)}, unmatched ({len(unmatched)}):")
     for r in joined:
         if not r["matched"]:
-            print(f"  {r['r1_name']} (pos {r.get('r1_pos_str', '?')})")
-else:
-    print(f"Matched: {len(matched)}/{len(joined)}")
-print(f"Spearman rho: {spearman_rho}")
-print(f"PT Top 10 -> R{ROUND} top 10: {model_perf['pt_top10']['in_r1_top10']}/10")
-print(f"PT Top 10 -> R{ROUND} top 20: {model_perf['pt_top10']['in_r1_top20']}/10")
+            print(f"    [unmatched] {r['r1_name']} (pos {r.get('r1_pos_str', '?')})")
+if duplicates:
+    print(f"  Duplicates skipped : {len(duplicates)} ({duplicates})")
+print(f"  Spearman rho    : {spearman_rho}")
+print(f"  PT Top10 → top10: {model_perf['pt_top10']['in_r1_top10']}/10  "
+      f"PT Top10 → top20: {model_perf['pt_top10']['in_r1_top20']}/10")
+print(f"  Enrichment      : {'ON (' + str(enrichment_summary['player_match_n']) + ' players)' if ci_loaded and enrichment_summary else 'OFF'}")
 print()
-print("Trait audit:")
+print("  Trait audit:")
 for tk, v in trait_audit.items():
-    print(f"  {tk:<22} delta={str(v['trait_delta']):>6}  sg_delta={str(v['sg_delta']):>7}  signal={v['signal']}")
+    upg = " [UPGRADED]" if v.get("signal_upgraded_by_enrichment") else ""
+    print(f"    {tk:<22} Δ={str(v['trait_delta']):>6}  sg_Δ={str(v['sg_delta']):>7}  → {v['signal']}{upg}")
 print()
-print(f"Weekend risers:  {[r['r1_name'] for r in weekend_risers]}")
-print(f"Slippage risk:   {[r['r1_name'] for r in slippage_risk]}")
-if ci_loaded and enrichment_summary:
-    print()
-    print(f"=== ENRICHMENT (round{ROUND}_course_insights.csv) ===")
-    print(f"Matched {enrichment_summary['player_match_n']}/{enrichment_summary['player_total']} players")
-    print(f"Upgraded:  {enrichment_summary['traits_upgraded']}")
-    print(f"Confirmed: {enrichment_summary['traits_confirmed']}")
-    for finding in enrichment_summary["key_findings"]:
-        print(f"  {finding}")
+print(f"  Weekend risers  : {[r['r1_name'] for r in weekend_risers] or 'none'}")
+print(f"  Slippage risk   : {[r['r1_name'] for r in slippage_risk] or 'none'}")
 print()
-print(f"Output → deploy/data/r{ROUND}_analysis.json")
+print("  Files written:")
+print(f"    output/{EVENT_SLUG}_r{ROUND}_analysis.json")
+print(f"    deploy/data/r{ROUND}_analysis.json")
+print(f"    deploy/data/cumulative_learning.json  (rounds present: {rounds_present})")
+print()
+print(f"  → Reload dashboard. Round {ROUND} tab should show LIVE badge.")
+print(f"{'='*60}")

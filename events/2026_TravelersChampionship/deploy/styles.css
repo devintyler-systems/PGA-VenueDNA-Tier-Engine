@@ -431,9 +431,10 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 
 /* Layout */
 .ri-r1-layout { display: flex; flex-direction: column; gap: .75rem; }
-.ri-r1-header { display: flex; align-items: baseline; gap: .75rem; padding: .35rem 0; border-bottom: 1px solid var(--border); margin-bottom: .25rem; }
+.ri-r1-header { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; padding: .35rem 0; border-bottom: 1px solid var(--border); margin-bottom: .25rem; }
 .ri-r1-label { font-size: .8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
 .ri-r1-sub   { font-size: .72rem; color: var(--muted); }
+.ri-r1-meta  { font-size: .62rem; color: var(--muted); opacity: .65; margin-left: auto; white-space: nowrap; }
 .ri-r1-grid  { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .75rem; }
 .ri-card-wide { grid-column: 1 / -1; }
 
