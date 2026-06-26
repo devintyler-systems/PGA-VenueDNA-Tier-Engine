@@ -1742,13 +1742,13 @@ function renderRoundPanel(body, rData, roundNum) {
   /* ── 0. Methodology Legend ── */
   const legendHTML = `
     <div class="ri-card ri-card-wide ri-method-legend">
-      <div class="ri-method-header">Evidence confidence legend</div>
+      <div class="ri-method-header">Evidence confidence</div>
       <div class="ri-method-grid">
-        <span>${confBadge('direct')}</span><span>Stat directly measures this trait (e.g., Scrambling % &rarr; ARG, D.Accuracy &rarr; OTT_Acc)</span>
-        <span>${confBadge('proxy-confirmed')}</span><span>SG dimension + supplemental data both support the signal in same direction</span>
-        <span>${confBadge('weak-proxy')}</span><span>Directional only &mdash; single proxy dimension or limited enrichment</span>
-        <span>${confBadge('not-testable')}</span><span>Insufficient round data to confirm or deny the pre-tournament thesis</span>
-        <span class="sc-badge ri-enr-up">UPGRADED</span><span>DataGolf proxy layer promoted the signal (e.g., weak &rarr; neutral, neutral &rarr; mixed)</span>
+        <span>${confBadge('direct')}</span><span>Stat directly measures this trait (e.g., Scrambling % &rarr; ARG Rough, D. Accuracy &rarr; OTT Accuracy)</span>
+        <span>${confBadge('proxy-confirmed')}</span><span>SG category and enrichment data both point the same direction</span>
+        <span>${confBadge('weak-proxy')}</span><span>Directional only &mdash; limited to a single proxy dimension</span>
+        <span>${confBadge('not-testable')}</span><span>Insufficient data to confirm or deny the pre-tournament thesis</span>
+        <span class="sc-badge ri-enr-up">UPGRADED</span><span>DataGolf proxy promoted the signal one tier (e.g., weak &rarr; neutral)</span>
       </div>
     </div>`;
 
@@ -1825,14 +1825,14 @@ function renderRoundPanel(body, rData, roundNum) {
     if (_appEnr?.available && _argEnr?.available) {
       const SIG_THRESH = { '%': 10, 'ft': 2.0, 'yds': 3.0 };
       const ciRows2 = [
-        { label:'Scrambling %', top:_argEnr.top10_primary, field:_argEnr.field_primary, delta:_argEnr.delta_primary, dir:'higher_better', unit:'%',   note:'ARG_Rough / ARG_Bunker proxy' },
-        { label:'D. Accuracy',  top:_accEnr?.top10_primary, field:_accEnr?.field_primary, delta:_accEnr?.delta_primary, dir:'higher_better', unit:'%',   note:'OTT_Accuracy — direct metric' },
-        { label:'GIR',          top:_girEnr?.top10_primary, field:_girEnr?.field_primary, delta:_girEnr?.delta_primary, dir:'higher_better', unit:'%',   note:'APP_150-200 / Par5 iron accuracy' },
+        { label:'Scrambling %', top:_argEnr.top10_primary, field:_argEnr.field_primary, delta:_argEnr.delta_primary, dir:'higher_better', unit:'%',   note:'ARG Rough / ARG Bunker' },
+        { label:'D. Accuracy',  top:_accEnr?.top10_primary, field:_accEnr?.field_primary, delta:_accEnr?.delta_primary, dir:'higher_better', unit:'%',   note:'OTT Accuracy — direct' },
+        { label:'GIR',          top:_girEnr?.top10_primary, field:_girEnr?.field_primary, delta:_girEnr?.delta_primary, dir:'higher_better', unit:'%',   note:'APP 150-200 / Par-5' },
         { label:'Fairway Prox', top:_appEnr.top10_primary  != null ? _appEnr.top10_primary/12  : null,
                                 field:_appEnr.field_primary != null ? _appEnr.field_primary/12  : null,
                                 delta:_appEnr.delta_primary != null ? _appEnr.delta_primary/12  : null,
-                                dir:'lower_better', unit:'ft', note:'APP_Wedge / APP_100-150 proximity' },
-        { label:'D. Distance',  top:_distEnr?.top10_primary, field:_distEnr?.field_primary, delta:_distEnr?.delta_primary, dir:'higher_better', unit:'yds', note:'OTT_Distance — gap negligible' },
+                                dir:'lower_better', unit:'ft', note:'APP Wedge / APP 100-150' },
+        { label:'D. Distance',  top:_distEnr?.top10_primary, field:_distEnr?.field_primary, delta:_distEnr?.delta_primary, dir:'higher_better', unit:'yds', note:'OTT Distance — gap negligible' },
       ].map(({label, top, field, delta, dir, unit, note}) => {
         const tf = v => v != null ? v.toFixed(1) + unit : '—';
         const df = (d2, u, direction) => {
@@ -1871,10 +1871,10 @@ function renderRoundPanel(body, rData, roundNum) {
       </table>
       ${ciProxySection}
       <div class="ri-note">
-        Proxy mapping: SG:Approach &rarr; APP_Wedge / APP_100-150 / APP_150-200 / Par5.
-        SG:Putting &rarr; Putt_ShortConv / Putt_Lag.
-        SG:Around Green &rarr; ARG_Rough / ARG_Bunker.
-        SG:OTT &rarr; OTT_Accuracy / OTT_Distance.
+        Proxy mapping: SG:Approach &rarr; APP Wedge / APP 100-150 / APP 150-200 / Par-5.
+        SG:Putting &rarr; Putt Short Conv / Putt Lag.
+        SG:Around Green &rarr; ARG Rough / ARG Bunker.
+        SG:OTT &rarr; OTT Accuracy / OTT Distance.
         Single-round SG contains high variance &mdash; treat as directional, not definitive.
       </div>
     </div>`;
@@ -1904,8 +1904,8 @@ function renderRoundPanel(body, rData, roundNum) {
     <div class="ri-card">
       <h4>Model vs Realized</h4>
       <div class="ri-note" style="margin-bottom:.5rem">
-        Trait delta = pre-tournament trait profile avg (top-10 round leaders vs full field).
-        Positive = leaders were already stronger in this trait before the tournament.
+        Trait delta: pre-tournament trait percentile avg for the round's top-10 leaders vs full field.
+        Positive = leaders were already stronger in this trait before the event.
       </div>
       <div class="mvr-scroll">
         <table class="ri-mv-table">
@@ -1913,7 +1913,7 @@ function renderRoundPanel(body, rData, roundNum) {
           <tbody>${mvRrows}</tbody>
         </table>
       </div>
-      <div class="ri-note" style="margin-top:.3rem">Signal tags: evidence quality (DIRECT / PROXY / WEAK-PROXY / N/A)${ciLoaded ? ' · UPGRADED = DataGolf proxy promoted the verdict' : ''}.</div>
+      <div class="ri-note" style="margin-top:.3rem">Evidence quality: DIRECT &middot; PROXY &middot; WEAK-PROXY &middot; N/A${ciLoaded ? ' &middot; UPGRADED = DataGolf proxy lifted the verdict' : ''}.</div>
     </div>`;
 
   /* ── 4. Weekend Risers ── */
@@ -1940,7 +1940,7 @@ function renderRoundPanel(body, rData, roundNum) {
     <div class="ri-card">
       <h4>Weekend Risers</h4>
       <div class="ri-note" style="margin-bottom:.4rem">
-        Players whose R1 stat profile validates the course-fit thesis (approach-led, ≥ -3 score).
+        Players whose round stat profile validates the course-fit thesis (approach-led, &minus;3 or better).
         Not simply "who scored low" — filtered for SG:APP > +0.5 backing.
       </div>
       ${risersHTML}
@@ -1970,8 +1970,8 @@ function renderRoundPanel(body, rData, roundNum) {
     <div class="ri-card">
       <h4>Slippage Risk</h4>
       <div class="ri-note" style="margin-bottom:.4rem">
-        R1 top-20 players with fragile stat profiles. Round driven by putting spike (SG:PUTT > +2.0)
-        while approach was weak — a pattern with high R2 regression probability at TPC RH.
+        Top-20 players with fragile stat profiles. Round driven by putting spike (SG:PUTT > +2.0)
+        while approach was weak — a pattern with high next-round regression risk at TPC River Highlands.
       </div>
       ${slipHTML}
     </div>`;
@@ -2029,25 +2029,25 @@ function renderRoundPanel(body, rData, roundNum) {
         <div class="ri-reality-item ${(appDelta ?? 0) > 6 ? 'ri-reality-yes' : 'ri-reality-mixed'}">
           <div class="ri-reality-q">Did approach dominate?</div>
           <div class="ri-reality-a">${(appDelta ?? 0) > 6
-            ? `Yes &mdash; APP trait delta +${appDelta?.toFixed(0)} favored round leaders; SG:APP +${(sg.top10.sg_app??0).toFixed(2)} vs field.${ciLoaded && ta.app_wedge?.enrichment?.available ? ` Fairway Prox confirmed: leaders hit approach ${(ta.app_wedge.enrichment.delta_primary/12).toFixed(1)}ft closer to pin.` : ''}`
+            ? `Yes &mdash; APP trait delta +${appDelta?.toFixed(0)} favored round leaders; SG:APP +${(sg.top10.sg_app??0).toFixed(2)} vs field.${ciLoaded && ta.app_wedge?.enrichment?.available ? ` Fairway proximity: leaders hit approach ${(ta.app_wedge.enrichment.delta_primary/12).toFixed(1)}ft closer to pin.` : ''}`
             : 'Mixed evidence.'}</div>
         </div>
         <div class="ri-reality-item ${(sg.top10.sg_putt??0) > 0.8 ? 'ri-reality-caution' : 'ri-reality-mixed'}">
           <div class="ri-reality-q">Did putting carry the day?</div>
           <div class="ri-reality-a">${(sg.top10.sg_putt??0) > 0.8
-            ? `Elevated &mdash; SG:PUTT +${(sg.top10.sg_putt??0).toFixed(2)} for R${roundNum} leaders.${lln.putt_caution && lln.putt_outliers?.length ? ` BUT outlier spikes (${lln.putt_outliers.map(p=>`${p.player.split(' ').slice(-1)[0]} +${(p.sg_putt||0).toFixed(1)}`).join(', ')}) skew avg. Underlying putting not uniformly the separator.` : ''}`
+            ? `Elevated &mdash; SG:PUTT +${(sg.top10.sg_putt??0).toFixed(2)} for R${roundNum} leaders.${lln.putt_caution && lln.putt_outliers?.length ? ` but outlier spikes (${lln.putt_outliers.map(p=>`${p.player.split(' ').slice(-1)[0]} +${(p.sg_putt||0).toFixed(1)}`).join(', ')}) skew the avg &mdash; putting was not uniformly the separator.` : ''}`
             : `Putting was not a primary separator in R${roundNum}.`}</div>
         </div>
         <div class="ri-reality-item ${ottAccDelta > 5 ? 'ri-reality-yes' : 'ri-reality-mixed'}">
           <div class="ri-reality-q">Accuracy &gt; Distance?</div>
           <div class="ri-reality-a">${ottAccDelta > 5
-            ? `Yes &mdash; OTT Accuracy trait delta +${ottAccDelta?.toFixed(0)}.${ciLoaded && ta.ott_accuracy?.enrichment?.available ? ` D. Accuracy confirms: top10 hit ${(ta.ott_accuracy.enrichment.delta_primary).toFixed(1)}pp more fairways.` : ''} OTT Distance was ${ottDistSig === 'weak' ? 'counter-productive (delta ' + (ta.ott_distance?.trait_delta?.toFixed(1) ?? '?') + ')' : 'neutral'}.`
+            ? `Yes &mdash; OTT Accuracy trait delta +${ottAccDelta?.toFixed(0)}.${ciLoaded && ta.ott_accuracy?.enrichment?.available ? ` Driving accuracy gap: top10 hit ${(ta.ott_accuracy.enrichment.delta_primary).toFixed(1)}pp more fairways.` : ''} OTT Distance was ${ottDistSig === 'weak' ? 'counter-productive (delta ' + (ta.ott_distance?.trait_delta?.toFixed(1) ?? '?') + ')' : 'neutral'}.`
             : 'Insufficient signal.'}</div>
         </div>
         <div class="ri-reality-item ${argSignal === 'validated' ? 'ri-reality-yes' : argSignal === 'mixed' ? 'ri-reality-mixed' : 'ri-reality-neutral'}">
           <div class="ri-reality-q">Around-green punch?</div>
           <div class="ri-reality-a">${argSignal === 'validated' && argUpgraded
-            ? `Validated via course insights &mdash; scrambling: top10=${argEnr.top10_primary?.toFixed(1)}% vs field=${argEnr.field_primary?.toFixed(1)}% (+${argEnr.delta_primary?.toFixed(1)}pp gap). ARG trait delta +${(ta.arg_rough?.trait_delta??0).toFixed(0)} (rough) / +${(ta.arg_bunker?.trait_delta??0).toFixed(0)} (bunker). Leaders who scrambled well (SG:ARG +${(sg.top10.sg_arg??0).toFixed(2)}) were a real separator.`
+            ? `Scrambling confirmed &mdash; top10=${argEnr.top10_primary?.toFixed(1)}% vs field=${argEnr.field_primary?.toFixed(1)}% (+${argEnr.delta_primary?.toFixed(1)}pp). ARG trait delta +${(ta.arg_rough?.trait_delta??0).toFixed(0)} (rough) / +${(ta.arg_bunker?.trait_delta??0).toFixed(0)} (bunker). Leaders who scrambled well (SG:ARG +${(sg.top10.sg_arg??0).toFixed(2)}) were a real separator.`
             : argSignal === 'validated'
             ? `Validated &mdash; ARG trait delta +${(ta.arg_rough?.trait_delta??0).toFixed(0)} (rough) / +${(ta.arg_bunker?.trait_delta??0).toFixed(0)} (bunker). SG:ARG +${(sg.top10.sg_arg??0).toFixed(2)} for leaders.`
             : `Mixed signal. ARG trait delta +${(ta.arg_rough?.trait_delta??0).toFixed(0)} (rough) / +${(ta.arg_bunker?.trait_delta??0).toFixed(0)} (bunker). SG:ARG +${(sg.top10.sg_arg??0).toFixed(2)} for leaders &mdash; meaningful but secondary to approach.`
@@ -2067,20 +2067,21 @@ function renderRoundPanel(body, rData, roundNum) {
   const leanUpItems = (lln.lean_up_traits || []).map(t => {
     const label   = traitLabel(t.trait);
     const delta   = t.delta != null ? `+${t.delta.toFixed(0)} pts` : '';
-    const conf    = t.confidence ? `; ${t.confidence}` : '';
-    const enrNote = t.enr_signal === 'upgraded' ? '; upgraded by course insights' : t.enr_signal === 'confirmed' ? '; confirmed by course insights' : '';
-    return `<li><b>${label}</b> &mdash; validated (${delta}${conf}${enrNote})</li>`;
+    const conf    = t.confidence || '';
+    const enrNote = t.enr_signal === 'upgraded' ? ' · enrichment upgraded' : t.enr_signal === 'confirmed' ? ' · enrichment confirmed' : '';
+    const parts   = [delta, conf].filter(Boolean).join(' · ');
+    return `<li><b>${label}</b> &mdash; validated${parts ? ` (${parts}${enrNote})` : enrNote}</li>`;
   }).join('') || '<li>No traits reached validated threshold this round.</li>';
 
   const nextRoundStr = lln.next_round ? `R${lln.next_round}` : 'Final';
   const leanDownItems = (lln.lean_down_traits || []).map(t => {
     const label = traitLabel(t.trait);
-    const delta = t.delta != null ? `delta ${t.delta > 0 ? '+' : ''}${t.delta.toFixed(1)} pts` : '';
-    return `<li><b>${label}</b> &mdash; weak signal (${delta}); deprioritize ${nextRoundStr}</li>`;
+    const delta = t.delta != null ? `${t.delta > 0 ? '+' : ''}${t.delta.toFixed(1)}` : '';
+    return `<li><b>${label}</b> &mdash; weak${delta ? ` (${delta})` : ''}, deprioritize ${nextRoundStr}</li>`;
   }).join('');
 
   const puttCautionItem = lln.putt_caution
-    ? `<li><b>Putt_ShortConv / Putt_Lag</b> &mdash; SG:PUTT leaders avg inflated by outlier rounds${lln.putt_outliers?.length ? ` (${lln.putt_outliers.map(p=>`${p.player.split(' ').slice(-1)[0]} +${(p.sg_putt||0).toFixed(1)}`).join(', ')})` : ''}. Pre-tournament putt profiles were neutral. Don&apos;t over-weight R${roundNum} putting spike.</li>`
+    ? `<li><b>Putt Short Conv / Putt Lag</b> &mdash; SG:PUTT leaders avg inflated by outlier rounds${lln.putt_outliers?.length ? ` (${lln.putt_outliers.map(p=>`${p.player.split(' ').slice(-1)[0]} +${(p.sg_putt||0).toFixed(1)}`).join(', ')})` : ''}. Pre-tournament putt profiles were neutral &mdash; don&apos;t over-weight the spike.</li>`
     : '';
 
   const watchItems = (lln.watch_next_round || []).map(w => {
@@ -2095,7 +2096,7 @@ function renderRoundPanel(body, rData, roundNum) {
       <div class="ri-live-lean-header">
         <span class="ri-live-badge">${lln.next_round ? `ROUND ${lln.next_round} LIVE LEAN` : 'FINAL ROUND RECAP'}</span>
         <span style="font-size:.68rem;color:var(--muted);margin-left:.5rem">
-          Provisional in-tournament interpretation layer &mdash; NOT a permanent model rewrite
+          Provisional in-tournament interpretation layer &mdash; not a permanent model rewrite
         </span>
       </div>
       <div class="ri-live-lean-grid">
@@ -2108,11 +2109,11 @@ function renderRoundPanel(body, rData, roundNum) {
           </ul>
         </div>
         <div>
-          <div class="ri-lean-label">Lean up (modest confidence boost)</div>
+          <div class="ri-lean-label">Lean up</div>
           <ul class="ri-lean-list ri-lean-up">${leanUpItems}</ul>
         </div>
         <div>
-          <div class="ri-lean-label">Lean down / caution</div>
+          <div class="ri-lean-label">Lean down</div>
           <ul class="ri-lean-list ri-lean-down">
             ${leanDownItems}
             ${puttCautionItem}
@@ -2131,17 +2132,19 @@ function renderRoundPanel(body, rData, roundNum) {
   /* ── 9. Data diagnostics note ── */
   const ms = d.match_summary;
   const enrDiagNote = ciLoaded && enrSummary
-    ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched. Source: ${enrSummary.source || 'course_insights.csv'}. Traits upgraded: <b>${enrSummary.traits_upgraded.join(', ') || 'none'}</b>. Confirmed: ${enrSummary.traits_confirmed.join(', ') || 'none'}. DG SG is correlated but distinct from PGAT official SG &mdash; used as supplemental proxy layer only, not merged with official stats.</div>`
+    ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched &middot; source: ${enrSummary.source || 'course_insights.csv'}</div>
+       <div>Traits upgraded: <b>${enrSummary.traits_upgraded.join(', ') || 'none'}</b> &middot; confirmed: ${enrSummary.traits_confirmed.join(', ') || 'none'}</div>
+       <div>DataGolf SG is correlated with PGAT official SG but not identical &mdash; used as supplemental proxy only.</div>`
     : '<div>Course Insights: not loaded for this round.</div>';
   const diagHTML = `
     <div class="ri-card ri-card-wide ri-diag-note">
-      <h4>Data Notes &mdash; R${roundNum} Diagnostics</h4>
+      <h4>Round ${roundNum} Diagnostics</h4>
       <div class="ri-diag-grid">
-        <div><b>${ms.matched}/${ms.total_r1}</b> R${roundNum} players matched to pre-tournament model (${ms.match_rate_pct}%)</div>
+        <div><b>${ms.matched}/${ms.total_r1}</b> players matched to pre-tournament model (${ms.match_rate_pct}%)</div>
         <div>Unmatched: ${ms.unmatched.join(', ') || 'none'}</div>
         <div>Sources: ${(d.round_sources || ['round_leaderboard.csv', 'round_player_strokes_gained.csv', 'trait_form_matrix.csv', 'event_payload.json']).join(' &middot; ')}</div>
-        <div>Trait deltas: pre-tournament percentile scores (trait_form_matrix.csv) for top-10 R${roundNum} group vs full field. Zero-sentinels imputed from tier avg per QA policy.</div>
-        <div>SG proxies: SG:APP &rarr; APP_Wedge / APP_100-150 / APP_150-200 / Par5; SG:PUTT &rarr; Putt_ShortConv / Putt_Lag; SG:ARG &rarr; ARG_Rough / ARG_Bunker; SG:OTT &rarr; OTT_Accuracy / OTT_Distance. All are correlational proxies, not direct trait measurements.</div>
+        <div>Trait deltas: pre-tournament percentile avg (top-10 leaders vs field) from trait_form_matrix.csv. Zero-sentinels imputed from tier avg per QA policy.</div>
+        <div>SG proxies: SG:APP &rarr; APP Wedge / APP 100-150 / APP 150-200 / Par-5 &middot; SG:PUTT &rarr; Putt Short Conv / Putt Lag &middot; SG:ARG &rarr; ARG Rough / ARG Bunker &middot; SG:OTT &rarr; OTT Accuracy / OTT Distance. Correlational proxies only.</div>
         <div>Spearman &rho;=${rho.toFixed(3)} between pre-tournament rank and R${roundNum} position (n=${ms.matched}). Low correlation expected early; sharpens through R3&ndash;Final.</div>
         ${enrDiagNote}
       </div>
@@ -2188,7 +2191,7 @@ function renderRoundPanel(body, rData, roundNum) {
       <div class="ri-r1-header">
         <span class="ri-r1-label">${d.metadata?.round_label || `Round ${roundNum}`}${d.metadata?.is_final ? ' — Final' : ' Complete'}</span>
         <span class="ri-r1-sub">${d.metadata?.course_name || 'TPC River Highlands'} · Field avg ${scoreFmt(mp.groups.all_field.avg_r1_score)} · Par ${d.metadata?.par || 70}</span>
-        <span class="ri-r1-meta">Built ${(d.build_timestamp || d.generated_at || '—').replace('T',' ')} · ${d.match_summary?.matched ?? '?'}/${d.match_summary?.total_r1 ?? '?'} players matched · enrichment ${d.enrichment_used ? 'on' : 'off'}</span>
+        <span class="ri-r1-meta">Built ${(d.build_timestamp || d.generated_at || '—').replace('T',' ')} &middot; ${d.match_summary?.matched ?? '?'}/${d.match_summary?.total_r1 ?? '?'} matched &middot; enrichment ${d.enrichment_used ? 'on' : 'off'}</span>
       </div>
       ${legendHTML}
       ${modelStripHTML}
