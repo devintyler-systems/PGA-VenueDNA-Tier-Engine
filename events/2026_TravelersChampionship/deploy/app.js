@@ -436,10 +436,10 @@ let DIAGNOSTICS = { summary: { traits_imputed: 0, players_affected: 0 } };
 
 /* ── Anti-pattern metadata (tooltip text) ── */
 const AP_META = {
-  bomb_and_spray:      { cls: 'bomb',   label: 'BOMB+SPRAY', tip: 'Elite distance but low OTT accuracy — high variance off tee at a placement-premium course.' },
-  wedge_liability:     { cls: 'wedge',  label: 'WEDGE−',     tip: 'Below-field wedge/short-iron proximity — drag on primary scoring trait (22% weight).' },
-  poor_birdie_conv:    { cls: 'birdie', label: 'BIRDIE−',     tip: 'Low conversion inside 5 ft — limits birdie upside at a birdie-fest track.' },
-  rough_approach_liab: { cls: 'rough',  label: 'ROUGH−',     tip: 'Poor approach quality from rough — risk multiplier if misses fairway at TPC River Highlands.' },
+  bomb_and_spray:      { cls: 'bomb',   label: 'Bomb + Spray',            tip: 'Elite distance but below-field driving accuracy — high variance off tee at a placement-premium course.' },
+  wedge_liability:     { cls: 'wedge',  label: 'Wedge Liability',          tip: 'Below-field wedge proximity inside 150 yd — drag on the course\'s highest-weighted scoring trait.' },
+  poor_birdie_conv:    { cls: 'birdie', label: 'Poor Birdie Conv',         tip: 'Low conversion inside 5 ft — limits birdie upside at a birdie-fest track.' },
+  rough_approach_liab: { cls: 'rough',  label: 'Rough Approach Liability', tip: 'Below-field approach quality from rough — risk multiplier at TPC River Highlands if fairways are missed.' },
 };
 
 /* ── Filter preset definitions ── */
@@ -484,7 +484,7 @@ async function init() {
     for (const p of (payload.tiers[`tier_${tier}`] || [])) {
       /* Derive flag_count before imputation pass */
       p.flag_count = p.anti_pattern_flags
-        ? p.anti_pattern_flags.split(',').filter(f => f.trim()).length
+        ? p.anti_pattern_flags.split(';').filter(f => f.trim()).length
         : 0;
       allPlayers.push(p);
     }
@@ -588,11 +588,11 @@ function renderInfoCards(payload) {
     </div>
     <div class="info-card">
       <h3>Trait Weights</h3>
-      ${Object.entries(ms.trait_weight_matrix).map(([k,w])=>kv(k.replace(/_/g,' '), `${Math.round(w*100)}%`)).join('')}
+      ${Object.entries(ms.trait_weight_matrix).map(([k,w])=>kv(TRAIT_KEY_MAP[k]?.label || k.replace(/_/g,' '), `${Math.round(w*100)}%`)).join('')}
     </div>
     <div class="info-card">
       <h3>Model Config</h3>
-      ${ms.anti_patterns.map(ap=>kv(ap.replace(/_/g,' '),'active')).join('')}
+      ${ms.anti_patterns.map(ap=>kv(AP_META[ap]?.label || ap.replace(/_/g,' '),'active')).join('')}
       ${kv('Cut rule', payload.event.cut_rule)}
       ${kv('Win cap', '14%')}${kv('Win normalization','field sum = 1.00')}
       ${kv('Comp courses', v.comp_courses?.join(', '))}
@@ -775,7 +775,7 @@ function renderTable(players) {
       <td class="rank-cell">${p.rank}</td>
       <td>
         <div class="player-name">${p.player_name} ${dataBadge}</div>
-        <div class="player-driver">${p.primary_driver || ''}</div>
+        <div class="player-driver">${TRAIT_KEY_MAP[p.primary_driver?.toLowerCase().replace(/-/g,'_')]?.label || p.primary_driver || ''}</div>
       </td>
       <td>${tierBadgeHTML(p.tier)}</td>
       <td class="vts-cell">${vtsDisplayHTML(p)}</td>
@@ -1286,9 +1286,39 @@ function resetAll() {
 /* ══════════════════════════════════════════════════════
    AP FLAG HELPERS
 ══════════════════════════════════════════════════════ */
+/*
+ * cleanConviction — transforms formulaic engine conviction text into readable dashboard copy.
+ * Parses the known output pattern from the Python pipeline and rebuilds as compact stat line.
+ * Falls through to raw text if the pattern isn't recognized.
+ */
+function cleanConviction(raw) {
+  if (!raw || !/venue-fit/.test(raw)) return raw;
+  const vtsMatch    = raw.match(/VTS (\d+\.?\d*)/);
+  const vfdMatch    = raw.match(/venue-fit (?:delta|drag) \(([+-]?\d+\.?\d*)\)/);
+  const traitMatch  = raw.match(/lead trait ([A-Z0-9 _]+?) at TPC/);
+  const roundsMatch = raw.match(/(\d+)-round course history/);
+
+  const vts     = vtsMatch   ? parseFloat(vtsMatch[1])   : null;
+  const vfd     = vfdMatch   ? parseFloat(vfdMatch[1])   : null;
+  const rawKey  = traitMatch ? traitMatch[1].toLowerCase().replace(/ /g,'_') : null;
+  const rounds  = roundsMatch ? parseInt(roundsMatch[1]) : null;
+
+  const def       = rawKey ? TRAIT_KEY_MAP[rawKey] : null;
+  const leadLabel = def ? def.label : rawKey ? rawKey.replace(/_/g,' ') : null;
+  const leadWt    = def ? Math.round(def.weight * 100) : null;
+
+  const parts = [];
+  if (vts  !== null) parts.push(`VTS ${vts.toFixed(1)}`);
+  if (vfd  !== null) { const s = vfd >= 0 ? '+' : ''; parts.push(`Fit ${s}${vfd.toFixed(1)}`); }
+  if (leadLabel)     parts.push(leadWt ? `${leadLabel} leads (${leadWt}% wt)` : leadLabel);
+  if (rounds)        parts.push(`${rounds} course rounds`);
+
+  return parts.length ? parts.join(' &middot; ') : raw;
+}
+
 function apTagsHTML(flagStr) {
   if (!flagStr || !flagStr.trim()) return '';
-  return flagStr.split(',').map(f => {
+  return flagStr.split(';').map(f => {
     const key = f.trim();
     const meta = AP_META[key];
     if (meta) {
@@ -1619,7 +1649,7 @@ function sectionVenueHistory(text) {
 
 function sectionConviction(text) {
   if (!text) return '';
-  return `<div class="modal-section"><h4>Conviction</h4><p>${text}</p></div>`;
+  return `<div class="modal-section"><h4>Conviction</h4><p>${cleanConviction(text)}</p></div>`;
 }
 
 function sectionRiskFailure(stressorActive, riskVec, failureCond, apFlags) {
@@ -1677,7 +1707,7 @@ function renderBriefs(briefs) {
       <div class="brief-label">Venue History</div>
       <div class="brief-val">${p.venue_history_summary || '—'}</div>
       <div class="brief-label">Conviction</div>
-      <div class="brief-val">${p.conviction_statement || '—'}</div>
+      <div class="brief-val">${cleanConviction(p.conviction_statement) || '—'}</div>
       <div class="brief-risk">${p.named_failure_condition?.split('|')[0]?.trim() || ''}</div>
     </div>`;
   }).join('');
@@ -2035,7 +2065,7 @@ function renderRoundPanel(body, rData, roundNum) {
         <div class="ri-reality-item ${(sg.top10.sg_putt??0) > 0.8 ? 'ri-reality-caution' : 'ri-reality-mixed'}">
           <div class="ri-reality-q">Did putting carry the day?</div>
           <div class="ri-reality-a">${(sg.top10.sg_putt??0) > 0.8
-            ? `Elevated &mdash; SG:PUTT +${(sg.top10.sg_putt??0).toFixed(2)} for R${roundNum} leaders.${lln.putt_caution && lln.putt_outliers?.length ? ` but outlier spikes (${lln.putt_outliers.map(p=>`${p.player.split(' ').slice(-1)[0]} +${(p.sg_putt||0).toFixed(1)}`).join(', ')}) skew the avg &mdash; putting was not uniformly the separator.` : ''}`
+            ? `Elevated &mdash; SG:PUTT +${(sg.top10.sg_putt??0).toFixed(2)} for R${roundNum} leaders${lln.putt_caution && lln.putt_outliers?.length ? `, but outlier spikes (${lln.putt_outliers.map(p=>`${p.player.split(' ').slice(-1)[0]} +${(p.sg_putt||0).toFixed(1)}`).join(', ')}) skew the avg &mdash; not uniformly the separator` : ''}.`
             : `Putting was not a primary separator in R${roundNum}.`}</div>
         </div>
         <div class="ri-reality-item ${ottAccDelta > 5 ? 'ri-reality-yes' : 'ri-reality-mixed'}">
@@ -2123,7 +2153,7 @@ function renderRoundPanel(body, rData, roundNum) {
           <div class="ri-lean-label">${lln.next_round ? `Watch for R${lln.next_round}` : 'Final assessment'}</div>
           <ul class="ri-lean-list">
             ${watchItems}
-            <li>${lln.rho_note || `R${roundNum} rank correlation &rho;=${rho.toFixed(2)} &mdash; one round is highly noisy; field is bunched.`}</li>
+            <li>${lln.rho_note || `Rank correlation ρ = ${rho.toFixed(2)} &mdash; one round is noisy; field remains tightly bunched.`}</li>
           </ul>
         </div>
       </div>
@@ -2133,7 +2163,7 @@ function renderRoundPanel(body, rData, roundNum) {
   const ms = d.match_summary;
   const enrDiagNote = ciLoaded && enrSummary
     ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched &middot; source: ${enrSummary.source || 'course_insights.csv'}</div>
-       <div>Traits upgraded: <b>${enrSummary.traits_upgraded.join(', ') || 'none'}</b> &middot; confirmed: ${enrSummary.traits_confirmed.join(', ') || 'none'}</div>
+       <div>Traits upgraded: <b>${enrSummary.traits_upgraded.map(k=>traitLabel(k)).join(', ') || 'none'}</b> &middot; confirmed: ${enrSummary.traits_confirmed.map(k=>traitLabel(k)).join(', ') || 'none'}</div>
        <div>DataGolf SG is correlated with PGAT official SG but not identical &mdash; used as supplemental proxy only.</div>`
     : '<div>Course Insights: not loaded for this round.</div>';
   const diagHTML = `
@@ -2331,7 +2361,7 @@ function showRoundPanel(round, ms, body) {
         </div>
         <div class="ri-card">
           <h4>Trait Reality Check <span class="ri-stub-badge">stub</span></h4>
-          <p class="ri-placeholder">Post-${label} audit: did APP_Wedge or Putt_ShortConv players lead the leaderboard? Update weights based on observed scoring patterns.</p>
+          <p class="ri-placeholder">Post-${label} audit: did APP Wedge or Putt Short Conv players lead the leaderboard? Update weights based on observed scoring patterns.</p>
         </div>
       </div>`;
   }
