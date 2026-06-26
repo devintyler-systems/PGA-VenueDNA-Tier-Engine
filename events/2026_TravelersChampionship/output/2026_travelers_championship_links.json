@@ -1,0 +1,9 @@
+{
+  "tournament_homepage": "https://www.pgatour.com/tournaments/2026/travelers-championship/R034",
+  "official_leaderboard": "https://www.pgatour.com/leaderboard",
+  "field_list_source": "tpc_river_highlands_CH.csv (derived field; pga_field.csv not found)",
+  "tee_sheet_note": "Retrieve from https://www.pgatour.com/tournaments/2026/travelers-championship/R034/field when available.",
+  "datagolf_event_page": "https://datagolf.com/tournament-stats?tour=pga&event_id=34",
+  "weather_source": "https://weather.com/weather/tenday/l/Cromwell+CT",
+  "dk_contest_links": "https://www.draftkings.com/lobby#/golf"
+}

@@ -1,0 +1,269 @@
+{
+  "schema_version": "1.0",
+  "event_slug": "2026_travelers_championship",
+  "last_updated": "2026-06-25",
+  "rounds_completed": 1,
+  "per_round": {
+    "1": {
+      "round": 1,
+      "generated_at": "2026-06-25",
+      "spearman_rho": 0.184,
+      "trait_signals": {
+        "app_wedge": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 9.9,
+          "sg_delta": 0.909,
+          "enrichment_signal": "confirmed"
+        },
+        "app_100_150": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 10.0,
+          "sg_delta": 0.909,
+          "enrichment_signal": "confirmed"
+        },
+        "app_150_200": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 9.8,
+          "sg_delta": 0.909,
+          "enrichment_signal": "confirmed"
+        },
+        "ott_accuracy": {
+          "signal": "validated",
+          "source_confidence": "direct",
+          "trait_delta": 8.4,
+          "sg_delta": 0.614,
+          "enrichment_signal": "confirmed"
+        },
+        "ott_distance": {
+          "signal": "weak",
+          "source_confidence": "weak-proxy",
+          "trait_delta": -5.4,
+          "sg_delta": 0.614,
+          "enrichment_signal": "neutral"
+        },
+        "putt_short_conv": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": -0.0,
+          "sg_delta": 1.471,
+          "enrichment_signal": null
+        },
+        "putt_lag": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": -1.4,
+          "sg_delta": 1.471,
+          "enrichment_signal": null
+        },
+        "arg_rough": {
+          "signal": "validated",
+          "source_confidence": "direct",
+          "trait_delta": 4.8,
+          "sg_delta": 0.581,
+          "enrichment_signal": "upgraded"
+        },
+        "arg_bunker": {
+          "signal": "validated",
+          "source_confidence": "direct",
+          "trait_delta": 5.1,
+          "sg_delta": 0.581,
+          "enrichment_signal": "upgraded"
+        },
+        "par5_scoring": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 5.6,
+          "sg_delta": 0.909,
+          "enrichment_signal": "upgraded"
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 4,
+        "pt_top10_in_top20": 7,
+        "tier1_2_in_top20": 4
+      },
+      "risers": [
+        "Nico Echavarria",
+        "Bud Cauley",
+        "Corey Conners",
+        "Andrew Novak",
+        "Eric Cole",
+        "Keegan Bradley"
+      ],
+      "slippage": [
+        "Ben Griffin",
+        "Kristoffer Reitan",
+        "Brandt Snedeker",
+        "Russell Henley",
+        "Akshay Bhatia",
+        "Harry Hall",
+        "Taylor Pendrith"
+      ]
+    }
+  },
+  "cumulative_signals": {
+    "app_wedge": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "proxy-confirmed"
+      ],
+      "delta_history": [
+        9.9
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
+    },
+    "app_100_150": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "proxy-confirmed"
+      ],
+      "delta_history": [
+        10.0
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
+    },
+    "app_150_200": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "proxy-confirmed"
+      ],
+      "delta_history": [
+        9.8
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
+    },
+    "ott_accuracy": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "direct"
+      ],
+      "delta_history": [
+        8.4
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "direct"
+    },
+    "ott_distance": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "weak"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        -5.4
+      ],
+      "consensus": "weak",
+      "consensus_confidence": "weak-proxy"
+    },
+    "putt_short_conv": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        -0.0
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "putt_lag": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        -1.4
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "arg_rough": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "direct"
+      ],
+      "delta_history": [
+        4.8
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "direct"
+    },
+    "arg_bunker": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "direct"
+      ],
+      "delta_history": [
+        5.1
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "direct"
+    },
+    "par5_scoring": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "proxy-confirmed"
+      ],
+      "delta_history": [
+        5.6
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
+    }
+  }
+}

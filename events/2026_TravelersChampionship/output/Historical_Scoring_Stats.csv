@@ -1,0 +1,2 @@
+event_name,event_id,scoring_avg_to_par_mean,scoring_avg_to_par_sd,course_yardage_mean,course_yardage_sd,driving_distance_mean,driving_distance_sd,driving_accuracy_mean_pct,driving_accuracy_sd_pct,avg_fairway_width_mean_yds,avg_fairway_width_sd_yds,birdie_fest_flag
+Travelers Championship,34,-0.76,0.06,6813,416,287.4,5.5,62.5,1.7,35.1,0.9,True

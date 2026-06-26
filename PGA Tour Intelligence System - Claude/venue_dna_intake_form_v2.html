@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Venue DNA Intake Form v2</title>
+  <style>
+    :root {
+      --bg:#0b1220; --panel:#121a2b; --panel-2:#172238; --text:#e8edf7; --muted:#9fb0cf;
+      --line:#2b3a57; --accent:#69a7ff; --good:#34d399; --warn:#fbbf24;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+    .wrap{max-width:1200px;margin:0 auto;padding:28px}
+    h1,h2,h3{margin:0 0 10px} h1{font-size:30px} h2{font-size:22px;margin-top:28px;padding-bottom:8px;border-bottom:1px solid var(--line)} h3{font-size:16px;margin-top:20px}
+    p,li{color:var(--muted)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.col-12{grid-column:span 12}.col-8{grid-column:span 8}.col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}
+    @media (max-width:900px){.col-8,.col-6,.col-4,.col-3{grid-column:span 12}}
+    label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#c9d6ef;margin-bottom:6px}
+    input,select,textarea{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit}
+    textarea{min-height:100px;resize:vertical}
+    table{width:100%;border-collapse:collapse;margin-top:10px} th,td{border:1px solid var(--line);padding:10px;vertical-align:top} th{background:#1a2741;text-align:left;font-size:13px} td input,td select,td textarea{min-width:100%}
+    .note{font-size:13px;color:var(--muted)} .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#1d2b47;color:#dce8ff;border:1px solid #30476f;font-size:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Venue DNA Intake Form v2</h1>
+  <p>Purpose: create an auditable, course-specific venue profile that separates stable venue traits from weekly form. Every field should support future VTS projection, Round 1 diagnostics, and post-event calibration.</p>
+
+  <div class="card grid">
+    <div class="col-4"><label>Venue</label><input placeholder="Harbour Town Golf Links" /></div>
+    <div class="col-4"><label>Tournament</label><input placeholder="RBC Heritage" /></div>
+    <div class="col-4"><label>Primary Tour</label><input placeholder="PGA Tour" /></div>
+    <div class="col-3"><label>Course Par</label><input placeholder="71" /></div>
+    <div class="col-3"><label>Listed Yardage</label><input placeholder="7,213" /></div>
+    <div class="col-3"><label>Surface</label><input placeholder="Bermuda" /></div>
+    <div class="col-3"><label>Profile Status</label><select><option>Draft</option><option>Active</option><option>Needs recalibration</option></select></div>
+  </div>
+
+  <h2>1. Study window</h2>
+  <div class="card grid">
+    <div class="col-4"><label>Primary study window</label><input placeholder="2016–2024" /></div>
+    <div class="col-4"><label>Reason this window is primary</label><input placeholder="Most stable modern setup" /></div>
+    <div class="col-4"><label>Confidence</label><select><option>High</option><option>Medium</option><option>Provisional</option></select></div>
+    <div class="col-6"><label>Structural change / renovation window</label><input placeholder="2025–present" /></div>
+    <div class="col-6"><label>Change summary</label><input placeholder="Greens/restoration/treework/firmness changes" /></div>
+    <div class="col-12"><label>Comparability rule</label><textarea placeholder="State which years are directly comparable, partially comparable, or excluded. Example: 2016–2024 full comp; 2025 reviewed separately due to restoration changes."></textarea></div>
+  </div>
+
+  <h2>2. Course DNA</h2>
+  <div class="card grid">
+    <div class="col-3"><label>Wind exposure</label><select><option>Low</option><option>Moderate</option><option>High</option></select></div>
+    <div class="col-3"><label>Elevation</label><select><option>Flat</option><option>Rolling</option><option>Significant</option></select></div>
+    <div class="col-3"><label>Rough severity</label><select><option>Low</option><option>Moderate</option><option>High</option></select></div>
+    <div class="col-3"><label>Driving corridor tightness</label><select><option>Wide</option><option>Moderate</option><option>Tight</option></select></div>
+    <div class="col-4"><label>Par-5 reachability</label><select><option>Mostly reachable</option><option>Mixed</option><option>Mostly positional</option></select></div>
+    <div class="col-4"><label>Routing bias</label><select><option>Draw</option><option>Fade</option><option>Neutral</option></select></div>
+    <div class="col-4"><label>Routing bias confidence</label><select><option>High</option><option>Medium</option><option>Provisional</option></select></div>
+    <div class="col-6"><label>Pressure holes</label><input placeholder="Example: 13, 14, 17, 18" /></div>
+    <div class="col-6"><label>Pressure-hole scoring type</label><input placeholder="Demanding approach + positional tee shots + coastal wind finish" /></div>
+    <div class="col-4"><label>Winning score band</label><input placeholder="-12 to -19" /></div>
+    <div class="col-4"><label>Firmness</label><select><option>Soft</option><option>Medium</option><option>Firm</option><option>Variable</option></select></div>
+    <div class="col-4"><label>Wind sensitivity</label><select><option>Low</option><option>Moderate</option><option>High</option></select></div>
+    <div class="col-12"><label>Venue DNA notes</label><textarea placeholder="Summarize what the course rewards, what it punishes, and which skills travel best here."></textarea></div>
+  </div>
+
+  <h2>3. Trait-weight matrix</h2>
+  <div class="card">
+    <p class="note">Weights must sum to 100. Use the longest stable setup as the baseline, then annotate any renovation-era adjustment separately.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Trait</th>
+          <th>Weight</th>
+          <th>Evidence window</th>
+          <th>Why it matters here</th>
+          <th>Confidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SG: Approach</td><td><input placeholder="28" /></td><td><input placeholder="2016–2024" /></td><td><input placeholder="Small targets, angle control" /></td><td><select><option>High</option><option>Medium</option><option>Provisional</option></select></td></tr>
+        <tr><td>SG: Off-the-Tee on tight / penalty holes</td><td><input placeholder="22" /></td><td><input /></td><td><input /></td><td><select><option>High</option><option>Medium</option><option>Provisional</option></select></td></tr>
+        <tr><td>Putting on this surface</td><td><input placeholder="16" /></td><td><input /></td><td><input /></td><td><select><option>High</option><option>Medium</option><option>Provisional</option></select></td></tr>
+        <tr><td>Par-5 scoring / GIR in two</td><td><input placeholder="10" /></td><td><input /></td><td><input /></td><td><select><option>High</option><option>Medium</option><option>Provisional</option></select></td></tr>
+        <tr><td>Pressure-hole scoring</td><td><input placeholder="14" /></td><td><input /></td><td><input /></td><td><select><option>High</option><option>Medium</option><option>Provisional</option></select></td></tr>
+        <tr><td>Other recurring high-finish trait</td><td><input placeholder="10" /></td><td><input /></td><td><input placeholder="Scrambling / fairway finder / wedge proximity / etc." /></td><td><select><option>High</option><option>Medium</option><option>Provisional</option></select></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>4. Anti-patterns</h2>
+  <div class="card">
+    <p class="note">Capture trait combinations that fail at this venue despite broad PGA Tour strength. Each anti-pattern needs evidence band, penalty range, and an exact current-year penalty.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Anti-pattern</th>
+          <th>Historical evidence</th>
+          <th>Penalty range</th>
+          <th>Exact penalty this year</th>
+          <th>Evidence note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><textarea placeholder="Example: extreme distance + low accuracy + weak small-green approach control"></textarea></td><td><select><option>Weak</option><option>Moderate</option><option>Strong</option></select></td><td><select><option>5–8</option><option>9–14</option><option>15–20</option></select></td><td><input placeholder="11" /></td><td><textarea placeholder="Cite years / finish patterns / SG split evidence"></textarea></td></tr>
+        <tr><td><textarea></textarea></td><td><select><option>Weak</option><option>Moderate</option><option>Strong</option></select></td><td><select><option>5–8</option><option>9–14</option><option>15–20</option></select></td><td><input /></td><td><textarea></textarea></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>5. Debut penalty</h2>
+  <div class="card grid">
+    <div class="col-4"><label>Debut penalty class</label><select><option>Steep (10–12)</option><option>Standard (7–9)</option><option>Mild (4–6)</option><option>Minimal (1–3)</option></select></div>
+    <div class="col-4"><label>Exact default penalty</label><input placeholder="8" /></div>
+    <div class="col-4"><label>Confidence</label><select><option>High</option><option>Medium</option><option>Provisional</option></select></div>
+    <div class="col-12"><label>Debut evidence note</label><textarea placeholder="Summarize first-start results and whether setup changes make this penalty provisional."></textarea></div>
+  </div>
+
+  <h2>6. Comp courses</h2>
+  <div class="card">
+    <p class="note">Comp courses are allowed only when clearly similar in DNA. Combined comp influence must remain a modest VTS adjustment.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Comp course</th>
+          <th>Similarity rating (1–10)</th>
+          <th>Shared DNA</th>
+          <th>What does not translate cleanly</th>
+          <th>Max VTS adjustment from this comp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input /></td><td><input placeholder="7" /></td><td><input /></td><td><input /></td><td><input placeholder="+/-2" /></td></tr>
+        <tr><td><input /></td><td><input /></td><td><input /></td><td><input /></td><td><input /></td></tr>
+        <tr><td><input /></td><td><input /></td><td><input /></td><td><input /></td><td><input /></td></tr>
+      </tbody>
+    </table>
+    <div class="grid" style="margin-top:12px">
+      <div class="col-6"><label>Total max combined comp influence</label><input placeholder="Cap at +/-4 VTS" /></div>
+      <div class="col-6"><label>Comp-course use rule</label><input placeholder="Only when player has limited venue rounds" /></div>
+    </div>
+  </div>
+
+  <h2>7. Surface conversion</h2>
+  <div class="card grid">
+    <div class="col-6"><label>Primary putting-surface conversion rule</label><input placeholder="Bermuda-only split preferred; mixed-surface converted with explicit discount" /></div>
+    <div class="col-6"><label>Cross-surface caution flag</label><input placeholder="Do not transfer poa/bent putting without conversion" /></div>
+    <div class="col-12"><label>Conversion note</label><textarea placeholder="State exactly how putting data is translated or discounted when clean same-surface samples are limited."></textarea></div>
+  </div>
+
+  <h2>8. Projection rules</h2>
+  <div class="card grid">
+    <div class="col-4"><label>Venue-history dominance rule</label><input placeholder=">=10 rounds = primary" /></div>
+    <div class="col-4"><label>Blend rule</label><input placeholder="3–4 starts = blended" /></div>
+    <div class="col-4"><label>Traits+form lead rule</label><input placeholder="<=2 starts = traits/form lead" /></div>
+    <div class="col-12"><label>Weekly projection note</label><textarea placeholder="State how VTS, venue history, comp courses, form, anti-patterns, and debut penalties should be blended for this venue."></textarea></div>
+  </div>
+
+  <h2>9. Harbour Town quick-start example</h2>
+  <div class="card">
+    <span class="pill">Lightweight starter profile</span>
+    <p><strong>Venue DNA:</strong> short positional par 71, narrow tree-lined corridors, tiny Bermuda greens, modest distance advantage, accuracy and approach precision amplified, coastal wind matters most late.</p>
+    <p><strong>Likely starting weights:</strong> Approach highest, tight-hole OTT second, Bermuda putting and pressure-hole scoring next, par-5 scoring useful but not dominant.</p>
+    <p><strong>Likely anti-pattern:</strong> bomb-and-gouge profile with weak fairway retention and below-average small-green approach control.</p>
+  </div>
+</div>
+</body>
+</html>

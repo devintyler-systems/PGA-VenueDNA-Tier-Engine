@@ -1,0 +1,87 @@
+{
+  "event_context": {
+    "event_id": "2026_us_open",
+    "venue_id": "SHINNECOCK_HILLS",
+    "venue_file_version": "not_yet_created_in_space",
+    "winning_score": "-4 (276)",
+    "cutline": "+5 (145)",
+    "field_made_cut": 72,
+    "field_size": 156,
+    "weather_class_assigned": "high_wind",
+    "weather_class_outcome": "confirmed_directionally_wrong_sequencing",
+    "setup_notes_realized": "USGA doubled fairway width vs 2004 and did not adjust green speed or hole locations for wind; R3 scored harder than R1 despite R1 carrying the more severe forecast label",
+    "top_finish_profile_summary": "Top 3 finishers (Clark, Burns, Kim) all carried at least one anti-pattern flag; 6 of top 10 finishers carried at least one anti-pattern flag. Tier 1 produced 1 actual top-10 finish (Scheffler) against an average model-implied top10 probability of 70.3%."
+  },
+  "accountability_metrics": {
+    "tier1_top10_rate_actual": 0.125,
+    "tier1_top10_rate_predicted_avg": 0.703,
+    "tier1_win_rate_actual": 0.0,
+    "tier2_top20_rate_actual": 0.156,
+    "tier2_top20_rate_predicted_avg": 0.463,
+    "anti_pattern_hit_rate_top10": 0.60,
+    "anti_pattern_hit_rate_field_flagged_vs_unflagged_top20": {"flagged": 0.126, "unflagged": 0.156, "field_baseline": 0.135},
+    "debut_penalty_review": "no_change_warranted_performed_as_designed",
+    "form_gate_sample_size": 4,
+    "form_gate_verdict": "insufficient_sample_hold"
+  },
+  "venue_changes": [
+    {
+      "field_changed": "anti_pattern_penalty_magnitude.bomb_and_spray",
+      "scope": "venue_specific (SHINNECOCK_HILLS, 2026 setup)",
+      "old_value": "-3.96 to -4.0 VTS (as applied to Clark)",
+      "new_value": "reduce magnitude by ~30-40% when fairway width is materially widened from historical USGA setup AND USGA states no wind-driven green-speed/hole-location softening (i.e. driving demands are the primary lever left, but a wider corridor partially offsets spray penalty)",
+      "evidence": "Top 2 finishers (Clark, Burns) were both pre-penalty Tier 2 (74.7, 78.2 VTS) and were demoted to Tier 3 specifically by this penalty (-4.0, -6.1 VTS respectively), then finished 1st and 2nd.",
+      "confidence_of_change": "moderate - single event, but unusually concentrated and directionally consistent across both top finishers",
+      "next_audit_checkpoint": "re-test at next wide-fairway major or wind-classified US Open setup before making this a permanent venue rule"
+    },
+    {
+      "field_changed": "anti_pattern_penalty_magnitude.weak_tight_runoff",
+      "scope": "venue_specific (SHINNECOCK_HILLS, 2026 setup)",
+      "old_value": "-2.15 VTS contribution within Burns' -6.1 combined penalty",
+      "new_value": "flag for re-evaluation alongside bomb_and_spray; do not adjust independently without a second event case",
+      "evidence": "Stacked with bomb_and_spray on Burns (runner-up); cannot isolate magnitude independently from this single event.",
+      "confidence_of_change": "low - hold, evidence not separable from bomb_and_spray finding",
+      "next_audit_checkpoint": "next event where weak_tight_runoff fires without bomb_and_spray co-occurring"
+    }
+  ],
+  "engine_rule_flags": [
+    {
+      "field_changed": "risk_register_to_vts_linkage",
+      "scope": "cross_venue_candidate (needs 2nd supporting event before promotion to engine rule)",
+      "issue": "Named structural risks (APP_200+ for Rahm/Young, MajorGrind for Henley/Hovland/Cantlay) correctly identified the failure mechanism for 5 of 7 major Tier 1/2 misses, but the named risk did not translate into enough VTS discount to move tier placement or materially adjust probability outputs.",
+      "proposed_fix": "When a named primary_risk_trait is present AND the live/forecast weather class directly stresses that trait (e.g. wind class + APP_200+ risk, four-round major + MajorGrind risk), apply an explicit secondary discount to top10_pct/win_pct beyond the existing trait-weight penalty, rather than relying on the trait weight alone to carry the full effect.",
+      "confidence_of_change": "low-moderate - directionally clear this event, needs a second major/high-variance event to confirm before becoming a binding engine rule",
+      "next_audit_checkpoint": "next major championship or high-wind-classified event"
+    },
+    {
+      "field_changed": "probability_band_widening_for_high_wind_class",
+      "scope": "cross_venue_candidate",
+      "issue": "Make-cut probability was badly miscalibrated at both tails: Tier 4 predicted 18.2% avg make-cut vs 43.2% actual; Tier 5 predicted 3.1% vs 26.3% actual; Tier 2 predicted 78.8% vs 50.0% actual. The week was correctly labeled 'high_wind' but the variance-compression rule (scoring spec 8.2) was not applied aggressively enough to make-cut/top10 outputs specifically.",
+      "proposed_fix": "Increase the variance-driven compression coefficient applied to make_cut_pct and top10_pct (not just win_pct) when venue_variance_class or weather_forecast_class = high. Win probabilities were less obviously miscalibrated (field-wide win_pct summed to 1.0 correctly) but make-cut/top10 bands need the same treatment as win_pct already gets.",
+      "confidence_of_change": "moderate - clean tail-miscalibration signature, but only one event's worth of evidence",
+      "next_audit_checkpoint": "next 2 high-wind or high-variance-classified events; compare predicted vs realized make-cut/top10 rates by tier each time before codifying a fixed compression coefficient"
+    },
+    {
+      "field_changed": "weather_day_sequencing_confidence",
+      "scope": "cross_venue_candidate, low priority",
+      "issue": "Pre-tournament weather forecast ranked R1 as hardest and R3 as second-hardest; actual scoring difficulty inverted this (R3 73.62 > R1 73.28). Minor magnitude but worth tracking if it recurs.",
+      "proposed_fix": "No rule change yet. Note for future events: round-by-round forecast severity should be treated as a rough guide, not a hard input to round-specific player risk language, until forecast-vs-actual day-sequencing accuracy is tracked across multiple events.",
+      "confidence_of_change": "low - hold",
+      "next_audit_checkpoint": "track forecast-day-rank vs actual-scoring-day-rank across next 3 events"
+    }
+  ],
+  "confidence_updates": {
+    "trait_wind_tolerance": "confirmed - field-wide Spearman correlation with actual finish ~ -0.49, raise confidence band",
+    "trait_ott_distance_accuracy": "confirmed - strongest field-wide correlation with actual finish (~ -0.49 to -0.49), raise confidence band",
+    "trait_major_grind": "partially confirmed - correlated with finish (~ -0.32) but mixed at individual level (hit for Henley/Hovland/Cantlay, missed for Schauffele/Aberg); hold weight, do not raise confidence yet",
+    "anti_pattern_bomb_and_spray": "lower confidence at this specific venue/setup pending the magnitude re-evaluation above; do not lower confidence in the anti-pattern concept itself - short_and_wild faded perfectly (0% top20 on n=17) in the same event"
+  },
+  "follow_up_actions": [
+    "Create SHINNECOCK_HILLS_INTELLIGENCE_2026_v1.md if not already locked, incorporating the wide-fairway / no-setup-softening note as an explicit anti-pattern-magnitude modifier",
+    "Track risk-register-to-score-linkage proposal across next 2 events before promoting to engine rule",
+    "Track make-cut/top10 probability calibration by tier across next 2 high-variance events before codifying a new compression coefficient",
+    "No change to debut framework or health gate this cycle"
+  ],
+  "venue_write_back_status": "proposed_pending_operator_confirmation",
+  "audit_completed_by_system": true
+}

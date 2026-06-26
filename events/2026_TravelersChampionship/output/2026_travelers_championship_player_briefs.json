@@ -1,0 +1,82 @@
+{
+  "event": "Travelers Championship",
+  "venue": "TPC River Highlands",
+  "generated_at": "2026-06-24T17:53:28.158294",
+  "no_cut_note": "Signature event \u2014 all 72 players complete 4 rounds (barring WD). make_cut_pct and miss_cut_pct are not_applicable. No cut-survival probability is generated.",
+  "tier_1": [
+    {
+      "player_name": "Scheffler, Scottie",
+      "tier": 1,
+      "vts_final": 82.0,
+      "win_pct": 14.0,
+      "top10_pct": 70.0,
+      "top20_pct": 77.6,
+      "make_cut_pct": "not_applicable",
+      "miss_cut_pct": "not_applicable",
+      "neutral_skill_summary": "TrueSG(12m)=3.17; depth=deep; NeutralIdx=100.0",
+      "venue_fit_summary": "VFS=89.8; VFD=-10.2; CF_Adj_VTS=-0.4; lead=APP_Wedge",
+      "venue_history_summary": "22CH rounds; HistSG=2.321; VHD=-0.0VTS",
+      "penalties_summary": "Debut=none; AP_total=0.0SG (none); Form\u0394=0.0VTS",
+      "risk_vector": "ARG_Bunker",
+      "conviction_statement": "Tier1: NeutralSG=3.17+VFD=-10.2; 22CH-rds \u2192 elite birdie-fest fit at TPC River Highlands",
+      "named_failure_condition": "If ARG_Bunker underperforms or water penalty (holes 15-17) accumulates, ceiling collapses. Active AP flags: none.",
+      "trace_notes": "NeutralSG=3.17; VFD=-10.2; VHD=-0.0(22rds); \u2192Tier1 VTS=82.0"
+    }
+  ],
+  "tier_2": [
+    {
+      "player_name": "Fleetwood, Tommy",
+      "tier": 2,
+      "vts_final": 67.6,
+      "win_pct": 6.0,
+      "top10_pct": 44.3,
+      "top20_pct": 60.0,
+      "make_cut_pct": "not_applicable",
+      "miss_cut_pct": "not_applicable",
+      "neutral_skill_summary": "TrueSG(12m)=2.09; depth=deep; NeutralIdx=73.9",
+      "venue_fit_summary": "VFS=77.3; VFD=3.3; CF_Adj_VTS=2.4; lead=OTT_Accuracy",
+      "venue_history_summary": "18CH rounds; HistSG=1.76; VHD=1.0VTS",
+      "penalties_summary": "Debut=none; AP_total=0.0SG (none); Form\u0394=-0.4VTS",
+      "risk_vector": "ARG_Bunker",
+      "conviction_statement": "Tier2: NeutralSG=2.09, VFD=3.3; 18CH-rds",
+      "named_failure_condition": "If ARG_Bunker underperforms or water penalty (holes 15-17) accumulates, ceiling collapses. Active AP flags: none.",
+      "trace_notes": "NeutralSG=2.09; VFD=3.3; VHD=1.0(18rds); \u2192Tier2 VTS=67.6"
+    },
+    {
+      "player_name": "Henley, Russell",
+      "tier": 2,
+      "vts_final": 66.9,
+      "win_pct": 5.7,
+      "top10_pct": 42.9,
+      "top20_pct": 58.8,
+      "make_cut_pct": "not_applicable",
+      "miss_cut_pct": "not_applicable",
+      "neutral_skill_summary": "TrueSG(12m)=1.86; depth=deep; NeutralIdx=68.4",
+      "venue_fit_summary": "VFS=80.6; VFD=12.2; CF_Adj_VTS=5.6; lead=OTT_Accuracy",
+      "venue_history_summary": "30CH rounds; HistSG=1.445; VHD=1.4VTS",
+      "penalties_summary": "Debut=none; AP_total=0.0SG (none); Form\u0394=0.0VTS",
+      "risk_vector": "ARG_Bunker",
+      "conviction_statement": "Tier2: NeutralSG=1.86, VFD=12.2; 30CH-rds",
+      "named_failure_condition": "If ARG_Bunker underperforms or water penalty (holes 15-17) accumulates, ceiling collapses. Active AP flags: none.",
+      "trace_notes": "NeutralSG=1.86; VFD=12.2; VHD=1.4(30rds); \u2192Tier2 VTS=66.9"
+    },
+    {
+      "player_name": "Fitzpatrick, Matt",
+      "tier": 2,
+      "vts_final": 65.2,
+      "win_pct": 5.1,
+      "top10_pct": 39.3,
+      "top20_pct": 55.9,
+      "make_cut_pct": "not_applicable",
+      "miss_cut_pct": "not_applicable",
+      "neutral_skill_summary": "TrueSG(12m)=2.02; depth=deep; NeutralIdx=72.2",
+      "venue_fit_summary": "VFS=71.8; VFD=-0.4; CF_Adj_VTS=-0.2; lead=ARG_Rough",
+      "venue_history_summary": "14CH rounds; HistSG=0.727; VHD=-0.9VTS",
+      "penalties_summary": "Debut=none; AP_total=0.0SG (none); Form\u0394=0.0VTS",
+      "risk_vector": "PUTT_Lag",
+      "conviction_statement": "Tier2: NeutralSG=2.02, VFD=-0.4; 14CH-rds",
+      "named_failure_condition": "If PUTT_Lag underperforms or water penalty (holes 15-17) accumulates, ceiling collapses. Active AP flags: none.",
+      "trace_notes": "NeutralSG=2.02; VFD=-0.4; VHD=-0.9(14rds); \u2192Tier2 VTS=65.2"
+    }
+  ]
+}

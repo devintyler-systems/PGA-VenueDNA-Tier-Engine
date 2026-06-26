@@ -1,0 +1,427 @@
+{
+  "venue_id": "harbour_town_golf_links",
+  "meta": {
+    "venue_name": "Harbour Town Golf Links",
+    "primary_tour": "PGA Tour",
+    "host_event": "RBC Heritage",
+    "location": "Hilton Head Island, South Carolina, USA",
+    "par": 71,
+    "yardage_baseline": 7100
+  },
+  "study_windows": {
+    "primary_study_window": {
+      "years_included": [2004, 2023],
+      "rationale": "Stable Harbour Town RBC Heritage setup in the ShotLink era with consistent par-71 configuration and broadly similar conditioning pre-2024 restoration.",
+      "evidence_band": "High"
+    },
+    "renovation_windows": [
+      {
+        "label": "Post-restoration",
+        "years": [2024, 9999],
+        "description": "Love Golf Design restoration and 2025 reopening with rebuilt bunkers, restored edges, selective tree moves, and renewed turf/irrigation.",
+        "likely_effects": "Preserves short positional identity with tiny greens; slightly sharper visual framing and marginally higher effective penalty on some lines, but no material change in par, yardage, or core DNA.",
+        "comparability_rule": "Treat 2024+ as structurally comparable to 2004–2023 for macro traits but tag as post-restoration and weight at 0.75 in trait evidence windows until enough post-reno data is audited.",
+        "evidence_band": "Medium"
+      }
+    ],
+    "excluded_years": {
+      "years": [0, 2003],
+      "reason": "Pre-full ShotLink and less reliable strokes-gained and per-hole trait data."
+    },
+    "partially_comparable_years": {
+      "years": [2024, 2025],
+      "rule": "Use for directional trait evidence (approach, tight OTT, Bermuda putting) with 0.75 weight relative to 2004–2023 until post-renovation audits support equal weighting."
+    }
+  },
+  "course_dna": {
+    "green_surface": {
+      "type": "TifEagle Bermuda",
+      "description": "Tiny, quick Bermuda greens with modest internal contour and tightly mown grainy surrounds.",
+      "implications": "Approach proximity and short-game precision are amplified; poor distance control and short-siding are punished.",
+      "confidence": "High"
+    },
+    "wind_exposure": {
+      "description": "Mostly tree-sheltered interior with significantly exposed coastal stretch on 16–18, especially 17–18 alongside Calibogue Sound.",
+      "pattern": "Wind direction and speed materially affect par-3s and the closing stretch, creating high leverage holes in moderate to strong wind.",
+      "confidence": "High"
+    },
+    "elevation_profile": {
+      "description": "Very flat coastal terrain with minimal elevation changes and mostly level lies.",
+      "implications": "No altitude distance boost; tests are directional control, trajectory, and wind management rather than uphill/downhill adjustments.",
+      "confidence": "High"
+    },
+    "rough_severity": {
+      "description": "Thin, modest Bermuda rough; lies are generally playable, but trees, water, and angles are the real penalty.",
+      "implications": "Fairway vs rough is more about angle and access to small greens than pure lie quality; blocked drives are far more costly than standard rough misses.",
+      "confidence": "High"
+    },
+    "driving_corridor_tightness": {
+      "description": "Very tight, tree-lined corridors with overhanging limbs and water/lagoons on multiple holes; many tee shots play through narrow chutes.",
+      "implications": "Rewards positional drivers with high fairway retention and comfort clubbing down; penalizes extreme distance profiles that miss in the wrong places.",
+      "confidence": "High"
+    },
+    "par5_reachability": {
+      "description": "Shorter par-5s where much of the field can reach in two, but with constrained corridors and tree interference.",
+      "implications": "Par-5 scoring matters, but it is more about smart layup positions and precise long-approach control than raw carry distance.",
+      "confidence": "Medium"
+    },
+    "pressure_holes": {
+      "definition": "Holes with polarized scoring distributions (birdie/bogey or worse) and high leverage on the leaderboard, especially under wind.",
+      "identified_sets": [
+        "Longer par-3s (~190–200 yards) with shifting wind directions.",
+        "Closing stretch 16–18, especially 17 (par-3) and 18 (long par-4 along water and OB)."
+      ],
+      "implications": "Maintaining neutral or positive strokes-gained on these holes strongly correlates with top finishes.",
+      "confidence": "High"
+    },
+    "routing_bias": {
+      "classification": "Neutral_two_way_demand",
+      "description": "Pete Dye routing and tree overhangs reward players who can work both left-to-right and right-to-left; no clear aggregate draw or fade bias.",
+      "confidence": "Medium"
+    },
+    "winning_score_band": {
+      "historical_band_gross": {
+        "min_to_par": -9,
+        "max_to_par": -22
+      },
+      "typical_band_gross": {
+        "min_to_par": -12,
+        "max_to_par": -16
+      },
+      "description": "Medium-scoring venue where wind and firmness drive volatility; calm years can push scores into the low 20s under par.",
+      "confidence": "High"
+    },
+    "firmness": {
+      "description": "Generally firm-fast with quick greens and tight surrounds, particularly in typical April conditions.",
+      "implications": "Approach distance control and spin management are heavily rewarded; approaches that land pin-high with correct trajectories create big edges.",
+      "confidence": "Medium-High"
+    },
+    "wind_sensitivity": {
+      "description": "High; scoring spread and difficulty scale sharply with wind, especially on exposed par-3s and closing holes.",
+      "implications": "Ball-flight and trajectory control with mid- to long-irons is critical; wave draw can meaningfully skew round-to-round scoring.",
+      "confidence": "High"
+    }
+  },
+  "trait_weight_matrix": {
+    "weights_sum_to_100": true,
+    "traits": [
+      {
+        "name": "SG_Approach",
+        "weight": 35,
+        "evidence_window": "2004–2023 RBC Heritage full-field SG splits; 2024–2025 included at 0.75 weight",
+        "why_it_matters_here": "Tiny Bermuda greens and firm conditions make Harbour Town a second-shot course; top finishers consistently rank in the top quartile for SG:APP and proximity.",
+        "confidence": "High"
+      },
+      {
+        "name": "SG_OTT_TightPenalty",
+        "weight": 25,
+        "evidence_window": "2004–2023 SG:OTT on narrow/penalty holes at Harbour Town; 2024–2025 at 0.75 weight",
+        "why_it_matters_here": "Narrow, tree-lined corridors and water/OB mean keeping tee shots in play and on the correct side of the fairway strongly drives scoring; uncontrolled distance underperforms.",
+        "confidence": "High"
+      },
+      {
+        "name": "Putting_Bermuda_SurfaceSpecific",
+        "weight": 15,
+        "evidence_window": "2004–2023 Harbour Town SG:Putting plus similar TifEagle Bermuda venues with conversion; 2024–2025 at 0.75 weight",
+        "why_it_matters_here": "Small, quick TifEagle greens and subtle grain reward above-average Bermuda putters who can convert frequent mid-range looks and save pars from tight surrounds.",
+        "confidence": "Medium-High"
+      },
+      {
+        "name": "Par5_Scoring_GIR_in_2",
+        "weight": 10,
+        "evidence_window": "2004–2023 par-5 scoring and GIR-in-two vs finishing position; 2024–2025 at 0.75 weight",
+        "why_it_matters_here": "Short but demanding par-5s are key scoring opportunities; gaining strokes here via smart positioning and precise long-approach play supports high finishes.",
+        "confidence": "Medium"
+      },
+      {
+        "name": "PressureHole_Scoring",
+        "weight": 10,
+        "evidence_window": "2004–2023 scoring dispersion and SG on long par-3s and holes 16–18 vs final position",
+        "why_it_matters_here": "Wind-exposed par-3s and the coastal finish create large swings; players who avoid big numbers and gain on these holes are over-represented among top finishers.",
+        "confidence": "High"
+      },
+      {
+        "name": "Trajectory_ShotShaping_Control",
+        "weight": 5,
+        "evidence_window": "2004–2023 SG and proximity on forced-shape/dogleg holes at Harbour Town and similar Dye tests",
+        "why_it_matters_here": "The routing demands both directions and specific windows under trees; players with better shot-shaping and trajectory control score better on these forced-shape holes.",
+        "confidence": "Medium"
+      }
+    ]
+  },
+  "anti_patterns": [
+    {
+      "anti_pattern_id": "bomb_and_gouge_low_fairway_weak_small_green_control",
+      "anti_pattern_name": "High-distance / low-accuracy driver with mediocre small-green approach",
+      "definition": {
+        "distance_bucket": "Top_quartile_distance",
+        "accuracy_bucket": "Bottom_third_fairways_and_SG_OTT_tight",
+        "approach_profile": "Below-average proximity on sub-175-yard approaches and on small targets"
+      },
+      "historical_evidence": "Long, inaccurate drivers with mediocre wedge/mid-iron small-target control repeatedly underperform at Harbour Town despite strong global SG profiles.",
+      "penalty_range_vts_points": {
+        "min": 5,
+        "max": 12
+      },
+      "exact_penalty_2026_vts_points": 10,
+      "evidence_band": "High",
+      "evidence_note": "Aligns with historic leaderboards and v2 intake guidance that bomb-and-gouge is structurally disfavored at this venue."
+    },
+    {
+      "anti_pattern_id": "elite_ttg_negative_bermuda_putter",
+      "anti_pattern_name": "Elite tee-to-green, consistently negative on Bermuda",
+      "definition": {
+        "ttg_bucket": "Top_quartile_SG_T2G_on_similar_difficulty_courses",
+        "bermuda_delta": "At_most_-0.25_SG_Putting_per_round_on_Bermuda_vs_non_Bermuda_over_last_50_75_rounds"
+      },
+      "historical_evidence": "Players who are elite tee-to-green but consistently lose strokes on Bermuda tend to leak value on Harbour Town’s small, fast TifEagle surfaces.",
+      "penalty_range_vts_points": {
+        "min": 3,
+        "max": 8
+      },
+      "exact_penalty_2026_vts_points": 6,
+      "evidence_band": "Medium",
+      "evidence_note": "Surface-specific pattern supported by broader Bermuda data; penalty size flagged for post-2026 audit."
+    },
+    {
+      "anti_pattern_id": "one_shape_only_low_flex_shotmaker",
+      "anti_pattern_name": "Single-shot-shape dependence with poor forced-shape performance",
+      "definition": {
+        "shape_profile": "Strong performance when routing favors preferred shape; significant loss on opposite-shape and forced-shape doglegs.",
+        "proximity_pattern": "Weak proximity and SG on holes requiring opposite curvature from typical pattern."
+      },
+      "historical_evidence": "Dye routing and tree framing reward two-way shaping; one-shape-only profiles struggle to access select pins and fairway windows.",
+      "penalty_range_vts_points": {
+        "min": 2,
+        "max": 7
+      },
+      "exact_penalty_2026_vts_points": 4,
+      "evidence_band": "Medium-Low",
+      "evidence_note": "Conceptually strong but requires more granular per-hole data; penalty is intentionally modest pending further audits."
+    }
+  ],
+  "debut_penalty_model": {
+    "debut_class": "Steep",
+    "default_penalty_2026_vts_points": 11,
+    "penalty_range_class": {
+      "min": 10,
+      "max": 12
+    },
+    "rationale": "Tight visuals, tree-lined chutes, small targets, and a wind-exposed finish create a steep learning curve where first-timers often underperform relative to global form.",
+    "evidence_band": "Medium-High"
+  },
+  "comp_courses": {
+    "list": [
+      {
+        "course_id": "waialae_cc",
+        "course_name": "Waialae Country Club",
+        "similarity_rating_1_10": 8,
+        "shared_dna": "Short par-70/71, positional, tree-lined, coastal wind-exposed, Bermuda greens, emphasis on accuracy and wedge/short-iron approach play.",
+        "non_translating_elements": "Less visually constrictive off the tee and more driver-friendly; different green complexes and contours.",
+        "max_vts_adjustment_from_this_comp": 4
+      },
+      {
+        "course_id": "sedgefield_cc",
+        "course_name": "Sedgefield Country Club",
+        "similarity_rating_1_10": 7,
+        "shared_dna": "Short, positional, tree-lined layout with accuracy focus, wedge/short-iron scoring, and Bermuda putting importance.",
+        "non_translating_elements": "Inland, less wind-affected; larger greens and different pressure-hole mix.",
+        "max_vts_adjustment_from_this_comp": 3
+      },
+      {
+        "course_id": "sea_island_seaside",
+        "course_name": "Sea Island (Seaside)",
+        "similarity_rating_1_10": 7,
+        "shared_dna": "Coastal, wind-exposed, positional golf with Bermuda greens; emphasis on iron control and short game.",
+        "non_translating_elements": "More open visuals and less claustrophobic tree framing; different dogleg and hole mix.",
+        "max_vts_adjustment_from_this_comp": 3
+      },
+      {
+        "course_id": "tpc_river_highlands",
+        "course_name": "TPC River Highlands",
+        "similarity_rating_1_10": 6,
+        "shared_dna": "Shorter venue deemphasizing raw power and rewarding placement plus approach quality with some pressure-hole dynamics.",
+        "non_translating_elements": "Different putting surface, inland winds, and stadium framing; not a Bermuda coastal analog.",
+        "max_vts_adjustment_from_this_comp": 2
+      }
+    ],
+    "combined_comp_influence_cap": 6,
+    "combined_comp_influence_rule": "Sum of all positive comp adjustments cannot exceed +6 VTS; sum of all negative adjustments cannot exceed -6 VTS for any player.",
+    "translation_notes": "Apply comp influence only on overlapping traits (accuracy, approach, wind management, and surface-appropriate putting). Surface differences must respect the putting conversion rule."
+  },
+  "putting_surface_conversion": {
+    "primary_rule": "If player has >=24 recent rounds on Bermuda, use Bermuda-only SG:Putting as the Harbour Town putting input.",
+    "fallback_rule_when_no_clean_bermuda_sample": {
+      "minimum_bermuda_rounds": 24,
+      "blend_weights": {
+        "non_bermuda_sg_putting": 0.6,
+        "global_sg_putting": 0.4
+      },
+      "conservative_discount_strokes_per_round": -0.05,
+      "conditional_offset_for_grainy_specialists_max": 0.03
+    },
+    "mapping_to_vts": "Convert strokes-per-round surplus/deficit from the blended putting metric into a z-score vs field, then scale into the 0–100 putting sub-score used by the 15% putting weight.",
+    "rationale": "Avoid assuming full transfer of putting strength across surfaces; non-Bermuda samples are discounted and blended for a conservative estimate on TifEagle Bermuda.",
+    "confidence": "Medium"
+  },
+  "projection_blending_rules": {
+    "venue_history_weights": {
+      "rounds_10_plus": {
+        "venue_sg_profile_weight": 0.60,
+        "trait_matrix_weight": 0.25,
+        "recent_form_weight": 0.15
+      },
+      "rounds_5_to_9": {
+        "venue_sg_profile_weight": 0.45,
+        "trait_matrix_weight": 0.30,
+        "recent_form_weight": 0.25
+      },
+      "rounds_3_to_4": {
+        "venue_sg_profile_weight": 0.30,
+        "trait_matrix_weight": 0.40,
+        "recent_form_weight": 0.30
+      },
+      "rounds_0_to_2": {
+        "venue_sg_profile_weight": 0.15,
+        "trait_matrix_weight": 0.50,
+        "recent_form_weight": 0.35
+      }
+    },
+    "trait_layer_construction": {
+      "trait_inputs": [
+        "SG_Approach",
+        "SG_OTT_TightPenalty",
+        "Putting_Bermuda_SurfaceSpecific",
+        "Par5_Scoring_GIR_in_2",
+        "PressureHole_Scoring",
+        "Trajectory_ShotShaping_Control"
+      ],
+      "scaling_rule": "Convert each trait into a z-score vs field using ~12-month filtered windows, then map to 0–100 and weight by the trait_weight_matrix."
+    },
+    "recent_form_layer": {
+      "lookback_weeks": 6,
+      "event_quality_multipliers": {
+        "pga_full_field_stroke_play": 1.0,
+        "dp_world_tour": 0.85,
+        "co_sanctioned_or_limited_field": 0.75,
+        "liv_or_developmental": 0.6,
+        "team_or_exotic": "0.4_to_0.7_case_specific"
+      },
+      "recency_decay": {
+        "most_recent_start": 0.35,
+        "second_most_recent": 0.25,
+        "next_four_each": 0.10
+      },
+      "injury_exclusion_rule": "Remove starts identified as injury-affected or non-representative before calculating decayed form.",
+      "form_to_vts_mapping": "Convert quality-adjusted, decayed SG:T2G + putting (with Bermuda conversion) into 0–100 form_score and apply the recent_form_weight from venue_history_weights."
+    },
+    "comps_blending": {
+      "application": "Compute comp-based trait adjustments per course, sum them while respecting each course cap, then add the net comp_adjustment to the base VTS.",
+      "comp_adjustment_cap": 6,
+      "order_of_operations": "Apply comp_adjustment after blending venue history, trait matrix, and recent form; before debut and anti-pattern penalties."
+    },
+    "debut_and_anti_pattern_penalties": {
+      "debut_penalty_2026_vts_points": 11,
+      "apply_debut_to": "Players with zero prior competitive rounds at Harbour Town.",
+      "anti_pattern_penalties_2026": {
+        "bomb_and_gouge_low_fairway_weak_small_green_control": -10,
+        "elite_ttg_negative_bermuda_putter": -6,
+        "one_shape_only_low_flex_shotmaker": -4
+      },
+      "anti_pattern_total_cap_vts_points": -18,
+      "application_order": "Start from base VTS (venue history + traits + form + comps), subtract debut penalty if applicable, subtract all triggered anti-pattern penalties capped at -18, then assign tiers."
+    },
+    "health_gate": {
+      "rule": "Players with active injury concerns cannot be Tier 1 or 2 pre-R1 regardless of computed VTS.",
+      "unlock_condition": "Once Round 1 SG and normalized score are consistent with healthy baseline, remove the gate and allow free tiering."
+    },
+    "tier_cutoffs": {
+      "tier_1": {
+        "name": "Course Architects",
+        "vts_min": 80,
+        "vts_max": 100,
+        "constraints": "No active health gate; at most one minor anti-pattern (<7 VTS points)."
+      },
+      "tier_2": {
+        "name": "Primary Contenders",
+        "vts_min": 65,
+        "vts_max": 79,
+        "constraints": "Moderate anti-pattern penalties allowed (<=12 VTS points); acceptable risk profile."
+      },
+      "tier_3": {
+        "name": "Top-Ten Range",
+        "vts_min": 50,
+        "vts_max": 64
+      },
+      "tier_4": {
+        "name": "Cut-Line Players",
+        "vts_min": 35,
+        "vts_max": 49
+      },
+      "tier_5": {
+        "name": "Course Mismatches",
+        "vts_min": 0,
+        "vts_max": 34
+      }
+    }
+  },
+  "round1_diagnostics": {
+    "expected_scoring_ranges_normalized": {
+      "tier_1": {
+        "calm_or_light_wind": {
+          "min_to_par": -6,
+          "max_to_par": -3
+        },
+        "windy": {
+          "min_to_par": -4,
+          "max_to_par": -1
+        }
+      },
+      "tier_2": {
+        "calm_or_light_wind": {
+          "min_to_par": -5,
+          "max_to_par": -2
+        },
+        "windy": {
+          "min_to_par": -3,
+          "max_to_par": 0
+        }
+      },
+      "tier_3": {
+        "calm_or_light_wind": {
+          "min_to_par": -4,
+          "max_to_par": -1
+        },
+        "windy": {
+          "min_to_par": -2,
+          "max_to_par": 1
+        }
+      }
+    },
+    "wave_and_conditions_normalization": {
+      "method": "Compute per-wave scoring average and adjust each player’s raw score by wave baseline to get a normalized score; compare to tier band using normalized value.",
+      "threshold_for_flagging": 3
+    },
+    "downgrade_triggers": {
+      "condition": "Tier 1 or 2 player is >3 shots worse than bottom of normalized expected band AND shows trait failure.",
+      "trait_failures": {
+        "sg_approach": "Loses >=1.0 SG:APP vs field in R1.",
+        "sg_ott_tight": "Loses >=0.75 SG:OTT on tight/penalty holes vs field in R1.",
+        "pressure_holes": "Loses >=1.0 SG on pressure-hole set (long par-3s and 16–18) vs field in R1."
+      },
+      "downgrade_actions": {
+        "tier_1": "Downgrade to Tier 2 or 3 depending on severity.",
+        "tier_2": "Downgrade to Tier 3 or 4 depending on severity."
+      }
+    },
+    "promotion_triggers": {
+      "condition": "Tier 3–5 player is >=3 shots better than the top of their normalized expected band AND shows strong trait expression.",
+      "trait_requirements": {
+        "sg_approach": "Positive SG:APP vs field in R1.",
+        "sg_ott_tight": "Positive SG:OTT on tight/penalty holes vs field in R1.",
+        "pressure_holes": "Non-negative SG on pressure-hole set in R1."
+      },
+      "promotion_action": "Promote one tier after recomputing VTS with R1 included."
+    }
+  }
+}

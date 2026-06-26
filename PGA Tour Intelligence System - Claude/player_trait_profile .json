@@ -1,0 +1,194 @@
+{
+  "player_id": "string_unique_player_key",
+  "player_name": "string",
+  "meta": {
+    "handedness": "right_or_left",
+    "primary_shot_shape": "fade_draw_neutral",
+    "known_injury_flag": false,
+    "notes": "optional free-text"
+  },
+
+  "venue_history": {
+    "harbour_town": {
+      "rounds_played": 0,
+      "starts": 0,
+      "best_finish_position": null,
+      "sg_tot_per_round": null,
+      "sg_ott_per_round": null,
+      "sg_app_per_round": null,
+      "sg_arg_per_round": null,
+      "sg_putt_per_round": null,
+      "sg_ott_tight_penalty_per_round": null,
+      "pressure_hole_sg_per_round": null,
+      "last_year_played": null
+    }
+  },
+
+  "trait_inputs": {
+    "lookback_months": 12,
+    "samples": {
+      "rounds_total": 0,
+      "rounds_bermuda": 0,
+      "rounds_non_bermuda": 0
+    },
+
+    "sg_components": {
+      "global": {
+        "sg_ott_per_round": 0.0,
+        "sg_app_per_round": 0.0,
+        "sg_arg_per_round": 0.0,
+        "sg_putt_per_round": 0.0,
+        "sg_t2g_per_round": 0.0
+      },
+      "tight_penalty_driving": {
+        "sg_ott_tight_penalty_per_round": 0.0,
+        "fairways_hit_pct_on_tight_holes": 0.0,
+        "penalty_shot_rate_per_round": 0.0
+      },
+      "small_green_approach": {
+        "proximity_lt_125_yds_ft": 0.0,
+        "proximity_125_175_yds_ft": 0.0,
+        "proximity_small_green_targets_ft": 0.0,
+        "gir_pct_small_greens": 0.0
+      },
+      "par5_scoring": {
+        "par5_scoring_avg_to_par": 0.0,
+        "par5_sg_per_round": 0.0,
+        "par5_gir_in_two_pct": 0.0
+      },
+      "pressure_hole_scoring": {
+        "pressure_hole_sg_per_round": 0.0,
+        "par3_190_210_sg_per_round": 0.0,
+        "closing_stretch_sg_per_round": 0.0
+      },
+      "shot_shape_and_trajectory": {
+        "two_way_shape_proxy_sg": 0.0,
+        "forced_shape_dogleg_sg_per_round": 0.0,
+        "trajectory_control_proxy_sg": 0.0
+      }
+    },
+
+    "putting_by_surface": {
+      "bermuda": {
+        "rounds": 0,
+        "sg_putt_per_round": 0.0
+      },
+      "non_bermuda": {
+        "rounds": 0,
+        "sg_putt_per_round": 0.0
+      },
+      "global": {
+        "rounds": 0,
+        "sg_putt_per_round": 0.0
+      }
+    },
+
+    "derived_for_venue": {
+      "putting_bermuda_converted": {
+        "has_clean_bermuda_sample": false,
+        "bermuda_rounds_used": 0,
+        "sg_putt_bermuda_used": 0.0,
+        "blended_sg_putt_when_no_bermuda": {
+          "non_bermuda_component": 0.0,
+          "global_component": 0.0,
+          "discount_applied": -0.05,
+          "final_sg_putt_used": 0.0
+        }
+      },
+      "trait_z_scores": {
+        "z_sg_app": 0.0,
+        "z_sg_ott_tight_penalty": 0.0,
+        "z_putting_bermuda_surface_specific": 0.0,
+        "z_par5_scoring_gir_in_2": 0.0,
+        "z_pressure_hole_scoring": 0.0,
+        "z_trajectory_shotshaping_control": 0.0
+      },
+      "trait_subscores_0_100": {
+        "sg_app": 0.0,
+        "sg_ott_tight_penalty": 0.0,
+        "putting_bermuda_surface_specific": 0.0,
+        "par5_scoring_gir_in_2": 0.0,
+        "pressure_hole_scoring": 0.0,
+        "trajectory_shotshaping_control": 0.0
+      }
+    }
+  },
+
+  "recent_form": {
+    "lookback_weeks": 6,
+    "starts": [
+      {
+        "event_id": "string",
+        "tour_type": "pga_full_field_stroke_play | dp_world | co_sanctioned_or_limited_field | liv_or_developmental | team_or_exotic",
+        "start_date": "YYYY-MM-DD",
+        "rounds": 4,
+        "sg_t2g_per_round": 0.0,
+        "sg_putt_per_round": 0.0,
+        "injury_flag": false
+      }
+    ],
+    "event_quality_multiplier": 1.0,
+    "decayed_form_score": {
+      "sg_t2g_component": 0.0,
+      "sg_putt_component": 0.0,
+      "combined_sg_per_round": 0.0,
+      "form_score_0_100": 0.0
+    }
+  },
+
+  "comp_course_history": {
+    "waialae_cc": {
+      "rounds": 0,
+      "sg_tot_per_round": 0.0,
+      "sg_app_per_round": 0.0,
+      "sg_ott_per_round": 0.0,
+      "sg_putt_bermuda_per_round": 0.0
+    },
+    "sedgefield_cc": {
+      "rounds": 0,
+      "sg_tot_per_round": 0.0,
+      "sg_app_per_round": 0.0,
+      "sg_ott_per_round": 0.0,
+      "sg_putt_bermuda_per_round": 0.0
+    },
+    "sea_island_seaside": {
+      "rounds": 0,
+      "sg_tot_per_round": 0.0,
+      "sg_app_per_round": 0.0,
+      "sg_ott_per_round": 0.0,
+      "sg_putt_bermuda_per_round": 0.0
+    },
+    "tpc_river_highlands": {
+      "rounds": 0,
+      "sg_tot_per_round": 0.0,
+      "sg_app_per_round": 0.0,
+      "sg_ott_per_round": 0.0,
+      "sg_putt_per_round": 0.0
+    },
+    "derived_comp_adjustment_vts": 0.0
+  },
+
+  "pattern_flags": {
+    "anti_patterns_triggered": {
+      "bomb_and_gouge_low_fairway_weak_small_green_control": false,
+      "elite_ttg_negative_bermuda_putter": false,
+      "one_shape_only_low_flex_shotmaker": false
+    },
+    "shot_shape_flexibility_score_0_100": 0.0,
+    "distance_bucket": "short_mid_long",
+    "accuracy_bucket": "high_medium_low"
+  },
+
+  "derived_vts_components": {
+    "venue_sg_component_0_100": 0.0,
+    "trait_component_0_100": 0.0,
+    "form_component_0_100": 0.0,
+    "comp_adjustment_vts": 0.0,
+    "debut_penalty_vts": 0.0,
+    "anti_pattern_penalties_vts_total": 0.0,
+    "health_gate_applied": false,
+    "pre_penalty_vts": 0.0,
+    "final_vts": 0.0,
+    "tier": "T1 | T2 | T3 | T4 | T5"
+  }
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 U.S. Open · VenueDNA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="2026_usopen_vts_dashboard.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-inner">
+    <div class="logo"><span class="lv">Venue</span><span class="ld">DNA</span></div>
+    <div class="ev-badge">
+      <div class="ev-name">2026 U.S. Open</div>
+      <div class="ev-venue">Shinnecock Hills GC</div>
+      <div class="ev-meta">Par 70 · 7,440 yds · Jun 18–21</div>
+    </div>
+    <nav class="tnav-wrap" id="tnav-wrap">
+      <button class="tnav active" data-tier="all">All Players <span id="cnt-all">—</span></button>
+      <button class="tnav t1" data-tier="1">Tier 1: Architects <span id="cnt-1">—</span></button>
+      <button class="tnav t2" data-tier="2">Tier 2: Contention <span id="cnt-2">—</span></button>
+      <button class="tnav t3" data-tier="3">Tier 3: Top-10 <span id="cnt-3">—</span></button>
+      <button class="tnav t4" data-tier="4">Tier 4: Cut Line <span id="cnt-4">—</span></button>
+      <button class="tnav t5" data-tier="5">Tier 5: Fade <span id="cnt-5">—</span></button>
+    </nav>
+    <div class="sb-block">
+      <div class="blabel">Shinnecock DNA</div>
+      <div class="dna-sub green-txt">Rewards</div>
+      <div id="dna-r"></div>
+      <div class="dna-sub red-txt" style="margin-top:8px">Punishes</div>
+      <div id="dna-p"></div>
+    </div>
+    <div class="sb-block">
+      <div class="blabel">Round Weather</div>
+      <div id="wx"></div>
+    </div>
+    <div class="sb-block">
+      <div class="blabel">Downloads</div>
+      <a class="dl" href="../output/2026_USOPEN_event_payload.json" download>Event Payload JSON</a>
+      <a class="dl" href="../output/2026_USOPEN_dashboard_data.csv" download>Dashboard CSV</a>
+      <a class="dl" href="../output/2026_USOPEN_player_briefs.json" download>Player Briefs JSON</a>
+      <a class="dl" href="../output/2026_USOPEN_full_player_writeups.json" download>Full Writeups JSON</a>
+    </div>
+  </div>
+</aside>
+
+<div class="main-wrap">
+  <div id="hero"></div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="q" type="search" placeholder="Search player name…">
+      </div>
+      <div class="filters">
+        <select id="f-tier"><option value="all">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option><option value="4">Tier 4</option><option value="5">Tier 5</option></select>
+        <select id="f-tour"><option value="all">All Tours</option></select>
+        <select id="f-anti"><option value="all">Any Profile</option><option value="clean">Clean — No Flags</option><option value="flagged">Has Anti-Pattern</option></select>
+        <select id="f-gate"><option value="all">Any Gate</option><option value="gated">Gated (Form/Health)</option><option value="clean">No Gates</option></select>
+        <button id="reset-btn">Reset</button>
+      </div>
+      <div class="showing"><span id="n-showing">—</span> of 156 players</div>
+    </div>
+    <div class="tbl-scroll">
+      <table class="ftbl">
+        <thead><tr>
+          <th data-k="model_rank" class="sort-h asc narrow">#</th>
+          <th data-k="player_name" class="sort-h">Player</th>
+          <th data-k="tier" class="sort-h narrow">Tier</th>
+          <th data-k="vts_final" class="sort-h num">VTS</th>
+          <th data-k="neutral_skill_sg" class="sort-h num">Neut SG</th>
+          <th data-k="venue_fit_delta" class="sort-h num">VFD</th>
+          <th data-k="venue_history_delta" class="sort-h num">VHD</th>
+          <th data-k="anti_pattern_penalty_total" class="sort-h num">AP Pen</th>
+          <th class="flags-h">Flags</th>
+          <th data-k="win_pct" class="sort-h num">Win%</th>
+          <th data-k="top10_pct" class="sort-h num">T10%</th>
+          <th data-k="make_cut_pct" class="sort-h num">MC%</th>
+          <th data-k="volatility_index" class="sort-h num">Vol</th>
+          <th class="narrow">R1 Tee</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay"></div>
+<aside class="drawer hidden" id="drawer">
+  <button class="close-btn" id="close-btn">✕ Close</button>
+  <div id="dc"></div>
+</aside>
+
+<script src="2026_usopen_vts_dashboard.js"></script>
+</body>
+</html>

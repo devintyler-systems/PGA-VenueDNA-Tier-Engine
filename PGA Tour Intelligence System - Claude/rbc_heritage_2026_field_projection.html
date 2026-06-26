@@ -1,0 +1,330 @@
+
+<h2 class="sr-only">2026 RBC Heritage full field VTS projection across five tiers</h2>
+<style>
+.proj{padding:1rem 0}
+.tier-hdr{display:flex;align-items:center;gap:10px;margin:20px 0 10px}
+.tier-badge{font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px}
+.t1{background:var(--color-background-success);color:var(--color-text-success)}
+.t2{background:var(--color-background-info);color:var(--color-text-info)}
+.t3{background:var(--color-background-warning);color:var(--color-text-warning)}
+.t4{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.t5{background:var(--color-background-danger);color:var(--color-text-danger)}
+.tier-desc{font-size:12px;color:var(--color-text-secondary)}
+.player-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:8px;border:0.5px solid var(--color-border-tertiary)}
+.player-card.flagged{border-color:var(--color-border-danger)}
+.pc-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.pc-name{font-size:14px;font-weight:500;color:var(--color-text-primary);flex:1}
+.vts-score{font-size:16px;font-weight:500}
+.vts-t1{color:var(--color-text-success)}
+.vts-t2{color:var(--color-text-info)}
+.vts-t3{color:var(--color-text-warning)}
+.vts-t4{color:var(--color-text-secondary)}
+.vts-t5{color:var(--color-text-danger)}
+.pc-meta{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--color-background-tertiary);color:var(--color-text-secondary)}
+.chip.pos{background:var(--color-background-success);color:var(--color-text-success)}
+.chip.neg{background:var(--color-background-danger);color:var(--color-text-danger)}
+.chip.warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.chip.info{background:var(--color-background-info);color:var(--color-text-info)}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.brief-item{font-size:12px;color:var(--color-text-secondary)}
+.brief-item strong{color:var(--color-text-primary)}
+.conviction{font-size:12px;color:var(--color-text-warning);margin-top:8px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px}
+.risk{font-size:12px;color:var(--color-text-danger);margin-top:6px}
+.t3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.t3-mini{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;border:0.5px solid var(--color-border-tertiary)}
+.t3-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.t3-vts{font-size:12px;color:var(--color-text-warning);font-weight:500}
+.t3-note{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.t45-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.ap-flag{background:var(--color-background-danger);color:var(--color-text-danger);border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px}
+.ap-flag-name{font-size:13px;font-weight:500;margin-bottom:3px}
+.ap-flag-body{font-size:12px;color:var(--color-text-secondary)}
+.value-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px}
+.value-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.value-gap{font-size:12px;color:var(--color-text-info);margin-top:3px}
+.sec-label{font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-secondary);margin:20px 0 10px;border-top:0.5px solid var(--color-border-tertiary);padding-top:16px}
+</style>
+
+<div class="proj">
+  <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-secondary)">
+    <span style="font-size:20px;font-weight:500;color:var(--color-text-primary)">2026 RBC Heritage — VTS Field Projection</span>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px">Harbour Town Golf Links · 82-player field · No cut · April 16–19</div>
+  </div>
+
+  <div class="tier-hdr"><span class="tier-badge t1">Tier 1 — Course Architects (VTS 80+)</span><span class="tier-desc">Structural winners. Trait profile built for this venue.</span></div>
+
+  <div class="player-card">
+    <div class="pc-top">
+      <div class="pc-name">Scottie Scheffler</div>
+      <div class="vts-score vts-t1">VTS 94</div>
+    </div>
+    <div class="pc-meta">
+      <span class="chip pos">2024 winner</span>
+      <span class="chip pos">3 starts: T11, W, T8</span>
+      <span class="chip pos">Approach: 1st in field 2024</span>
+      <span class="chip info">Masters runner-up 2026</span>
+    </div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> 1.72 SG/rnd at Harbour Town 2024. Masters 2026: +6.55 SG approach — elite form confirmed</div>
+      <div class="brief-item"><strong>Course history:</strong> +2.21 SG/rnd career at this venue. Venue knowledge compounds each start</div>
+      <div class="brief-item"><strong>Form window:</strong> Masters R/U (1.0x). No LIV or quality discount. Approach returning to peak</div>
+      <div class="brief-item"><strong>Debut penalty:</strong> N/A — 3 prior starts</div>
+    </div>
+    <div class="conviction">Conviction: If approach continues Masters-level form and wind conditions are normal, this is a 65%+ win probability profile. The 2024 win was not a fluke — it was trait confirmation. Only thing that derails this is a collapse in iron play that is inconsistent with his 3-year trend.</div>
+    <div class="risk">Risk vector: The only meaningful risk is post-Masters emotional flatness, but Scheffler specifically won here the week after his 2024 Masters title. Historical counter-evidence makes this the weakest risk flag in the field. Health gate: no flags.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top">
+      <div class="pc-name">Collin Morikawa</div>
+      <div class="vts-score vts-t1">VTS 86</div>
+    </div>
+    <div class="pc-meta">
+      <span class="chip pos">Top-10 approach season</span>
+      <span class="chip pos">TifEagle Bermuda: strong</span>
+      <span class="chip info">Masters top 10 2026</span>
+      <span class="chip">4+ starts, mixed results</span>
+    </div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> Career-defining trait — elite long iron precision from 175–200y aligns directly with Harbour Town's primary demand</div>
+      <div class="brief-item"><strong>Course history:</strong> Inconsistent finishes but approach profile is a structural fit regardless of past results</div>
+      <div class="brief-item"><strong>Form window:</strong> Masters top 10 in 2026 — iron play sharp heading in</div>
+      <div class="brief-item"><strong>Anti-pattern:</strong> None triggered</div>
+    </div>
+    <div class="conviction">Elite approach precision meets the venue's top weighted trait directly. Not a Scheffler-tier profile because his Harbour Town course history doesn't support the historical precedent rule, but the trait math is undeniable. Contention window is genuine.</div>
+    <div class="risk">Risk vector: Bermuda putting historically volatile for Morikawa. If greens run fast post-restoration and his surface-specific putting falls below 30th, his margin for error is thin given a course that won't allow scrambled pars.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top">
+      <div class="pc-name">Shane Lowry</div>
+      <div class="vts-score vts-t1">VTS 83</div>
+    </div>
+    <div class="pc-meta">
+      <span class="chip pos">1st SG: Approach (last 36 rnds)</span>
+      <span class="chip pos">175–200y: 1st in field</span>
+      <span class="chip pos">T3 2019, T9 2021, T3 2022</span>
+      <span class="chip">Coastal wind comfort</span>
+    </div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> Currently #1 in the field in SG: Approach (last 36 rounds) and specifically #1 from 175–200y — the exact distance that governs this course</div>
+      <div class="brief-item"><strong>Course history:</strong> Three top-10 finishes. Strong correlation pattern when approach is hot</div>
+      <div class="brief-item"><strong>Form window:</strong> Gained 5.6 and 8.4 SG approach in 2021 and 2022 HT appearances — both top 10s</div>
+      <div class="brief-item"><strong>Wind comfort:</strong> Coastal links experience is a genuine edge on 17 and 18</div>
+    </div>
+    <div class="conviction">The 2026 value play in the top tier. Approach is the hottest it has been since 2022 — the last time he top-10'd here. The trait-to-course fit is confirmed by his own HT history: every good finish correlates with an elite approach week. This is not a narrative play. It is the trait math.</div>
+    <div class="risk">Risk vector: Lowry's T18 in 2025 came when he lost strokes on approach. If approach cools from its recent peak, his ceiling drops sharply because HT does not allow rescue via putting or distance. One bad approach week = T25-T40.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top">
+      <div class="pc-name">Matt Fitzpatrick</div>
+      <div class="vts-score vts-t1">VTS 82</div>
+    </div>
+    <div class="pc-meta">
+      <span class="chip pos">2023 winner</span>
+      <span class="chip pos">Approach: 7th in 2023 win</span>
+      <span class="chip pos">Precision profile archetype</span>
+      <span class="chip">3 starts: W, T14, T22</span>
+    </div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> +1.55 SG approach in 2023 win. Profile is a textbook Harbour Town archetype — compact, precise, works the ball both ways</div>
+      <div class="brief-item"><strong>Course history:</strong> Won here with almost identical trait confirmation to Scheffler — approach-first, TTG dominant, putting secondary</div>
+      <div class="brief-item"><strong>Form window:</strong> Recent Masters appearance — need current week form check</div>
+      <div class="brief-item"><strong>Anti-pattern:</strong> None triggered</div>
+    </div>
+    <div class="conviction">Two-time champion profile (2023 win, 2022 runner-up to Spieth). The course suits his game at a structural level. 3 solid starts here vs Scheffler's career trajectory makes this a Tier 1 placement with slightly lower ceiling — Fitzpatrick is more predictable than dominant at this venue.</div>
+    <div class="risk">Risk vector: Post-Masters form consistency. Fitzpatrick has shown week-to-week variance. If ball-striking dipped at Augusta, monitor R1 closely. Masters fatigue anti-pattern is provisional — he is not a Sunday near-miss this year per available data.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top">
+      <div class="pc-name">Jordan Spieth</div>
+      <div class="vts-score vts-t1">VTS 80</div>
+    </div>
+    <div class="pc-meta">
+      <span class="chip pos">2022 winner</span>
+      <span class="chip pos">ARG elite</span>
+      <span class="chip">Approach variance risk</span>
+      <span class="chip warn">Current form check needed</span>
+    </div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> Won 2022 ranked 10th in approach. Career Harbour Town approach numbers are not elite — but scrambling at 5th rank compensated. Course history buoys VTS above pure trait fit</div>
+      <div class="brief-item"><strong>Course history:</strong> 2022 winner, T3 2019, T18 2017. The venue responds to his game in non-obvious ways — approach doesn't need to be elite if ARG/scrambling peak fires</div>
+      <div class="brief-item"><strong>Scrambling:</strong> 5th in field in 2022 win — the ARG / scramble combination at HT is a legitimate secondary path when approach is borderline</div>
+      <div class="brief-item"><strong>Form window:</strong> Apply decay model — need current 6-week form inputs</div>
+    </div>
+    <div class="conviction">The most interesting player in Tier 1. His path to winning here differs from the approach-dominant template — he wins via total game management and scrambling depth. Lower ceiling than Scheffler/Lowry on trait fit alone, but course history elevates him. Projection holds pending current form check.</div>
+    <div class="risk">Risk vector: Approach play below 20th in the field drops him from Tier 1 to Tier 2 in real-time. The 2022 win required 10th-ranked approach. If he's struggling with irons coming out of Augusta, the ARG path isn't sufficient at this venue without solid ball-striking as the floor.</div>
+  </div>
+
+  <div class="tier-hdr"><span class="tier-badge t2">Tier 2 — Contention Windows (VTS 65–79)</span><span class="tier-desc">Live for the weekend. Capable of winning if key variables align.</span></div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Cameron Young</div><div class="vts-score vts-t2">VTS 78</div></div>
+    <div class="pc-meta"><span class="chip pos">Elite approach</span><span class="chip warn">Limited HT history</span><span class="chip">Debut penalty partial</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> One of the elite approach players in the field. Trait fit is legitimate.</div>
+      <div class="brief-item"><strong>Course history:</strong> Limited starts — comp course rule engaged. River Highlands and Kapalua comp data applied at +1.5 VTS.</div>
+      <div class="brief-item"><strong>Form window:</strong> Masters week 2026 — strong ball-striking trend this season</div>
+      <div class="brief-item"><strong>Ceiling:</strong> If approach holds, contention is realistic. Tier 1 upside possible with R1 confirmation.</div>
+    </div>
+    <div class="conviction">Young's trait profile belongs in Tier 1 on paper — the approach play and ball-striking numbers are there. What holds him at Tier 2 is limited Harbour Town evidence. After one or two rounds of confirmed course fit, this projection should update.</div>
+    <div class="risk">Risk vector: Limited course knowledge is the only structural gap. Health gate: no flags.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Xander Schauffele</div><div class="vts-score vts-t2">VTS 76</div></div>
+    <div class="pc-meta"><span class="chip pos">Elite TTG</span><span class="chip pos">Multiple HT top 10s</span><span class="chip warn">Approach tier check</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Approach:</strong> Elite tee-to-green player — the question is whether his approach in the 175–200y range specifically matches HT's demand</div>
+      <div class="brief-item"><strong>Course history:</strong> Multiple top-10 finishes. Pattern of performing here without winning.</div>
+      <div class="brief-item"><strong>Form:</strong> Masters contention in 2026 — sharp heading in</div>
+      <div class="brief-item"><strong>Ceiling:</strong> Legitimate winner if approach fires at top-10 level</div>
+    </div>
+    <div class="risk">Risk vector: History of contending but not closing at HT. Not a structural concern — sample size is the limit.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Sam Burns</div><div class="vts-score vts-t2">VTS 74</div></div>
+    <div class="pc-meta"><span class="chip pos">Strong HT history</span><span class="chip pos">Bermuda putter</span><span class="chip">Multiple top 10s</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Course history:</strong> Burns is a serial Harbour Town top-10 contender. The course fits his game beyond what the SG splits suggest.</div>
+      <div class="brief-item"><strong>Putting:</strong> Strong on Bermuda surfaces — one of the cleaner surface-specific reads in the field</div>
+      <div class="brief-item"><strong>Approach:</strong> Not elite nationally but history here suggests above-average performance specifically at HT</div>
+      <div class="brief-item"><strong>Form:</strong> Masters top 10 2026 — on form heading in</div>
+    </div>
+    <div class="risk">Risk vector: Approach ranking below top 20 at HT historically precedes his misses here. Monitor R1.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Tommy Fleetwood</div><div class="vts-score vts-t2">VTS 73</div></div>
+    <div class="pc-meta"><span class="chip pos">Precision profile</span><span class="chip pos">Links / coastal comfort</span><span class="chip">HT history building</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Trait fit:</strong> Fleetwood's compact, precise ball-striking is a structural match for HT's demands. Works the ball both ways — fade-bias holes suit him.</div>
+      <div class="brief-item"><strong>Coastal wind:</strong> Genuine edge. Links background translates at 17 and 18.</div>
+      <div class="brief-item"><strong>Course history:</strong> Still building. Limited starts mean comp course rule applies.</div>
+      <div class="brief-item"><strong>Approach:</strong> Consistently top-20 nationally — qualifies for Tier 2 with upside</div>
+    </div>
+    <div class="risk">Risk vector: Limited HT starts cap projection confidence. If R1 confirms approach, promote to Tier 1 consideration.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Justin Thomas</div><div class="vts-score vts-t2">VTS 70</div></div>
+    <div class="pc-meta"><span class="chip pos">Defending champion</span><span class="chip warn">Back injury flag</span><span class="chip warn">Health gate applies</span><span class="chip">VTS held at Tier 2 until R1 clears</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Course history:</strong> Won in 2025, multiple prior top finishes. Venue knowledge is genuine.</div>
+      <div class="brief-item"><strong>Form window:</strong> 2026 season disrupted by back surgery. T41 at Masters after missing cuts at ArnoldPalmer and Texas Open.</div>
+      <div class="brief-item"><strong>Approach:</strong> 5th in field in 2025 win. When healthy, approach is Tier 1 caliber at this venue.</div>
+      <div class="brief-item"><strong>Health gate:</strong> OPEN. Back injury requiring surgery is a binary gate. Does not close until R1 completed without incident.</div>
+    </div>
+    <div class="conviction">Pre-surgery JT is a Tier 1 player at this course. Post-surgery JT entering week 15 of a recovery season is Tier 2 at best until R1 proves otherwise. The distinction matters — his trait profile and course history are real, but health gates don't bend for résumés.</div>
+    <div class="risk">Risk vector: Back surgery. Two MC performances and disrupted swing mechanics entering a course that demands precise iron angles from 175–200y. A bad R1 here is a disqualifying signal. Health gate is the projection. Nothing else matters until it clears.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Ludvig Åberg</div><div class="vts-score vts-t2">VTS 68</div></div>
+    <div class="pc-meta"><span class="chip pos">Elite ball-striking</span><span class="chip warn">Limited HT starts</span><span class="chip">Debut penalty: 8 pts applied</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Trait fit:</strong> Ball-striking profile is legitimate Harbour Town material. Approach + TTG numbers are elite.</div>
+      <div class="brief-item"><strong>Course history:</strong> Debut (or near-debut). Full 8-pt debut penalty applied. Comp course data partial credit only.</div>
+      <div class="brief-item"><strong>Ceiling:</strong> If debut penalty proves too steep (likely given his rapid course adaptation history), R1 is the recalibration point.</div>
+      <div class="brief-item"><strong>Upside:</strong> Tier 1 ceiling on trait fit alone. Debut is the only structural constraint.</div>
+    </div>
+    <div class="risk">Risk vector: Debut penalty is the projection uncertainty. He has adapted to major venues quickly — if R1 confirms, he is a legitimate Tier 1 promotion candidate.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">Brian Harman</div><div class="vts-score vts-t2">VTS 67</div></div>
+    <div class="pc-meta"><span class="chip pos">Hilton Head native</span><span class="chip pos">Multiple top 10s here</span><span class="chip pos">Bermuda specialist</span><span class="chip">Approach limits ceiling</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Local knowledge:</strong> Grew up near Hilton Head. Coastal wind comfort is genuine, not a comp — it is native.</div>
+      <div class="brief-item"><strong>Course history:</strong> Consistent performer here. Pattern of finishing in the 8–18 range.</div>
+      <div class="brief-item"><strong>Bermuda putting:</strong> One of the better Bermuda putters in the field — surface-specific edge is real</div>
+      <div class="brief-item"><strong>Ceiling check:</strong> Approach is not elite enough nationally to project a win, but Tier 2 contention is reliable.</div>
+    </div>
+    <div class="risk">Risk vector: Approach ceiling is the structural limit. If national approach ranking is below 15th at HT, win probability stays low regardless of course comfort.</div>
+  </div>
+
+  <div class="player-card">
+    <div class="pc-top"><div class="pc-name">JT Poston</div><div class="vts-score vts-t2">VTS 66</div></div>
+    <div class="pc-meta"><span class="chip pos">Serial HT performer</span><span class="chip pos">T3 2022, T5 2024, T12 2025</span><span class="chip warn">2026 form concern</span></div>
+    <div class="brief-grid">
+      <div class="brief-item"><strong>Course history:</strong> Year-over-year HT is his best event. T3, T5, T12 — he may generate his best result of 2026 this week regardless of season form</div>
+      <div class="brief-item"><strong>Form window:</strong> Multiple missed cuts in 2026, but irons gained +1.2/rnd over last two starts — possible turn in form</div>
+      <div class="brief-item"><strong>Trait fit:</strong> Wins on short precision tracks (Sedgefield, TPC Deere Run). Profile matches HT demand.</div>
+      <div class="brief-item"><strong>Value:</strong> If form is genuinely returning, this is a significant gap between VTS and consensus pricing</div>
+    </div>
+    <div class="risk">Risk vector: 2026 season has been the worst of his career. If irons haven't stabilized, the course history pattern breaks. One of the highest-variance Tier 2 placements in the field.</div>
+  </div>
+
+  <div class="tier-hdr"><span class="tier-badge t3">Tier 3 — Top-10 range (VTS 50–64)</span><span class="tier-desc">Solid contributors. Missing at least one critical venue trait for a win.</span></div>
+
+  <div class="t3-grid">
+    <div class="t3-mini"><div class="t3-name">Russell Henley</div><div class="t3-vts">VTS 64</div><div class="t3-note">Masters top 10. Limited HT history but precision profile. Watch R1.</div></div>
+    <div class="t3-mini"><div class="t3-name">Jason Day</div><div class="t3-vts">VTS 62</div><div class="t3-note">Multiple HT top 10s. Approach form erratic in 2026. Putting won't carry here.</div></div>
+    <div class="t3-mini"><div class="t3-name">Viktor Hovland</div><div class="t3-vts">VTS 62</div><div class="t3-note">Ball-striking elite but HT putting is his Achilles. Bermuda exposure limited.</div></div>
+    <div class="t3-mini"><div class="t3-name">Patrick Cantlay</div><div class="t3-vts">VTS 61</div><div class="t3-note">HT bridesmaid pattern (2x T2). Approach holds but can't close at this venue.</div></div>
+    <div class="t3-mini"><div class="t3-name">Keegan Bradley</div><div class="t3-vts">VTS 59</div><div class="t3-note">Precision profile matches but national form inconsistent. Upside is real.</div></div>
+    <div class="t3-mini"><div class="t3-name">Min Woo Lee</div><div class="t3-vts">VTS 58</div><div class="t3-note">Ball-shaping ability is a fit. Limited starts. Monitor debut flag.</div></div>
+    <div class="t3-mini"><div class="t3-name">Robert MacIntyre</div><div class="t3-vts">VTS 57</div><div class="t3-note">Links comfort translates. Approach is strong. Bermuda putting uncertain.</div></div>
+    <div class="t3-mini"><div class="t3-name">Sungjae Im</div><div class="t3-vts">VTS 56</div><div class="t3-note">Course history positive. Bermuda putting decent. Approach not elite enough for Tier 2.</div></div>
+    <div class="t3-mini"><div class="t3-name">Ben Griffin</div><div class="t3-vts">VTS 55</div><div class="t3-note">Precision profile. Multiple HT solid results. Upside capped by limited elite approach data.</div></div>
+    <div class="t3-mini"><div class="t3-name">Harris English</div><div class="t3-vts">VTS 54</div><div class="t3-note">Course veteran. HT upside when approach clicks. Inconsistent in 2026.</div></div>
+    <div class="t3-mini"><div class="t3-name">Denny McCarthy</div><div class="t3-vts">VTS 53</div><div class="t3-note">Bermuda putting is his primary edge. Approach not sufficient alone here.</div></div>
+    <div class="t3-mini"><div class="t3-name">Nick Taylor</div><div class="t3-vts">VTS 52</div><div class="t3-note">Solid precision player. Limited HT edge but trait fit is real.</div></div>
+    <div class="t3-mini"><div class="t3-name">Wyndham Clark</div><div class="t3-vts">VTS 51</div><div class="t3-note">Sponsor exemption. Power profile is a partial anti-pattern trigger. Top 20 ceiling.</div></div>
+    <div class="t3-mini"><div class="t3-name">Lucas Glover</div><div class="t3-vts">VTS 51</div><div class="t3-note">Precision archetype. Multiple solid HT finishes. Approach must be on.</div></div>
+    <div class="t3-mini"><div class="t3-name">Tony Finau</div><div class="t3-vts">VTS 50</div><div class="t3-note">Power profile dampened at HT. Approach when on can compensate partially.</div></div>
+  </div>
+
+  <div class="tier-hdr"><span class="tier-badge t4">Tier 4 — Cut-line (VTS 35–49)</span><span class="tier-desc">Elite players, wrong venue. May finish competitively via scrambling but not contenders.</span></div>
+
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">No cut this week — these players will compete but are structurally disadvantaged for top-10 placement.</div>
+
+  <div class="t3-grid">
+    <div class="t3-mini"><div class="t3-name">Ryo Hisatsune</div><div class="t3-vts" style="color:var(--color-text-secondary)">VTS 46</div><div class="t3-note">Distance premium does not apply here. Approach from corridors is the constraint.</div></div>
+    <div class="t3-mini"><div class="t3-name">Corey Conners</div><div class="t3-vts" style="color:var(--color-text-secondary)">VTS 45</div><div class="t3-note">Canada-circuit precision player — limited HT evidence, approach decent but putting on Bermuda is the question.</div></div>
+    <div class="t3-mini"><div class="t3-name">Karl Vilips</div><div class="t3-vts" style="color:var(--color-text-secondary)">VTS 44</div><div class="t3-note">Young player, debut flag. Power game needs recalibration for HT demands.</div></div>
+    <div class="t3-mini"><div class="t3-name">Taylor Pendrith</div><div class="t3-vts" style="color:var(--color-text-secondary)">VTS 43</div><div class="t3-note">Power profile. Distance advantage neutralized. Approach from tight corridors is the concern.</div></div>
+    <div class="t3-mini"><div class="t3-name">Tom Hoge</div><div class="t3-vts" style="color:var(--color-text-secondary)">VTS 42</div><div class="t3-note">Precision tendencies but approach hasn't hit elite levels. Bermuda putter decent.</div></div>
+    <div class="t3-mini"><div class="t3-name">Rickie Fowler</div><div class="t3-vts" style="color:var(--color-text-secondary)">VTS 40</div><div class="t3-note">Form concern (2 MCs). Winless since 2023. Approach must return to 2022–23 level to compete here.</div></div>
+  </div>
+
+  <div class="tier-hdr"><span class="tier-badge t5">Tier 5 — Course mismatches (VTS below 35)</span><span class="tier-desc">Structurally disadvantaged. Power profiles, debut starters with low comp scores, weak approach players.</span></div>
+
+  <div class="t45-row"><span>Chandler Blanchet</span><span style="color:var(--color-text-danger);font-size:12px">VTS 24 · Debut · Power profile</span></div>
+  <div class="t45-row"><span>David Lipsky</span><span style="color:var(--color-text-danger);font-size:12px">VTS 26 · Debut · Distance-first</span></div>
+  <div class="t45-row"><span>Steven Fisk</span><span style="color:var(--color-text-danger);font-size:12px">VTS 28 · Debut · Limited elite approach evidence</span></div>
+  <div class="t45-row"><span>Jordan Smith</span><span style="color:var(--color-text-danger);font-size:12px">VTS 25 · Debut · DP World Tour multiplier applies</span></div>
+  <div class="t45-row"><span>Michael Brennan</span><span style="color:var(--color-text-danger);font-size:12px">VTS 27 · Debut · Limited Signature event experience</span></div>
+  <div class="t45-row"><span>Ricky Castillo</span><span style="color:var(--color-text-danger);font-size:12px">VTS 26 · Debut</span></div>
+  <div class="t45-row"><span>Johnny Keefer</span><span style="color:var(--color-text-danger);font-size:12px">VTS 24 · Debut</span></div>
+  <div class="t45-row"><span>Sudarshan Yellamaraju</span><span style="color:var(--color-text-danger);font-size:12px">VTS 22 · Debut</span></div>
+
+  <div class="sec-label">Anti-pattern flags</div>
+  <div class="ap-flag">
+    <div class="ap-flag-name">Justin Thomas — Masters fatigue anti-pattern (provisional, 5 pts applied)</div>
+    <div class="ap-flag-body">JT was not a Sunday near-miss at Augusta (T41) so the full emotional letdown pattern does not apply. However, the back surgery health gate is the primary flag and supersedes. Verdict: health gate is the controlling variable this week, not the fatigue anti-pattern.</div>
+  </div>
+  <div class="ap-flag">
+    <div class="ap-flag-name">Tony Finau / Taylor Pendrith / Wyndham Clark — bomb-and-gouge anti-pattern (12 pts applied)</div>
+    <div class="ap-flag-body">All three carry distance-first profiles that do not convert at Harbour Town. Tree-lined corridors neutralize the driving advantage and blocked angles from missed fairways produce a compounding scoring penalty. Historical evidence: no player ranked top 5 in driving distance has won here since 2009.</div>
+  </div>
+
+  <div class="sec-label">Value identification — gap table</div>
+  <div class="value-card">
+    <div class="value-name">Shane Lowry</div>
+    <div class="value-gap">VTS 83 (Tier 1) · Consensus pricing likely Tier 2–3 range · Gap: significant · Currently #1 in SG: Approach in field, 3 prior top-10s, coastal wind edge. The market has not fully repriced his current iron form into HT-specific projections.</div>
+  </div>
+  <div class="value-card">
+    <div class="value-name">JT Poston</div>
+    <div class="value-gap">VTS 66 (Tier 2) · Consensus pricing: likely outside top 15 given 2026 season · Gap: high if form is returning · Serial HT outperformer. If irons are genuinely back (+1.2/rnd last two starts), this is the widest gap in the field between VTS and implied probability.</div>
+  </div>
+  <div class="value-card">
+    <div class="value-name">Tommy Fleetwood</div>
+    <div class="value-gap">VTS 73 (Tier 2) · Precision profile, links comfort, approach improving · Gap: moderate · HT history is limited so consensus underweights his structural fit. Trait projection exceeds course history signal here.</div>
+  </div>
+
+</div>

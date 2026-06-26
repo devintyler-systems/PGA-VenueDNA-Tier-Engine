@@ -1,0 +1,153 @@
+Course profile data (TPC River Highlands / Travelers 2026)
+Use these as row values in a Course_Profile sheet.
+
+Course_Name: TPC River Highlands
+
+Location: Cromwell, Connecticut, USA
+
+Designers: Pete Dye (1982 redesign), later renovations by Bobby Weed
+
+Event_Name: Travelers Championship (PGA TOUR signature event)
+
+2026_Dates: 2026‑06‑25 to 2026‑06‑28 (Thu–Sun)
+
+Par: 70
+
+Tournament_Yardage: 6,841–6,844 yards (official listing 6,844; scorecard article cites 6,841)
+
+Course_Rating: 73.0 (Gold tees)
+
+Slope_Rating: 131 (Gold tees)
+
+Turf_Fairways: Bentgrass with Poa annua
+
+Turf_Rough: Kentucky bluegrass with fescue, ~4" for pro events
+
+Turf_Greens: Bentgrass/Poa annua blend
+
+Avg_Green_Size_sqft: ~5,000
+
+Tournament_Stimp: ~12
+
+Water_Holes_Count: 5 (water hazards in play on five holes)
+
+Signature_Stretch: Holes 15–17 around a 4‑acre lake; reachable par‑4 15th is key risk‑reward hole
+
+Course_Record: 58 (Jim Furyk, 2016 Travelers final round)
+
+Historical scoring environment (DataGolf / PGA TOUR)
+This is what to load into Historical_Scoring_Stats; I’ll give you the key aggregated row.
+
+From DataGolf’s Travelers Championship historical stats (event_id=34):
+
+Scoring_Avg_To_Par: −0.76 (field average per round vs par)
+
+Scoring_Std_Dev_To_Par: 0.06 (dispersion around that −0.76)
+
+Course_Yardage_Mean: 6,813 yards (mean over sampled years)
+
+Course_Yardage_SD: 416 yards (variation across setups, mostly noise)
+
+Driving_Distance_Mean: 287.4 yards
+
+Driving_Distance_SD: 5.5 yards
+
+Driving_Accuracy_Mean: 62.5%
+
+Driving_Accuracy_SD: 1.7%
+
+Avg_Fairway_Width_Mean: 35.1 yards
+
+Avg_Fairway_Width_SD: 0.9 yards
+
+PGA TOUR’s course stats for Travelers (2025 page, same venue) reinforce “par 70, 6,844 yards, field scoring average ~69.236 which is −0.764 vs par.”
+
+You can hard‑code:
+
+Birdie_Fest_Flag: TRUE (field consistently under par)
+
+Course map / hole‑by‑hole starting points
+You’ll need to parse PDFs or HTML for full hole‑by‑hole, but the sources are pinned:
+
+Travelers Championship course map PDF with routing and yardages.
+
+LiveTourney scorecard article stating:
+
+Gold tees: 6,841 yards, rating 73.0 / 131
+
+Blue tees: 6,518 yards, rating 71.5 / 127
+
+For now, set up Hole_By_Hole with these initial columns and fill via those sources:
+
+Hole_Number (1–18)
+
+Par (total 70; configuration is 4 par‑3s, 10 par‑4s, 4 par‑5s)
+
+Yardage_Gold (per hole; from LiveTourney/BlueGolf)
+
+Handicap_Rank (from scorecard)
+
+Water_Flag (Y/N per hole; at least 15–17 are Y)
+
+Risk_Reward_Score (0–3; start 3 for 15, 2 for 17, 2 for 13 if reachable)
+
+Weather by round (Travelers 2026)
+From a Travelers Championship weather forecast article for 2026:
+
+Planned Weather_Rounds sheet:
+
+Round: R1
+
+Date: 2026‑06‑25
+
+High_Temp_F: ~83
+
+Low_Temp_F: ~58
+
+Wind_Speed_Avg_mph: light (call it 5–10 mph)
+
+Wind_Gust_Max_mph: ~15 (conservative)
+
+Rain_Chance_%: low (single‑digit to low teens)
+
+Notes: warm, calm; scoring should be aggressive.
+
+Rounds R2–R4 (June 26–28) are described broadly as “warm, dry, light winds” through the week, with no significant wind or rain spikes.
+
+You can encode:
+
+Easy_Weather_Flag: TRUE for all rounds.
+
+Signature event format / purse (Travelers 2026)
+From BusinessWire and PGA TOUR tournament overview:
+
+Field_Size: 72 players (signature event; limited field)
+
+Format: Stroke play, 4 rounds, NO CUT (all 72 play R1–R4 barring WDs)
+
+Purse_Total: $20,000,000
+
+Winner_Share (approx): $3,600,000 (assuming typical ~18%)
+
+Event_Type: Signature event, final signature of 2026 season
+
+Course fit and comp logic (RickRunGood & DataGolf)
+From RickRunGood’s TPC River Highlands course breakdown:
+
+Model weighting example you can encode for Player_Fit_Metrics:
+
+“Short_Courses_SG_Total_Weight”: 6% (strokes gained total on short courses)
+
+“Comp_Courses_CourseHistory_Weight”: 19% (course history + comp courses)
+
+Comp_Courses_List: TPC River Highlands, Colonial CC, TPC Potomac, Harbour Town.
+
+From DataGolf’s Course Fit Tool:
+
+For each player, DataGolf provides:
+
+Course_Fit_Score_TPC_River_Highlands (positive means the player’s skill profile maps well to this course)
+
+Short_Course_Fit metrics (how their game translates to shorter tracks)
+
+You’ll have to pull those programmatically, but you now have the dimensionality for your Player_Fit_Metrics sheet.

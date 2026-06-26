@@ -1,0 +1,287 @@
+function computeHarbourTownVTS(player, harbourTownConfig):
+
+    cfg = harbourTownConfig
+
+    # --------------------------------------------------
+    # 1) Determine venue-history weighting regime
+    # --------------------------------------------------
+    ht_rounds = player.venue_history.harbour_town.rounds_played
+
+    if ht_rounds >= 10:
+        w_venue  = cfg.projection_blending_rules.venue_history_weights.rounds_10_plus.venue_sg_profile_weight
+        w_trait  = cfg.projection_blending_rules.venue_history_weights.rounds_10_plus.trait_matrix_weight
+        w_form   = cfg.projection_blending_rules.venue_history_weights.rounds_10_plus.recent_form_weight
+    else if ht_rounds >= 5:
+        w_venue  = cfg.projection_blending_rules.venue_history_weights.rounds_5_to_9.venue_sg_profile_weight
+        w_trait  = cfg.projection_blending_rules.venue_history_weights.rounds_5_to_9.trait_matrix_weight
+        w_form   = cfg.projection_blending_rules.venue_history_weights.rounds_5_to_9.recent_form_weight
+    else if ht_rounds >= 3:
+        w_venue  = cfg.projection_blending_rules.venue_history_weights.rounds_3_to_4.venue_sg_profile_weight
+        w_trait  = cfg.projection_blending_rules.venue_history_weights.rounds_3_to_4.trait_matrix_weight
+        w_form   = cfg.projection_blending_rules.venue_history_weights.rounds_3_to_4.recent_form_weight
+    else:
+        w_venue  = cfg.projection_blending_rules.venue_history_weights.rounds_0_to_2.venue_sg_profile_weight
+        w_trait  = cfg.projection_blending_rules.venue_history_weights.rounds_0_to_2.trait_matrix_weight
+        w_form   = cfg.projection_blending_rules.venue_history_weights.rounds_0_to_2.recent_form_weight
+
+
+    # --------------------------------------------------
+    # 2) Build venue SG component (Harbour Town-specific)
+    # --------------------------------------------------
+    # Map per-round SG from Harbour Town into 0–100 for auditability.
+    # You can use global field means/SDs or precomputed scaling tables.
+
+    venue_sg = player.venue_history.harbour_town
+
+    venue_component = mapVenueSGToScore0_100(
+        sg_tot = venue_sg.sg_tot_per_round,
+        sg_ott = venue_sg.sg_ott_per_round,
+        sg_app = venue_sg.sg_app_per_round,
+        sg_putt = venue_sg.sg_putt_per_round,
+        pressure_sg = venue_sg.pressure_hole_sg_per_round
+    )
+
+    player.derived_vts_components.venue_sg_component_0_100 = venue_component
+
+
+    # --------------------------------------------------
+    # 3) Build trait component from trait matrix
+    # --------------------------------------------------
+    # 3.1 Ensure putting is correctly converted to Bermuda-specific metric.
+
+    trait = player.trait_inputs
+
+    if trait.putting_by_surface.bermuda.rounds >=
+       cfg.putting_surface_conversion.fallback_rule_when_no_clean_bermuda_sample.minimum_bermuda_rounds:
+        trait.derived_for_venue.putting_bermuda_converted.has_clean_bermuda_sample = true
+        trait.derived_for_venue.putting_bermuda_converted.bermuda_rounds_used =
+            trait.putting_by_surface.bermuda.rounds
+        trait.derived_for_venue.putting_bermuda_converted.sg_putt_bermuda_used =
+            trait.putting_by_surface.bermuda.sg_putt_per_round
+    else:
+        # blended metric
+        w_non = cfg.putting_surface_conversion.fallback_rule_when_no_clean_bermuda_sample.blend_weights.non_bermuda_sg_putting
+        w_glb = cfg.putting_surface_conversion.fallback_rule_when_no_clean_bermuda_sample.blend_weights.global_sg_putting
+        disc  = cfg.putting_surface_conversion.fallback_rule_when_no_clean_bermuda_sample.conservative_discount_strokes_per_round
+
+        non_val = trait.putting_by_surface.non_bermuda.sg_putt_per_round
+        glb_val = trait.putting_by_surface.global.sg_putt_per_round
+
+        blended = (w_non * non_val) + (w_glb * glb_val) + disc
+
+        trait.derived_for_venue.putting_bermuda_converted.has_clean_bermuda_sample = false
+        trait.derived_for_venue.putting_bermuda_converted.blended_sg_putt_when_no_bermuda.non_bermuda_component = w_non * non_val
+        trait.derived_for_venue.putting_bermuda_converted.blended_sg_putt_when_no_bermuda.global_component = w_glb * glb_val
+        trait.derived_for_venue.putting_bermuda_converted.blended_sg_putt_when_no_bermuda.final_sg_putt_used = blended
+
+
+    # 3.2 Compute trait z-scores (requires field-level baselines; assume injected/available).
+
+    zs = trait.derived_for_venue.trait_z_scores
+
+    zs.z_sg_app                          = zScore(trait.sg_components.global.sg_app_per_round, field_mean_app, field_sd_app)
+    zs.z_sg_ott_tight_penalty           = zScore(trait.sg_components.tight_penalty_driving.sg_ott_tight_penalty_per_round, field_mean_ott_tight, field_sd_ott_tight)
+    zs.z_putting_bermuda_surface_specific =
+        zScore(getHarbourTownPuttingMetric(trait), field_mean_putt_bda, field_sd_putt_bda)
+    zs.z_par5_scoring_gir_in_2          = zScore(trait.sg_components.par5_scoring.par5_sg_per_round, field_mean_par5_sg, field_sd_par5_sg)
+    zs.z_pressure_hole_scoring          = zScore(trait.sg_components.pressure_hole_scoring.pressure_hole_sg_per_round, field_mean_pressure_sg, field_sd_pressure_sg)
+    zs.z_trajectory_shotshaping_control = zScore(trait.sg_components.shot_shape_and_trajectory.two_way_shape_proxy_sg, field_mean_shape, field_sd_shape)
+
+
+    # 3.3 Map each z-score to 0–100 trait subscore.
+
+    subs = trait.derived_for_venue.trait_subscores_0_100
+
+    subs.sg_app                          = zToScore0_100(zs.z_sg_app)
+    subs.sg_ott_tight_penalty           = zToScore0_100(zs.z_sg_ott_tight_penalty)
+    subs.putting_bermuda_surface_specific =
+        zToScore0_100(zs.z_putting_bermuda_surface_specific)
+    subs.par5_scoring_gir_in_2          = zToScore0_100(zs.z_par5_scoring_gir_in_2)
+    subs.pressure_hole_scoring          = zToScore0_100(zs.z_pressure_hole_scoring)
+    subs.trajectory_shotshaping_control = zToScore0_100(zs.z_trajectory_shotshaping_control)
+
+
+    # 3.4 Apply Harbour Town trait weights.
+
+    tw = cfg.trait_weight_matrix.traits
+
+    weight_lookup = mapTraitWeightsToKeys(tw)
+    # e.g. weight_lookup["SG_Approach"] = 35, etc.
+
+    trait_component =
+          subs.sg_app                          * (weight_lookup["SG_Approach"] / 100.0)
+        + subs.sg_ott_tight_penalty           * (weight_lookup["SG_OTT_TightPenalty"] / 100.0)
+        + subs.putting_bermuda_surface_specific * (weight_lookup["Putting_Bermuda_SurfaceSpecific"] / 100.0)
+        + subs.par5_scoring_gir_in_2          * (weight_lookup["Par5_Scoring_GIR_in_2"] / 100.0)
+        + subs.pressure_hole_scoring          * (weight_lookup["PressureHole_Scoring"] / 100.0)
+        + subs.trajectory_shotshaping_control * (weight_lookup["Trajectory_ShotShaping_Control"] / 100.0)
+
+    player.derived_vts_components.trait_component_0_100 = trait_component
+
+
+    # --------------------------------------------------
+    # 4) Build recent form component (decayed + quality-adjusted)
+    # --------------------------------------------------
+
+    form_cfg   = cfg.projection_blending_rules.recent_form_layer
+    starts     = player.recent_form.starts
+
+    # Remove injury-flagged starts
+    valid_starts = filter(starts, start => start.injury_flag == false)
+
+    # Sort by start_date descending
+    valid_starts = sortByDateDesc(valid_starts)
+
+    # Only first 6 starts
+    valid_starts = take(valid_starts, 6)
+
+    # Recency weights
+    w_recent_1  = form_cfg.recency_decay.most_recent_start      # 0.35
+    w_recent_2  = form_cfg.recency_decay.second_most_recent     # 0.25
+    w_recent_3_6= form_cfg.recency_decay.next_four_each         # 0.10
+
+    decayed_sum = 0.0
+    total_w     = 0.0
+
+    for i, start in enumerate(valid_starts):
+        if i == 0: recency_w = w_recent_1
+        else if i == 1: recency_w = w_recent_2
+        else: recency_w = w_recent_3_6
+
+        quality_mult = lookupQualityMultiplier(
+            start.tour_type,
+            form_cfg.event_quality_multipliers
+        )
+
+        combined_sg = start.sg_t2g_per_round + start.sg_putt_per_round
+
+        weight = recency_w * quality_mult
+
+        decayed_sum += combined_sg * weight
+        total_w     += weight
+
+    if total_w > 0:
+        decayed_sg = decayed_sum / total_w
+    else:
+        decayed_sg = 0.0
+
+    # Map decayed_sg to 0–100 form score (again via z-score vs field or scaling).
+    form_score = mapFormSGToScore0_100(decayed_sg)
+
+    player.recent_form.decayed_form_score.combined_sg_per_round = decayed_sg
+    player.recent_form.decayed_form_score.form_score_0_100      = form_score
+    player.derived_vts_components.form_component_0_100          = form_score
+
+
+    # --------------------------------------------------
+    # 5) Apply comp-course adjustment (capped +/-6)
+    # --------------------------------------------------
+
+    comp_adj = computeCompAdjustmentVTS(player.comp_course_history, cfg.comp_courses)
+
+    # enforce global cap
+    cap = cfg.comp_courses.combined_comp_influence_cap  # 6
+    comp_adj = clamp(comp_adj, -cap, cap)
+
+    player.comp_course_history.derived_comp_adjustment_vts = comp_adj
+
+
+    # --------------------------------------------------
+    # 6) Blend venue, traits, form, comps into pre-penalty VTS
+    # --------------------------------------------------
+
+    pre_penalty_vts =
+          venue_component * w_venue
+        + trait_component * w_trait
+        + form_score      * w_form
+        + comp_adj
+
+    player.derived_vts_components.pre_penalty_vts           = pre_penalty_vts
+    player.derived_vts_components.comp_adjustment_vts       = comp_adj
+    player.derived_vts_components.venue_sg_component_0_100  = venue_component
+    player.derived_vts_components.trait_component_0_100     = trait_component
+    player.derived_vts_components.form_component_0_100      = form_score
+
+
+    # --------------------------------------------------
+    # 7) Debut penalty
+    # --------------------------------------------------
+
+    is_debut = (player.venue_history.harbour_town.rounds_played == 0)
+
+    debut_penalty = 0.0
+    if is_debut:
+        debut_penalty = cfg.projection_blending_rules.debut_and_anti_pattern_penalties.debut_penalty_2026_vts_points
+
+    player.derived_vts_components.debut_penalty_vts = debut_penalty
+
+
+    # --------------------------------------------------
+    # 8) Anti-pattern penalties (with -18 cap)
+    # --------------------------------------------------
+
+    ap_cfg   = cfg.projection_blending_rules.debut_and_anti_pattern_penalties.anti_pattern_penalties_2026
+    flags    = player.pattern_flags.anti_patterns_triggered
+
+    anti_total = 0.0
+
+    if flags.bomb_and_gouge_low_fairway_weak_small_green_control:
+        anti_total += abs(ap_cfg.bomb_and_gouge_low_fairway_weak_small_green_control) * -1
+
+    if flags.elite_ttg_negative_bermuda_putter:
+        anti_total += abs(ap_cfg.elite_ttg_negative_bermuda_putter) * -1
+
+    if flags.one_shape_only_low_flex_shotmaker:
+        anti_total += abs(ap_cfg.one_shape_only_low_flex_shotmaker) * -1
+
+    anti_cap = cfg.projection_blending_rules.debut_and_anti_pattern_penalties.anti_pattern_total_cap_vts_points
+    anti_total = max(anti_total, anti_cap)  # anti_cap is negative, e.g. -18
+
+    player.derived_vts_components.anti_pattern_penalties_vts_total = anti_total
+
+
+    # --------------------------------------------------
+    # 9) Apply health gate
+    # --------------------------------------------------
+
+    health_gate = false
+    if player.meta.known_injury_flag == true:
+        health_gate = true
+
+    player.derived_vts_components.health_gate_applied = health_gate
+
+
+    # --------------------------------------------------
+    # 10) Final VTS and tier assignment
+    # --------------------------------------------------
+
+    final_vts = pre_penalty_vts - debut_penalty + anti_total
+
+    player.derived_vts_components.final_vts = final_vts
+
+    tiers = cfg.projection_blending_rules.tier_cutoffs
+
+    tier = "T5"
+
+    if final_vts >= tiers.tier_1.vts_min and final_vts <= tiers.tier_1.vts_max and health_gate == false:
+        # Also check that anti-pattern penalties are not extreme.
+        if abs(anti_total) < 7:
+            tier = "T1"
+        else:
+            tier = "T2"
+    else if final_vts >= tiers.tier_2.vts_min and final_vts <= tiers.tier_2.vts_max:
+        tier = "T2"
+    else if final_vts >= tiers.tier_3.vts_min and final_vts <= tiers.tier_3.vts_max:
+        tier = "T3"
+    else if final_vts >= tiers.tier_4.vts_min and final_vts <= tiers.tier_4.vts_max:
+        tier = "T4"
+    else:
+        tier = "T5"
+
+    # If health_gate is on, cap tier at 3 even if VTS high.
+    if health_gate and (tier == "T1" or tier == "T2"):
+        tier = "T3"
+
+    player.derived_vts_components.tier = tier
+
+    return player

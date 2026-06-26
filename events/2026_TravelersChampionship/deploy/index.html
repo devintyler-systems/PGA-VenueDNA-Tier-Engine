@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PGA VenueDNA — Travelers Championship 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <h1><span>PGA VenueDNA</span> — Travelers Championship</h1>
+      <div class="header-meta">TPC River Highlands · Cromwell, CT · 2026-06-25 to 2026-06-28 · Par 70 · 6,844 yds</div>
+      <div class="badges"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Meta bar ── -->
+<div class="meta-bar">
+  <div class="meta-bar-inner"></div>
+</div>
+
+<!-- ── Main ── -->
+<main>
+
+  <!-- Venue + Model info cards -->
+  <div class="info-grid"></div>
+
+  <!-- No-cut banner -->
+  <div class="nocut-banner"><span class="icon"></span><span>Loading…</span></div>
+
+  <!-- Tee-time alert -->
+  <div class="tee-alert">Loading tee time info…</div>
+
+  <!-- ── Sticky controls bar ── -->
+  <div class="controls-sticky" id="controls-sticky">
+    <div class="controls-bar">
+      <div class="control-search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Search golfer by name…" autocomplete="off" />
+        <button class="search-clear" id="search-clear" aria-label="Clear search" style="display:none">✕</button>
+      </div>
+      <div class="control-actions">
+        <button class="ctrl-btn" id="btn-filter" aria-expanded="false">
+          <span>Filters</span><span class="filter-badge" id="filter-badge" style="display:none">0</span>
+        </button>
+        <button class="ctrl-btn" id="btn-favonly">
+          <span class="fav-star">★</span> Favorites (<span id="fav-count">0</span>)
+        </button>
+        <div class="preset-wrap">
+          <button class="ctrl-btn" id="btn-presets">Views ▾</button>
+          <div class="preset-dropdown" id="preset-dropdown" style="display:none">
+            <button class="preset-item" data-preset="top-equity">Top Win Equity</button>
+            <button class="preset-item" data-preset="wedge-fits">Best Wedge Fits</button>
+            <button class="preset-item" data-preset="birdie-makers">Best Birdie Makers</button>
+            <button class="preset-item" data-preset="accurate-drivers">Accurate Drivers</button>
+            <button class="preset-item" data-preset="safe-floor">Safest Floor</button>
+            <button class="preset-item" data-preset="longshot-dogs">Longshot Dogs</button>
+            <button class="preset-item" data-preset="clean-flags">No Risk Flags</button>
+            <div class="preset-divider"></div>
+            <button class="preset-item" data-preset="favorites">My Card ★</button>
+          </div>
+        </div>
+        <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
+        <button class="ctrl-btn ctrl-compare" id="btn-compare" style="display:none">
+          Compare (<span id="compare-num">0</span>)
+        </button>
+      </div>
+    </div>
+    <!-- Active filter pills -->
+    <div class="active-pills" id="active-pills" style="display:none"></div>
+  </div>
+
+  <!-- ── Filter panel ── -->
+  <div class="filter-panel" id="filter-panel" style="display:none">
+    <div class="filter-panel-inner">
+      <div class="filter-panel-header">
+        <span class="filter-panel-title">Trait Filters</span>
+        <button class="fp-close" id="fp-close">✕</button>
+      </div>
+      <div class="filter-rules" id="filter-rules"></div>
+      <div class="fp-imputed-row">
+        <label class="fp-imputed-label">
+          <input type="checkbox" id="fp-include-imputed" />
+          Include imputed / unknown traits in filters
+        </label>
+        <span class="fp-imputed-hint">Off by default — unknown traits always excluded regardless</span>
+      </div>
+      <div class="filter-add-row">
+        <button class="fp-add-btn" id="fp-add-rule">+ Add filter rule</button>
+        <div class="filter-presets-chips">
+          <span class="filter-chips-label">Quick:</span>
+          <button class="fp-chip" data-fpreset="wedge-spec">Wedge Specialists</button>
+          <button class="fp-chip" data-fpreset="birdie-conv">Birdie Makers</button>
+          <button class="fp-chip" data-fpreset="accurate">Accurate Drivers</button>
+          <button class="fp-chip" data-fpreset="around-green">Around-the-Green</button>
+          <button class="fp-chip" data-fpreset="betting-card">Betting Card</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badge legend (shown when field has imputed/unknown data) -->
+  <div class="badge-legend" id="badge-legend" style="display:none"></div>
+
+  <!-- Tier tabs -->
+  <div class="tier-tabs">
+    <button class="tier-tab active" data-tier="all">All</button>
+    <button class="tier-tab" data-tier="1">Tier 1</button>
+    <button class="tier-tab" data-tier="2">Tier 2</button>
+    <button class="tier-tab" data-tier="3">Tier 3</button>
+    <button class="tier-tab" data-tier="4">Tier 4</button>
+    <button class="tier-tab" data-tier="5">Tier 5</button>
+  </div>
+
+  <!-- Player table -->
+  <div class="table-wrap" id="table-wrap">
+    <div class="table-result-bar" id="table-result-bar" style="display:none"></div>
+    <table class="player-table">
+      <thead>
+        <tr>
+          <th class="th-sort" data-col="rank"># <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="player_name">Player <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="tier">Tier <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="vts_final">VTS <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="win_pct">Win % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="top10_pct">Top 10 % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="top20_pct">Top 20 % <span class="sort-ind"></span></th>
+          <th>Cut</th>
+          <th class="th-sort" data-col="flag_count">Flags <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="vh_rounds">CH Rds <span class="sort-ind"></span></th>
+          <th class="th-fav" title="Favorite">★</th>
+          <th class="th-cmp" title="Compare">⊕</th>
+        </tr>
+      </thead>
+      <tbody id="player-tbody">
+        <tr><td colspan="12" style="text-align:center;color:var(--muted);padding:2rem">Loading…</td></tr>
+      </tbody>
+    </table>
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div class="empty-icon">⌕</div>
+      <div class="empty-msg">No players match your filters.</div>
+      <button class="empty-reset" id="empty-reset">Reset all filters</button>
+    </div>
+  </div>
+
+  <!-- Brief cards (T1 + T2) -->
+  <div class="brief-section">
+    <h2>Tier 1 &amp; 2 Briefs</h2>
+    <div class="brief-grid"></div>
+  </div>
+
+  <!-- ── Data diagnostics (collapsible, developer/power-user) ── -->
+  <div class="diag-section" id="diag-section">
+    <button class="diag-toggle-btn" id="diag-toggle">▶ Diagnostics</button>
+    <div class="diag-panel" id="diag-panel" style="display:none">
+      <div class="diag-panel-body" id="diag-panel-body">Loading…</div>
+    </div>
+  </div>
+
+  <!-- ── Round Insights / Tournament Learning ── -->
+  <div class="round-insights-section" id="round-insights">
+    <div class="ri-header">
+      <h2>Tournament Learning</h2>
+      <div class="ri-mode-tabs">
+        <button class="ri-tab active" data-round="pre">Pre-Tournament</button>
+        <button class="ri-tab" data-round="r1">Round 1</button>
+        <button class="ri-tab" data-round="r2">Round 2</button>
+        <button class="ri-tab" data-round="r3">Round 3</button>
+        <button class="ri-tab" data-round="final">Final</button>
+      </div>
+    </div>
+    <div class="ri-body" id="ri-body"></div>
+  </div>
+
+</main>
+
+<!-- ── Footer ── -->
+<footer>PGA VenueDNA · Loading…</footer>
+
+<!-- ── Compare tray (fixed bottom) ── -->
+<div class="compare-tray" id="compare-tray" style="display:none">
+  <div class="compare-tray-inner">
+    <div class="compare-tray-players" id="compare-tray-players"></div>
+    <div class="compare-tray-actions">
+      <button class="ctrl-btn ctrl-btn-accent" id="btn-open-compare">Compare players</button>
+      <button class="ctrl-btn ctrl-btn-muted" id="btn-clear-compare">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Compare modal ── -->
+<div class="modal-overlay" id="compare-modal-overlay" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h2>Player Comparison</h2>
+      <button class="modal-close" id="compare-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="compare-modal-body"></div>
+  </div>
+</div>
+
+<!-- ── Player detail modal ── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-player-name"></h2>
+        <div id="modal-player-sub" style="font-size:.78rem;color:var(--muted);margin-top:.25rem"></div>
+      </div>
+      <button class="modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

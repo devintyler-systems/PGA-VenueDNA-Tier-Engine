@@ -1,0 +1,403 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-06-25T22:32:56.594558+00:00",
+  "event_slug": "2026_travelers_championship",
+  "qa_config": {
+    "per_trait_warning_threshold": 0.05,
+    "player_missing_weight_warning": 0.2,
+    "tournament_weighted_miss_warning": 0.03,
+    "extreme_low_threshold": 2.0,
+    "min_tier_size_for_imputation": 3
+  },
+  "zero_sentinel_rule": "A trait score of exactly 0.0 is never a valid PGA Tour percentile result. Zero-sentinels indicate missing source data silently filled by a pipeline default (e.g. pandas fillna(0)). They must be imputed, not treated as 0th-percentile performance. See CLASSIFICATION TAXONOMY in this module's docstring for full policy.",
+  "tournament_summary": {
+    "total_players": 71,
+    "players_with_any_issue": 6,
+    "players_with_zero_sentinel": 6,
+    "players_with_nan": 0,
+    "players_with_unresolved_unknown": 0,
+    "players_with_extreme_low": 2,
+    "traits_zero_sentinel_count": 10,
+    "traits_nan_count": 0,
+    "traits_imputed_from_historical": 0,
+    "traits_imputed_from_tier": 10,
+    "traits_imputed_from_field": 0,
+    "traits_unresolved_unknown": 0,
+    "traits_extreme_low_flagged": 2,
+    "tournament_weighted_miss_rate": 0.0141,
+    "per_trait_missing_rate": {
+      "app_wedge": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.22
+      },
+      "app_100_150": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.12
+      },
+      "app_150_200": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.06
+      },
+      "ott_accuracy": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.14
+      },
+      "ott_distance": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.05
+      },
+      "putt_short_conv": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.16
+      },
+      "putt_lag": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.1
+      },
+      "arg_rough": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.07
+      },
+      "arg_bunker": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.05
+      },
+      "par5_scoring": {
+        "missing_count": 1,
+        "total": 71,
+        "missing_pct": 1.41,
+        "venue_weight": 0.03
+      }
+    },
+    "tier_averages_used": {
+      "2": {
+        "app_wedge": 78.13,
+        "app_100_150": 78.53,
+        "app_150_200": 77.8,
+        "ott_accuracy": 84.73,
+        "ott_distance": 67.43,
+        "putt_short_conv": 65.9,
+        "putt_lag": 55.57,
+        "arg_rough": 78.33,
+        "arg_bunker": 70.93,
+        "par5_scoring": 77.13
+      },
+      "3": {
+        "app_wedge": 72.09,
+        "app_100_150": 72.66,
+        "app_150_200": 72.19,
+        "ott_accuracy": 63.22,
+        "ott_distance": 69.84,
+        "putt_short_conv": 62.11,
+        "putt_lag": 55.92,
+        "arg_rough": 53.61,
+        "arg_bunker": 46.91,
+        "par5_scoring": 65.85
+      },
+      "4": {
+        "app_wedge": 57.03,
+        "app_100_150": 57.55,
+        "app_150_200": 57.07,
+        "ott_accuracy": 51.82,
+        "ott_distance": 62.28,
+        "putt_short_conv": 55.67,
+        "putt_lag": 47.29,
+        "arg_rough": 56.28,
+        "arg_bunker": 54.1,
+        "par5_scoring": 53.83
+      },
+      "5": {
+        "app_wedge": 42.11,
+        "app_100_150": 42.36,
+        "app_150_200": 42.03,
+        "ott_accuracy": 44.38,
+        "ott_distance": 55.57,
+        "putt_short_conv": 36.43,
+        "putt_lag": 28.37,
+        "arg_rough": 47.63,
+        "arg_bunker": 48.34,
+        "par5_scoring": 41.43
+      }
+    },
+    "field_averages_used": {
+      "app_wedge": 58.58,
+      "app_100_150": 59.04,
+      "app_150_200": 58.59,
+      "ott_accuracy": 54.45,
+      "ott_distance": 63.19,
+      "putt_short_conv": 53.8,
+      "putt_lag": 45.86,
+      "arg_rough": 55.01,
+      "arg_bunker": 52.15,
+      "par5_scoring": 55.41
+    }
+  },
+  "warnings": [
+    {
+      "level": "warning",
+      "code": "PLAYER_HIGH_MISSING_WEIGHT",
+      "message": "Glover, Lucas has 26% combined missing trait weight \u2014 confidence penalty will apply.",
+      "player_name": "Glover, Lucas",
+      "missing_trait_weight": 0.26
+    },
+    {
+      "level": "warning",
+      "code": "PLAYER_HIGH_MISSING_WEIGHT",
+      "message": "Im, Sungjae has 40% combined missing trait weight \u2014 confidence penalty will apply.",
+      "player_name": "Im, Sungjae",
+      "missing_trait_weight": 0.4
+    },
+    {
+      "level": "info",
+      "code": "EXTREME_LOW_FLAG",
+      "message": "Berger, Daniel: trait 'arg_bunker' = 0.90 (< 2) \u2014 valid non-zero but extreme floor; verify against source data.",
+      "player_name": "Berger, Daniel",
+      "trait": "arg_bunker",
+      "value": 0.9
+    },
+    {
+      "level": "info",
+      "code": "EXTREME_LOW_FLAG",
+      "message": "Campbell, Brian: trait 'app_wedge' = 1.30 (< 2) \u2014 valid non-zero but extreme floor; verify against source data.",
+      "player_name": "Campbell, Brian",
+      "trait": "app_wedge",
+      "value": 1.3
+    }
+  ],
+  "player_records": [
+    {
+      "player_name": "Cole, Eric",
+      "name_key": "COLE_ERIC",
+      "tier": 4,
+      "rank": 28,
+      "missing_trait_weight": 0.14,
+      "has_zero_sentinel": true,
+      "has_nan": false,
+      "has_unresolved": false,
+      "imputed_traits": [
+        {
+          "trait": "ott_accuracy",
+          "source": "tier_4_avg",
+          "imputed_value": 51.82,
+          "original_status": "invalid_zero_sentinel"
+        }
+      ],
+      "unknown_traits": [],
+      "extreme_low_traits": [],
+      "issues": [
+        {
+          "trait": "ott_accuracy",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        }
+      ]
+    },
+    {
+      "player_name": "Woodland, Gary",
+      "name_key": "WOODLAND_GARY",
+      "tier": 4,
+      "rank": 48,
+      "missing_trait_weight": 0.05,
+      "has_zero_sentinel": true,
+      "has_nan": false,
+      "has_unresolved": false,
+      "imputed_traits": [
+        {
+          "trait": "arg_bunker",
+          "source": "tier_4_avg",
+          "imputed_value": 54.1,
+          "original_status": "invalid_zero_sentinel"
+        }
+      ],
+      "unknown_traits": [],
+      "extreme_low_traits": [],
+      "issues": [
+        {
+          "trait": "arg_bunker",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        }
+      ]
+    },
+    {
+      "player_name": "Berger, Daniel",
+      "name_key": "BERGER_DANIEL",
+      "tier": 4,
+      "rank": 55,
+      "missing_trait_weight": 0.07,
+      "has_zero_sentinel": true,
+      "has_nan": false,
+      "has_unresolved": false,
+      "imputed_traits": [
+        {
+          "trait": "arg_rough",
+          "source": "tier_4_avg",
+          "imputed_value": 56.28,
+          "original_status": "invalid_zero_sentinel"
+        }
+      ],
+      "unknown_traits": [],
+      "extreme_low_traits": [
+        {
+          "trait": "arg_bunker",
+          "value": 0.9
+        }
+      ],
+      "issues": [
+        {
+          "trait": "arg_rough",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        }
+      ]
+    },
+    {
+      "player_name": "Glover, Lucas",
+      "name_key": "GLOVER_LUCAS",
+      "tier": 5,
+      "rank": 56,
+      "missing_trait_weight": 0.26,
+      "has_zero_sentinel": true,
+      "has_nan": false,
+      "has_unresolved": false,
+      "imputed_traits": [
+        {
+          "trait": "putt_short_conv",
+          "source": "tier_5_avg",
+          "imputed_value": 36.43,
+          "original_status": "invalid_zero_sentinel"
+        },
+        {
+          "trait": "putt_lag",
+          "source": "tier_5_avg",
+          "imputed_value": 28.37,
+          "original_status": "invalid_zero_sentinel"
+        }
+      ],
+      "unknown_traits": [],
+      "extreme_low_traits": [],
+      "issues": [
+        {
+          "trait": "putt_short_conv",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        },
+        {
+          "trait": "putt_lag",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        }
+      ]
+    },
+    {
+      "player_name": "Im, Sungjae",
+      "name_key": "IM_SUNGJAE",
+      "tier": 5,
+      "rank": 66,
+      "missing_trait_weight": 0.4,
+      "has_zero_sentinel": true,
+      "has_nan": false,
+      "has_unresolved": false,
+      "imputed_traits": [
+        {
+          "trait": "app_wedge",
+          "source": "tier_5_avg",
+          "imputed_value": 42.11,
+          "original_status": "invalid_zero_sentinel"
+        },
+        {
+          "trait": "app_100_150",
+          "source": "tier_5_avg",
+          "imputed_value": 42.36,
+          "original_status": "invalid_zero_sentinel"
+        },
+        {
+          "trait": "app_150_200",
+          "source": "tier_5_avg",
+          "imputed_value": 42.03,
+          "original_status": "invalid_zero_sentinel"
+        }
+      ],
+      "unknown_traits": [],
+      "extreme_low_traits": [],
+      "issues": [
+        {
+          "trait": "app_wedge",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        },
+        {
+          "trait": "app_100_150",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        },
+        {
+          "trait": "app_150_200",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        }
+      ]
+    },
+    {
+      "player_name": "Campbell, Brian",
+      "name_key": "CAMPBELL_BRIAN",
+      "tier": 5,
+      "rank": 71,
+      "missing_trait_weight": 0.08,
+      "has_zero_sentinel": true,
+      "has_nan": false,
+      "has_unresolved": false,
+      "imputed_traits": [
+        {
+          "trait": "ott_distance",
+          "source": "tier_5_avg",
+          "imputed_value": 55.57,
+          "original_status": "invalid_zero_sentinel"
+        },
+        {
+          "trait": "par5_scoring",
+          "source": "tier_5_avg",
+          "imputed_value": 41.43,
+          "original_status": "invalid_zero_sentinel"
+        }
+      ],
+      "unknown_traits": [],
+      "extreme_low_traits": [
+        {
+          "trait": "app_wedge",
+          "value": 1.3
+        }
+      ],
+      "issues": [
+        {
+          "trait": "ott_distance",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        },
+        {
+          "trait": "par5_scoring",
+          "status": "invalid_zero_sentinel",
+          "raw": 0.0
+        }
+      ]
+    }
+  ]
+}

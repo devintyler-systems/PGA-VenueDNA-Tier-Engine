@@ -1,0 +1,576 @@
+{
+  "tournament": {
+    "name": "2026 U.S. Open",
+    "venue": "Shinnecock Hills Golf Club",
+    "location": "Southampton, N.Y.",
+    "dates": "June 18–21, 2026",
+    "edition_at_shinnecock": 6,
+    "total_entries": 10201,
+    "field_size": 156,
+    "defending_champion": {
+      "name": "J.J. Spaun",
+      "score": 279,
+      "to_par": -1,
+      "site": "Oakmont"
+    },
+    "format": {
+      "type": "72-hole stroke play",
+      "cut_rule": "low 60 and ties",
+      "playoff": "2-hole aggregate"
+    },
+    "usga_championship_count_at_shinnecock": 10,
+    "previous_us_open_years_at_shinnecock": [
+      1896,
+      1986,
+      1995,
+      2004,
+      2018
+    ]
+  },
+  "course": {
+    "architect": {
+      "primary": "William Flynn",
+      "history": [
+        {
+          "designer": "Willie Davis",
+          "description": "original 12-hole",
+          "year": 1891
+        },
+        {
+          "designer": "Shinnecock Hills",
+          "description": "expanded to 18 holes",
+          "year": 1895
+        },
+        {
+          "designer": "William Flynn",
+          "description": "redesign",
+          "year": 1931
+        }
+      ]
+    },
+    "par": 70,
+    "yardage_total": 7440,
+    "front_nine": {
+      "par": 35,
+      "yardage": 3819
+    },
+    "back_nine": {
+      "par": 35,
+      "yardage": 3621
+    },
+    "holes": [
+      {
+        "number": 1,
+        "par": 4,
+        "yardage": 394
+      },
+      {
+        "number": 2,
+        "par": 3,
+        "yardage": 252
+      },
+      {
+        "number": 3,
+        "par": 4,
+        "yardage": 501
+      },
+      {
+        "number": 4,
+        "par": 4,
+        "yardage": 476
+      },
+      {
+        "number": 5,
+        "par": 5,
+        "yardage": 592
+      },
+      {
+        "number": 6,
+        "par": 4,
+        "yardage": 495
+      },
+      {
+        "number": 7,
+        "par": 3,
+        "yardage": 187
+      },
+      {
+        "number": 8,
+        "par": 4,
+        "yardage": 440
+      },
+      {
+        "number": 9,
+        "par": 4,
+        "yardage": 482
+      },
+      {
+        "number": 10,
+        "par": 4,
+        "yardage": 415
+      },
+      {
+        "number": 11,
+        "par": 3,
+        "yardage": 157
+      },
+      {
+        "number": 12,
+        "par": 4,
+        "yardage": 469
+      },
+      {
+        "number": 13,
+        "par": 4,
+        "yardage": 371
+      },
+      {
+        "number": 14,
+        "par": 4,
+        "yardage": 520
+      },
+      {
+        "number": 15,
+        "par": 4,
+        "yardage": 409
+      },
+      {
+        "number": 16,
+        "par": 5,
+        "yardage": 614
+      },
+      {
+        "number": 17,
+        "par": 3,
+        "yardage": 176
+      },
+      {
+        "number": 18,
+        "par": 4,
+        "yardage": 490
+      }
+    ],
+    "usga_setup_notes": {
+      "greens_speed": "slower than prior setups",
+      "fairway_width": "nearly double 2004 widths",
+      "philosophy": "no adjustment of green speeds or hole locations for wind; let conditions determine play"
+    }
+  },
+  "history": {
+    "previous_us_open_winners_at_shinnecock": [
+      {
+        "year": 1896,
+        "winner": "James Foulis",
+        "score": 152,
+        "to_par": null,
+        "margin": "3 strokes"
+      },
+      {
+        "year": 1986,
+        "winner": "Raymond Floyd",
+        "score": 279,
+        "to_par": -1,
+        "margin": "2 strokes"
+      },
+      {
+        "year": 1995,
+        "winner": "Corey Pavin",
+        "score": 280,
+        "to_par": 0,
+        "margin": "2 strokes"
+      },
+      {
+        "year": 2004,
+        "winner": "Retief Goosen",
+        "score": 276,
+        "to_par": -4,
+        "margin": "2 strokes"
+      },
+      {
+        "year": 2018,
+        "winner": "Brooks Koepka",
+        "score": 281,
+        "to_par": 1,
+        "margin": "1 stroke"
+      }
+    ],
+    "notes": "2018 featured a winning score of +1 and highlighted Shinnecock's extreme wind and unforgiving links exposure."
+  },
+  "weather": {
+    "timezone": "Eastern",
+    "source": "Google Weather (Shinnecock Hills Golf Club)",
+    "days": [
+      {
+        "day": "Thursday",
+        "date": "2026-06-18",
+        "round": 1,
+        "condition": "Light Rain / Cloudy",
+        "temp_high_f": 74,
+        "temp_low_f": 67,
+        "precip_overall_pct": 45,
+        "humidity_pct": 87,
+        "wind_avg_mph": [
+          20,
+          27
+        ],
+        "wind_gust_mph_max": 35,
+        "wind_by_time": [
+          {
+            "time": "03:00",
+            "wind_mph": 15,
+            "direction": "N"
+          },
+          {
+            "time": "06:00",
+            "wind_mph": 18,
+            "direction": "NNW"
+          },
+          {
+            "time": "09:00",
+            "wind_mph": 21,
+            "direction": "NNW"
+          },
+          {
+            "time": "12:00",
+            "wind_mph": 25,
+            "direction": "NNW"
+          },
+          {
+            "time": "15:00",
+            "wind_mph": 27,
+            "direction": "NNW"
+          },
+          {
+            "time": "18:00",
+            "wind_mph": 20,
+            "direction": "NE"
+          },
+          {
+            "time": "21:00",
+            "wind_mph": 14,
+            "direction": "NE"
+          },
+          {
+            "time": "24:00",
+            "wind_mph": 12,
+            "direction": "ENE"
+          }
+        ],
+        "precip_by_time_pct": [
+          {
+            "time": "03:00",
+            "precip_pct": 10
+          },
+          {
+            "time": "06:00",
+            "precip_pct": 10
+          },
+          {
+            "time": "09:00",
+            "precip_pct": 10
+          },
+          {
+            "time": "12:00",
+            "precip_pct": 10
+          },
+          {
+            "time": "15:00",
+            "precip_pct": 0
+          },
+          {
+            "time": "18:00",
+            "precip_pct": 0
+          },
+          {
+            "time": "21:00",
+            "precip_pct": 0
+          },
+          {
+            "time": "24:00",
+            "precip_pct": 0
+          }
+        ],
+        "analysis": {
+          "broadcaster": "Golf Channel / PGA Tour",
+          "summary": "Most wind-affected round with sustained 20+ mph winds and 35+ mph gusts. Exposed holes 7, 17, and 18 are especially penal in native fescue.",
+          "alternate_report": {
+            "winds_sustained_mph": [
+              9,
+              24
+            ],
+            "gusts_mph": [
+              18,
+              36
+            ],
+            "direction": "SSW"
+          }
+        }
+      },
+      {
+        "day": "Friday",
+        "date": "2026-06-19",
+        "round": 2,
+        "condition": "Cloudy",
+        "temp_high_f": 74,
+        "temp_low_f": 66,
+        "precip_overall_pct": 10,
+        "humidity_pct": 66,
+        "wind_avg_mph": [
+          12,
+          16
+        ],
+        "wind_gust_mph_max": 24,
+        "wind_by_time": [
+          {
+            "time": "03:00",
+            "wind_mph": 12,
+            "direction": "E"
+          },
+          {
+            "time": "06:00",
+            "wind_mph": 12,
+            "direction": "E"
+          },
+          {
+            "time": "09:00",
+            "wind_mph": 13,
+            "direction": "E"
+          },
+          {
+            "time": "12:00",
+            "wind_mph": 11,
+            "direction": "ENE"
+          },
+          {
+            "time": "15:00",
+            "wind_mph": 15,
+            "direction": "ENE"
+          },
+          {
+            "time": "18:00",
+            "wind_mph": 16,
+            "direction": "ENE"
+          },
+          {
+            "time": "21:00",
+            "wind_mph": 14,
+            "direction": "E"
+          },
+          {
+            "time": "24:00",
+            "wind_mph": 16,
+            "direction": "ESE"
+          }
+        ],
+        "precip_by_time_pct": [],
+        "analysis": {
+          "broadcaster": "Golf Channel / PGA Tour",
+          "summary": "Calmest day with lighter winds and minimal precipitation, best scoring day among weekdays.",
+          "alternate_report": {
+            "winds_sustained_mph": [
+              8,
+              16
+            ],
+            "gusts_mph": [
+              16,
+              24
+            ],
+            "direction": "WSW"
+          }
+        }
+      },
+      {
+        "day": "Saturday",
+        "date": "2026-06-20",
+        "round": 3,
+        "condition": "Sunny",
+        "temp_high_f": 76,
+        "temp_low_f": 64,
+        "precip_overall_pct": 0,
+        "humidity_pct": 57,
+        "wind_avg_mph": [
+          14,
+          19
+        ],
+        "wind_gust_mph_max": 30,
+        "wind_by_time": [
+          {
+            "time": "03:00",
+            "wind_mph": 19,
+            "direction": "WSW"
+          },
+          {
+            "time": "06:00",
+            "wind_mph": 19,
+            "direction": "WSW"
+          },
+          {
+            "time": "09:00",
+            "wind_mph": 18,
+            "direction": "WSW"
+          },
+          {
+            "time": "12:00",
+            "wind_mph": 17,
+            "direction": "W"
+          },
+          {
+            "time": "15:00",
+            "wind_mph": 17,
+            "direction": "W"
+          },
+          {
+            "time": "18:00",
+            "wind_mph": 14,
+            "direction": "W"
+          },
+          {
+            "time": "21:00",
+            "wind_mph": 12,
+            "direction": "W"
+          },
+          {
+            "time": "24:00",
+            "wind_mph": 11,
+            "direction": "W"
+          }
+        ],
+        "precip_by_time_pct": [],
+        "temperature_curve_f": {
+          "start": 68,
+          "midday": 76,
+          "evening": 69
+        },
+        "analysis": {
+          "broadcaster": "Golf Channel / PGA Tour",
+          "summary": "Second-worst wind day with a W/WWN shift and 30+ mph gusts, especially punishing on finishing holes 17 and 18.",
+          "alternate_report": {
+            "winds_sustained_mph": [
+              8,
+              20
+            ],
+            "gusts_mph": [
+              16,
+              30
+            ],
+            "direction": "WNW"
+          }
+        }
+      },
+      {
+        "day": "Sunday",
+        "date": "2026-06-21",
+        "round": 4,
+        "condition": "Mostly Cloudy",
+        "temp_high_f": 74,
+        "temp_low_f": 64,
+        "precip_overall_pct": 10,
+        "humidity_pct": 66,
+        "wind_avg_mph": [
+          6,
+          9
+        ],
+        "wind_gust_mph_max": 24,
+        "wind_by_time": [
+          {
+            "time": "03:00",
+            "wind_mph": 8,
+            "direction": "SE"
+          },
+          {
+            "time": "06:00",
+            "wind_mph": 6,
+            "direction": "SE"
+          },
+          {
+            "time": "09:00",
+            "wind_mph": 6,
+            "direction": "SE"
+          },
+          {
+            "time": "12:00",
+            "wind_mph": 5,
+            "direction": "SE"
+          },
+          {
+            "time": "15:00",
+            "wind_mph": 9,
+            "direction": "ESE"
+          },
+          {
+            "time": "18:00",
+            "wind_mph": 9,
+            "direction": "ESE"
+          },
+          {
+            "time": "21:00",
+            "wind_mph": 7,
+            "direction": "E"
+          },
+          {
+            "time": "24:00",
+            "wind_mph": 9,
+            "direction": "E"
+          }
+        ],
+        "precip_by_time_pct": [],
+        "temperature_curve_f": {
+          "start": 66,
+          "midday": 74,
+          "evening": 68
+        },
+        "analysis": {
+          "broadcaster": "Golf Channel / PGA Tour",
+          "summary": "Lightest winds and minimal rain risk, enabling aggressive scoring opportunities for contenders.",
+          "alternate_report": {
+            "winds_sustained_mph": [
+              8,
+              16
+            ],
+            "gusts_mph": [
+              16,
+              24
+            ],
+            "direction": "W"
+          }
+        }
+      }
+    ],
+    "difficulty_ranking": [
+      {
+        "rank": 1,
+        "day": "Sunday",
+        "wind_factor": "6–9 mph avg",
+        "scoring_outlook": "Fairest with low scoring potential"
+      },
+      {
+        "rank": 2,
+        "day": "Friday",
+        "wind_factor": "12–16 mph avg",
+        "scoring_outlook": "Good scoring and best weekday conditions"
+      },
+      {
+        "rank": 3,
+        "day": "Saturday",
+        "wind_factor": "14–19 mph avg with 30+ mph gusts",
+        "scoring_outlook": "Difficult with punishing crosswinds"
+      },
+      {
+        "rank": 4,
+        "day": "Thursday",
+        "wind_factor": "20–27 mph avg with 35+ mph gusts",
+        "scoring_outlook": "Toughest day with all-day gale and rain"
+      }
+    ]
+  },
+  "playability": {
+    "key_insights": [
+      "Thursday combines rain with sustained 25+ mph winds and 35+ mph gusts, making it a highly defensive round where par 70 could play closer to 73–75.",
+      "Friday offers lighter 12–16 mph winds and should yield the best weekday scoring.",
+      "Saturday's WNW wind shift with 30+ mph gusts introduces high unpredictability and brutal crosswinds on exposed holes.",
+      "Sunday's light winds and minimal rain risk create ideal conditions for final-round charge opportunities.",
+      "Wind is the defining factor at Shinnecock, with the USGA opting not to adjust green speeds or pin positions to mitigate it.",
+      "Survival on Thursday and Saturday combined with capitalizing on Friday and Sunday conditions will be critical to contend."
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+# Claude Code local settings (not project config)
+.claude/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# Binary / large export files
+*.zip
+*.xlsx
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Local env
+.env
+*.env.local

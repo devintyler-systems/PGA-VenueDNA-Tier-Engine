@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post-Tournament Audit Form v2</title>
+  <style>
+    :root {--bg:#0a1020;--panel:#121b31;--panel2:#18243e;--text:#edf2fb;--muted:#a8b6d4;--line:#2e4168;--accent:#7fb2ff;}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;line-height:1.45}
+    .wrap{max-width:1240px;margin:0 auto;padding:28px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+    h1,h2,h3{margin:0 0 10px} h1{font-size:30px} h2{font-size:22px;margin-top:28px;padding-bottom:8px;border-bottom:1px solid var(--line)} p{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.col-12{grid-column:span 12}.col-8{grid-column:span 8}.col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}
+    @media (max-width:900px){.col-8,.col-6,.col-4,.col-3{grid-column:span 12}}
+    label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#cfdbf3;margin-bottom:6px}
+    input,select,textarea{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit}
+    textarea{min-height:90px;resize:vertical} table{width:100%;border-collapse:collapse;margin-top:10px} th,td{border:1px solid var(--line);padding:10px;vertical-align:top} th{background:#1a2948;text-align:left;font-size:13px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post-Tournament Audit Form v2</h1>
+  <p>Purpose: measure whether the venue profile predicted high finishers for the right reasons, isolate misses, and push exact changes back into the course file before the next edition.</p>
+
+  <div class="card grid">
+    <div class="col-4"><label>Venue</label><input placeholder="Harbour Town Golf Links" /></div>
+    <div class="col-4"><label>Tournament</label><input placeholder="RBC Heritage" /></div>
+    <div class="col-4"><label>Edition / Year</label><input placeholder="2026" /></div>
+    <div class="col-4"><label>Winning score</label><input /></div>
+    <div class="col-4"><label>Weather / setup summary</label><input placeholder="Firm / calm early / windy late" /></div>
+    <div class="col-4"><label>Overall audit verdict</label><select><option>Profile confirmed</option><option>Mostly confirmed</option><option>Mixed</option><option>Needs recalibration</option></select></div>
+  </div>
+
+  <h2>1. Round 1 diagnostic</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Tier entering week</th>
+          <th>Expected R1 range</th>
+          <th>Actual R1</th>
+          <th>Wave / conditions context</th>
+          <th>SG trait confirmation or failure</th>
+          <th>Action after R1</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input /></td><td><select><option>Tier 1</option><option>Tier 2</option></select></td><td><input placeholder="68–71" /></td><td><input /></td><td><input /></td><td><textarea placeholder="Example: Approach held, OTT missed fairways"></textarea></td><td><select><option>No change</option><option>Upgraded</option><option>Downgraded</option></select></td></tr>
+        <tr><td><input /></td><td><select><option>Tier 1</option><option>Tier 2</option></select></td><td><input /></td><td><input /></td><td><input /></td><td><textarea></textarea></td><td><select><option>No change</option><option>Upgraded</option><option>Downgraded</option></select></td></tr>
+      </tbody>
+    </table>
+    <div class="grid" style="margin-top:12px">
+      <div class="col-12"><label>What Round 1 revealed about venue behavior this week</label><textarea placeholder="One sentence minimum. Example: late-wind wave sharply increased penalty for loose positional driving."></textarea></div>
+    </div>
+  </div>
+
+  <h2>2. Tier 1–2 player audit</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Pre-event tier</th>
+          <th>Final finish</th>
+          <th>VTS</th>
+          <th>Form index used</th>
+          <th>Debut penalty</th>
+          <th>Anti-pattern penalty</th>
+          <th>Outcome vs expectation</th>
+          <th>Primary reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input /></td><td><select><option>Tier 1</option><option>Tier 2</option></select></td><td><input /></td><td><input /></td><td><input placeholder="After multipliers + decay" /></td><td><input /></td><td><input /></td><td><select><option>Beat</option><option>Met</option><option>Missed</option></select></td><td><textarea placeholder="Trait fit held / form over-weighted / putting variance / injury / weather"></textarea></td></tr>
+        <tr><td><input /></td><td><select><option>Tier 1</option><option>Tier 2</option></select></td><td><input /></td><td><input /></td><td><input /></td><td><input /></td><td><input /></td><td><select><option>Beat</option><option>Met</option><option>Missed</option></select></td><td><textarea></textarea></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>3. Debut penalty review</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Debutant</th>
+          <th>Pre-event penalty</th>
+          <th>Finish</th>
+          <th>Outperformed / underperformed penalty?</th>
+          <th>What this implies</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input /></td><td><input /></td><td><input /></td><td><select><option>Outperformed</option><option>About right</option><option>Underperformed</option></select></td><td><textarea placeholder="Should class or exact default change next year?"></textarea></td></tr>
+        <tr><td><input /></td><td><input /></td><td><input /></td><td><select><option>Outperformed</option><option>About right</option><option>Underperformed</option></select></td><td><textarea></textarea></td></tr>
+      </tbody>
+    </table>
+    <div class="grid" style="margin-top:12px">
+      <div class="col-4"><label>Current debut class</label><input /></div>
+      <div class="col-4"><label>Recommended next-year class</label><input /></div>
+      <div class="col-4"><label>Recommended exact default penalty</label><input /></div>
+    </div>
+  </div>
+
+  <h2>4. Anti-pattern review</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Anti-pattern</th>
+          <th>Flagged players</th>
+          <th>How the flag performed</th>
+          <th>Current exact penalty</th>
+          <th>Recommended new penalty</th>
+          <th>Evidence note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><textarea></textarea></td><td><input /></td><td><select><option>Held strongly</option><option>Held partially</option><option>Failed</option></select></td><td><input /></td><td><input /></td><td><textarea></textarea></td></tr>
+        <tr><td><textarea></textarea></td><td><input /></td><td><select><option>Held strongly</option><option>Held partially</option><option>Failed</option></select></td><td><input /></td><td><input /></td><td><textarea></textarea></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>5. Trait-weight calibration</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Trait</th>
+          <th>Pre-event weight</th>
+          <th>Top-5 / Top-10 confirmation</th>
+          <th>Did event confirm weight?</th>
+          <th>Recommended next weight</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SG: Approach</td><td><input /></td><td><textarea></textarea></td><td><select><option>Confirmed</option><option>Partially confirmed</option><option>Overstated</option><option>Understated</option></select></td><td><input /></td><td><textarea></textarea></td></tr>
+        <tr><td>SG: OTT on tight / penalty holes</td><td><input /></td><td><textarea></textarea></td><td><select><option>Confirmed</option><option>Partially confirmed</option><option>Overstated</option><option>Understated</option></select></td><td><input /></td><td><textarea></textarea></td></tr>
+        <tr><td>Putting on this surface</td><td><input /></td><td><textarea></textarea></td><td><select><option>Confirmed</option><option>Partially confirmed</option><option>Overstated</option><option>Understated</option></select></td><td><input /></td><td><textarea></textarea></td></tr>
+        <tr><td>Par-5 scoring / GIR in two</td><td><input /></td><td><textarea></textarea></td><td><select><option>Confirmed</option><option>Partially confirmed</option><option>Overstated</option><option>Understated</option></select></td><td><input /></td><td><textarea></textarea></td></tr>
+        <tr><td>Pressure-hole scoring</td><td><input /></td><td><textarea></textarea></td><td><select><option>Confirmed</option><option>Partially confirmed</option><option>Overstated</option><option>Understated</option></select></td><td><input /></td><td><textarea></textarea></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>6. Miss log</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Pre-event projection</th>
+          <th>Actual finish</th>
+          <th>Deviation type</th>
+          <th>Root cause</th>
+          <th>Model change required?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input /></td><td><input /></td><td><input /></td><td><select><option>Major outperform</option><option>Major underperform</option></select></td><td><select><option>Trait mis-weight</option><option>Form mis-scale</option><option>Weather/wave</option><option>Injury/health</option><option>Putting variance</option><option>Short-sample noise</option></select></td><td><textarea placeholder="Exact variable to change, if any"></textarea></td></tr>
+        <tr><td><input /></td><td><input /></td><td><input /></td><td><select><option>Major outperform</option><option>Major underperform</option></select></td><td><select><option>Trait mis-weight</option><option>Form mis-scale</option><option>Weather/wave</option><option>Injury/health</option><option>Putting variance</option><option>Short-sample noise</option></select></td><td><textarea></textarea></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>7. Venue file updates</h2>
+  <div class="card grid">
+    <div class="col-12"><label>Changes to write back into venue profile before next edition</label><textarea placeholder="List exact edits: weight shifts, new anti-pattern, debut penalty change, routing-bias confidence adjustment, comp-course cap update, surface-conversion note, etc."></textarea></div>
+    <div class="col-12"><label>Final audit statement</label><textarea placeholder="One paragraph: what the event proved about this venue and what the model will do differently next time."></textarea></div>
+  </div>
+</div>
+</body>
+</html>
