@@ -448,6 +448,17 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 .ri-sg-table, .ri-mv-table, .ri-lb-table { width: 100%; border-collapse: collapse; font-size: .73rem; }
 .ri-sg-table th, .ri-mv-table th, .ri-lb-table th { font-size: .65rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: .3rem .4rem; border-bottom: 1px solid var(--border); text-align: left; font-weight: 600; }
 .ri-sg-table td, .ri-mv-table td, .ri-lb-table td { padding: .3rem .4rem; border-bottom: 1px solid #1e293b; vertical-align: middle; }
+
+/* Model vs Realized table — fixed layout prevents overflow */
+.ri-mv-table { table-layout: fixed; }
+.ri-mv-table th:nth-child(1), .ri-mv-table td:nth-child(1) { width: 28%; }
+.ri-mv-table th:nth-child(2), .ri-mv-table td:nth-child(2) { width: 11%; text-align: center; }
+.ri-mv-table th:nth-child(3), .ri-mv-table td:nth-child(3) { width: 11%; text-align: center; }
+.ri-mv-table th:nth-child(4), .ri-mv-table td:nth-child(4) { width: 10%; text-align: center; }
+/* col 5 (signal) takes remaining ~40% */
+.mvr-signal-cell { vertical-align: top; padding-top: .35rem; white-space: normal; }
+.mvr-supp-tags   { display: flex; flex-wrap: wrap; gap: .15rem; margin-top: .22rem; }
+
 .ri-lb-scroll { overflow-x: auto; }
 .ri-lb-table tr.ri-lb-riser td:first-child { border-left: 3px solid #4ade80; }
 .ri-lb-table tr.ri-lb-slip  td:first-child { border-left: 3px solid #fcd34d; }
@@ -456,8 +467,8 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 .ri-lb-riser-dot { background: #4ade80; }
 .ri-lb-slip-dot  { background: #fcd34d; }
 
-/* Signal badges */
-.ri-sig-badge { display: inline-block; font-size: .6rem; font-weight: 700; border-radius: .25rem; padding: .07rem .35rem; text-transform: uppercase; letter-spacing: .03em; }
+/* Signal badges — verdict (first line of stacked signal cell) */
+.ri-sig-badge { display: inline-block; font-size: .58rem; font-weight: 700; border-radius: .25rem; padding: .06rem .3rem; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
 .ri-sig-val  { background: #14532d44; border: 1px solid #4ade80; color: #4ade80; }
 .ri-sig-mix  { background: #78350f33; border: 1px solid #fcd34d; color: #fde68a; }
 .ri-sig-neu  { background: #33415533; border: 1px solid var(--muted); color: var(--muted); }

@@ -1691,22 +1691,30 @@ function renderRoundPanel(body, rData, roundNum) {
 
   function signalBadge(sig) {
     const cls = { validated:'ri-sig-val', mixed:'ri-sig-mix', neutral:'ri-sig-neu', weak:'ri-sig-weak', not_testable:'ri-sig-nt' };
-    const lbl = { validated:'✓ validated', mixed:'~ mixed', neutral:'· neutral', weak:'✗ weak', not_testable:'— N/A' };
+    const lbl = { validated:'VALIDATED', mixed:'MIXED', neutral:'NEUTRAL', weak:'WEAK', not_testable:'N/A' };
     return `<span class="ri-sig-badge ${cls[sig]||''}">${lbl[sig]||sig}</span>`;
-  }
-
-  function enrBadge(enr) {
-    if (!enr?.available) return '<span style="color:var(--muted);font-size:.65rem">—</span>';
-    const sig = enr.enrichment_signal;
-    const cls = { upgraded:'ri-enr-up', confirmed:'ri-enr-conf', neutral:'ri-enr-neu', contradicted:'ri-enr-con' };
-    const lbl = { upgraded:'&#8593; up', confirmed:'&#10003; conf', neutral:'&middot; neu', contradicted:'&#8595; contra' };
-    return `<span class="ri-enr-badge ${cls[sig]||''}" title="${(enr.enrichment_note||'').replace(/"/g,'&quot;')}">${lbl[sig]||'—'}</span>`;
   }
 
   function confBadge(conf) {
     const cls = { 'direct':'sc-direct', 'proxy-confirmed':'sc-proxy-confirmed', 'weak-proxy':'sc-weak-proxy', 'not-testable':'sc-not-testable' };
-    const lbl = { 'direct':'direct', 'proxy-confirmed':'proxy&#10003;', 'weak-proxy':'weak~', 'not-testable':'n/a' };
+    const lbl = { 'direct':'DIRECT', 'proxy-confirmed':'PROXY', 'weak-proxy':'WEAK-PROXY', 'not-testable':'N/A' };
     return `<span class="sc-badge ${cls[conf]||'sc-not-testable'}">${lbl[conf]||conf||'—'}</span>`;
+  }
+
+  function supportingTags(conf, enr) {
+    const confMap = {
+      'direct':          { cls: 'sc-direct',          lbl: 'DIRECT' },
+      'proxy-confirmed': { cls: 'sc-proxy-confirmed', lbl: 'PROXY' },
+      'weak-proxy':      { cls: 'sc-weak-proxy',      lbl: 'WEAK-PROXY' },
+      'not-testable':    { cls: 'sc-not-testable',    lbl: 'N/A' },
+    };
+    const tags = [];
+    const cm = confMap[conf] || confMap['not-testable'];
+    tags.push(`<span class="sc-badge ${cm.cls}">${cm.lbl}</span>`);
+    if (enr?.available && enr.enrichment_signal === 'upgraded') {
+      tags.push(`<span class="sc-badge ri-enr-up" title="${(enr.enrichment_note||'').replace(/"/g,'&quot;')}">UPGRADED</span>`);
+    }
+    return tags.join(' ');
   }
 
   function traitLabel(key) {
@@ -1723,6 +1731,7 @@ function renderRoundPanel(body, rData, roundNum) {
         <span>${confBadge('proxy-confirmed')}</span><span>SG dimension + supplemental data both support the signal in same direction</span>
         <span>${confBadge('weak-proxy')}</span><span>Directional only &mdash; single proxy dimension or limited enrichment</span>
         <span>${confBadge('not-testable')}</span><span>Insufficient round data to confirm or deny the pre-tournament thesis</span>
+        <span class="sc-badge ri-enr-up">UPGRADED</span><span>DataGolf proxy layer promoted the signal (e.g., weak &rarr; neutral, neutral &rarr; mixed)</span>
       </div>
     </div>`;
 
@@ -1870,8 +1879,7 @@ function renderRoundPanel(body, rData, roundNum) {
       <td style="text-align:center">${wPct}%</td>
       <td style="text-align:center;color:${dClr};font-weight:600">${dStr}</td>
       <td style="text-align:center">${sg_d != null ? sgFmt(sg_d) : '—'}</td>
-      <td style="text-align:center">${signalBadge(t.signal)}<br><span style="margin-top:.15rem;display:inline-block">${confBadge(t.source_confidence)}</span></td>
-      <td style="text-align:center">${enrBadge(t.enrichment)}</td>
+      <td class="mvr-signal-cell">${signalBadge(t.signal)}<div class="mvr-supp-tags">${supportingTags(t.source_confidence, t.enrichment)}</div></td>
     </tr>`;
   }).join('');
 
@@ -1883,10 +1891,10 @@ function renderRoundPanel(body, rData, roundNum) {
         Positive = leaders were already stronger in this trait before the tournament.
       </div>
       <table class="ri-mv-table">
-        <thead><tr><th>Trait</th><th>Model Wt</th><th>Trait &Delta;</th><th>SG &Delta;</th><th>Signal</th><th title="Course Insights proxy (DataGolf)">CI</th></tr></thead>
+        <thead><tr><th>Trait</th><th>Model Wt</th><th>Trait &Delta;</th><th>SG &Delta;</th><th>Signal</th></tr></thead>
         <tbody>${mvRrows}</tbody>
       </table>
-      ${ciLoaded ? '<div class="ri-note" style="margin-top:.3rem">CI = DataGolf course insights proxy. Hover for detail. &#8593; up = signal upgraded by enrichment; &#10003; conf = confirmed.</div>' : ''}
+      <div class="ri-note" style="margin-top:.3rem">Signal tags: evidence quality (DIRECT / PROXY / WEAK-PROXY / N/A)${ciLoaded ? ' · UPGRADED = DataGolf proxy promoted the verdict' : ''}.</div>
     </div>`;
 
   /* ── 4. Weekend Risers ── */
