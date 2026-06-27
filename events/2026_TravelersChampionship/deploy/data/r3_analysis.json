@@ -1,0 +1,284 @@
+{
+  "schema_version": "1.1",
+  "generated_at": "2026-06-27",
+  "build_timestamp": "2026-06-27T00:00:00",
+  "round": 3,
+  "enrichment_used": false,
+  "event_slug": "2026_travelers_championship",
+  "_placeholder": "PENDING — run: python engine/build_round_analysis.py --round 3 (requires output/round3/round3_leaderboard.csv + round3_player_strokes_gained.csv)",
+  "metadata": {
+    "event_name": "2026 Travelers Championship",
+    "course_name": "TPC River Highlands",
+    "par": 70,
+    "round_label": "Round 3",
+    "is_final": false
+  },
+  "round_sources": [
+    "round3_leaderboard.csv",
+    "round3_player_strokes_gained.csv",
+    "2026_travelers_championship_trait_form_matrix.csv",
+    "deploy/data/event_payload.json"
+  ],
+  "course_insights_loaded": false,
+  "enrichment_summary": null,
+  "live_lean_notes": {
+    "round": 3,
+    "next_round": 4,
+    "lean_up_traits": [],
+    "lean_down_traits": [],
+    "putt_caution": false,
+    "putt_outliers": [],
+    "watch_next_round": [],
+    "slippage_confirmed": [],
+    "model_confirmed_leaders": [],
+    "rho_note": "R3 rank correlation rho=0.000 — placeholder; rebuild after adding round3 CSV files."
+  },
+  "match_summary": {
+    "matched": 0,
+    "total_r1": 0,
+    "unmatched": [],
+    "match_rate_pct": 0.0
+  },
+  "model_performance": {
+    "spearman_rho": 0.0,
+    "groups": {
+      "pt_top10": {
+        "n": 0,
+        "avg_r1_pos": 0,
+        "avg_r1_score": 0,
+        "in_r1_top10": 0,
+        "in_r1_top20": 0,
+        "in_r1_top30": 0
+      },
+      "pt_top20": {
+        "n": 0,
+        "avg_r1_pos": 0,
+        "avg_r1_score": 0,
+        "in_r1_top10": 0,
+        "in_r1_top20": 0,
+        "in_r1_top30": 0
+      },
+      "tier1": {
+        "n": 0,
+        "avg_r1_pos": 0,
+        "avg_r1_score": 0,
+        "in_r1_top10": 0,
+        "in_r1_top20": 0,
+        "in_r1_top30": 0
+      },
+      "tier2": {
+        "n": 0,
+        "avg_r1_pos": 0,
+        "avg_r1_score": 0,
+        "in_r1_top10": 0,
+        "in_r1_top20": 0,
+        "in_r1_top30": 0
+      },
+      "tier1_2": {
+        "n": 0,
+        "avg_r1_pos": 0,
+        "avg_r1_score": 0,
+        "in_r1_top10": 0,
+        "in_r1_top20": 0,
+        "in_r1_top30": 0
+      },
+      "all_field": {
+        "n": 0,
+        "avg_r1_pos": 0,
+        "avg_r1_score": 0,
+        "in_r1_top10": 0,
+        "in_r1_top20": 0,
+        "in_r1_top30": 0
+      }
+    }
+  },
+  "sg_leader_averages": {
+    "top10": {
+      "sg_ott": null,
+      "sg_app": null,
+      "sg_arg": null,
+      "sg_putt": null,
+      "sg_tot": null
+    },
+    "top18": {
+      "sg_ott": null,
+      "sg_app": null,
+      "sg_arg": null,
+      "sg_putt": null,
+      "sg_tot": null
+    },
+    "full_field": {
+      "sg_ott": 0.0,
+      "sg_app": 0.0,
+      "sg_arg": 0.0,
+      "sg_putt": 0.0,
+      "sg_tot": 0.0
+    }
+  },
+  "trait_audit": {
+    "app_wedge": {
+      "venue_weight": 0.22,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_app",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "app_100_150": {
+      "venue_weight": 0.12,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_app",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "app_150_200": {
+      "venue_weight": 0.06,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_app",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "ott_accuracy": {
+      "venue_weight": 0.14,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_ott",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "ott_distance": {
+      "venue_weight": 0.05,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_ott",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "putt_short_conv": {
+      "venue_weight": 0.16,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_putt",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "no_direct_proxy" },
+      "source_confidence": "not-testable"
+    },
+    "putt_lag": {
+      "venue_weight": 0.10,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_putt",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "no_direct_proxy" },
+      "source_confidence": "not-testable"
+    },
+    "arg_rough": {
+      "venue_weight": 0.07,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_arg",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "arg_bunker": {
+      "venue_weight": 0.05,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_arg",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    },
+    "par5_scoring": {
+      "venue_weight": 0.03,
+      "top10_trait_avg": null,
+      "field_trait_avg": null,
+      "trait_delta": null,
+      "sg_proxy": "sg_app",
+      "sg_top10": null,
+      "sg_field": 0.0,
+      "sg_delta": null,
+      "signal": "not_testable",
+      "sample_n_top10": 0,
+      "sample_n_field": 0,
+      "enrichment": { "available": false, "reason": "round3_course_insights.csv not present" },
+      "source_confidence": "not-testable"
+    }
+  },
+  "risers": [],
+  "slippage": [],
+  "weekend_risers": [],
+  "slippage_risk": [],
+  "leaderboard_snapshot": [],
+  "dimension_leaders": {
+    "sg_app": [],
+    "sg_putt": [],
+    "sg_ott": [],
+    "sg_arg": []
+  },
+  "course_stats": [],
+  "easiest_holes": [],
+  "hardest_holes": []
+}

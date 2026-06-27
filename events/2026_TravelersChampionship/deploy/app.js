@@ -1,4 +1,4 @@
-/* PGA VenueDNA — Travelers Championship 2026 — Interactive Dashboard */
+﻿/* PGA VenueDNA — Travelers Championship 2026 — Interactive Dashboard */
 
 /* ══════════════════════════════════════════════════════
    MODEL CONFIGURATION
@@ -559,8 +559,11 @@ function renderHeader(payload) {
   const badges = document.querySelector('.badges');
   if (ev.field_locked) badges.insertAdjacentHTML('beforeend','<span class="badge-locked">FIELD LOCKED</span>');
   if (ev.cut_rule === 'no_cut') badges.insertAdjacentHTML('beforeend','<span class="badge-nocut">NO CUT</span>');
-  if (ev.tee_times_note?.includes('TBD')) badges.insertAdjacentHTML('beforeend','<span class="badge-tbd">TEE TIMES TBD</span>');
-  if (ms.event_iteration) badges.insertAdjacentHTML('beforeend',`<span class="badge-tbd">iter:${ms.event_iteration}</span>`);
+  const hasRoundData = r1Data || r2Data || r3Data || r4Data;
+  if (!hasRoundData && ev.tee_times_note?.includes('TBD')) badges.insertAdjacentHTML('beforeend','<span class="badge-tbd">TEE TIMES TBD</span>');
+  const currentRound = r4Data ? 'r4' : r3Data ? 'r3' : r2Data ? 'r2' : r1Data ? 'r1' : null;
+  const iterLabel = currentRound || ms.event_iteration;
+  if (iterLabel) badges.insertAdjacentHTML('beforeend',`<span class="badge-tbd">iter:${iterLabel}</span>`);
 }
 
 function renderMetaBar(payload) {
@@ -611,10 +614,12 @@ function renderNoCutBanner(payload) {
 }
 
 function renderTierAlert(tiers) {
+  const el = document.querySelector('.tee-alert');
+  if (r1Data || r2Data || r3Data || r4Data) { el.style.display = 'none'; return; }
   const counts = {};
   for (let t = 1; t <= 5; t++) counts[t] = (tiers[`tier_${t}`] || []).length;
   const total = Object.values(counts).reduce((a,b) => a+b, 0);
-  document.querySelector('.tee-alert').textContent =
+  el.textContent =
     `Tee times TBD for all ${total} players (pga_field.csv not available at build time). ` +
     `Distribution — T1:${counts[1]}  T2:${counts[2]}  T3:${counts[3]}  T4:${counts[4]}  T5:${counts[5]}`;
 }
@@ -1859,10 +1864,11 @@ function renderRoundPanel(body, rData, roundNum) {
     const d = (top != null && field != null) ? top - field : null;
     const dFmt = d == null ? '—' : (d >= 0 ? '+' : '') + d.toFixed(3);
     const clr  = d == null ? '' : d > 0.5 ? 'color:#4ade80' : d > 0 ? 'color:#fcd34d' : 'color:var(--muted)';
+    const fieldFmt = field === 0 ? '<span title="SG is relative to field average — full-field mean is 0 by definition">0 (baseline)</span>' : sgFmt(field);
     return `<tr>
       <td style="font-weight:600">${label}</td>
       <td style="color:#4ade80">${sgFmt(top)}</td>
-      <td style="color:var(--muted)">${sgFmt(field)}</td>
+      <td style="color:var(--muted)">${fieldFmt}</td>
       <td style="${clr}">${dFmt}</td>
       <td style="font-size:.68rem;color:var(--muted)">${note}</td>
     </tr>`;
@@ -1920,7 +1926,7 @@ function renderRoundPanel(body, rData, roundNum) {
     <div class="ri-card ri-card-wide">
       <h4>Trait Winners — R${roundNum} SG Evidence</h4>
       <table class="ri-sg-table">
-        <thead><tr><th>Category</th><th>Leaders avg</th><th>Field avg</th><th>Delta</th><th>Note</th></tr></thead>
+        <thead><tr><th>Category</th><th>Leaders avg</th><th>Field avg</th><th title="Delta = Leaders Avg − Field Avg. Positive = leaders gained more strokes than the field in this SG category.">Delta</th><th>Note</th></tr></thead>
         <tbody>${sgRows}</tbody>
       </table>
       ${ciProxySection}
@@ -2076,6 +2082,67 @@ function renderRoundPanel(body, rData, roundNum) {
   const argUpgraded = argEnr?.enrichment_signal === 'upgraded';
   const par5Upgraded = par5Enr?.enrichment_signal === 'upgraded';
 
+  /* R3-specific reality check items (54-hole validation) */
+  let r3RealityItems = '';
+  if (roundNum >= 3) {
+    const r2PuttOutliers  = (r2Data?.live_lean_notes?.putt_outliers  || []).map(p => p.player);
+    const r2SlipWatch     = (r2Data?.live_lean_notes?.watch_next_round || []).filter(w => w.flag_type === 'slippage').map(w => w.player);
+    const watchNames      = [...new Set([...r2PuttOutliers, ...r2SlipWatch])];
+
+    const regressionConfirmed = watchNames.filter(name => {
+      const r3Row = d.leaderboard_snapshot.find(r => r.r1_name === name);
+      const r2Row = r2Data?.leaderboard_snapshot?.find(r => r.r1_name === name);
+      return r3Row && r2Row && r3Row.r1_pos > r2Row.r1_pos + 2;
+    });
+    const regressionMissed = watchNames.filter(name => {
+      const r3Row = d.leaderboard_snapshot.find(r => r.r1_name === name);
+      const r2Row = r2Data?.leaderboard_snapshot?.find(r => r.r1_name === name);
+      return r3Row && r2Row && r3Row.r1_pos <= r2Row.r1_pos;
+    });
+    const puttRegressionText = watchNames.length === 0
+      ? 'No R2 putting outliers were flagged for R3 regression.'
+      : regressionConfirmed.length > 0
+        ? `Confirmed for ${regressionConfirmed.join(', ')} &mdash; fell in standings as expected.${regressionMissed.length ? ` Held position: ${regressionMissed.join(', ')}.` : ' All flagged players regressed.'}`
+        : `R2 outliers (${watchNames.slice(0, 4).join(', ')}) did not regress significantly in R3 &mdash; putting spike may have sustained or model flag missed.`;
+
+    const cl54 = cumulativeData;
+    const par5Hist = cl54?.cumulative_signals?.par5_scoring?.signal_history || [];
+    const par5Sustained = par5Hist.filter(s => ['validated', 'mixed'].includes(s)).length >= 2;
+    const validatedCount = cl54?.cumulative_signals
+      ? Object.values(cl54.cumulative_signals).filter(cs => cs.consensus === 'validated').length : 0;
+    const cumulativeAppSg = sg.top10?.sg_app ?? 0;
+    const app54Strong = cumulativeAppSg > 1.5;
+
+    r3RealityItems = `
+        <div class="ri-reality-item ${app54Strong ? 'ri-reality-yes' : 'ri-reality-mixed'}">
+          <div class="ri-reality-q">Did approach dominate through 54 holes?</div>
+          <div class="ri-reality-a">${app54Strong
+            ? `Yes &mdash; cumulative SG:APP +${cumulativeAppSg.toFixed(2)} for 54-hole leaders vs field. Approach backed across all 3 rounds.`
+            : `Mixed &mdash; cumulative SG:APP ${sgFmt(sg.top10?.sg_app)} for 54-hole leaders; approach was not a clear separator across all 3 rounds.`
+          }</div>
+        </div>
+        <div class="ri-reality-item ${regressionConfirmed.length > 0 ? 'ri-reality-yes' : watchNames.length > 0 ? 'ri-reality-caution' : 'ri-reality-neutral'}">
+          <div class="ri-reality-q">Putting regression confirmed (R2 outlier spikers)?</div>
+          <div class="ri-reality-a">${puttRegressionText}</div>
+        </div>
+        <div class="ri-reality-item ${par5Sustained ? 'ri-reality-yes' : 'ri-reality-mixed'}">
+          <div class="ri-reality-q">Par-5 scoring through R3?</div>
+          <div class="ri-reality-a">${par5Sustained
+            ? `Sustained &mdash; par-5 scoring signal ${par5Hist.slice(0, 3).join(' &rarr; ')} across ${par5Hist.length} round(s). Iron quality remained a differentiator through 54 holes.`
+            : `Inconsistent &mdash; signal history: ${par5Hist.slice(0, 3).join(' &rarr; ') || 'insufficient data'}. Par-70 limits par-5 opportunity (only 2 holes).`
+          }</div>
+        </div>
+        <div class="ri-reality-item ${validatedCount >= 6 ? 'ri-reality-yes' : validatedCount >= 4 ? 'ri-reality-mixed' : 'ri-reality-neutral'}">
+          <div class="ri-reality-q">Course fit validation through 3 rounds?</div>
+          <div class="ri-reality-a">${validatedCount >= 6
+            ? `Strong &mdash; ${validatedCount}/10 traits validated cumulatively. TPC River Highlands rewarded the predicted trait profile across 3 rounds.`
+            : validatedCount >= 4
+              ? `Partial &mdash; ${validatedCount}/10 traits validated cumulatively. Core approach and OTT traits confirmed; secondary traits mixed.`
+              : `Limited &mdash; ${validatedCount}/10 traits validated cumulatively. Pre-tournament model had partial course-fit confirmation.`
+          }</div>
+        </div>`;
+  }
+
   const realityHTML = `
     <div class="ri-card ri-card-wide">
       <h4>Trait Reality Check</h4>
@@ -2114,6 +2181,7 @@ function renderRoundPanel(body, rData, roundNum) {
             : `Trait delta +${(ta.par5_scoring?.trait_delta??0).toFixed(0)} &mdash; leaders had better par-5 profiles, directionally supporting the 3% weight. Short par-70 limits birdie opportunities on par-5s here (only 2 par-5s).`
           }</div>
         </div>
+        ${r3RealityItems}
       </div>
     </div>`;
 
@@ -2148,7 +2216,7 @@ function renderRoundPanel(body, rData, roundNum) {
   const liveLeanHTML = `
     <div class="ri-card ri-card-wide ri-live-lean">
       <div class="ri-live-lean-header">
-        <span class="ri-live-badge">${lln.next_round ? `ROUND ${lln.next_round} LIVE LEAN` : 'FINAL ROUND RECAP'}</span>
+        <span class="ri-live-badge" ${lln.next_round === 4 ? 'style="background:#f5c518;color:#1a1a1a;border-color:#b8940f"' : ''}>${!lln.next_round ? 'FINAL ROUND RECAP' : lln.next_round === 4 ? 'FINAL ROUND LIVE LEAN' : `ROUND ${lln.next_round} LIVE LEAN`}</span>
         <span style="font-size:.68rem;color:var(--muted);margin-left:.5rem">
           Provisional in-tournament interpretation layer &mdash; not a permanent model rewrite
         </span>
@@ -2174,7 +2242,7 @@ function renderRoundPanel(body, rData, roundNum) {
           </ul>
         </div>
         <div>
-          <div class="ri-lean-label">${lln.next_round ? `Watch for R${lln.next_round}` : 'Final assessment'}</div>
+          <div class="ri-lean-label">${!lln.next_round ? 'Final assessment' : lln.next_round === 4 ? 'Watch for Final Round' : `Watch for R${lln.next_round}`}</div>
           <ul class="ri-lean-list">
             ${watchItems}
             <li>${lln.rho_note || `Rank correlation ρ = ${rho.toFixed(2)} &mdash; one round is noisy; field remains tightly bunched.`}</li>
@@ -2183,12 +2251,246 @@ function renderRoundPanel(body, rData, roundNum) {
       </div>
     </div>`;
 
+  /* ── 10. R2+ Detailed Assessment (collapsible) ── */
+  let r2DetailedHTML = '';
+  if (roundNum >= 2) {
+    const traitOrderFull = ['app_wedge','app_100_150','app_150_200','ott_accuracy','ott_distance',
+                            'putt_short_conv','putt_lag','arg_rough','arg_bunker','par5_scoring'];
+    const wrisersMap = Object.fromEntries(d.weekend_risers.map(r => [r.r1_name, r]));
+
+    function r2Status(r) {
+      const p = r.pt_rank, pos = r.r1_pos;
+      if (p != null && p <= 10 && pos <= 10)  return {cls:'r2-stat-val',   lbl:'Validated'};
+      if (pos <= 10 && (p == null || p > 10)) return {cls:'r2-stat-over',  lbl:'Overperforming'};
+      if (p != null && p <= 10 && pos > 20)  return {cls:'r2-stat-under', lbl:'Lagging'};
+      if (pos <= 20 && p != null && p <= 20) return {cls:'r2-stat-track', lbl:'On Track'};
+      return {cls:'', lbl:''};
+    }
+
+    /* Sub 1 — Leaderboard vs Pre-Tournament VTS Model */
+    const vtsRows = [...d.leaderboard_snapshot]
+      .sort((a,b) => a.r1_pos - b.r1_pos).slice(0, 20)
+      .map(r => {
+        const st = r2Status(r);
+        const wr = wrisersMap[r.r1_name];
+        const badge = st.lbl ? `<span class="r2-status-badge ${st.cls}">${st.lbl}</span>` : '&mdash;';
+        return `<tr>
+          <td>${r.r1_pos_str || r.r1_pos}</td>
+          <td style="font-weight:600">${r.r1_name}</td>
+          <td style="color:#4ade80">${scoreFmt(r.r1_score)}</td>
+          <td style="color:var(--muted)">${r.pt_rank || '&mdash;'}</td>
+          <td>${r.pt_vts != null ? r.pt_vts.toFixed(1) : '&mdash;'}</td>
+          <td>${badge}</td>
+          <td class="r2-thesis-col">${wr?.thesis_note || ''}</td>
+        </tr>`;
+      }).join('');
+
+    const sub1HTML = `
+      <div class="r2-subsection">
+        <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
+          <span class="r2-sub-chev">&#x25B8;</span> Leaderboard vs Pre-Tournament VTS Model
+        </button>
+        <div class="r2-sub-body">
+          <p class="r2-sub-note">Top 20 by current position &middot; Status compares R${roundNum} result to pre-tournament model expectation.</p>
+          <div class="r2-scroll">
+            <table class="r2-vts-table">
+              <thead><tr><th>Pos</th><th>Player</th><th>Score</th><th>PT Rank</th><th>VTS</th><th>Status</th><th>Thesis Note</th></tr></thead>
+              <tbody>${vtsRows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+
+    /* Sub 2 — Trait Reality Check Cards */
+    const traitCards2 = traitOrderFull.map(tk => {
+      const t = ta[tk];
+      if (!t) return '';
+      const w = Math.round(t.venue_weight * 100);
+      const dStr = t.trait_delta != null ? (t.trait_delta >= 0 ? '+' : '') + t.trait_delta.toFixed(1) : '&mdash;';
+      const evidence = t.enrichment?.enrichment_note
+        ? t.enrichment.enrichment_note
+        : `Trait Δ ${dStr} &middot; SG:${(t.sg_proxy || '').replace('sg_','').toUpperCase()} top10 ${sgFmt(t.sg_top10)} vs field ${sgFmt(t.sg_field || 0)}`;
+      const bdrClr = {validated:'#4ade80',mixed:'#d97706',neutral:'#94a3b8',weak:'#f87171',not_testable:'#475569'}[t.signal] || '#475569';
+      return `<div class="r2-trait-card" style="border-left-color:${bdrClr}">
+        <div class="r2-trait-header">
+          <span class="r2-trait-name">${traitLabel(tk)}</span>
+          <span class="r2-trait-wt">${w}%</span>
+          ${signalBadge(t.signal)}
+        </div>
+        <div class="r2-trait-ev">${evidence}</div>
+        <div class="r2-trait-ft">${supportingTags(t.source_confidence, t.enrichment)}</div>
+      </div>`;
+    }).join('');
+
+    const sub2HTML = `
+      <div class="r2-subsection">
+        <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
+          <span class="r2-sub-chev">&#x25B8;</span> Trait Reality Check
+        </button>
+        <div class="r2-sub-body">
+          <p class="r2-sub-note">All 10 venue traits &middot; R${roundNum} data vs pre-tournament model weights.</p>
+          <div class="r2-trait-grid">${traitCards2}</div>
+        </div>
+      </div>`;
+
+    /* Sub 3 — Model vs Realized Tier Table */
+    const tierDefs2 = [
+      {key:'tier1',    lbl:'Tier 1'},
+      {key:'tier2',    lbl:'Tier 2'},
+      {key:'tier1_2',  lbl:'T1+T2 Combined'},
+      {key:'pt_top10', lbl:'PT Model Top 10'},
+      {key:'pt_top20', lbl:'PT Model Top 20'},
+      {key:'all_field',lbl:'Full Field'},
+    ];
+    const tierRows2 = tierDefs2.map(td => {
+      const g = mp.groups[td.key];
+      if (!g) return '';
+      const posClr = g.avg_r1_pos <= 15 ? '#4ade80' : g.avg_r1_pos <= 30 ? '#fcd34d' : 'var(--muted)';
+      return `<tr>
+        <td>${td.lbl}</td>
+        <td>${g.n}</td>
+        <td style="color:${posClr}">${g.avg_r1_pos != null ? g.avg_r1_pos.toFixed(1) : '&mdash;'}</td>
+        <td style="color:#4ade80">${scoreFmt(g.avg_r1_score)}</td>
+        <td>${g.in_r1_top10}/${g.n}</td>
+        <td>${g.in_r1_top20}/${g.n}</td>
+      </tr>`;
+    }).join('');
+
+    const sub3HTML = `
+      <div class="r2-subsection">
+        <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
+          <span class="r2-sub-chev">&#x25B8;</span> Model vs Realized &mdash; Tier Performance
+        </button>
+        <div class="r2-sub-body">
+          <div class="r2-scroll">
+            <table class="r2-tier-table">
+              <thead><tr><th>Tier</th><th>n</th><th>Avg Pos</th><th>Avg Score</th><th>Top 10</th><th>Top 20</th></tr></thead>
+              <tbody>${tierRows2}</tbody>
+            </table>
+          </div>
+          <p class="r2-sub-note" style="margin-top:.35rem">Spearman &rho; = ${rho.toFixed(3)} after R${roundNum} &middot; ${roundNum >= 3 ? '54-hole cumulative correlation &mdash; model-field separation at peak before Final.' : 'Separation sharpens through R3/Final as field spreads.'}</p>
+        </div>
+      </div>`;
+
+    /* Sub 4 — Weekend Projection */
+    const projRiserRows = d.weekend_risers.length === 0
+      ? '<p class="ri-placeholder">No risers matching course-fit thesis this round.</p>'
+      : [...d.weekend_risers]
+          .sort((a,b) => (b.thesis_score||0) - (a.thesis_score||0))
+          .map(r => {
+            const filled = Math.min(r.thesis_score || 0, 3);
+            const dots = '●'.repeat(filled) + '○'.repeat(3 - filled);
+            return `<div class="r2-proj-row">
+              <div class="r2-proj-player">
+                <span class="r2-proj-name">${r.r1_name}</span>
+                <span class="ri-pos-chip">${r.r1_pos_str || r.r1_pos}</span>
+                <span class="ri-score-chip">${scoreFmt(r.r1_score)}</span>
+                ${r.pt_tier ? `<span class="ri-tier-chip">T${r.pt_tier}</span>` : ''}
+                <span class="r2-thesis-dots" title="Thesis score ${r.thesis_score||0}/3">${dots}</span>
+              </div>
+              <div class="r2-proj-sg">
+                APP <b style="color:${r.sg_app > 0.5 ? '#4ade80' : 'var(--muted)'}">${sgFmt(r.sg_app)}</b>
+                ARG <b style="color:${r.sg_arg > 0.3 ? '#4ade80' : 'var(--muted)'}">${sgFmt(r.sg_arg)}</b>
+                PUTT <b>${sgFmt(r.sg_putt)}</b>
+                OTT <b>${sgFmt(r.sg_ott)}</b>
+              </div>
+              <div class="r2-proj-note">${r.thesis_note || ''}</div>
+            </div>`;
+          }).join('');
+
+    const projSlipRows = d.slippage_risk.length === 0
+      ? '<p class="ri-placeholder">No fragility flags in current top 20.</p>'
+      : d.slippage_risk.map(r => `
+          <div class="r2-slip-row">
+            <span class="r2-proj-name">${r.r1_name}</span>
+            <span class="ri-pos-chip">${r.r1_pos_str || r.r1_pos}</span>
+            <span class="ri-score-chip">${scoreFmt(r.r1_score)}</span>
+            <span class="r2-slip-flags">${(r.risk_flags||[]).join(' &middot; ')}</span>
+          </div>`).join('');
+
+    const sub4HTML = `
+      <div class="r2-subsection">
+        <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
+          <span class="r2-sub-chev">&#x25B8;</span> ${roundNum >= 3 ? 'Final Round Projection' : 'Weekend Projection'}
+        </button>
+        <div class="r2-sub-body">
+          <div class="r2-proj-lbl">${roundNum >= 3 ? 'Final Round Risers' : 'Course-fit validated risers'} <span class="r2-proj-lbl-sub">(&bull;&bull;&bull; = strongest thesis)</span></div>
+          ${projRiserRows}
+          <div class="r2-proj-lbl" style="margin-top:.65rem">Slippage risk${roundNum >= 3 ? ' &mdash; R4 regression candidates' : ''}</div>
+          ${projSlipRows}
+          <p class="r2-sub-note" style="margin-top:.45rem">Thesis score &bull;&bull;&bull; = approach-led + scrambling + pre-tournament model basis. Slippage = putting-driven without approach backing.</p>
+        </div>
+      </div>`;
+
+    /* Sub 5 — Engine Learning Flags */
+    const cl = cumulativeData;
+    let sub5HTML;
+    if (cl && cl.cumulative_signals) {
+      const learnRows = traitOrderFull.map(tk => {
+        const cs = cl.cumulative_signals[tk];
+        if (!cs) return '';
+        const sClrMap = {validated:'#4ade80',mixed:'#fcd34d',neutral:'#94a3b8',weak:'#f87171'};
+        const consensus = cs.consensus || '&mdash;';
+        const consCls = {validated:'ri-sig-val',mixed:'ri-sig-mix',neutral:'ri-sig-neu',weak:'ri-sig-weak'}[cs.consensus] || 'ri-sig-nt';
+        const sigHist = (cs.signal_history||[]).map((s,i) => {
+          const clr = sClrMap[s] || '#94a3b8';
+          const rnd = (cs.rounds_observed||[])[i] || (i+1);
+          return `<span style="color:${clr}">R${rnd}: ${s}</span>`;
+        }).join(' &middot; ');
+        const deltaHist = (cs.delta_history||[]).map((dv,i) => {
+          const rnd = (cs.rounds_observed||[])[i] || (i+1);
+          return `R${rnd}: ${dv > 0 ? '+' : ''}${dv.toFixed(1)}`;
+        }).join(', ');
+        return `<div class="r2-learn-row">
+          <div class="r2-learn-trait">${traitLabel(tk)}</div>
+          <div class="r2-learn-hist">${sigHist}</div>
+          <div><span class="ri-sig-badge ${consCls}">${consensus.toUpperCase()}</span></div>
+          <div class="r2-learn-deltas">${deltaHist}</div>
+        </div>`;
+      }).join('');
+
+      sub5HTML = `
+        <div class="r2-subsection">
+          <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
+            <span class="r2-sub-chev">&#x25B8;</span> Engine Learning Flags
+          </button>
+          <div class="r2-sub-body">
+            <p class="r2-sub-note">Cumulative signals across ${cl.rounds_completed || roundNum} rounds &middot; Consensus = direction both rounds agreed on.</p>
+            <div class="r2-learn-grid">${learnRows}</div>
+          </div>
+        </div>`;
+    } else {
+      sub5HTML = `
+        <div class="r2-subsection">
+          <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
+            <span class="r2-sub-chev">&#x25B8;</span> Engine Learning Flags
+          </button>
+          <div class="r2-sub-body"><p class="ri-placeholder">Cumulative learning data not yet available.</p></div>
+        </div>`;
+    }
+
+    r2DetailedHTML = `
+      <div class="ri-card ri-card-wide r2-assess-wrapper">
+        <button class="r2-assess-toggle" onclick="this.nextElementSibling.classList.toggle('r2-open');this.classList.toggle('r2-open')">
+          R${roundNum} Detailed Assessment <span class="r2-toggle-chev">&#x25B8;</span>
+        </button>
+        <div class="r2-assess-body">
+          ${sub1HTML}
+          ${sub2HTML}
+          ${sub3HTML}
+          ${sub4HTML}
+          ${sub5HTML}
+        </div>
+      </div>`;
+  }
+
   /* ── 9. Data diagnostics note ── */
   const ms = d.match_summary;
   const enrDiagNote = ciLoaded && enrSummary
-    ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched &middot; source: ${enrSummary.source || 'course_insights.csv'}</div>
+    ? `<div><b>Course Insights (DataGolf proxy):</b> ${enrSummary.player_match_n}/${enrSummary.player_total} players matched &middot; data embedded in analysis JSON (no separate CSV fetch by the app)</div>
        <div>Traits upgraded: <b>${enrSummary.traits_upgraded.map(k=>traitLabel(k)).join(', ') || 'none'}</b> &middot; confirmed: ${enrSummary.traits_confirmed.map(k=>traitLabel(k)).join(', ') || 'none'}</div>
-       <div>DataGolf SG is correlated with PGAT official SG but not identical &mdash; used as supplemental proxy only.</div>`
+       ${(enrSummary.key_findings || []).map(f => `<div style="font-size:.68rem;color:var(--muted)">&bull; ${f}</div>`).join('')}
+       <div>DataGolf SG correlated (~0.05–0.30 diff) but distinct from PGAT SG &mdash; supplemental proxy layer only.</div>`
     : '<div>Course Insights: not loaded for this round.</div>';
   const diagHTML = `
     <div class="ri-card ri-card-wide ri-diag-note">
@@ -2239,6 +2541,241 @@ function renderRoundPanel(body, rData, roundNum) {
       </div>
     </div>`;
 
+  /* ── R2/R3 multi-round leaderboard (shows per-round scores alongside cumulative) ── */
+  let lbMultiRoundHTML = '';
+  if (roundNum >= 2) {
+    const r1SnapMap = {};
+    if (r1Data?.leaderboard_snapshot) {
+      r1Data.leaderboard_snapshot.forEach(r => { r1SnapMap[r.r1_name] = r; });
+    }
+    const r2SnapMap = {};
+    if (roundNum >= 3 && r2Data?.leaderboard_snapshot) {
+      r2Data.leaderboard_snapshot.forEach(r => { r2SnapMap[r.r1_name] = r; });
+    }
+    const holeCount = roundNum >= 3 ? '54' : '36';
+    const lbTop15M = [...d.leaderboard_snapshot].sort((a, b) => a.r1_pos - b.r1_pos).slice(0, 15);
+    const multiRows = lbTop15M.map(r => {
+      const isRiser = d.weekend_risers.some(x => x.r1_name === r.r1_name);
+      const isSlip  = d.slippage_risk.some(x => x.r1_name === r.r1_name);
+      const rowClass = isSlip ? 'ri-lb-slip' : isRiser ? 'ri-lb-riser' : '';
+      const r1Match  = r1SnapMap[r.r1_name];
+      const r1Score  = r1Match?.r1_score ?? null;
+      const total    = r.r1_score;
+      const appClr   = r.sg_app != null ? (r.sg_app > 1.0 ? '#4ade80' : r.sg_app < -0.5 ? '#f87171' : 'var(--muted)') : 'var(--muted)';
+      const puttClr  = r.sg_putt != null && r.sg_putt > 2.0 ? '#fcd34d' : 'var(--muted)';
+      if (roundNum >= 3) {
+        const r2Cum   = r2SnapMap[r.r1_name]?.r1_score ?? null;
+        const r2Score = (r2Cum != null && r1Score != null) ? r2Cum - r1Score : null;
+        const r3Score = (r2Cum != null && total != null) ? total - r2Cum : null;
+        return `<tr class="${rowClass}">
+          <td>${r.r1_pos_str}</td>
+          <td style="font-weight:600">${r.r1_name}</td>
+          <td style="color:var(--muted)">${scoreFmt(r1Score)}</td>
+          <td style="color:var(--muted)">${scoreFmt(r2Score)}</td>
+          <td style="color:#4ade80">${scoreFmt(r3Score)}</td>
+          <td style="color:#4ade80;font-weight:600">${scoreFmt(total)}</td>
+          <td>${r.pt_vts != null ? r.pt_vts.toFixed(1) : '—'}</td>
+          <td style="color:${appClr}">${sgFmt(r.sg_app)}</td>
+          <td style="color:${puttClr}">${sgFmt(r.sg_putt)}</td>
+          <td>${sgFmt(r.sg_arg)}</td>
+          <td>${sgFmt(r.sg_ott)}</td>
+        </tr>`;
+      }
+      const r2Score = (r1Score != null && total != null) ? total - r1Score : null;
+      return `<tr class="${rowClass}">
+        <td>${r.r1_pos_str}</td>
+        <td style="font-weight:600">${r.r1_name}</td>
+        <td style="color:var(--muted)">${scoreFmt(r1Score)}</td>
+        <td style="color:#4ade80">${scoreFmt(r2Score)}</td>
+        <td style="color:#4ade80;font-weight:600">${scoreFmt(total)}</td>
+        <td>${r.pt_vts != null ? r.pt_vts.toFixed(1) : '—'}</td>
+        <td style="color:${appClr}">${sgFmt(r.sg_app)}</td>
+        <td style="color:${puttClr}">${sgFmt(r.sg_putt)}</td>
+        <td>${sgFmt(r.sg_arg)}</td>
+        <td>${sgFmt(r.sg_ott)}</td>
+      </tr>`;
+    }).join('');
+    const multiThead = roundNum >= 3
+      ? `<thead><tr><th>Pos</th><th>Player</th><th>R1</th><th>R2</th><th>R3</th><th>54-Hole</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>`
+      : `<thead><tr><th>Pos</th><th>Player</th><th>R1</th><th>R2</th><th>36-Hole</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>`;
+    const multiLegendNote = roundNum >= 3
+      ? 'SG values cumulative through R3 &middot; R3 = 54-Hole total minus R2 cum &middot; R2 = R2 cum minus R1'
+      : 'R1 score from round 1 analysis &middot; R2 = cumulative minus R1 &middot; 36-Hole = total';
+    lbMultiRoundHTML = `
+      <div class="ri-card ri-card-wide">
+        <h4>${holeCount}-Hole Leaderboard <span style="font-size:.7rem;color:var(--muted);font-weight:400">(top 15 &middot; individual round scores)</span></h4>
+        <div class="ri-lb-scroll">
+          <table class="ri-lb-table">
+            ${multiThead}
+            <tbody>${multiRows}</tbody>
+          </table>
+        </div>
+        <div class="ri-lb-legend">
+          <span class="ri-lb-riser-dot"></span> ${roundNum >= 3 ? 'Final round riser' : 'Weekend riser'}
+          <span class="ri-lb-slip-dot" style="margin-left:.75rem"></span> Slippage risk
+          <span style="margin-left:.75rem;font-size:.65rem;color:var(--muted)">${multiLegendNote}</span>
+        </div>
+      </div>`;
+  }
+
+  /* ── Model Accountability (R2+) ── */
+  let modelAccountabilityHTML = '';
+  if (roundNum >= 2) {
+    const tier1InLb = d.leaderboard_snapshot.filter(r => r.pt_tier === 1)
+      .sort((a, b) => (a.pt_rank || 99) - (b.pt_rank || 99));
+    const tier1Rows = tier1InLb.length === 0
+      ? '<tr><td colspan="6" style="color:var(--muted);text-align:center">No Tier 1 players matched in leaderboard data.</td></tr>'
+      : tier1InLb.map(r => {
+          const pos = r.r1_pos;
+          const {cls, lbl} = roundNum >= 3
+            ? (pos <= 5  ? {cls:'r2-stat-val',   lbl:'ON TARGET'}
+             : pos <= 15 ? {cls:'r2-stat-track', lbl:'WATCH'}
+             :             {cls:'r2-stat-under', lbl:'MISS'})
+            : (pos <= 5  ? {cls:'r2-stat-val',   lbl:'On target'}
+             : pos <= 15 ? {cls:'r2-stat-track', lbl:'In range'}
+             : pos <= 30 ? {cls:'',              lbl:'Mixed'}
+             :             {cls:'r2-stat-under', lbl:'Lagging'});
+          return `<tr>
+            <td style="font-weight:600">${r.r1_name}</td>
+            <td style="color:var(--muted)">PT #${r.pt_rank}</td>
+            <td>${r.pt_vts != null ? r.pt_vts.toFixed(1) : '—'}</td>
+            <td>${r.r1_pos_str || r.r1_pos}</td>
+            <td style="color:#4ade80">${scoreFmt(r.r1_score)}</td>
+            <td><span class="r2-status-badge ${cls}">${lbl}</span></td>
+          </tr>`;
+        }).join('');
+
+    const apList = eventMeta?.model_summary?.anti_patterns || [];
+    const apSection = apList.length === 0 ? '' : (() => {
+      const apRows = apList.map(ap => {
+        const meta = AP_META[ap];
+        const triggering = d.leaderboard_snapshot
+          .filter(r => r.r1_pos <= 20 && r.pt_flags && r.pt_flags.includes(ap))
+          .map(r => r.r1_name.split(' ').slice(-1)[0]);
+        return `<tr>
+          <td><span class="ap-tag ${meta?.cls||''}">${meta?.label || ap}</span></td>
+          <td style="font-size:.7rem;color:var(--muted)">${meta?.tip || ''}</td>
+          <td style="color:${triggering.length ? '#fcd34d' : 'var(--muted)'}">${triggering.length ? triggering.join(', ') : 'none in top 20'}</td>
+        </tr>`;
+      }).join('');
+      return `<div style="margin-top:.7rem">
+        <div class="r2-proj-lbl">Anti-Pattern Flags Active</div>
+        <div class="r2-scroll">
+          <table class="r2-vts-table">
+            <thead><tr><th>Flag</th><th>Description</th><th>Top-20 affected</th></tr></thead>
+            <tbody>${apRows}</tbody>
+          </table>
+        </div>
+      </div>`;
+    })();
+
+    const misses = d.leaderboard_snapshot
+      .filter(r => r.pt_tier <= 2 && r.r1_pos > 30)
+      .sort((a, b) => (a.pt_rank || 99) - (b.pt_rank || 99))
+      .slice(0, 5);
+    const missHTML = misses.length === 0
+      ? '<p class="ri-placeholder">No Tier 1/2 players significantly off expectations.</p>'
+      : misses.map(r => `<div class="ri-player-row">
+          <div class="ri-player-name">${r.r1_name}</div>
+          <div class="ri-player-meta">
+            <span class="ri-pos-chip">${r.r1_pos_str}</span>
+            <span class="ri-score-chip">${scoreFmt(r.r1_score)}</span>
+            <span class="ri-tier-chip">T${r.pt_tier}</span>
+            <span style="font-size:.68rem;color:var(--muted)">PT #${r.pt_rank} &middot; VTS ${r.pt_vts?.toFixed(1)}</span>
+          </div>
+          <div class="ri-player-sg">
+            APP: <b style="color:${(r.sg_app||0)<0?'#f87171':'var(--muted)'}">${sgFmt(r.sg_app)}</b>
+            PUTT: <b>${sgFmt(r.sg_putt)}</b>
+            ARG: <b>${sgFmt(r.sg_arg)}</b>
+          </div>
+        </div>`).join('');
+
+    modelAccountabilityHTML = `
+      <div class="ri-card ri-card-wide">
+        <h4>Model Accountability &mdash; R${roundNum}</h4>
+        <div class="r2-proj-lbl">Tier 1 Check</div>
+        <div class="r2-scroll">
+          <table class="r2-vts-table">
+            <thead><tr><th>Player</th><th>Pre-Tournament</th><th>VTS</th><th>Pos</th><th>Score</th><th>Status</th></tr></thead>
+            <tbody>${tier1Rows}</tbody>
+          </table>
+        </div>
+        ${apSection}
+        <div style="margin-top:.7rem">
+          <div class="r2-proj-lbl">Notable Misses (T1+2 outside top 30)</div>
+          ${missHTML}
+        </div>
+      </div>`;
+  }
+
+  /* ── Weekend Projection (R2+) ── */
+  let weekendProjectionHTML = '';
+  if (roundNum >= 2) {
+    const projRisers    = [...(d.weekend_risers || [])].sort((a, b) => (b.thesis_score||0) - (a.thesis_score||0)).slice(0, 5);
+    const watchAll      = lln.watch_next_round || [];
+    const modelLeaders  = watchAll.filter(w => w.flag_type === 'sustainable');
+    const slippageFlags = watchAll.filter(w => w.flag_type !== 'sustainable');
+
+    const modelLeaderRows = modelLeaders.map(w => {
+      const sc = w.score != null ? (w.score === 0 ? 'E' : (w.score > 0 ? '+' : '') + w.score.toFixed(0)) : '';
+      const appStr  = w.sg_app  != null ? ` APP <b style="color:#4ade80">${w.sg_app  > 0 ? '+' : ''}${w.sg_app.toFixed(2)}</b>`  : '';
+      const puttStr = w.sg_putt != null ? ` PUTT <b>${w.sg_putt > 0 ? '+' : ''}${w.sg_putt.toFixed(2)}</b>` : '';
+      return `<div class="r2-proj-row">
+          <div class="r2-proj-player">
+            <span class="r2-proj-name">${w.player}</span>
+            <span class="ri-pos-chip">${w.pos_str}</span>
+            <span class="ri-score-chip">${sc}</span>
+            <span class="r2-proj-dots" style="color:#4ade80" title="Approach-backed sustainable position">&#10003; MODEL</span>
+          </div>
+          <div class="r2-proj-sg">${appStr}${puttStr}</div>
+          <div class="r2-proj-note" style="color:#86efac">${w.note}</div>
+        </div>`;
+    }).join('');
+
+    const projRows = projRisers.length === 0
+      ? '<p class="ri-placeholder">No course-fit validated risers this round.</p>'
+      : projRisers.map(r => {
+          const filled = Math.min(r.thesis_score || 0, 3);
+          const dots = '●'.repeat(filled) + '○'.repeat(3 - filled);
+          return `<div class="r2-proj-row">
+            <div class="r2-proj-player">
+              <span class="r2-proj-name">${r.r1_name}</span>
+              <span class="ri-pos-chip">${r.r1_pos_str || r.r1_pos}</span>
+              <span class="ri-score-chip">${scoreFmt(r.r1_score)}</span>
+              <span class="r2-proj-dots" title="Thesis strength: approach-led + scrambling + model basis">${dots}</span>
+            </div>
+            <div class="r2-proj-sg">
+              APP <b style="color:${(r.sg_app||0)>0.5?'#4ade80':'var(--muted)'}">${sgFmt(r.sg_app)}</b>
+              ARG <b style="color:${(r.sg_arg||0)>0.3?'#4ade80':'var(--muted)'}">${sgFmt(r.sg_arg)}</b>
+              PUTT <b>${sgFmt(r.sg_putt)}</b>
+            </div>
+            <div class="r2-proj-note">${r.thesis_note || ''}</div>
+          </div>`;
+        }).join('');
+    const slippageItems = slippageFlags.map(w => {
+      const sc = w.score != null ? (w.score === 0 ? 'E' : (w.score > 0 ? '+' : '') + w.score.toFixed(0)) : '';
+      const appStr  = w.sg_app  != null ? ` APP ${w.sg_app  > 0 ? '+' : ''}${w.sg_app.toFixed(2)}`  : '';
+      const puttStr = w.sg_putt != null ? ` PUTT ${w.sg_putt > 0 ? '+' : ''}${w.sg_putt.toFixed(2)}` : '';
+      return `<li><span style="color:#fcd34d">${w.player}</span> (${w.pos_str}, ${sc}${appStr}${puttStr}) &mdash; <span style="color:var(--muted)">${w.note}</span></li>`;
+    }).join('') || `<li style="color:var(--muted)">No slippage risk identified.</li>`;
+    weekendProjectionHTML = `
+      <div class="ri-card ri-card-wide">
+        <h4>${roundNum >= 3 ? 'Final Round Projection' : 'Weekend Projection'}</h4>
+        ${modelLeaders.length ? `
+        <div class="r2-proj-lbl" style="margin-bottom:.3rem;color:#4ade80">MODEL LEADERS &mdash; ${lln.next_round === 4 || !lln.next_round ? 'R4 (Final)' : `R${lln.next_round}`}</div>
+        <div class="ri-note" style="margin-bottom:.4rem">Approach-backed, model-confirmed sustainable positions through 54 holes. Not putting-driven.</div>
+        ${modelLeaderRows}
+        <div style="border-top:1px solid var(--border);margin:.65rem 0"></div>` : ''}
+        <div class="r2-proj-lbl" style="margin-bottom:.3rem">${roundNum >= 3 ? 'Final Round Risers' : 'Weekend Risers'} <span class="r2-proj-lbl-sub">(&bull;&bull;&bull; = strongest thesis)</span></div>
+        <div class="ri-note" style="margin-bottom:.4rem">Players outperforming their pre-tournament rank with approach-backed SG${roundNum >= 3 ? ' through 54 holes' : ''}. Ranked by thesis strength.</div>
+        ${projRows}
+        ${slippageFlags.length ? `<div style="margin-top:.65rem">
+          <div class="r2-proj-lbl" style="margin-bottom:.3rem">Slippage Risk &mdash; ${lln.next_round === 4 || !lln.next_round ? 'Final Round' : `R${lln.next_round}`}</div>
+          <ul class="ri-lean-list">${slippageItems}</ul>
+        </div>` : ''}
+      </div>`;
+  }
+
   /* ── Assemble all sections ── */
   body.innerHTML = `
     <div class="ri-r1-layout">
@@ -2250,14 +2787,18 @@ function renderRoundPanel(body, rData, roundNum) {
       ${legendHTML}
       ${modelStripHTML}
       ${lbHTML}
+      ${lbMultiRoundHTML}
       <div class="ri-r1-grid">
         ${traitWinnersHTML}
         ${modelVsRealHTML}
         ${weekendRisersHTML}
         ${slippageHTML}
+        ${weekendProjectionHTML}
+        ${modelAccountabilityHTML}
         ${favTrackerHTML}
         ${realityHTML}
         ${liveLeanHTML}
+        ${r2DetailedHTML}
         ${diagHTML}
       </div>
     </div>`;

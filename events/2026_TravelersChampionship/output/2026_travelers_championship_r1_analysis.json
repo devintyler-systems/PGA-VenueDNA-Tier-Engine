@@ -250,11 +250,11 @@
       "sg_tot": 3.063
     },
     "full_field": {
-      "sg_ott": -0.0,
+      "sg_ott": 0.0,
       "sg_app": 0.0,
       "sg_arg": 0.0,
       "sg_putt": 0.0,
-      "sg_tot": -0.0
+      "sg_tot": 0.0
     }
   },
   "trait_audit": {
@@ -370,7 +370,7 @@
       "trait_delta": 8.4,
       "sg_proxy": "sg_ott",
       "sg_top10": 0.614,
-      "sg_field": -0.0,
+      "sg_field": 0.0,
       "sg_delta": 0.614,
       "signal": "validated",
       "sample_n_top10": 12,
@@ -404,7 +404,7 @@
       "trait_delta": -5.4,
       "sg_proxy": "sg_ott",
       "sg_top10": 0.614,
-      "sg_field": -0.0,
+      "sg_field": 0.0,
       "sg_delta": 0.614,
       "signal": "weak",
       "sample_n_top10": 13,

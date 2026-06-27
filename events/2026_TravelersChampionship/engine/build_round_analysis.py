@@ -424,7 +424,6 @@ def sg_summary(group):
 
 sg_leaders_top10 = sg_summary(top10_group)
 sg_leaders_top18 = sg_summary(top18_group)
-sg_field_all     = sg_summary(joined)
 
 top10_with_traits = [r for r in top10_group if r["matched"] and r["traits"]]
 all_with_traits   = [r for r in matched if r["traits"]]
@@ -459,7 +458,7 @@ for tk in TRAIT_COLS:
         "trait_delta":     delta,
         "sg_proxy":        sg_key,
         "sg_top10":        sg_t10,
-        "sg_field":        sg_all,
+        "sg_field":        0.0 if sg_all == 0 else sg_all,
         "sg_delta":        sg_delta,
         "signal":          signal,
         "sample_n_top10":  len(t10v),
@@ -872,6 +871,15 @@ leaderboard_snapshot = [
     }
     for r in joined
 ]
+
+def _sg_full_field(key):
+    vals = [p.get(key) for p in leaderboard_snapshot if p.get(key) is not None]
+    if not vals:
+        return None
+    v = round(sum(vals) / len(vals), 3)
+    return 0.0 if v == 0 else v  # normalize -0.0 → 0.0
+
+sg_field_all = {k: _sg_full_field(k) for k in ("sg_ott", "sg_app", "sg_arg", "sg_putt", "sg_tot")}
 
 sg_dimension_leaders = {
     "sg_app":  sorted([r for r in joined if r["sg_app"]  is not None], key=lambda x: -x["sg_app"])[:5],
