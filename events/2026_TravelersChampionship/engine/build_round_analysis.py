@@ -234,6 +234,12 @@ if ci_loaded:
 # ── Post-load column and count validation ─────────────────────────────────────
 if sg:
     sg_col_set = set(sg[0].keys())
+    # Normalize uppercase PLAYER → Player for downstream lookups
+    if "Player" not in sg_col_set and "PLAYER" in sg_col_set:
+        for row in sg:
+            row["Player"] = row.pop("PLAYER")
+        sg_col_set = set(sg[0].keys())
+        print("[info] Normalized SG column: PLAYER -> Player")
     if "SG- Around the Green" in sg_col_set:
         SG_ARG_COL = "SG- Around the Green"
     elif "SG-Around the Green" in sg_col_set:

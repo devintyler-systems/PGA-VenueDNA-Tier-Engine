@@ -1008,7 +1008,7 @@ function openCompareModal() {
     ['Top 20 %',     p => fmtPct(p.top20_pct)],
     ['Tier',         p => `T${p.tier}`],
     ['CH Rds',       p => `${p.vh_rounds ?? 0}`],
-    ['Flags',        p => p.flag_count > 0 ? p.anti_pattern_flags : '—'],
+    ['Flags',        p => p.flag_count > 0 ? apTagsHTML(p.anti_pattern_flags) : '—'],
     ['Conf band',    p => p.confidence_band !== 'high'
       ? `<span style="color:${p.confidence_band==='low'?'#f87171':p.confidence_band==='medium'?'#fcd34d':'#94a3b8'}">${p.confidence_band}</span>`
       : '<span style="color:#86efac">high</span>'],
@@ -1316,15 +1316,39 @@ function cleanConviction(raw) {
   return parts.length ? parts.join(' &middot; ') : raw;
 }
 
+/* ── Display normalization helpers ──────────────────────────────────────
+ * Single entry-point for all trait key / flag normalization in the UI.
+ * Every render path that surfaces a key or flag string must call one of
+ * these — prevents raw payload keys from leaking to the user-facing UI.
+ */
+function cleanDisplayKey(raw) {
+  if (!raw) return '';
+  const norm = raw.toLowerCase().replace(/-/g, '_');
+  const tr = TRAIT_KEY_MAP[norm];
+  if (tr) return tr.label;
+  const ap = AP_META[norm];
+  if (ap) return ap.label;
+  return raw.replace(/_/g, ' ').replace(/-/g, ' ');
+}
+
+function cleanRawKeys(text) {
+  if (!text) return '';
+  // Replace embedded trait-key patterns: ARG_Bunker, APP_Wedge, APP_100-150, etc.
+  return text.replace(/\b([A-Z]{2,3}_[A-Za-z0-9]+(?:[-_][A-Za-z0-9]+)*)\b/g, match => {
+    const def = TRAIT_KEY_MAP[match.toLowerCase().replace(/-/g, '_')];
+    return def ? def.label : match;
+  });
+}
+
 function apTagsHTML(flagStr) {
   if (!flagStr || !flagStr.trim()) return '';
   return flagStr.split(';').map(f => {
-    const key = f.trim();
+    const key = f.trim().toLowerCase();   // normalize — payload may be lower or upper
     const meta = AP_META[key];
     if (meta) {
       return `<span class="ap-tag ${meta.cls}" title="${meta.tip}">${meta.label}<span class="ap-tooltip">${meta.tip}</span></span>`;
     }
-    return `<span class="ap-tag">${key.toUpperCase()}</span>`;
+    return `<span class="ap-tag">${cleanDisplayKey(f.trim())}</span>`;
   }).join('');
 }
 
@@ -1654,12 +1678,12 @@ function sectionConviction(text) {
 
 function sectionRiskFailure(stressorActive, riskVec, failureCond, apFlags) {
   const parts = [];
-  if (riskVec) parts.push(`<span class="stat-pill"><span class="sk">Primary risk:</span> <span class="sv">${riskVec}</span></span>`);
+  if (riskVec) parts.push(`<span class="stat-pill"><span class="sk">Primary risk:</span> <span class="sv">${cleanDisplayKey(riskVec)}</span></span>`);
   if (apFlags && apFlags.trim()) parts.push(`<span class="stat-pill"><span class="sk">AP flags:</span> <span class="sv">${apTagsHTML(apFlags)}</span></span>`);
   return `<div class="modal-section">
     <h4>Risk Vector &amp; Failure Condition</h4>
     ${parts.length ? `<div class="stat-row">${parts.join('')}</div>` : ''}
-    ${failureCond ? `<p class="risk-text">${failureCond}</p>` : ''}
+    ${failureCond ? `<p class="risk-text">${cleanRawKeys(failureCond)}</p>` : ''}
   </div>`;
 }
 
@@ -1708,7 +1732,7 @@ function renderBriefs(briefs) {
       <div class="brief-val">${p.venue_history_summary || '—'}</div>
       <div class="brief-label">Conviction</div>
       <div class="brief-val">${cleanConviction(p.conviction_statement) || '—'}</div>
-      <div class="brief-risk">${p.named_failure_condition?.split('|')[0]?.trim() || ''}</div>
+      <div class="brief-risk">${cleanRawKeys(p.named_failure_condition?.split('|')[0]?.trim()) || ''}</div>
     </div>`;
   }).join('');
 }
