@@ -1,8 +1,9 @@
 {
   "schema_version": "1.0",
   "event_slug": "2026_travelers_championship",
-  "last_updated": "2026-06-26",
-  "rounds_completed": 2,
+  "last_updated": "2026-06-27",
+  "rounds_completed": 3,
+  "rounds_present": [1, 2, 3],
   "per_round": {
     "1": {
       "round": 1,
@@ -206,65 +207,179 @@
         "Ben James",
         "Kristoffer Reitan"
       ]
+    },
+    "3": {
+      "round": 3,
+      "generated_at": "2026-06-27",
+      "spearman_rho": 0.344,
+      "trait_signals": {
+        "app_wedge": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 17.8,
+          "sg_delta": 2.299,
+          "enrichment_signal": "confirmed"
+        },
+        "app_100_150": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 18.0,
+          "sg_delta": 2.299,
+          "enrichment_signal": "confirmed"
+        },
+        "app_150_200": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 17.8,
+          "sg_delta": 2.299,
+          "enrichment_signal": "confirmed"
+        },
+        "ott_accuracy": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 2.1,
+          "sg_delta": 0.708,
+          "enrichment_signal": "neutral"
+        },
+        "ott_distance": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 1.0,
+          "sg_delta": 0.708,
+          "enrichment_signal": "contradicted"
+        },
+        "putt_short_conv": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 8.8,
+          "sg_delta": 2.88,
+          "enrichment_signal": null
+        },
+        "putt_lag": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 6.5,
+          "sg_delta": 2.88,
+          "enrichment_signal": null
+        },
+        "arg_rough": {
+          "signal": "validated",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 7.9,
+          "sg_delta": 0.668,
+          "enrichment_signal": "neutral"
+        },
+        "arg_bunker": {
+          "signal": "validated",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 7.1,
+          "sg_delta": 0.668,
+          "enrichment_signal": "neutral"
+        },
+        "par5_scoring": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 12.2,
+          "sg_delta": 2.299,
+          "enrichment_signal": "confirmed"
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 4,
+        "pt_top10_in_top20": 4,
+        "tier1_2_in_top20": 2
+      },
+      "risers": [
+        "Alex Fitzpatrick",
+        "Nico Echavarria",
+        "Tom Hoge",
+        "Ryo Hisatsune",
+        "Robert MacIntyre",
+        "Corey Conners",
+        "Eric Cole",
+        "Daniel Berger",
+        "Tony Finau",
+        "Matt McCarty",
+        "Patrick Cantlay",
+        "Wyndham Clark",
+        "Kurt Kitayama"
+      ],
+      "slippage": [
+        "Wyndham Clark",
+        "Ben Griffin",
+        "Chris Gotterup"
+      ]
     }
   },
   "cumulative_signals": {
     "app_wedge": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
         "proxy-confirmed",
-        "weak-proxy"
+        "weak-proxy",
+        "proxy-confirmed"
       ],
       "delta_history": [
         9.9,
-        10.5
+        10.5,
+        17.8
       ],
       "consensus": "validated",
-      "consensus_confidence": "weak-proxy"
+      "consensus_confidence": "proxy-confirmed"
     },
     "app_100_150": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
         "proxy-confirmed",
-        "weak-proxy"
+        "weak-proxy",
+        "proxy-confirmed"
       ],
       "delta_history": [
         10.0,
-        10.5
+        10.5,
+        18.0
       ],
       "consensus": "validated",
-      "consensus_confidence": "weak-proxy"
+      "consensus_confidence": "proxy-confirmed"
     },
     "app_150_200": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
+        "proxy-confirmed",
         "proxy-confirmed",
         "proxy-confirmed"
       ],
       "delta_history": [
         9.8,
-        10.5
+        10.5,
+        17.8
       ],
       "consensus": "validated",
       "consensus_confidence": "proxy-confirmed"
@@ -272,39 +387,47 @@
     "ott_accuracy": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
         "validated",
-        "validated"
+        "validated",
+        "mixed"
       ],
       "confidence_history": [
         "direct",
-        "direct"
+        "direct",
+        "weak-proxy"
       ],
       "delta_history": [
         8.4,
-        4.1
+        4.1,
+        2.1
       ],
-      "consensus": "validated",
-      "consensus_confidence": "direct"
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
     },
     "ott_distance": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
         "weak",
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
         -5.4,
-        1.6
+        1.6,
+        1.0
       ],
       "consensus": "neutral",
       "consensus_confidence": "weak-proxy"
@@ -312,19 +435,23 @@
     "putt_short_conv": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
         "neutral",
+        "validated",
         "validated"
       ],
       "confidence_history": [
         "weak-proxy",
+        "proxy-confirmed",
         "proxy-confirmed"
       ],
       "delta_history": [
         -0.0,
-        6.1
+        6.1,
+        8.8
       ],
       "consensus": "validated",
       "consensus_confidence": "proxy-confirmed"
@@ -332,39 +459,47 @@
     "putt_lag": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
         "neutral",
-        "mixed"
+        "mixed",
+        "validated"
       ],
       "confidence_history": [
         "weak-proxy",
-        "weak-proxy"
+        "weak-proxy",
+        "proxy-confirmed"
       ],
       "delta_history": [
         -1.4,
-        2.5
+        2.5,
+        6.5
       ],
-      "consensus": "mixed",
-      "consensus_confidence": "weak-proxy"
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
     },
     "arg_rough": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
         "direct",
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
         4.8,
-        9.5
+        9.5,
+        7.9
       ],
       "consensus": "validated",
       "consensus_confidence": "weak-proxy"
@@ -372,19 +507,23 @@
     "arg_bunker": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
         "direct",
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
         5.1,
-        10.2
+        10.2,
+        7.1
       ],
       "consensus": "validated",
       "consensus_confidence": "weak-proxy"
@@ -392,26 +531,31 @@
     "par5_scoring": {
       "rounds_observed": [
         1,
-        2
+        2,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
         "proxy-confirmed",
+        "proxy-confirmed",
         "proxy-confirmed"
       ],
       "delta_history": [
         5.6,
-        12.9
+        12.9,
+        12.2
       ],
       "consensus": "validated",
       "consensus_confidence": "proxy-confirmed"
     }
   },
-  "updated_at": "2026-06-26T21:06:49",
+  "updated_at": "2026-06-27T18:36:28",
   "rounds_present": [
-    2
+    2,
+    3
   ]
 }

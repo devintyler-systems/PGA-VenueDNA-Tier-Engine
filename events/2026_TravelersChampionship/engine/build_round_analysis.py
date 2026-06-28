@@ -979,8 +979,8 @@ if unmatched:
 if duplicates:
     print(f"  Duplicates skipped : {len(duplicates)} ({duplicates})")
 print(f"  Spearman rho    : {spearman_rho}")
-print(f"  PT Top10 → top10: {model_perf['pt_top10']['in_r1_top10']}/10  "
-      f"PT Top10 → top20: {model_perf['pt_top10']['in_r1_top20']}/10")
+print(f"  PT Top10 -> top10: {model_perf['pt_top10']['in_r1_top10']}/10  "
+      f"PT Top10 -> top20: {model_perf['pt_top10']['in_r1_top20']}/10")
 print(f"  Enrichment      : {'ON (' + str(enrichment_summary['player_match_n']) + ' players)' if ci_loaded and enrichment_summary else 'OFF'}")
 print()
 print("  Trait audit:")
@@ -996,5 +996,5 @@ print(f"    output/{EVENT_SLUG}_r{ROUND}_analysis.json")
 print(f"    deploy/data/r{ROUND}_analysis.json")
 print(f"    deploy/data/cumulative_learning.json  (rounds present: {rounds_present})")
 print()
-print(f"  → Reload dashboard. Round {ROUND} tab should show LIVE badge.")
+print(f"  -> Reload dashboard. Round {ROUND} tab should show LIVE badge.")
 print(f"{'='*60}")
