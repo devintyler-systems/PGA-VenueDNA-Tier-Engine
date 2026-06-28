@@ -2586,22 +2586,39 @@ function renderRoundPanel(body, rData, roundNum) {
 
     const apList = eventMeta?.model_summary?.anti_patterns || [];
     const apSection = apList.length === 0 ? '' : (() => {
+      // Build flag lookup from allPlayers (event_payload, Last,First keyed)
+      const apFlagMap = {};
+      for (const p of allPlayers) {
+        apFlagMap[(p.player_name || '').toLowerCase()] = p.anti_pattern_flags || '';
+      }
+      // Convert "Patrick Cantlay" → "cantlay, patrick" for allPlayers lookup
+      function toLastFirstLower(name) {
+        const words = (name || '').trim().split(/\s+/);
+        if (words.length < 2) return name.toLowerCase();
+        return (words.slice(1).join(' ') + ', ' + words[0]).toLowerCase();
+      }
+      const top20snap = d.leaderboard_snapshot.filter(r => (r.r1_pos || 999) <= 20);
       const apRows = apList.map(ap => {
         const meta = AP_META[ap];
-        const triggering = d.leaderboard_snapshot
-          .filter(r => r.r1_pos <= 20 && r.pt_flags && r.pt_flags.includes(ap))
+        const triggering = top20snap
+          .filter(r => {
+            const key = toLastFirstLower(r.r1_name);
+            const flags = apFlagMap[key] || r.pt_flags || '';
+            return flags.split(';').some(f => f.trim() === ap);
+          })
+          .sort((a, b) => (a.r1_pos - b.r1_pos) || ((a.pt_rank ?? 999) - (b.pt_rank ?? 999)))
           .map(r => r.r1_name.split(' ').slice(-1)[0]);
         return `<tr>
           <td><span class="ap-tag ${meta?.cls||''}">${meta?.label || ap}</span></td>
           <td style="font-size:.7rem;color:var(--muted)">${meta?.tip || ''}</td>
-          <td style="color:${triggering.length ? '#fcd34d' : 'var(--muted)'}">${triggering.length ? triggering.join(', ') : 'none in top 20'}</td>
+          <td style="color:${triggering.length ? '#fcd34d' : 'var(--muted)'}">${triggering.length ? triggering.join(', ') : 'none in current top 20'}</td>
         </tr>`;
       }).join('');
       return `<div style="margin-top:.7rem">
         <div class="r2-proj-lbl">Anti-Pattern Flags Active</div>
         <div class="r2-scroll">
           <table class="r2-vts-table">
-            <thead><tr><th>Flag</th><th>Description</th><th>Top-20 affected</th></tr></thead>
+            <thead><tr><th>Flag</th><th>Description</th><th>CURRENT TOP-20 AFFECTED</th></tr></thead>
             <tbody>${apRows}</tbody>
           </table>
         </div>
