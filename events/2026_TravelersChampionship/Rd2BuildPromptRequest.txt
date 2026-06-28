@@ -1,0 +1,161 @@
+You are working on the PGA VenueDNA Tier Engine — a venue-specific PGA Tour projection system built by Devin Tyler.
+
+GitHub repository: https://github.com/devintyler83/PGA-VenueDNA-Tier-Engine
+Live app: https://2026-travelerschampionship-venuedna.netlify.app/
+
+This is a Travelers Championship 2026 session. We are now entering the Round 2 build.
+
+---
+
+SYSTEM OVERVIEW
+
+The engine uses a VTS (Venue Trait Score) model that weights course-specific traits for TPC River Highlands:
+- APP Wedge: 22% (highest weight — birdie-demand wedge course)
+- Putt Short Conv: 16%
+- OTT Accuracy: 14%
+- Putt Birdie Conv: 12%
+- APP 100-150: 11%
+- ARG Scrambling: 10%
+- Par-5 Scoring: 8%
+- ARG Bunker: 4%
+- OTT Distance: 3%
+
+Pre-tournament model leader: Scottie Scheffler (VTS 82)
+Field: 72 players | No Cut | Signature Event | $20M purse | Par 70, 6,844 yds
+
+---
+
+CURRENT STATE
+
+Round 1 is complete and already deployed.
+
+Round 1 leaderboard result:
+- Leader: Eric Cole -7 (63)
+- T2: Nico Echavarria, Ben Griffin, Matt Fitzpatrick, Kristoffer Reitan, Bud Cauley, Scottie Scheffler (-6, 64)
+- T8: Cantlay, Snedeker, Rai, Hovland, Rose, Conners (-5, 65)
+
+Round 1 SG leaders:
+- SG Total: Eric Cole (4.96), Nico Echavarria (3.96), Ben Griffin (3.96), Matt Fitzpatrick (3.96)
+- SG App: Brian Harman (5.29), Eric Cole (2.88), Viktor Hovland (2.21)
+- SG Around Green: Corey Conners (1.85), Harry Hall (1.46), Eric Cole (1.44)
+- SG Putting: Ben Griffin (5.35), Kristoffer Reitan (4.58), Russell Henley (3.82), Brandt Snedeker (2.75)
+
+Key model observations from R1:
+- Scheffler (model #1 VTS 82) at T2 — validated
+- Fitzpatrick (Tier 1) at T2 — validated
+- Hovland (Tier 2) at T8 — tracking
+- Eric Cole led R1 — a moderate VTS player riding hot SG App + ATG; watch if sustainable
+- Cantlay at T8 — tracking; anti-pattern flag (Bomb + Spray) but staying relevant
+- Morikawa at T46 — surprise underperform vs model rank; SG App 1.56 fine, wedge and short game leaking
+
+Round 1 analysis is in the output folder at:
+events/2026_TravelersChampionship/output/2026_travelers_championship_r1_analysis.json
+
+Cumulative learning file is at:
+events/2026_TravelersChampionship/output/2026_travelers_championship_cumulative_learning.json
+
+---
+
+ROUND 2 BUILD — TWO TASKS THIS SESSION
+
+TASK 1 — UI POLISH (carry forward from last session)
+
+The app still has raw payload labels leaking in the user-facing UI.
+
+Do a final display normalization pass:
+
+1. Field table primary_driver and flag columns
+   - Route all values through TRAIT_KEY_MAP before render
+   - Convert raw flags: BOMB_AND_SPRAY → Bomb + Spray, WEDGE_LIABILITY → Wedge Liability,
+     POOR_BIRDIE_CONV → Poor Birdie Conv, ROUGH_APPROACH_LIAB → Rough Approach Liability
+   - No underscores or ALL_CAPS payload keys should appear user-facing anywhere
+
+2. Venue panel Trait Weights and Model Config anti-patterns
+   - Ensure TRAIT_KEY_MAP and AP_META labels are applied consistently here too
+
+3. Tier briefs / conviction text
+   - Apply cleanConviction() or equivalent to all render paths
+   - Remove engine-style phrasing like "lead trait APP_WEDGE at TPC River Highlands weighted 22% in fit model"
+   - Replace with clean product language: "APP Wedge leads (22% wt)"
+
+4. Add a global display normalization safety net:
+   - One shared function that all trait/flag render paths call
+   - No section should be able to bypass the display mapping by accident
+
+QA test: after fixing, do a text search in the deployed HTML for:
+APP_Wedge, APP_100-150, OTT_Accuracy, PUTT_BirdieConv, ARG_Bunker,
+BOMB_AND_SPRAY, WEDGE_LIABILITY, POOR_BIRDIE_CONV, ROUGH_APPROACH_LIAB
+None of these strings should appear anywhere user-facing.
+
+---
+
+TASK 2 — ROUND 2 BUILD
+
+Round 2 data files will be uploaded to this session. They follow the same naming/schema as Round 1:
+- round2_leaderboard.csv
+- round2_player_stats.csv
+- round2_player_strokes_gained.csv
+- round2_course_stats.csv
+- round2_course_insights.csv (DataGolf, may have First/Last column format)
+
+Build steps:
+1. Create output directory: events/2026_TravelersChampionship/output/round2/
+2. Run preflight check: python build_round_analysis.py --round 2 --check
+3. Run build: python build_round_analysis.py --round 2
+4. Verify output JSON at: events/2026_TravelersChampionship/output/2026_travelers_championship_r2_analysis.json
+5. Push to GitHub so the app picks up the new round data
+
+Expected app behavior after build:
+- R2 tab becomes live in Tournament Learning
+- Model vs Realized updates for R2
+- Weekend Risers / Slippage Risk sections update based on cumulative 36-hole picture
+- Cumulative learning JSON updates with rounds_present: [1, 2]
+
+---
+
+ROUND 2 ASSESSMENT EXPECTATIONS
+
+After the R2 build, produce a full structured analysis:
+
+1. Round 2 leaderboard vs pre-tournament VTS board
+   - Who moved up from a model-aligned position?
+   - Who is overperforming their VTS?
+   - Who collapsed from a model-aligned position?
+
+2. Trait reality check — what traits are actually winning through 36 holes?
+   - Compare to pre-tournament weights (APP Wedge 22%, Putt Short Conv 16%, etc.)
+   - Which SG categories dominated R2?
+   - Is the course rewarding the traits the model valued?
+
+3. Model accountability
+   - Tier 1 check: Scheffler, Fitzpatrick, Hovland, Burns — where are they?
+   - Anti-pattern flags: Cantlay, Thomas — are the flags holding?
+   - Notable misses: Morikawa (T46 after R1) — did he recover or continue fading?
+
+4. Weekend projection
+   - Updated risers: who has the trait profile + position to win?
+   - Slippage risk: who is positioned well but leaning on unsustainable traits?
+   - Live lean for R3/R4
+
+5. Engine learning flags
+   - Any early evidence that trait weights should be reconsidered?
+   - Any data quality issues (low match rate, enrichment OFF, etc.) to note?
+
+---
+
+CONSTRAINTS
+
+- Do not redesign layout
+- Do not change model logic or scoring
+- Follow the existing build_round_analysis.py pipeline for the R2 build
+- All display normalization is front-end only — do not alter data in JSON outputs
+- Preserve all methodological transparency in diagnostics
+
+---
+
+WHEN READY
+
+1. Confirm you can see the repository structure and current output files
+2. Confirm which R2 data files have been uploaded
+3. Start with TASK 1 (UI polish) first, then proceed to TASK 2 (R2 build) once confirmed
+4. After R2 build completes, run the full structured Round 2 assessment
