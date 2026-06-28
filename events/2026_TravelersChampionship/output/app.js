@@ -2087,67 +2087,6 @@ function renderRoundPanel(body, rData, roundNum) {
   const argUpgraded = argEnr?.enrichment_signal === 'upgraded';
   const par5Upgraded = par5Enr?.enrichment_signal === 'upgraded';
 
-  /* R3-specific reality check items (54-hole validation) */
-  let r3RealityItems = '';
-  if (roundNum >= 3) {
-    const r2PuttOutliers  = (r2Data?.live_lean_notes?.putt_outliers  || []).map(p => p.player);
-    const r2SlipWatch     = (r2Data?.live_lean_notes?.watch_next_round || []).filter(w => w.flag_type === 'slippage').map(w => w.player);
-    const watchNames      = [...new Set([...r2PuttOutliers, ...r2SlipWatch])];
-
-    const regressionConfirmed = watchNames.filter(name => {
-      const r3Row = d.leaderboard_snapshot.find(r => r.r1_name === name);
-      const r2Row = r2Data?.leaderboard_snapshot?.find(r => r.r1_name === name);
-      return r3Row && r2Row && r3Row.r1_pos > r2Row.r1_pos + 2;
-    });
-    const regressionMissed = watchNames.filter(name => {
-      const r3Row = d.leaderboard_snapshot.find(r => r.r1_name === name);
-      const r2Row = r2Data?.leaderboard_snapshot?.find(r => r.r1_name === name);
-      return r3Row && r2Row && r3Row.r1_pos <= r2Row.r1_pos;
-    });
-    const puttRegressionText = watchNames.length === 0
-      ? 'No R2 putting outliers were flagged for R3 regression.'
-      : regressionConfirmed.length > 0
-        ? `Confirmed for ${regressionConfirmed.join(', ')} &mdash; fell in standings as expected.${regressionMissed.length ? ` Held position: ${regressionMissed.join(', ')}.` : ' All flagged players regressed.'}`
-        : `R2 outliers (${watchNames.slice(0, 4).join(', ')}) did not regress significantly in R3 &mdash; putting spike may have sustained or model flag missed.`;
-
-    const cl54 = cumulativeData;
-    const par5Hist = cl54?.cumulative_signals?.par5_scoring?.signal_history || [];
-    const par5Sustained = par5Hist.filter(s => ['validated', 'mixed'].includes(s)).length >= 2;
-    const validatedCount = cl54?.cumulative_signals
-      ? Object.values(cl54.cumulative_signals).filter(cs => cs.consensus === 'validated').length : 0;
-    const cumulativeAppSg = sg.top10?.sg_app ?? 0;
-    const app54Strong = cumulativeAppSg > 1.5;
-
-    r3RealityItems = `
-        <div class="ri-reality-item ${app54Strong ? 'ri-reality-yes' : 'ri-reality-mixed'}">
-          <div class="ri-reality-q">Did approach dominate through 54 holes?</div>
-          <div class="ri-reality-a">${app54Strong
-            ? `Yes &mdash; cumulative SG:APP +${cumulativeAppSg.toFixed(2)} for 54-hole leaders vs field. Approach backed across all 3 rounds.`
-            : `Mixed &mdash; cumulative SG:APP ${sgFmt(sg.top10?.sg_app)} for 54-hole leaders; approach was not a clear separator across all 3 rounds.`
-          }</div>
-        </div>
-        <div class="ri-reality-item ${regressionConfirmed.length > 0 ? 'ri-reality-yes' : watchNames.length > 0 ? 'ri-reality-caution' : 'ri-reality-neutral'}">
-          <div class="ri-reality-q">Putting regression confirmed (R2 outlier spikers)?</div>
-          <div class="ri-reality-a">${puttRegressionText}</div>
-        </div>
-        <div class="ri-reality-item ${par5Sustained ? 'ri-reality-yes' : 'ri-reality-mixed'}">
-          <div class="ri-reality-q">Par-5 scoring through R3?</div>
-          <div class="ri-reality-a">${par5Sustained
-            ? `Sustained &mdash; par-5 scoring signal ${par5Hist.slice(0, 3).join(' &rarr; ')} across ${par5Hist.length} round(s). Iron quality remained a differentiator through 54 holes.`
-            : `Inconsistent &mdash; signal history: ${par5Hist.slice(0, 3).join(' &rarr; ') || 'insufficient data'}. Par-70 limits par-5 opportunity (only 2 holes).`
-          }</div>
-        </div>
-        <div class="ri-reality-item ${validatedCount >= 6 ? 'ri-reality-yes' : validatedCount >= 4 ? 'ri-reality-mixed' : 'ri-reality-neutral'}">
-          <div class="ri-reality-q">Course fit validation through 3 rounds?</div>
-          <div class="ri-reality-a">${validatedCount >= 6
-            ? `Strong &mdash; ${validatedCount}/10 traits validated cumulatively. TPC River Highlands rewarded the predicted trait profile across 3 rounds.`
-            : validatedCount >= 4
-              ? `Partial &mdash; ${validatedCount}/10 traits validated cumulatively. Core approach and OTT traits confirmed; secondary traits mixed.`
-              : `Limited &mdash; ${validatedCount}/10 traits validated cumulatively. Pre-tournament model had partial course-fit confirmation.`
-          }</div>
-        </div>`;
-  }
-
   const realityHTML = `
     <div class="ri-card ri-card-wide">
       <h4>Trait Reality Check</h4>
@@ -2186,7 +2125,6 @@ function renderRoundPanel(body, rData, roundNum) {
             : `Trait delta +${(ta.par5_scoring?.trait_delta??0).toFixed(0)} &mdash; leaders had better par-5 profiles, directionally supporting the 3% weight. Short par-70 limits birdie opportunities on par-5s here (only 2 par-5s).`
           }</div>
         </div>
-        ${r3RealityItems}
       </div>
     </div>`;
 
@@ -2221,7 +2159,7 @@ function renderRoundPanel(body, rData, roundNum) {
   const liveLeanHTML = `
     <div class="ri-card ri-card-wide ri-live-lean">
       <div class="ri-live-lean-header">
-        <span class="ri-live-badge" ${lln.next_round === 4 ? 'style="background:#f5c518;color:#1a1a1a;border-color:#b8940f"' : ''}>${!lln.next_round ? 'FINAL ROUND RECAP' : lln.next_round === 4 ? 'FINAL ROUND LIVE LEAN' : `ROUND ${lln.next_round} LIVE LEAN`}</span>
+        <span class="ri-live-badge">${lln.next_round ? `ROUND ${lln.next_round} LIVE LEAN` : 'FINAL ROUND RECAP'}</span>
         <span style="font-size:.68rem;color:var(--muted);margin-left:.5rem">
           Provisional in-tournament interpretation layer &mdash; not a permanent model rewrite
         </span>
@@ -2247,7 +2185,7 @@ function renderRoundPanel(body, rData, roundNum) {
           </ul>
         </div>
         <div>
-          <div class="ri-lean-label">${!lln.next_round ? 'Final assessment' : lln.next_round === 4 ? 'Watch for Final Round' : `Watch for R${lln.next_round}`}</div>
+          <div class="ri-lean-label">${lln.next_round ? `Watch for R${lln.next_round}` : 'Final assessment'}</div>
           <ul class="ri-lean-list">
             ${watchItems}
             <li>${lln.rho_note || `Rank correlation ρ = ${rho.toFixed(2)} &mdash; one round is noisy; field remains tightly bunched.`}</li>
@@ -2373,7 +2311,7 @@ function renderRoundPanel(body, rData, roundNum) {
               <tbody>${tierRows2}</tbody>
             </table>
           </div>
-          <p class="r2-sub-note" style="margin-top:.35rem">Spearman &rho; = ${rho.toFixed(3)} after R${roundNum} &middot; ${roundNum >= 3 ? '54-hole cumulative correlation &mdash; model-field separation at peak before Final.' : 'Separation sharpens through R3/Final as field spreads.'}</p>
+          <p class="r2-sub-note" style="margin-top:.35rem">Spearman &rho; = ${rho.toFixed(3)} after R${roundNum} &middot; Separation sharpens through R3/Final as field spreads.</p>
         </div>
       </div>`;
 
@@ -2418,14 +2356,14 @@ function renderRoundPanel(body, rData, roundNum) {
     const sub4HTML = `
       <div class="r2-subsection">
         <button class="r2-sub-hdr" onclick="this.parentElement.classList.toggle('r2-sub-open')">
-          <span class="r2-sub-chev">&#x25B8;</span> ${roundNum >= 3 ? 'Final Round Projection' : 'Weekend Projection'}
+          <span class="r2-sub-chev">&#x25B8;</span> Weekend Projection
         </button>
         <div class="r2-sub-body">
-          <div class="r2-proj-lbl">${roundNum >= 3 ? 'Final Round Risers' : 'Course-fit validated risers'} <span class="r2-proj-lbl-sub">(&bull;&bull;&bull; = strongest thesis)</span></div>
+          <div class="r2-proj-lbl">Course-fit validated risers <span class="r2-proj-lbl-sub">(&bull;&bull;&bull; = strongest thesis)</span></div>
           ${projRiserRows}
-          <div class="r2-proj-lbl" style="margin-top:.65rem">Slippage risk${roundNum >= 3 ? ' &mdash; R4 regression candidates' : ''}</div>
+          <div class="r2-proj-lbl" style="margin-top:.65rem">Slippage risk</div>
           ${projSlipRows}
-          <p class="r2-sub-note" style="margin-top:.45rem">Thesis score &bull;&bull;&bull; = approach-led + scrambling + pre-tournament model basis. Slippage = putting-driven without approach backing.</p>
+          <p class="r2-sub-note" style="margin-top:.45rem">Thesis score &bull;&bull;&bull; = approach-led + scrambling + pre-tournament model basis. Slippage = putting-driven round without approach backing.</p>
         </div>
       </div>`;
 
@@ -2575,18 +2513,13 @@ function renderRoundPanel(body, rData, roundNum) {
       </div>
     </div>`;
 
-  /* ── R2/R3 multi-round leaderboard (shows per-round scores alongside cumulative) ── */
+  /* ── R2 multi-round leaderboard (shows per-round scores alongside cumulative) ── */
   let lbMultiRoundHTML = '';
   if (roundNum >= 2) {
     const r1SnapMap = {};
     if (r1Data?.leaderboard_snapshot) {
       r1Data.leaderboard_snapshot.forEach(r => { r1SnapMap[r.r1_name] = r; });
     }
-    const r2SnapMap = {};
-    if (roundNum >= 3 && r2Data?.leaderboard_snapshot) {
-      r2Data.leaderboard_snapshot.forEach(r => { r2SnapMap[r.r1_name] = r; });
-    }
-    const holeCount = roundNum >= 3 ? '54' : '36';
     const lbTop15M = [...d.leaderboard_snapshot].sort((a, b) => a.r1_pos - b.r1_pos).slice(0, 15);
     const multiRows = lbTop15M.map(r => {
       const isRiser = (d.weekend_risers || []).some(x => x.r1_name === r.r1_name && (x.sg_app ?? 0) > 0.5 && !slipNames.has(x.r1_name));
@@ -2595,27 +2528,9 @@ function renderRoundPanel(body, rData, roundNum) {
       const r1Match  = r1SnapMap[r.r1_name];
       const r1Score  = r1Match?.r1_score ?? null;
       const total    = r.r1_score;
+      const r2Score  = (r1Score != null && total != null) ? total - r1Score : null;
       const appClr   = r.sg_app != null ? (r.sg_app > 1.0 ? '#4ade80' : r.sg_app < -0.5 ? '#f87171' : 'var(--muted)') : 'var(--muted)';
       const puttClr  = r.sg_putt != null && r.sg_putt > 2.0 ? '#fcd34d' : 'var(--muted)';
-      if (roundNum >= 3) {
-        const r2Cum   = r2SnapMap[r.r1_name]?.r1_score ?? null;
-        const r2Score = (r2Cum != null && r1Score != null) ? r2Cum - r1Score : null;
-        const r3Score = (r2Cum != null && total != null) ? total - r2Cum : null;
-        return `<tr class="${rowClass}">
-          <td>${r.r1_pos_str}</td>
-          <td style="font-weight:600">${r.r1_name}</td>
-          <td style="color:var(--muted)">${scoreFmt(r1Score)}</td>
-          <td style="color:var(--muted)">${scoreFmt(r2Score)}</td>
-          <td style="color:#4ade80">${scoreFmt(r3Score)}</td>
-          <td style="color:#4ade80;font-weight:600">${scoreFmt(total)}</td>
-          <td>${r.pt_vts != null ? r.pt_vts.toFixed(1) : '—'}</td>
-          <td style="color:${appClr}">${sgFmt(r.sg_app)}</td>
-          <td style="color:${puttClr}">${sgFmt(r.sg_putt)}</td>
-          <td>${sgFmt(r.sg_arg)}</td>
-          <td>${sgFmt(r.sg_ott)}</td>
-        </tr>`;
-      }
-      const r2Score = (r1Score != null && total != null) ? total - r1Score : null;
       return `<tr class="${rowClass}">
         <td>${r.r1_pos_str}</td>
         <td style="font-weight:600">${r.r1_name}</td>
@@ -2629,25 +2544,19 @@ function renderRoundPanel(body, rData, roundNum) {
         <td>${sgFmt(r.sg_ott)}</td>
       </tr>`;
     }).join('');
-    const multiThead = roundNum >= 3
-      ? `<thead><tr><th>Pos</th><th>Player</th><th>R1</th><th>R2</th><th>R3</th><th>54-Hole</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>`
-      : `<thead><tr><th>Pos</th><th>Player</th><th>R1</th><th>R2</th><th>36-Hole</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>`;
-    const multiLegendNote = roundNum >= 3
-      ? 'SG values cumulative through R3 &middot; R3 = 54-Hole total minus R2 cum &middot; R2 = R2 cum minus R1'
-      : 'R1 score from round 1 analysis &middot; R2 = cumulative minus R1 &middot; 36-Hole = total';
     lbMultiRoundHTML = `
       <div class="ri-card ri-card-wide">
-        <h4>${holeCount}-Hole Leaderboard <span style="font-size:.7rem;color:var(--muted);font-weight:400">(top 15 &middot; individual round scores)</span></h4>
+        <h4>36-Hole Leaderboard <span style="font-size:.7rem;color:var(--muted);font-weight:400">(top 15 · R1 + R2 individual rounds)</span></h4>
         <div class="ri-lb-scroll">
           <table class="ri-lb-table">
-            ${multiThead}
+            <thead><tr><th>Pos</th><th>Player</th><th>R1</th><th>R2</th><th>36-Hole</th><th>VTS</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:ARG</th><th>SG:OTT</th></tr></thead>
             <tbody>${multiRows}</tbody>
           </table>
         </div>
         <div class="ri-lb-legend">
-          <span class="ri-lb-riser-dot"></span> ${roundNum >= 3 ? 'Final round riser' : 'Weekend riser'}
+          <span class="ri-lb-riser-dot"></span> Weekend riser
           <span class="ri-lb-slip-dot" style="margin-left:.75rem"></span> Slippage risk
-          <span style="margin-left:.75rem;font-size:.65rem;color:var(--muted)">${multiLegendNote}</span>
+          <span style="margin-left:.75rem;font-size:.65rem;color:var(--muted)">R1 score from round 1 analysis · R2 = cumulative minus R1 · 36-Hole = total</span>
         </div>
       </div>`;
   }
@@ -2661,14 +2570,10 @@ function renderRoundPanel(body, rData, roundNum) {
       ? '<tr><td colspan="6" style="color:var(--muted);text-align:center">No Tier 1 players matched in leaderboard data.</td></tr>'
       : tier1InLb.map(r => {
           const pos = r.r1_pos;
-          const {cls, lbl} = roundNum >= 3
-            ? (pos <= 5  ? {cls:'r2-stat-val',   lbl:'ON TARGET'}
-             : pos <= 15 ? {cls:'r2-stat-track', lbl:'WATCH'}
-             :             {cls:'r2-stat-under', lbl:'MISS'})
-            : (pos <= 5  ? {cls:'r2-stat-val',   lbl:'On target'}
-             : pos <= 15 ? {cls:'r2-stat-track', lbl:'In range'}
-             : pos <= 30 ? {cls:'',              lbl:'Mixed'}
-             :             {cls:'r2-stat-under', lbl:'Lagging'});
+          const {cls, lbl} = pos <= 5  ? {cls:'r2-stat-val',   lbl:'On target'}
+                           : pos <= 15 ? {cls:'r2-stat-track', lbl:'In range'}
+                           : pos <= 30 ? {cls:'',              lbl:'Mixed'}
+                           :             {cls:'r2-stat-under', lbl:'Lagging'};
           return `<tr>
             <td style="font-weight:600">${r.r1_name}</td>
             <td style="color:var(--muted)">PT #${r.pt_rank}</td>
@@ -2795,7 +2700,7 @@ function renderRoundPanel(body, rData, roundNum) {
             </div>
             <div class="r2-proj-sg">
               APP <b style="color:${sgApp > 0.5 ? '#4ade80' : 'var(--muted)'}">${sgFmt(r.sg_app)}</b>
-              ARG <b style="color:${(r.sg_arg||0)>0.3?'#4ade80':'var(--muted)'}">${sgFmt(r.sg_arg)}</b>
+              ARG <b style="color:${(r.sg_arg || 0) > 0.3 ? '#4ade80' : 'var(--muted)'}">${sgFmt(r.sg_arg)}</b>
               PUTT <b>${sgFmt(r.sg_putt)}</b>
             </div>
             <div class="r2-proj-note">${r.thesis_note || ''}</div>
@@ -2809,17 +2714,17 @@ function renderRoundPanel(body, rData, roundNum) {
     }).join('') || `<li style="color:var(--muted)">No slippage risk identified.</li>`;
     weekendProjectionHTML = `
       <div class="ri-card ri-card-wide">
-        <h4>${roundNum >= 3 ? 'Final Round Projection' : 'Weekend Projection'}</h4>
+        <h4>Weekend Projection</h4>
         ${modelLeaders.length ? `
-        <div class="r2-proj-lbl" style="margin-bottom:.3rem;color:#4ade80">MODEL LEADERS &mdash; ${lln.next_round === 4 || !lln.next_round ? 'R4 (Final)' : `R${lln.next_round}`}</div>
-        <div class="ri-note" style="margin-bottom:.4rem">Approach-backed, model-confirmed sustainable positions through 54 holes. Not putting-driven.</div>
+        <div class="r2-proj-lbl" style="margin-bottom:.3rem;color:#4ade80">MODEL LEADERS &mdash; R${lln.next_round || 'Final'}</div>
+        <div class="ri-note" style="margin-bottom:.4rem">Approach-backed, model-confirmed sustainable positions. Not putting-driven.</div>
         ${modelLeaderRows}
         <div style="border-top:1px solid var(--border);margin:.65rem 0"></div>` : ''}
-        <div class="r2-proj-lbl" style="margin-bottom:.3rem">${roundNum >= 3 ? 'Final Round Risers' : 'Weekend Risers'} <span class="r2-proj-lbl-sub">(&bull;&bull;&bull; = strongest thesis)</span></div>
-        <div class="ri-note" style="margin-bottom:.4rem">Players outperforming their pre-tournament rank with approach-backed SG${roundNum >= 3 ? ' through 54 holes' : ''}. Ranked by thesis strength.</div>
+        <div class="r2-proj-lbl" style="margin-bottom:.3rem">Weekend Risers <span class="r2-proj-lbl-sub">(&bull;&bull;&bull; = strongest thesis)</span></div>
+        <div class="ri-note" style="margin-bottom:.4rem">Players outperforming their pre-tournament rank with approach-backed SG. Ranked by thesis strength.</div>
         ${projRows}
         ${slippageFlags.length ? `<div style="margin-top:.65rem">
-          <div class="r2-proj-lbl" style="margin-bottom:.3rem">Slippage Risk &mdash; ${lln.next_round === 4 || !lln.next_round ? 'Final Round' : `R${lln.next_round}`}</div>
+          <div class="r2-proj-lbl" style="margin-bottom:.3rem">Slippage Risk &mdash; R${lln.next_round || 'Final'}</div>
           <ul class="ri-lean-list">${slippageItems}</ul>
         </div>` : ''}
       </div>`;
@@ -2949,10 +2854,10 @@ function showRoundPanel(round, ms, body) {
   } else if (round === 'final') {
     const curLeader = r3Data?.leaderboard_snapshot?.[0];
     const leaderName = curLeader ? curLeader.r1_name : 'Viktor Hovland';
-    const leaderScore = curLeader ? (curLeader.r1_score === 0 ? 'E' : (curLeader.r1_score > 0 ? '+' : '') + curLeader.r1_score.toFixed(0)) : '-20';
+    const leaderScore = curLeader ? scoreFmt(curLeader.r1_score) : '-20';
     const modelNo1 = eventMeta?.model_summary?.model_winner || 'Scottie Scheffler';
-    const modelNo1Row = r3Data?.leaderboard_snapshot?.find(r => r.r1_name.includes(modelNo1.split(',')[0]));
-    const modelScoreStr = modelNo1Row ? (modelNo1Row.r1_score === 0 ? 'E' : (modelNo1Row.r1_score > 0 ? '+' : '') + modelNo1Row.r1_score.toFixed(0)) : '-19';
+    const modelNo1Score = r3Data?.leaderboard_snapshot?.find(r => r.r1_name.includes(modelNo1.split(',')[0]));
+    const modelScoreStr = modelNo1Score ? scoreFmt(modelNo1Score.r1_score) : '-19';
     body.innerHTML = `
       <div class="ri-cards">
         <div class="ri-card" style="grid-column:1/-1">

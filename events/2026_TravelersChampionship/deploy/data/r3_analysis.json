@@ -162,13 +162,22 @@
     "rho_note": "R3 rank correlation rho=0.344 \u2014 model-field separation expected to sharpen by R4."
   },
   "match_summary": {
-    "matched": 70,
+    "matched": 72,
     "total_r1": 72,
-    "unmatched": [
-      "Keith Mitchell",
-      "Nicolai H\u00f8jgaard"
-    ],
-    "match_rate_pct": 97.2
+    "unmatched": [],
+    "match_rate_pct": 100.0,
+    "manual_injections": [
+      {
+        "player": "Keith Mitchell",
+        "source": "manual_L25_injection",
+        "note": "No pre-tournament venue history. VTS estimated from last-25 SG starts. T10 at -12 overperforms Tier 4 baseline."
+      },
+      {
+        "player": "Nicolai H\u00f8jgaard",
+        "source": "manual_L25_injection",
+        "note": "No pre-tournament venue history. OTT accuracy anti-pattern flagged. T46 at -6 is model-range for untracked Tier 4."
+      }
+    ]
   },
   "model_performance": {
     "spearman_rho": 0.344,
@@ -1183,26 +1192,6 @@
       "thesis_note": "approach elite (+5.80) | putting hot (+2.78) | pre-event driver: APP_100-150"
     },
     {
-      "r1_name": "Wyndham Clark",
-      "norm_name": "Clark, Wyndham",
-      "r1_pos": 5,
-      "r1_pos_str": "T5",
-      "r1_score": -13.0,
-      "pt_rank": 23,
-      "pt_tier": 4,
-      "pt_vts": 48.9,
-      "pt_flags": "bomb_and_spray",
-      "pt_driver": "ARG_Rough",
-      "rank_delta": 18,
-      "sg_ott": -1.641,
-      "sg_app": -1.219,
-      "sg_arg": 3.486,
-      "sg_putt": 4.93,
-      "sg_tot": 5.555,
-      "thesis_score": 2,
-      "thesis_note": "scrambling strong (+3.49) | putting hot (+4.93) | pre-event driver: ARG_Rough"
-    },
-    {
       "r1_name": "Kurt Kitayama",
       "norm_name": "Kitayama, Kurt",
       "r1_pos": 28,
@@ -1421,13 +1410,18 @@
       "r1_pos_str": "T10",
       "r1_score": -12.0,
       "pt_rank": null,
-      "pt_tier": null,
-      "pt_vts": null,
+      "pt_tier": 4,
+      "pt_vts": 51.7,
+      "pt_flags": "bomb_and_spray",
+      "pt_driver": "OTT_Distance",
       "sg_app": 1.177,
       "sg_putt": 2.898,
       "sg_ott": 1.532,
       "sg_arg": -1.051,
-      "sg_tot": 4.555
+      "sg_tot": 4.555,
+      "matched": true,
+      "source": "manual_L25_injection",
+      "venue_note": "No TPC River Highlands history. OTT dominant (+0.687 L25) but 5% weight here. PUTT drag (-0.207 L25). Structural ceiling capped at Tier 4."
     },
     {
       "r1_name": "Si Woo Kim",
@@ -1925,13 +1919,18 @@
       "r1_pos_str": "T46",
       "r1_score": -6.0,
       "pt_rank": null,
-      "pt_tier": null,
-      "pt_vts": null,
+      "pt_tier": 4,
+      "pt_vts": 51.5,
+      "pt_flags": "bomb_and_spray",
+      "pt_driver": "APP_Wedge",
       "sg_app": -0.971,
       "sg_putt": -1.208,
       "sg_ott": 0.304,
       "sg_arg": 0.431,
-      "sg_tot": -1.445
+      "sg_tot": -1.445,
+      "matched": true,
+      "source": "manual_L25_injection",
+      "venue_note": "OTT accuracy anti-pattern: -8 to -12% vs field across L25 (structural). APP best dimension (+0.293 L25) but not elite. T46 is model-range for Tier 4."
     },
     {
       "r1_name": "Xander Schauffele",

@@ -633,3 +633,12 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 .r2-learn-trait { font-size: .69rem; font-weight: 600; color: var(--text); }
 .r2-learn-hist { font-size: .65rem; color: var(--muted); }
 .r2-learn-deltas { font-size: .62rem; color: var(--muted); text-align: right; }
+
+/* ── Engine learning flag cards (amber callout) ── */
+.ri-flag-card { border-radius: .45rem; padding: .6rem .8rem; margin-bottom: .5rem; }
+.ri-flag-card:last-child { margin-bottom: 0; }
+.ri-flag-amber { background: #78350f22; border: 1px solid #d9770666; border-left: 3px solid #d97706; }
+.ri-flag-card-title { font-size: .73rem; font-weight: 700; color: #fde68a; margin-bottom: .3rem; }
+.ri-flag-card-body { font-size: .69rem; color: var(--text); margin-bottom: .25rem; }
+.ri-flag-card-rec { font-size: .67rem; color: var(--muted); font-style: italic; margin-bottom: .15rem; }
+.ri-flag-card-status { font-size: .63rem; }
