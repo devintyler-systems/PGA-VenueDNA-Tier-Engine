@@ -1,9 +1,14 @@
 {
   "schema_version": "1.0",
   "event_slug": "2026_travelers_championship",
-  "last_updated": "2026-06-27",
-  "rounds_completed": 3,
-  "rounds_present": [1, 2, 3],
+  "last_updated": "2026-06-29",
+  "rounds_completed": 4,
+  "rounds_present": [
+    1,
+    2,
+    3,
+    4
+  ],
   "per_round": {
     "1": {
       "round": 1,
@@ -309,6 +314,105 @@
         "Ben Griffin",
         "Chris Gotterup"
       ]
+    },
+    "4": {
+      "round": 4,
+      "generated_at": "2026-06-29",
+      "spearman_rho": 0.341,
+      "trait_signals": {
+        "app_wedge": {
+          "signal": "validated",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 13.4,
+          "sg_delta": 0.585,
+          "enrichment_signal": "neutral"
+        },
+        "app_100_150": {
+          "signal": "validated",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 13.5,
+          "sg_delta": 0.585,
+          "enrichment_signal": "neutral"
+        },
+        "app_150_200": {
+          "signal": "validated",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 13.3,
+          "sg_delta": 0.585,
+          "enrichment_signal": "neutral"
+        },
+        "ott_accuracy": {
+          "signal": "validated",
+          "source_confidence": "direct",
+          "trait_delta": 6.0,
+          "sg_delta": 0.082,
+          "enrichment_signal": "confirmed"
+        },
+        "ott_distance": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 2.9,
+          "sg_delta": 0.082,
+          "enrichment_signal": "contradicted"
+        },
+        "putt_short_conv": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 2.0,
+          "sg_delta": 1.362,
+          "enrichment_signal": null
+        },
+        "putt_lag": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": -0.4,
+          "sg_delta": 1.362,
+          "enrichment_signal": null
+        },
+        "arg_rough": {
+          "signal": "validated",
+          "source_confidence": "not-testable",
+          "trait_delta": 7.3,
+          "sg_delta": 0.318,
+          "enrichment_signal": "contradicted"
+        },
+        "arg_bunker": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 5.7,
+          "sg_delta": 0.318,
+          "enrichment_signal": "contradicted"
+        },
+        "par5_scoring": {
+          "signal": "validated",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 11.0,
+          "sg_delta": 0.585,
+          "enrichment_signal": "neutral"
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 3,
+        "pt_top10_in_top20": 5,
+        "tier1_2_in_top20": 4
+      },
+      "risers": [
+        "Alex Fitzpatrick",
+        "Corey Conners",
+        "Robert MacIntyre",
+        "Bud Cauley",
+        "Daniel Berger",
+        "Andrew Novak",
+        "Tom Hoge",
+        "Keegan Bradley",
+        "Matt McCarty",
+        "Brian Campbell",
+        "Jhonattan Vegas",
+        "Wyndham Clark"
+      ],
+      "slippage": [
+        "Wyndham Clark"
+      ]
     }
   },
   "cumulative_signals": {
@@ -316,9 +420,11 @@
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated",
         "validated"
@@ -326,23 +432,27 @@
       "confidence_history": [
         "proxy-confirmed",
         "weak-proxy",
-        "proxy-confirmed"
+        "proxy-confirmed",
+        "weak-proxy"
       ],
       "delta_history": [
         9.9,
         10.5,
-        17.8
+        17.8,
+        13.4
       ],
       "consensus": "validated",
-      "consensus_confidence": "proxy-confirmed"
+      "consensus_confidence": "weak-proxy"
     },
     "app_100_150": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated",
         "validated"
@@ -350,23 +460,27 @@
       "confidence_history": [
         "proxy-confirmed",
         "weak-proxy",
-        "proxy-confirmed"
+        "proxy-confirmed",
+        "weak-proxy"
       ],
       "delta_history": [
         10.0,
         10.5,
-        18.0
+        18.0,
+        13.5
       ],
       "consensus": "validated",
-      "consensus_confidence": "proxy-confirmed"
+      "consensus_confidence": "weak-proxy"
     },
     "app_150_200": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated",
         "validated"
@@ -374,52 +488,61 @@
       "confidence_history": [
         "proxy-confirmed",
         "proxy-confirmed",
-        "proxy-confirmed"
+        "proxy-confirmed",
+        "weak-proxy"
       ],
       "delta_history": [
         9.8,
         10.5,
-        17.8
+        17.8,
+        13.3
       ],
       "consensus": "validated",
-      "consensus_confidence": "proxy-confirmed"
+      "consensus_confidence": "weak-proxy"
     },
     "ott_accuracy": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
         "validated",
         "validated",
-        "mixed"
+        "mixed",
+        "validated"
       ],
       "confidence_history": [
         "direct",
         "direct",
-        "weak-proxy"
+        "weak-proxy",
+        "direct"
       ],
       "delta_history": [
         8.4,
         4.1,
-        2.1
+        2.1,
+        6.0
       ],
-      "consensus": "mixed",
-      "consensus_confidence": "weak-proxy"
+      "consensus": "validated",
+      "consensus_confidence": "direct"
     },
     "ott_distance": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
         "weak",
         "neutral",
-        "neutral"
+        "neutral",
+        "mixed"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy",
         "weak-proxy",
         "weak-proxy"
@@ -427,66 +550,77 @@
       "delta_history": [
         -5.4,
         1.6,
-        1.0
+        1.0,
+        2.9
       ],
-      "consensus": "neutral",
+      "consensus": "mixed",
       "consensus_confidence": "weak-proxy"
     },
     "putt_short_conv": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
         "neutral",
         "validated",
-        "validated"
+        "validated",
+        "mixed"
       ],
       "confidence_history": [
         "weak-proxy",
         "proxy-confirmed",
-        "proxy-confirmed"
+        "proxy-confirmed",
+        "weak-proxy"
       ],
       "delta_history": [
         -0.0,
         6.1,
-        8.8
+        8.8,
+        2.0
       ],
-      "consensus": "validated",
-      "consensus_confidence": "proxy-confirmed"
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
     },
     "putt_lag": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
         "neutral",
         "mixed",
-        "validated"
+        "validated",
+        "neutral"
       ],
       "confidence_history": [
         "weak-proxy",
         "weak-proxy",
-        "proxy-confirmed"
+        "proxy-confirmed",
+        "weak-proxy"
       ],
       "delta_history": [
         -1.4,
         2.5,
-        6.5
+        6.5,
+        -0.4
       ],
-      "consensus": "validated",
-      "consensus_confidence": "proxy-confirmed"
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
     },
     "arg_rough": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated",
         "validated"
@@ -494,47 +628,55 @@
       "confidence_history": [
         "direct",
         "weak-proxy",
-        "weak-proxy"
+        "weak-proxy",
+        "not-testable"
       ],
       "delta_history": [
         4.8,
         9.5,
-        7.9
+        7.9,
+        7.3
       ],
       "consensus": "validated",
-      "consensus_confidence": "weak-proxy"
+      "consensus_confidence": "not-testable"
     },
     "arg_bunker": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
         "validated",
         "validated",
-        "validated"
+        "validated",
+        "mixed"
       ],
       "confidence_history": [
         "direct",
+        "weak-proxy",
         "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
         5.1,
         10.2,
-        7.1
+        7.1,
+        5.7
       ],
-      "consensus": "validated",
+      "consensus": "mixed",
       "consensus_confidence": "weak-proxy"
     },
     "par5_scoring": {
       "rounds_observed": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated",
         "validated"
@@ -542,20 +684,27 @@
       "confidence_history": [
         "proxy-confirmed",
         "proxy-confirmed",
-        "proxy-confirmed"
+        "proxy-confirmed",
+        "weak-proxy"
       ],
       "delta_history": [
         5.6,
         12.9,
-        12.2
+        12.2,
+        11.0
       ],
       "consensus": "validated",
-      "consensus_confidence": "proxy-confirmed"
+      "consensus_confidence": "weak-proxy"
     }
   },
-  "updated_at": "2026-06-27T18:36:28",
-  "rounds_present": [
-    2,
-    3
-  ]
+  "updated_at": "2026-06-29T21:35:57",
+  "tournament_complete": true,
+  "winner": "Viktor Hovland",
+  "winning_score": -21,
+  "playoff": true,
+  "playoff_note": "Hovland defeated Scheffler in a Monday morning playoff after both finished at -21 after 72 holes.",
+  "runner_up": "Scottie Scheffler",
+  "runner_up_score": -21,
+  "final_analysis_available": true,
+  "tournament_completed_date": "2026-06-29"
 }

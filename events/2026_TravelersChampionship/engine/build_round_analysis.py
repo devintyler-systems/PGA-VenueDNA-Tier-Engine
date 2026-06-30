@@ -43,14 +43,18 @@ from round_helpers import load_csv, csv_columns, ascii_fold, fl_to_lf, avg, pars
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="VenueDNA round analysis builder")
-parser.add_argument("--round", type=int, required=True, choices=[1, 2, 3, 4],
-                    help="Round number (1-4; use 4 for Final)")
+grp = parser.add_mutually_exclusive_group(required=True)
+grp.add_argument("--round", type=int, choices=[1, 2, 3, 4],
+                 help="Round number (1-4; use 4 for Final)")
+grp.add_argument("--final", action="store_true",
+                 help="Full-tournament analysis using final_tournament_* files (produces final_analysis.json)")
 parser.add_argument("--check", action="store_true",
                     help="Validate input files only — print manifest and exit without building")
 args = parser.parse_args()
 
-ROUND      = args.round
-IS_FINAL   = ROUND == 4
+FINAL_BUILD = args.final
+ROUND      = 4 if FINAL_BUILD else args.round
+IS_FINAL   = True if FINAL_BUILD else (ROUND == 4)
 CHECK_ONLY = args.check
 TODAY      = date.today().isoformat()
 BUILD_TS   = datetime.now().replace(microsecond=0).isoformat()
@@ -114,28 +118,43 @@ DIRECT_ENRICHMENT = {
 UPGRADE_MAP = {"weak": "neutral", "not_testable": "neutral", "neutral": "mixed", "mixed": "validated"}
 
 # ── Path resolution ───────────────────────────────────────────────────────────
-# Try clean convention first (output/roundN/), then legacy R1 folder with spaces
-round_dir_candidates = [
-    OUT / f"round{ROUND}",
-    OUT / f"round{ROUND} player & course stats",
-]
-ROUND_DIR = next((d for d in round_dir_candidates if d.exists()), None)
-
-if ROUND_DIR is None:
-    print(f"ERROR: Round {ROUND} data directory not found.")
-    print(f"  Searched:")
-    for c in round_dir_candidates:
-        print(f"    {c}")
-    print(f"  Create output/round{ROUND}/ and place round{ROUND}_*.csv files inside.")
-    raise SystemExit(1)
-
-print(f"Round {ROUND} data dir: {ROUND_DIR}")
-
-# ── File existence validation ─────────────────────────────────────────────────
-LB_PATH  = ROUND_DIR / f"round{ROUND}_leaderboard.csv"
-SG_PATH  = ROUND_DIR / f"round{ROUND}_player_strokes_gained.csv"
-CS_PATH  = ROUND_DIR / f"round{ROUND}_course_stats.csv"
-CI_PATH  = ROUND_DIR / f"round{ROUND}_course_insights.csv"
+if FINAL_BUILD:
+    round_dir_candidates = [
+        OUT / "final_tournament",
+        OUT / "round4 player & course stats",
+    ]
+    ROUND_DIR = next((d for d in round_dir_candidates if d.exists()), None)
+    if ROUND_DIR is None:
+        print("ERROR: Final tournament data directory not found.")
+        print("  Searched:")
+        for c in round_dir_candidates:
+            print(f"    {c}")
+        print("  Create output/final_tournament/ and place final_*.csv files inside.")
+        raise SystemExit(1)
+    LB_PATH  = ROUND_DIR / "final_leaderboard.csv"
+    SG_PATH  = ROUND_DIR / "final_tournament_player_strokes_gained.csv"
+    CS_PATH  = ROUND_DIR / "final_tournament_course_stats.csv"
+    CI_PATH  = ROUND_DIR / "final_tournament_course_insights.csv"
+    print(f"Final tournament data dir: {ROUND_DIR}")
+else:
+    # Try clean convention first (output/roundN/), then legacy R1 folder with spaces
+    round_dir_candidates = [
+        OUT / f"round{ROUND}",
+        OUT / f"round{ROUND} player & course stats",
+    ]
+    ROUND_DIR = next((d for d in round_dir_candidates if d.exists()), None)
+    if ROUND_DIR is None:
+        print(f"ERROR: Round {ROUND} data directory not found.")
+        print(f"  Searched:")
+        for c in round_dir_candidates:
+            print(f"    {c}")
+        print(f"  Create output/round{ROUND}/ and place round{ROUND}_*.csv files inside.")
+        raise SystemExit(1)
+    LB_PATH  = ROUND_DIR / f"round{ROUND}_leaderboard.csv"
+    SG_PATH  = ROUND_DIR / f"round{ROUND}_player_strokes_gained.csv"
+    CS_PATH  = ROUND_DIR / f"round{ROUND}_course_stats.csv"
+    CI_PATH  = ROUND_DIR / f"round{ROUND}_course_insights.csv"
+    print(f"Round {ROUND} data dir: {ROUND_DIR}")
 TFM_PATH = OUT / f"{EVENT_SLUG}_trait_form_matrix.csv"
 PAY_PATH = DEP / "event_payload.json"
 
@@ -234,6 +253,26 @@ if ci_loaded:
 # ── Post-load column and count validation ─────────────────────────────────────
 if sg:
     sg_col_set = set(sg[0].keys())
+
+    # --final mode: normalize DataGolf player-stats format to standard SG format.
+    # The final_tournament file uses abbreviated column names and First/Last name split.
+    if FINAL_BUILD and "SG-OTT" in sg_col_set:
+        normalized = []
+        for row in sg:
+            first = row.get("First Name", "").strip()
+            last  = row.get("Last Name", "").strip()
+            normalized.append({
+                "Player":                 f"{first} {last}",
+                "SG-Off the Tee":         row.get("SG-OTT"),
+                "SG-Approach to Green":   row.get("SG-APP"),  # DictReader last value for dupe col
+                "SG- Around the Green":   row.get("SG-ARG"),
+                "SG-Putting":             row.get("SG-Putt"),
+                "SG-Total":               row.get("SG-Total"),
+            })
+        sg = normalized
+        sg_col_set = set(sg[0].keys())
+        print("[info] Normalized final_tournament SG columns (DG stats format -> standard)")
+
     # Normalize uppercase PLAYER → Player for downstream lookups
     if "Player" not in sg_col_set and "PLAYER" in sg_col_set:
         for row in sg:
@@ -896,13 +935,22 @@ dimension_leaders_clean = {
 }
 
 # ── Assemble output ───────────────────────────────────────────────────────────
-round_sources = [
-    f"round{ROUND}_leaderboard.csv",
-    f"round{ROUND}_player_strokes_gained.csv",
-    f"{EVENT_SLUG}_trait_form_matrix.csv",
-    "deploy/data/event_payload.json",
-] + ([f"round{ROUND}_course_stats.csv"]     if cs_loaded else []) \
-  + ([f"round{ROUND}_course_insights.csv"]  if ci_loaded else [])
+if FINAL_BUILD:
+    round_sources = [
+        "final_leaderboard.csv",
+        "final_tournament_player_strokes_gained.csv",
+        f"{EVENT_SLUG}_trait_form_matrix.csv",
+        "deploy/data/event_payload.json",
+    ] + (["final_tournament_course_stats.csv"]     if cs_loaded else []) \
+      + (["final_tournament_course_insights.csv"]  if ci_loaded else [])
+else:
+    round_sources = [
+        f"round{ROUND}_leaderboard.csv",
+        f"round{ROUND}_player_strokes_gained.csv",
+        f"{EVENT_SLUG}_trait_form_matrix.csv",
+        "deploy/data/event_payload.json",
+    ] + ([f"round{ROUND}_course_stats.csv"]     if cs_loaded else []) \
+      + ([f"round{ROUND}_course_insights.csv"]  if ci_loaded else [])
 
 output = {
     "schema_version":         "1.1",
@@ -915,8 +963,9 @@ output = {
         "event_name":   EVENT_NAME,
         "course_name":  COURSE_NAME,
         "par":          PAR,
-        "round_label":  f"Round {ROUND}" if not IS_FINAL else "Final Round",
+        "round_label":  "Final Tournament" if FINAL_BUILD else ("Final Round" if IS_FINAL else f"Round {ROUND}"),
         "is_final":     IS_FINAL,
+        "is_full_tournament": FINAL_BUILD,
     },
     "round_sources":          round_sources,
     "course_insights_loaded": ci_loaded,
@@ -950,27 +999,34 @@ output = {
 }
 
 # ── Write outputs ─────────────────────────────────────────────────────────────
-out_path = OUT / f"{EVENT_SLUG}_r{ROUND}_analysis.json"
-dep_path = DEP / f"r{ROUND}_analysis.json"
+if FINAL_BUILD:
+    out_path = OUT / f"{EVENT_SLUG}_final_analysis.json"
+    dep_path = DEP / "final_analysis.json"
+else:
+    out_path = OUT / f"{EVENT_SLUG}_r{ROUND}_analysis.json"
+    dep_path = DEP / f"r{ROUND}_analysis.json"
 
 for path in [out_path, dep_path]:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2)
     print(f"Wrote: {path}")
 
-for path in [CUM_OUT, CUM_DEP]:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(cumulative_learning, f, indent=2)
-    print(f"Wrote: {path}")
+# --final does not update cumulative_learning (r4 build already did that)
+if not FINAL_BUILD:
+    for path in [CUM_OUT, CUM_DEP]:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(cumulative_learning, f, indent=2)
+        print(f"Wrote: {path}")
 
 # ── Final build summary ───────────────────────────────────────────────────────
-round_label_final = "Final Round" if IS_FINAL else f"Round {ROUND}"
+round_label_final = "Final Tournament" if FINAL_BUILD else ("Final Round" if IS_FINAL else f"Round {ROUND}")
 match_rate = round(len(matched) / len(joined) * 100, 1) if joined else 0
+out_stem = "final_analysis" if FINAL_BUILD else f"r{ROUND}_analysis"
 print()
-print(f"{'='*60}")
-print(f"  {EVENT_NAME} — {round_label_final} ANALYSIS COMPLETE")
+print("=" * 60)
+print(f"  {EVENT_NAME} -- {round_label_final} ANALYSIS COMPLETE")
 print(f"  Built: {BUILD_TS}")
-print(f"{'='*60}")
+print("=" * 60)
 print(f"  Players matched : {len(matched)}/{len(joined)} ({match_rate}%)")
 if unmatched:
     for r in joined:
@@ -986,15 +1042,19 @@ print()
 print("  Trait audit:")
 for tk, v in trait_audit.items():
     upg = " [UPGRADED]" if v.get("signal_upgraded_by_enrichment") else ""
-    print(f"    {tk:<22} Δ={str(v['trait_delta']):>6}  sg_Δ={str(v['sg_delta']):>7}  → {v['signal']}{upg}")
+    print(f"    {tk:<22} d={str(v['trait_delta']):>6}  sg_d={str(v['sg_delta']):>7}  => {v['signal']}{upg}")
 print()
 print(f"  Weekend risers  : {[r['r1_name'] for r in weekend_risers] or 'none'}")
 print(f"  Slippage risk   : {[r['r1_name'] for r in slippage_risk] or 'none'}")
 print()
 print("  Files written:")
-print(f"    output/{EVENT_SLUG}_r{ROUND}_analysis.json")
-print(f"    deploy/data/r{ROUND}_analysis.json")
-print(f"    deploy/data/cumulative_learning.json  (rounds present: {rounds_present})")
+print(f"    output/{EVENT_SLUG}_{out_stem}.json")
+print(f"    deploy/data/{out_stem}.json")
+if not FINAL_BUILD:
+    print(f"    deploy/data/cumulative_learning.json  (rounds present: {rounds_present})")
 print()
-print(f"  -> Reload dashboard. Round {ROUND} tab should show LIVE badge.")
-print(f"{'='*60}")
+if FINAL_BUILD:
+    print("  -> Full tournament analysis complete. final_analysis.json ready for Learning Loop audit.")
+else:
+    print(f"  -> Reload dashboard. Round {ROUND} tab should show LIVE badge.")
+print("=" * 60)
