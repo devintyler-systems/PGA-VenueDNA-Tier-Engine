@@ -64,6 +64,8 @@ let r2Data = null;         // populated from r2_analysis.json when available
 let r3Data = null;         // populated from r3_analysis.json when available
 let r4Data = null;         // populated from r4_analysis.json when available (Final)
 let cumulativeData = null; // populated from cumulative_learning.json when available
+let unmatchedR4LastNames = new Set(); // last-name tokens for r4 unmatched players
+let showVfdCol = true;               // toggled via Views dropdown
 
 /* ── Trait definitions (for filter panel + compare) ── */
 const TRAIT_DEFS = [
@@ -523,6 +525,13 @@ async function init() {
   r3Data         = await tryLoadRound('r3_analysis.json',         'Round 3');
   r4Data         = await tryLoadRound('r4_analysis.json',         'Final');
   cumulativeData = await tryLoadRound('cumulative_learning.json', 'Cumulative learning');
+  if (r4Data?.match_summary?.unmatched) {
+    r4Data.match_summary.unmatched.forEach(n => {
+      /* "Nicolai Højgaard" → "hojgaard" — last word, lowercase, basic accent strip */
+      const last = n.trim().split(' ').pop().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      unmatchedR4LastNames.add(last);
+    });
+  }
   /* trait_map is built inside runImputationPass after imputation */
 
   renderHeader(payload);
@@ -779,20 +788,24 @@ function renderTable(players) {
     tr.dataset.name = p.player_name;
 
     const dataBadge = playerDataBadgeHTML(p);
+    const _pLastName = p.player_name.split(',')[0].trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const unmatchedBadge = unmatchedR4LastNames.has(_pLastName)
+      ? ' <span class="badge-unmatched" title="Player not found in R4 leaderboard data — no tournament result available">UNMATCHED</span>'
+      : '';
     tr.innerHTML = `
       <td class="rank-cell">${p.rank}</td>
       <td>
-        <div class="player-name">${p.player_name} ${dataBadge}</div>
+        <div class="player-name">${p.player_name} ${dataBadge}${unmatchedBadge}</div>
         <div class="player-driver">${TRAIT_KEY_MAP[p.primary_driver?.toLowerCase().replace(/-/g,'_')]?.label || p.primary_driver || ''}</div>
       </td>
       <td>${tierBadgeHTML(p.tier)}</td>
       <td class="vts-cell">${vtsDisplayHTML(p)}</td>
-      <td class="vts-label" style="text-align:center">${vfdFitHTML(p)}</td>
+      <td class="vts-label col-vfd" style="text-align:center">${vfdFitHTML(p)}</td>
       <td class="prob-cell">${fmtPct(p.win_pct)}</td>
       <td class="prob-cell">${fmtPct(p.top10_pct)}</td>
       <td class="prob-cell">${fmtPct(p.top20_pct)}</td>
       <td><span class="prob-na">N/A</span></td>
-      <td>${apTagsHTML(p.anti_pattern_flags)}</td>
+      <td>${apTagsHTML(p.anti_pattern_flags)}${confAdjFlagHTML(p)}</td>
       <td class="vts-label">${p.vh_rounds ?? 0} rds</td>
       <td class="fav-cell">
         <button class="fav-btn${isFav ? ' on' : ''}" title="${isFav ? 'Remove favorite' : 'Add to favorites'}">★</button>
@@ -1241,7 +1254,7 @@ function wirePresetDropdown() {
   });
   document.addEventListener('click', () => { dd.style.display = 'none'; });
 
-  dd.querySelectorAll('.preset-item').forEach(item => {
+  dd.querySelectorAll('.preset-item:not(#btn-toggle-vfd)').forEach(item => {
     item.addEventListener('click', e => {
       e.stopPropagation();
       const preset = item.dataset.preset;
@@ -1263,10 +1276,23 @@ function wirePresetDropdown() {
       applyAndRender();
     });
   });
+
+  document.getElementById('btn-toggle-vfd').addEventListener('click', e => {
+    e.stopPropagation();
+    showVfdCol = !showVfdCol;
+    syncVfdColumn();
+  });
+}
+
+function syncVfdColumn() {
+  const table = document.getElementById('player-table');
+  if (table) table.classList.toggle('hide-vfd', !showVfdCol);
+  const btn = document.getElementById('btn-toggle-vfd');
+  if (btn) btn.textContent = showVfdCol ? 'VFD Column ✓' : 'VFD Column ○';
 }
 
 function syncPresetDropdownUI() {
-  document.querySelectorAll('.preset-item').forEach(item => {
+  document.querySelectorAll('.preset-item:not(#btn-toggle-vfd)').forEach(item => {
     item.classList.toggle('active', item.dataset.preset === activePreset);
   });
   document.getElementById('btn-presets').classList.toggle('active', !!activePreset);
@@ -1363,6 +1389,15 @@ function apTagsHTML(flagStr) {
   }).join('');
 }
 
+function confAdjFlagHTML(p) {
+  const raw = p.vts_raw ?? +p.vts_final;
+  const adj = p.vts_conf_adj ?? raw;
+  if (VENUEDNA_CONFIG.confidencePenaltyMode === 'none' || adj >= raw) return '';
+  const trigger = p.has_unknown ? 'unknown trait' : 'imputed trait';
+  const tip = `VTS adjusted from ${raw.toFixed(1)} → ${adj.toFixed(1)} (${trigger}: ${Math.round(p.missing_trait_weight*100)}% missing weight)`;
+  return `<span class="ap-tag ap-tag-conf-adj" title="${tip}">VTS adj</span>`;
+}
+
 /* ══════════════════════════════════════════════════════
    VTS BAR + TIER BADGE
 ══════════════════════════════════════════════════════ */
@@ -1399,9 +1434,15 @@ function vfdFitHTML(p) {
 function openModal(p, brief) {
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-player-name').textContent = p.player_name;
+  const _roundStateLabel = (() => {
+    if (r4Data) return 'R4 Final';
+    if (r3Data) return 'R3 · Live';
+    if (r2Data) return 'R2 · Live';
+    if (r1Data) return 'R1 · Live';
+    return `R1: ${p.r1_tee_time || 'TBD'} ${p.r1_wave && p.r1_wave !== 'TBD' ? p.r1_wave : ''}`;
+  })();
   document.getElementById('modal-player-sub').innerHTML =
-    `${tierBadgeHTML(p.tier)} &nbsp; VTS ${(+p.vts_final).toFixed(1)} &nbsp;·&nbsp; ` +
-    `R1: ${p.r1_tee_time || 'TBD'} ${p.r1_wave && p.r1_wave !== 'TBD' ? p.r1_wave : ''}`;
+    `${tierBadgeHTML(p.tier)} &nbsp; VTS ${(+p.vts_final).toFixed(1)} &nbsp;·&nbsp; ${_roundStateLabel}`;
 
   const b = brief || {};
   const traitScores   = p.trait_scores   || b.trait_scores   || [];
@@ -2549,7 +2590,7 @@ function renderRoundPanel(body, rData, roundNum) {
       <h4>Round ${roundNum} Diagnostics</h4>
       <div class="ri-diag-grid">
         <div><b>${ms.matched}/${ms.total_r1}</b> players matched to pre-tournament model (${ms.match_rate_pct}%)</div>
-        <div>Unmatched: ${ms.unmatched.join(', ') || 'none'}</div>
+        <div>Unmatched: ${ms.unmatched.length ? ms.unmatched.map(n=>`<b>${n}</b>`).join(', ') + ' <span style="color:var(--muted);font-size:.7rem">(no leaderboard row found in CSV — WD/DNF or data gap; shown in field table as UNMATCHED)</span>' : 'none'}</div>
         <div>Sources: ${(d.round_sources || ['round_leaderboard.csv', 'round_player_strokes_gained.csv', 'trait_form_matrix.csv', 'event_payload.json']).join(' &middot; ')}</div>
         <div>Trait deltas: pre-tournament percentile avg (top-10 leaders vs field) from trait_form_matrix.csv. Zero-sentinels imputed from tier avg per QA policy.</div>
         <div>SG proxies: SG:APP &rarr; APP Wedge / APP 100-150 / APP 150-200 / Par-5 &middot; SG:PUTT &rarr; Putt Short Conv / Putt Lag &middot; SG:ARG &rarr; ARG Rough / ARG Bunker &middot; SG:OTT &rarr; OTT Accuracy / OTT Distance. Correlational proxies only.</div>

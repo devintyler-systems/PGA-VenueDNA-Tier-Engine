@@ -36,7 +36,7 @@
   },
   "model_summary": {
     "trait_weight_matrix": {
-      "app_wedge": 0.20,
+      "app_wedge": 0.2,
       "app_100_150": 0.12,
       "app_150_200": 0.06,
       "ott_accuracy": 0.14,
@@ -59,7 +59,106 @@
     "model_winner_vts": 82.0,
     "scoring_spec_version": "1.1",
     "venue_file_version": "2026_v1",
-    "event_iteration": "initial"
+    "event_iteration": "v1.1-post-event",
+    "trait_weight_audit": {
+      "app_wedge": {
+        "value": 0.2,
+        "prior_value": 0.22,
+        "change_delta": -0.02,
+        "change_source": "WB-A2/A4",
+        "approved": true,
+        "approved_by": "write_back_review",
+        "approved_at": "2026-06-29",
+        "note": "Rebalance to maintain sum=1.0 after putting weight adjustments (WB-A2/A4)"
+      },
+      "app_100_150": {
+        "value": 0.12,
+        "prior_value": 0.12,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      },
+      "app_150_200": {
+        "value": 0.06,
+        "prior_value": 0.06,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      },
+      "ott_accuracy": {
+        "value": 0.14,
+        "prior_value": 0.14,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      },
+      "ott_distance": {
+        "value": 0.03,
+        "prior_value": 0.03,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      },
+      "putt_short_conv": {
+        "value": 0.19,
+        "prior_value": 0.19,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29",
+        "note": "POST-EVENT REVIEW REQUIRED \u2014 reduction of 6-16pp recommended next event (3-round MIXED signal)"
+      },
+      "putt_lag": {
+        "value": 0.11,
+        "prior_value": 0.11,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29",
+        "note": "POST-EVENT REVIEW REQUIRED \u2014 reduction of 7-8pp recommended next event (3-round NEUTRAL signal)"
+      },
+      "arg_rough": {
+        "value": 0.07,
+        "prior_value": 0.07,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      },
+      "arg_bunker": {
+        "value": 0.05,
+        "prior_value": 0.05,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      },
+      "par5_scoring": {
+        "value": 0.03,
+        "prior_value": 0.03,
+        "change_delta": 0.0,
+        "change_source": null,
+        "approved": true,
+        "approved_by": "no_change",
+        "approved_at": "2026-06-29"
+      }
+    },
+    "weight_sum_check": 1.0,
+    "write_back_iteration": "WB-travelers-2026-post",
+    "write_back_status": "post_event_pending_reallocation",
+    "event_status": "complete"
   },
   "tiers": {
     "tier_1": [
@@ -10668,7 +10767,7 @@
     "engine_version": "1.1",
     "scoring_spec_version": "1.1",
     "venue_file_version": "2026_v1",
-    "event_iteration": "initial",
+    "event_iteration": "v1.1-post-event",
     "generated_at": "2026-06-24T17:53:28.162664",
     "field_size": 71,
     "tee_times_available": false

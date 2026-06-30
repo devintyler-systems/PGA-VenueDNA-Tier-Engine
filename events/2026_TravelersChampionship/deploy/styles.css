@@ -375,6 +375,14 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 .badge-imputed-slight { background: #33415533; border: 1px solid var(--muted); color: var(--muted); }
 .badge-imputed-medium { background: #78350f33; border: 1px solid #d97706; color: #fde68a; }
 .badge-imputed-low    { background: #7f1d1d33; border: 1px solid #dc2626; color: #fca5a5; }
+.badge-unmatched { display: inline-block; font-size: .58rem; font-weight: 700; border-radius: 3px; padding: .08rem .35rem; vertical-align: middle; margin-left: .3rem; cursor: help; text-transform: uppercase; letter-spacing: .03em; background: #1e293b44; border: 1px solid #64748b; color: #94a3b8; }
+.ap-tag-conf-adj { background: #1e3a2c44; border-color: #22c55e55; color: #86efac; }
+
+/* VFD column toggle */
+#player-table.hide-vfd .col-vfd { display: none; }
+
+/* Preset toggle item (non-filter, stateful) */
+.preset-item-toggle { font-style: italic; }
 
 /* Imputed trait bars */
 .trait-row-imputed { opacity: .85; }

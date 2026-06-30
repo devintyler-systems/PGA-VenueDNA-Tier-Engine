@@ -66,6 +66,8 @@
             <button class="preset-item" data-preset="clean-flags">No Risk Flags</button>
             <div class="preset-divider"></div>
             <button class="preset-item" data-preset="favorites">My Card ★</button>
+            <div class="preset-divider"></div>
+            <button class="preset-item preset-item-toggle" id="btn-toggle-vfd" title="Show or hide the VFD (Venue Fit Delta) column">VFD Column ✓</button>
           </div>
         </div>
         <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
@@ -123,14 +125,14 @@
   <!-- Player table -->
   <div class="table-wrap" id="table-wrap">
     <div class="table-result-bar" id="table-result-bar" style="display:none"></div>
-    <table class="player-table">
+    <table class="player-table" id="player-table">
       <thead>
         <tr>
           <th class="th-sort" data-col="rank"># <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="player_name">Player <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="tier">Tier <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="vts_final">VTS <span class="sort-ind"></span></th>
-          <th title="VFD (Venue Fit Delta) is the course-specific adjustment versus a neutral-course baseline. It is one layer of the model and should be read alongside NeutralSkill and final VTS.">VFD</th>
+          <th class="col-vfd" title="VFD (Venue Fit Delta) is the course-specific adjustment versus a neutral-course baseline. It is one layer of the model and should be read alongside NeutralSkill and final VTS.">VFD</th>
           <th class="th-sort" data-col="win_pct">Win % <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="top10_pct">Top 10 % <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="top20_pct">Top 20 % <span class="sort-ind"></span></th>

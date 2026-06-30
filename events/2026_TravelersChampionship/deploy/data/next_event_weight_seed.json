@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-06-29T00:00:00Z",
+  "source_event": "2026_travelers_championship",
+  "target_event_hint": "next_pga_event",
+  "status": "DRAFT_SEED — requires human approval before apply",
+  "spearman_rho": 0.341,
+  "match_rate": 0.972,
+  "approved_for_apply": false,
+  "current_weights": {
+    "app_wedge": 0.20,
+    "app_100_150": 0.12,
+    "app_150_200": 0.06,
+    "ott_accuracy": 0.14,
+    "ott_distance": 0.03,
+    "putt_short_conv": 0.19,
+    "putt_lag": 0.11,
+    "arg_rough": 0.07,
+    "arg_bunker": 0.05,
+    "par5_scoring": 0.03
+  },
+  "recommendations": [
+    {
+      "trait": "putt_short_conv",
+      "current_weight": 0.19,
+      "recommended_weight": 0.08,
+      "change_delta": -0.11,
+      "rationale": "3-round MIXED consensus. R1:0.0 R2:+4.1 R3:+8.8 R4:+2.0. Outlier-driven spike (Clark +3.78). Do not over-weight.",
+      "signal_strength": "MIXED",
+      "round_trend": [0.0, 4.1, 8.8, 2.0]
+    },
+    {
+      "trait": "putt_lag",
+      "current_weight": 0.11,
+      "recommended_weight": 0.04,
+      "change_delta": -0.07,
+      "rationale": "3-round NEUTRAL consensus. R1:-1.4 R2:+2.5 R3:+6.5 R4:-0.4. No sustained signal.",
+      "signal_strength": "NEUTRAL",
+      "round_trend": [-1.4, 2.5, 6.5, -0.4]
+    },
+    {
+      "trait": "app_wedge",
+      "current_weight": 0.20,
+      "recommended_weight": 0.26,
+      "change_delta": 0.06,
+      "rationale": "Validated +13pts. Primary scoring lever confirmed. Top-10 APP Wedge percentile leaders dominated.",
+      "signal_strength": "VALIDATED",
+      "round_trend": []
+    },
+    {
+      "trait": "app_100_150",
+      "current_weight": 0.12,
+      "recommended_weight": 0.18,
+      "change_delta": 0.06,
+      "rationale": "Validated +14pts. Mid-iron precision critical at this par-70 layout.",
+      "signal_strength": "VALIDATED",
+      "round_trend": []
+    },
+    {
+      "trait": "ott_accuracy",
+      "current_weight": 0.14,
+      "recommended_weight": 0.20,
+      "change_delta": 0.06,
+      "rationale": "Validated +6pts direct enrichment. Positional driving confirmed as penalty-avoidance lever.",
+      "signal_strength": "VALIDATED",
+      "round_trend": []
+    }
+  ],
+  "unchanged_traits": ["app_150_200", "ott_distance", "arg_rough", "arg_bunker", "par5_scoring"],
+  "new_weight_sum": 1.0,
+  "freed_weight_pp": 18,
+  "notes": "18pp freed from putt_short_conv (-11pp) and putt_lag (-7pp). Reallocated +6pp each to app_wedge, app_100_150, ott_accuracy. Remaining traits unchanged. Verify sum=1.0 and set approved_for_apply=true before next event build."
+}
