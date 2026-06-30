@@ -36,13 +36,13 @@
   },
   "model_summary": {
     "trait_weight_matrix": {
-      "app_wedge": 0.22,
+      "app_wedge": 0.20,
       "app_100_150": 0.12,
       "app_150_200": 0.06,
       "ott_accuracy": 0.14,
-      "ott_distance": 0.05,
-      "putt_short_conv": 0.16,
-      "putt_lag": 0.1,
+      "ott_distance": 0.03,
+      "putt_short_conv": 0.19,
+      "putt_lag": 0.11,
       "arg_rough": 0.07,
       "arg_bunker": 0.05,
       "par5_scoring": 0.03

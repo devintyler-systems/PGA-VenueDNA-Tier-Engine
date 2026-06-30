@@ -90,14 +90,19 @@ EVENT_META = dict(
 
 # Venue trait weight matrix — TPC River Highlands (short par-70, birdie-fest)
 # Weights sum to 1.00
+# Updated 2026-06-29 per 2026 Travelers Championship audit (writeback.json):
+#   WB-A1: putt_short_conv 0.16→0.19, putt_lag 0.10→0.11 (4-round validated putting premium)
+#   WB-A2: ott_distance 0.05→0.03 (contradicted signal; top-10 drove shorter than field)
+#   WB-A4: app_wedge 0.22→0.20 (rebalancing offset; approach combined weight still dominant)
+# putting_variance_class: high — category importance is high but 12m trait predictability is low
 VENUE_WEIGHTS = dict(
-    app_wedge       = 0.22,   # Approach <150 yd — dominant at short par-70
+    app_wedge       = 0.20,   # Approach <150 yd — dominant at short par-70
     app_100_150     = 0.12,   # Approach 100-150 yd — iron play at key scoring distances
     app_150_200     = 0.06,   # Approach 150-200 yd — less critical here
     ott_accuracy    = 0.14,   # Driving accuracy — bentgrass fairways + water late
-    ott_distance    = 0.05,   # Driving distance — minor premium; short track
-    putt_short_conv = 0.16,   # Short putt conversion — birdie conversion at birdie-fest
-    putt_lag        = 0.10,   # Lag putting — distance control on Bentgrass/Poa
+    ott_distance    = 0.03,   # Driving distance — not a differentiator; top-10 drove shorter
+    putt_short_conv = 0.19,   # Short putt conversion — birdie conversion at birdie-fest
+    putt_lag        = 0.11,   # Lag putting — distance control on Bentgrass/Poa
     arg_rough       = 0.07,   # Scrambling from rough — Ky bluegrass/fescue
     arg_bunker      = 0.05,   # Bunker play
     par5_scoring    = 0.03,   # Par-5 scoring (adj_par5=-0.29/round historically)

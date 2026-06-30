@@ -67,13 +67,13 @@ let cumulativeData = null; // populated from cumulative_learning.json when avail
 
 /* ── Trait definitions (for filter panel + compare) ── */
 const TRAIT_DEFS = [
-  { key: 'app_wedge',      label: 'APP Wedge',        weight: 0.22 },
+  { key: 'app_wedge',      label: 'APP Wedge',        weight: 0.20 },
   { key: 'app_100_150',    label: 'APP 100-150',       weight: 0.12 },
   { key: 'app_150_200',    label: 'APP 150-200',       weight: 0.06 },
   { key: 'ott_accuracy',   label: 'OTT Accuracy',      weight: 0.14 },
-  { key: 'ott_distance',   label: 'OTT Distance',      weight: 0.05 },
-  { key: 'putt_short_conv',label: 'Putt Short Conv',   weight: 0.16 },
-  { key: 'putt_lag',       label: 'Putt Lag',          weight: 0.10 },
+  { key: 'ott_distance',   label: 'OTT Distance',      weight: 0.03 },
+  { key: 'putt_short_conv',label: 'Putt Short Conv',   weight: 0.19 },
+  { key: 'putt_lag',       label: 'Putt Lag',          weight: 0.11 },
   { key: 'arg_rough',      label: 'ARG Rough',         weight: 0.07 },
   { key: 'arg_bunker',     label: 'ARG Bunker',        weight: 0.05 },
   { key: 'par5_scoring',   label: 'Par-5 Scoring',     weight: 0.03 },
@@ -787,6 +787,7 @@ function renderTable(players) {
       </td>
       <td>${tierBadgeHTML(p.tier)}</td>
       <td class="vts-cell">${vtsDisplayHTML(p)}</td>
+      <td class="vts-label" style="text-align:center">${vfdFitHTML(p)}</td>
       <td class="prob-cell">${fmtPct(p.win_pct)}</td>
       <td class="prob-cell">${fmtPct(p.top10_pct)}</td>
       <td class="prob-cell">${fmtPct(p.top20_pct)}</td>
@@ -1011,6 +1012,8 @@ function openCompareModal() {
             : `<span style="color:var(--muted)">${adj.toFixed(1)} —</span>`;
         }]
       : null,
+    ['VFD',          p => vfdFitHTML(p)],
+    ['NSI',          p => p.neutral_skill_index != null ? (+p.neutral_skill_index).toFixed(1) : '—'],
     ['Win %',        p => fmtPct(p.win_pct)],
     ['Top 10 %',     p => fmtPct(p.top10_pct)],
     ['Top 20 %',     p => fmtPct(p.top20_pct)],
@@ -1373,6 +1376,21 @@ function vtsBarHTML(vts) {
 
 function tierBadgeHTML(tier) {
   return `<span class="tier-badge t${tier}">T${tier}</span>`;
+}
+
+function vfdFitHTML(p) {
+  const vfd = p.venue_fit_delta;
+  const nsi = p.neutral_skill_index;
+  if (vfd == null) return '<span class="prob-na">—</span>';
+  const v = +vfd;
+  const n = nsi != null ? +nsi : 0;
+  const sign = v >= 0 ? '+' : '';
+  const tip = 'VFD (Venue Fit Delta) is the course-specific adjustment versus a neutral-course baseline. It is one layer of the model and should be read alongside NeutralSkill and final VTS.';
+  let color;
+  if (v > 0 && n > 45)  color = '#4ade80';
+  else if (v > 0)        color = '#fcd34d';
+  else                   color = '#f87171';
+  return `<span style="color:${color};font-size:.8rem;font-weight:600" title="${tip}">${sign}${v.toFixed(1)}</span>`;
 }
 
 /* ══════════════════════════════════════════════════════
