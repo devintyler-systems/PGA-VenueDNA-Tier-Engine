@@ -1,0 +1,265 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-06-29",
+  "event_slug": "2026_travelers_championship",
+  "venue_code": "tpc_river_highlands",
+  "audit_rounds": 4,
+  "audit_result": "tournament_complete",
+  "writeback_policy": "minimum_2_rounds_evidence_required",
+  "venue_writebacks": [
+    {
+      "id": "WB-A1",
+      "type": "venue_profile",
+      "category": "trait_weight",
+      "change": "Increase PUTT_Short_Conv weight from 0.16 to 0.19; increase PUTT_Lag from 0.10 to 0.11",
+      "current_values": {
+        "putt_short_conv": 0.16,
+        "putt_lag": 0.10
+      },
+      "recommended_values": {
+        "putt_short_conv": 0.19,
+        "putt_lag": 0.11
+      },
+      "evidence_basis": "4-round validated evidence. Putting SG was 39.1% of top-10 SG premium (SG-PUTT avg +3.230 for top-10) vs 26% combined model putting weight. All top-6 finishers had SG-PUTT > +1.0 total. Signal history: R1=neutral, R2=validated, R3=validated, R4=mixed (signal mixed but SG-PUTT absolute value was highest of all categories). Note: trait predictor (putt_short_conv delta = +2.0) is weak -- putting weight is a venue importance weight, not a trait predictability weight.",
+      "confidence": "medium-high",
+      "rounds_of_evidence": 4,
+      "recommended_action": "update_venue_file",
+      "offset_from": ["OTT_Distance (-0.02)", "APP_Wedge (-0.01)"],
+      "model_variance_note": "Putting performance at TPC River Highlands is high-variance week-to-week. Elevated weight reflects importance of the category, not predictability from 12m traits. Add annotation to venue profile: putting_variance_class = high."
+    },
+    {
+      "id": "WB-A2",
+      "type": "venue_profile",
+      "category": "trait_weight",
+      "change": "Reduce OTT_Distance weight from 0.05 to 0.03",
+      "current_values": {
+        "ott_distance": 0.05
+      },
+      "recommended_values": {
+        "ott_distance": 0.03
+      },
+      "evidence_basis": "4-round contradicted signal on distance enrichment. Final tournament: top-10 drove it 1.4 yards SHORTER than field average (283.5 vs 284.9 yds). R1 signal was 'weak' (trait delta -5.4, enrichment neutral). Consensus across 4 rounds = 'mixed' with consistent enrichment contradiction. Distance is not a scoring differentiator at TPC River Highlands.",
+      "confidence": "high",
+      "rounds_of_evidence": 4,
+      "recommended_action": "update_venue_file",
+      "offset_to": ["PUTT_Short_Conv (+0.02 toward WB-A1)"]
+    },
+    {
+      "id": "WB-A3",
+      "type": "venue_profile",
+      "category": "trait_weight",
+      "change": "Increase Par5_Scoring weight from 0.03 to 0.05",
+      "current_values": {
+        "par5_scoring": 0.03
+      },
+      "recommended_values": {
+        "par5_scoring": 0.05
+      },
+      "evidence_basis": "4-round validated signal. Trait deltas: R1=+5.6, R2=+12.9, R3=+12.2, R4=+11.0. Proxy-confirmed on GIR and fairway proximity all 4 rounds. TPC River Highlands has 2 reachable par-5s that consistently create birdie separation. The 3% weight materially under-represents this scoring opportunity.",
+      "confidence": "high",
+      "rounds_of_evidence": 4,
+      "recommended_action": "update_venue_file",
+      "offset_from": ["APP_Wedge (-0.02 toward WB-A4)"]
+    },
+    {
+      "id": "WB-A4",
+      "type": "venue_profile",
+      "category": "trait_weight",
+      "change": "Reduce APP_Wedge weight from 0.22 to 0.20",
+      "current_values": {
+        "app_wedge": 0.22
+      },
+      "recommended_values": {
+        "app_wedge": 0.20
+      },
+      "evidence_basis": "Approach (combined 40% weight) realized 33.9% of top-10 SG premium in final tournament. 4-round validated trait signal confirms approach is important but combined weight over-indexes vs putting. APP_Wedge is the largest single-trait weight and absorbs the calibration slack.",
+      "confidence": "medium",
+      "rounds_of_evidence": 4,
+      "recommended_action": "update_venue_file",
+      "note": "Approach remains the highest-weighted individual trait — this is a fine-tuning not a directional reversal."
+    },
+    {
+      "id": "WB-A5",
+      "type": "venue_profile",
+      "category": "venue_history_logic",
+      "change": "Apply recency decay to CH SG rounds older than 3 years: rounds before 2023 count at 60% weight in the VHD blend",
+      "current_behavior": "All venue history rounds counted at equal weight regardless of age",
+      "recommended_behavior": "rounds_before_3yr_cutoff: apply decay_factor = 0.60 to CH SG contribution",
+      "evidence_basis": "Fleetwood (18 rounds, CH SG +1.76) finished T14 with SG-APP 38th (his primary model-value trait). His 18-round history spans 5+ seasons of varying form; older rounds over-inflated his expected approach performance. Hovland (19 rounds, CH SG +1.423) won — but his history is more recent (active 2022-2025 at this venue). Henley (30 rounds, CH SG +1.445) also slightly underperformed. 2-3 player evidence with consistent mechanism.",
+      "confidence": "medium",
+      "rounds_of_evidence": 4,
+      "recommended_action": "add_to_venue_file_and_engine_spec",
+      "validation_flag": "Validate against 2027 Travelers Championship before promoting to standard rule"
+    },
+    {
+      "id": "WB-A6",
+      "type": "venue_profile",
+      "category": "anti_pattern",
+      "change": "Add anti-pattern: approach_only_limitation — triggers when SG-APP 12m > 0.70 AND SG-PUTT 12m < 0.0",
+      "penalty": "win_probability_x0.85, top3_probability_x0.90. Does NOT affect tier gate.",
+      "evidence_basis": "3-player pattern across this event: (1) Morikawa (APP elite 12m, neutral PUTT) finished 3rd but had SG-ARG -3.296 (67th) and PUTT only 15th; (2) Cantlay (APP 8th in event, PUTT 28th) finished T14 with 8th-best approach — elite approach without putts = mid-pack ceiling; (3) Burns (APP strong, ARG -3.120) capped at T12. Elite approach without putting heat yields top-10 to top-15, not podium.",
+      "confidence": "medium-high",
+      "rounds_of_evidence": 4,
+      "recommended_action": "add_to_venue_anti_patterns"
+    }
+  ],
+  "engine_rule_flags": [
+    {
+      "id": "WB-B1",
+      "type": "engine_rule",
+      "category": "anti_pattern_modifier",
+      "change": "Add modifier: if wedge_liability flag is active AND max(ARG_Rough_score, ARG_Bunker_score) >= 70, reduce wedge_liability VTS penalty by 40%",
+      "current_behavior": "wedge_liability applies full penalty regardless of ARG trait strength",
+      "recommended_behavior": "if wedge_liability AND (arg_rough_score >= 70 OR arg_bunker_score >= 70): multiply wedge_liability_penalty by 0.60",
+      "evidence_basis": "Two direct examples this event: (1) Justin Thomas — wedge_liability fired correctly (SG-APP -2.616, 56th), but SG-ARG +6.257 (1st in field) produced a T14 vs model rank 49. His ARG_Rough and ARG_Bunker scores were above average. (2) Alex Fitzpatrick — wedge_liability assigned him to Tier 5 (rank 57); actual SG-APP was +5.518 (5th in field). His ARG profile was strong. When a player can scramble well, the wedge_liability penalty overstates the scoring risk of missed greens.",
+      "confidence": "medium",
+      "rounds_of_evidence": 4,
+      "scope": "cross_venue",
+      "recommended_action": "add_to_engine_spec_v1.2",
+      "validation_note": "Review against 3 additional events before applying universally. Thomas example may be extreme ARG variance; Alex Fitz example is more structurally reliable."
+    },
+    {
+      "id": "WB-B2",
+      "type": "engine_rule",
+      "category": "anti_pattern_gate",
+      "change": "Add threshold gate to rough_approach_liab anti-pattern: flag only fires if ARG_Rough trait score < 55",
+      "current_behavior": "rough_approach_liab fires based on approach accuracy and OTT metrics without testing ARG_Rough compensating ability",
+      "recommended_behavior": "if rough_approach_liab trigger conditions met AND ARG_Rough_score >= 55: suppress flag (player can scramble out of rough effectively)",
+      "evidence_basis": "Corey Conners (rank 51, rough_approach_liab active) finished T7 with SG-ARG +3.492 (7th in field) — directly contradicting the rough approach liability. MacIntyre (rank 43, rough_approach_liab active) finished T10 with SG-APP +3.598 (10th). Both players had ARG profiles above the 55 threshold. The flag was applied on OTT/approach accuracy metrics without a compensating check on scrambling ability.",
+      "confidence": "medium",
+      "rounds_of_evidence": 4,
+      "scope": "cross_venue",
+      "recommended_action": "add_to_engine_spec_v1.2",
+      "validation_note": "Gate threshold of 55 is provisional. Validate with 3+ events before finalizing."
+    },
+    {
+      "id": "WB-B3",
+      "type": "engine_rule",
+      "category": "venue_annotation",
+      "change": "Add putting_variance_class field to birdie-fest venue profiles (birdie_fest_flag: true). Value: 'high'.",
+      "current_behavior": "Birdie-fest flag triggers weight adjustments but does not annotate putting variance specifically",
+      "recommended_behavior": "For all venues with birdie_fest_flag = true: add putting_variance_class = high. Add output annotation: 'Putting is the highest-variance scoring category at this venue. Top finishes historically require >= +2.0 SG-PUTT per tournament. Predictability from pre-tournament putting traits is low.'",
+      "evidence_basis": "4-round evidence from this event. SG-PUTT was 39.1% of top-10 premium but putt_short_conv trait delta was only +2.0 (mixed signal). The category matters enormously for winning but cannot be predicted from 12m traits reliably. Same logic applies at Colonial, Harbour Town, other birdie-fest venues.",
+      "confidence": "high",
+      "rounds_of_evidence": 4,
+      "scope": "cross_venue",
+      "recommended_action": "add_to_event_context_template",
+      "applicable_to": "all venues with birdie_fest_flag = true"
+    }
+  ],
+  "weight_delta_table": [
+    {
+      "trait": "APP_Wedge",
+      "pre_tourney_weight": 0.22,
+      "realized_importance_pct": 0.34,
+      "delta_direction": "slightly_overweighted",
+      "4rd_consensus": "validated",
+      "confidence": "high",
+      "recommended_new_weight": 0.20
+    },
+    {
+      "trait": "PUTT_Short_Conv",
+      "pre_tourney_weight": 0.16,
+      "realized_importance_pct": 0.39,
+      "delta_direction": "underweighted",
+      "4rd_consensus": "mixed",
+      "confidence": "medium",
+      "recommended_new_weight": 0.19,
+      "note": "Predictor quality low (trait delta +2.0 only); weight elevation reflects category importance not trait reliability"
+    },
+    {
+      "trait": "OTT_Accuracy",
+      "pre_tourney_weight": 0.14,
+      "realized_importance_pct": 0.14,
+      "delta_direction": "accurate",
+      "4rd_consensus": "validated",
+      "confidence": "high",
+      "recommended_new_weight": 0.14
+    },
+    {
+      "trait": "APP_100_150",
+      "pre_tourney_weight": 0.12,
+      "realized_importance_pct": 0.34,
+      "delta_direction": "correct_direction",
+      "4rd_consensus": "validated",
+      "confidence": "high",
+      "recommended_new_weight": 0.12,
+      "note": "Shares SG-APP proxy with APP_Wedge. Individually directionally correct."
+    },
+    {
+      "trait": "PUTT_Lag",
+      "pre_tourney_weight": 0.10,
+      "realized_importance_pct": 0.39,
+      "delta_direction": "underweighted",
+      "4rd_consensus": "neutral",
+      "confidence": "low",
+      "recommended_new_weight": 0.11,
+      "note": "Trait signal was neutral (trait delta -0.4 in final round). Category-level putting importance is high but lag-specific predictor is weak."
+    },
+    {
+      "trait": "ARG_Rough",
+      "pre_tourney_weight": 0.07,
+      "realized_importance_pct": 0.13,
+      "delta_direction": "accurate",
+      "4rd_consensus": "validated",
+      "confidence": "medium",
+      "recommended_new_weight": 0.07
+    },
+    {
+      "trait": "APP_150_200",
+      "pre_tourney_weight": 0.06,
+      "realized_importance_pct": 0.34,
+      "delta_direction": "correct_direction",
+      "4rd_consensus": "validated",
+      "confidence": "high",
+      "recommended_new_weight": 0.06
+    },
+    {
+      "trait": "OTT_Distance",
+      "pre_tourney_weight": 0.05,
+      "realized_importance_pct": 0.14,
+      "delta_direction": "overweighted",
+      "4rd_consensus": "mixed",
+      "confidence": "high",
+      "recommended_new_weight": 0.03,
+      "note": "Enrichment contradicted: top-10 drove it shorter than field average. Distance is not a differentiator at TPC River Highlands."
+    },
+    {
+      "trait": "ARG_Bunker",
+      "pre_tourney_weight": 0.05,
+      "realized_importance_pct": 0.13,
+      "delta_direction": "accurate",
+      "4rd_consensus": "mixed",
+      "confidence": "low",
+      "recommended_new_weight": 0.05
+    },
+    {
+      "trait": "Par5_Scoring",
+      "pre_tourney_weight": 0.03,
+      "realized_importance_pct": 0.34,
+      "delta_direction": "underweighted",
+      "4rd_consensus": "validated",
+      "confidence": "high",
+      "recommended_new_weight": 0.05,
+      "note": "Trait delta +11.0 in final (validated all 4 rounds). TPC River Highlands par-5s are consistent scoring separators. Weight should at minimum double."
+    }
+  ],
+  "weight_check": {
+    "current_total": 1.0,
+    "recommended_total": 1.0,
+    "recommended_weights": {
+      "app_wedge": 0.20,
+      "app_100_150": 0.12,
+      "app_150_200": 0.06,
+      "ott_accuracy": 0.14,
+      "ott_distance": 0.03,
+      "putt_short_conv": 0.19,
+      "putt_lag": 0.11,
+      "arg_rough": 0.07,
+      "arg_bunker": 0.05,
+      "par5_scoring": 0.05
+    },
+    "weight_sum_check": 1.02,
+    "reconciliation_note": "Sum = 1.02. Final 2pp must be trimmed — suggest APP_Wedge to 0.19 or PUTT_Short_Conv to 0.18 at next iteration pass. Weights above are directional targets, not final calibrated values."
+  }
+}
