@@ -64,7 +64,8 @@ let r2Data = null;         // populated from r2_analysis.json when available
 let r3Data = null;         // populated from r3_analysis.json when available
 let r4Data = null;         // populated from r4_analysis.json when available (Final)
 let cumulativeData = null; // populated from cumulative_learning.json when available
-let unmatchedR4LastNames = new Set(); // last-name tokens for r4 unmatched players
+let unmatchedR4LastNames = new Set(); // normalised last-name tokens for r4 unmatched players
+let unmatchedR4FullNames = [];        // original "First Last" strings for placeholder rows
 let showVfdCol = true;               // toggled via Views dropdown
 
 /* ── Trait definitions (for filter panel + compare) ── */
@@ -526,13 +527,12 @@ async function init() {
   r4Data         = await tryLoadRound('r4_analysis.json',         'Final');
   cumulativeData = await tryLoadRound('cumulative_learning.json', 'Cumulative learning');
   if (r4Data?.match_summary?.unmatched) {
+    unmatchedR4FullNames = r4Data.match_summary.unmatched;
     r4Data.match_summary.unmatched.forEach(n => {
-      /* "Nicolai Højgaard" → "hojgaard" — last word, lowercase, basic accent strip */
-      const last = n.trim().split(' ').pop().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      unmatchedR4LastNames.add(last);
+      unmatchedR4LastNames.add(normalizeLastName(n.trim().split(' ').pop()));
     });
   }
-  /* trait_map is built inside runImputationPass after imputation */
+    /* trait_map is built inside runImputationPass after imputation */
 
   renderHeader(payload);
   renderMetaBar(payload);
@@ -788,7 +788,7 @@ function renderTable(players) {
     tr.dataset.name = p.player_name;
 
     const dataBadge = playerDataBadgeHTML(p);
-    const _pLastName = p.player_name.split(',')[0].trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const _pLastName = normalizeLastName(p.player_name.split(',')[0].trim());
     const unmatchedBadge = unmatchedR4LastNames.has(_pLastName)
       ? ' <span class="badge-unmatched" title="Player not found in R4 leaderboard data — no tournament result available">UNMATCHED</span>'
       : '';
@@ -832,6 +832,42 @@ function renderTable(players) {
 
     tbody.appendChild(tr);
   });
+
+  /* Inject placeholder rows for r4-unmatched players not in the payload */
+  if (r4Data && unmatchedR4FullNames.length) {
+    const payloadLastNames = new Set(allPlayers.map(p => normalizeLastName(p.player_name.split(',')[0].trim())));
+    unmatchedR4FullNames.forEach(fullName => {
+      const parts = fullName.trim().split(' ');
+      const lastNorm = normalizeLastName(parts[parts.length - 1]);
+      if (payloadLastNames.has(lastNorm)) return; // already in table with UNMATCHED badge
+      /* "Keith Mitchell" → display as "Mitchell, Keith" */
+      const displayName = parts.length >= 2
+        ? `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(' ')}`
+        : fullName;
+      const ph = document.createElement('tr');
+      ph.className = 'row-placeholder';
+      ph.innerHTML = `
+        <td class="rank-cell" style="color:var(--muted)">—</td>
+        <td>
+          <div class="player-name">${displayName}
+            <span class="badge-unmatched" title="Not in pre-tournament model — withdrew or data gap">WD / ABSENT</span>
+          </div>
+          <div class="player-driver" style="color:var(--muted)">Not in pre-tournament model</div>
+        </td>
+        <td>—</td>
+        <td class="vts-cell" style="color:var(--muted)">—</td>
+        <td class="vts-label col-vfd" style="text-align:center;color:var(--muted)">—</td>
+        <td class="prob-cell" style="color:var(--muted)">—</td>
+        <td class="prob-cell" style="color:var(--muted)">—</td>
+        <td class="prob-cell" style="color:var(--muted)">—</td>
+        <td style="color:var(--muted)">—</td>
+        <td>—</td>
+        <td class="vts-label" style="color:var(--muted)">0 rds</td>
+        <td class="fav-cell"></td>
+        <td class="cmp-cell"></td>`;
+      tbody.appendChild(ph);
+    });
+  }
 }
 
 function updateResultBar(count) {
@@ -1281,6 +1317,7 @@ function wirePresetDropdown() {
     e.stopPropagation();
     showVfdCol = !showVfdCol;
     syncVfdColumn();
+    dd.style.display = 'none';
   });
 }
 
@@ -3088,6 +3125,17 @@ function renderFooter(payload) {
 /* ══════════════════════════════════════════════════════
    UTILITIES
 ══════════════════════════════════════════════════════ */
+/*
+ * normalizeLastName — consistent cross-side name key for unmatched-player lookup.
+ * Handles ø/å/æ (non-NFD-decomposable Scandinavian chars) before the diacritic strip,
+ * so "Højgaard" and "Hojgaard" both hash to "hojgaard".
+ */
+function normalizeLastName(s) {
+  return s.toLowerCase()
+    .replace(/[øØ]/g, 'o').replace(/[åÅ]/g, 'a').replace(/[æÆ]/g, 'ae')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 function fmtPct(v) {
   if (v == null || v === 'N/A' || v === 'not_applicable') return '—';
   const n = parseFloat(v);
