@@ -1,0 +1,98 @@
+We are starting a new tournament build from scratch for the 2026 Travelers Championship at TPC River Highlands (Jun 25–28, 2026).
+
+There is NO prior Travelers Championship event package and NO existing TPC River Highlands venue intelligence file. Treat this as a first-time venue build.
+
+I am providing the full input set manually, including course data, golfer data, SG data, weather, and any other weekly files needed.
+
+Use the PGA VenueDNA Tier Engine only.
+
+Your task order is mandatory:
+
+1. Context lock.
+2. Confirm the canonical engine files you are using.
+3. Acknowledge that no locked venue file exists for TPC River Highlands.
+4. Build the venue from scratch FIRST.
+5. Do not score the field until the venue profile is fully locked.
+6. After venue lock, tell me exactly which uploaded files map into:
+   - event context
+   - field input
+   - trait/form matrix
+   - scoring inputs
+   - odds / DFS derivative layer if present
+
+When I upload or paste files, do the work in this sequence:
+
+A. Venue reconstruction and venue lock
+- Build `TPC_RIVER_HIGHLANDS_INTELLIGENCE_2026_v1.md`
+- State:
+  - what this course rewards
+  - what this course punishes
+  - trait weight candidates
+  - active anti-patterns
+  - anti-pattern magnitude modifier rules
+  - debut penalty framework
+  - comp-course framework
+  - variance class
+  - named risk-stressor map if supportable
+
+B. Event context build
+- Build `2026_travelers_championship_event_context.json`
+- Use the canonical setup fields, including:
+  - fairway_width_class
+  - rough_severity_class
+  - firmness_class
+  - green_speed_policy
+  - rollout_class
+  - long_iron_frequency_class
+  - difficulty_class
+  - event_class
+  - weather_forecast_class
+  - expected_scoring_band
+- If any context field is unknown, mark it as `unknown` instead of inventing it.
+
+C. Field ingestion
+- Build or validate `2026_travelers_championship_field_input.csv`
+- Map my uploaded golfer / SG / form / injury / odds / salary files into the canonical input schema.
+- Identify any missing columns or broken joins before scoring.
+
+D. Trait/form matrix
+- Build the pre-scoring trait/form matrix.
+- Show:
+  - neutral skill inputs
+  - venue-fit inputs
+  - venue-history inputs if any
+  - comp-course signals
+  - likely anti-pattern flags
+  - named risk tags
+  - missing-data confidence discounts
+
+E. Full-field scoring
+- Only after venue lock and field validation are complete, score the field.
+- Separate:
+  - NeutralSkill
+  - VenueFitDelta
+  - VenueHistoryDelta
+  - penalties / gates
+- Explicitly apply:
+  - anti-pattern setup modifiers
+  - tier-eligibility gates
+  - named risk-linkage consequences when stressed by event context
+  - probability compression if variance class or weather requires it
+
+F. Output package
+- Produce:
+  - venue trait summary
+  - full five-tier rankings
+  - Tier 1 briefs
+  - Tier 2 briefs
+  - anti-pattern flags
+  - risk register
+  - probability view
+- If odds or DraftKings files are present, activate derivative outputs only after core projections are finished.
+
+Before starting analysis, first give me:
+1. the exact list of files you want uploaded first, in priority order
+2. the exact canonical filenames you want used for this week
+3. any formatting requirements I should follow so file mapping is cleaner
+
+Do not skip venue lock. Do not produce projections from generic reputation. Do not assume any prior course file exists.

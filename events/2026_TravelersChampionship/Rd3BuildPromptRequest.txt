@@ -1,0 +1,109 @@
+You are working on the PGA VenueDNA Tier Engine — a venue-specific PGA Tour projection system built by Devin Tyler.
+
+GitHub repository: https://github.com/devintyler83/PGA-VenueDNA-Tier-Engine
+Live app: https://2026-travelerschampionship-venuedna.netlify.app/
+
+This is a Travelers Championship 2026 session. We are now entering the Round 3 build.
+
+---
+
+SYSTEM OVERVIEW
+
+The engine uses a VTS (Venue Trait Score) model that weights course-specific traits for TPC River Highlands:
+- APP Wedge: 22% (highest weight — birdie-demand wedge course)
+- Putt Short Conv: 16%
+- OTT Accuracy: 14%
+- Putt Birdie Conv: 12%
+- APP 100-150: 11%
+- ARG Scrambling: 10%
+- Par-5 Scoring: 8%
+- ARG Bunker: 4%
+- OTT Distance: 3%
+
+Pre-tournament model leader: Scottie Scheffler (VTS 82)
+Field: 72 players | No Cut | Signature Event | $20M purse | Par 70, 6,844 yds
+
+---
+
+CURRENT STATE
+
+Rounds 1 and 2 are complete and already deployed.
+
+Round 1 analysis: events/2026_TravelersChampionship/output/2026_travelers_championship_r1_analysis.json
+Round 2 analysis: events/2026_TravelersChampionship/output/2026_travelers_championship_r2_analysis.json
+Cumulative learning file: events/2026_TravelersChampionship/output/2026_travelers_championship_cumulative_learning.json
+
+---
+
+ROUND 3 BUILD
+
+Round 3 data files are uploaded to this session. They follow the same naming/schema as Rounds 1 and 2:
+- round3_leaderboard.csv
+- round3_player_stats.csv
+- round3_player_strokes_gained.csv
+- round3_course_stats.csv
+- round3_course_insights.csv (DataGolf — may have First/Last column format)
+
+Source folder: C:\PGA_VenueDNA\events\2026_TravelersChampionship\output\round3 player & course stats
+
+Build steps:
+1. Create output directory: events/2026_TravelersChampionship/output/round3/
+2. Run preflight check: python build_round_analysis.py --round 3 --check
+3. Run build: python build_round_analysis.py --round 3
+4. Verify output JSON at: events/2026_TravelersChampionship/output/2026_travelers_championship_r3_analysis.json
+5. Push to GitHub so the app picks up the new round data
+
+Expected app behavior after build:
+- R3 tab becomes live in Tournament Learning
+- Model vs Realized updates for R3
+- Final Round Projection section updates with 54-hole standing + trait sustainability view
+- Cumulative learning JSON updates with rounds_present: [1, 2, 3]
+
+---
+
+ROUND 3 ASSESSMENT EXPECTATIONS
+
+After the R3 build, produce a full structured 54-hole analysis:
+
+1. 54-hole leaderboard vs pre-tournament VTS board
+   - Who is positioned on the final-round leaderboard from a model-aligned tier?
+   - Who has reached the top 10 while overperforming their VTS?
+   - Who has faded from a model-aligned position?
+
+2. Trait reality check — what traits have driven scoring through 54 holes?
+   - Compare to pre-tournament weights (APP Wedge 22%, Putt Short Conv 16%, etc.)
+   - Which SG categories have dominated in R3 specifically?
+   - Is the course continuing to reward the traits the model valued, or has Sunday set up differently?
+
+3. Model accountability
+   - Tier 1 check: Scheffler, Fitzpatrick, Hovland, Burns — where do they stand entering R4?
+   - Anti-pattern flags: Cantlay, Thomas — are the flags holding through 54 holes?
+   - Notable threads: track any players who've been persistent over/underperformers vs their VTS across all 3 rounds
+
+4. Final round projection
+   - Who has the trait profile + leaderboard position to win?
+   - Slippage risk: who is in contention but leaning on unsustainable traits heading into Sunday?
+   - Live lean for R4 — rank the top contenders by structural fit, not just score
+
+5. Engine learning flags
+   - Any patterns across 3 rounds suggesting trait weight reconsideration?
+   - Any data quality issues (low match rate, enrichment OFF, etc.) to note?
+
+---
+
+CONSTRAINTS
+
+- Do not redesign layout
+- Do not change model logic or scoring
+- Follow the existing build_round_analysis.py pipeline for the R3 build
+- All display normalization is front-end only — do not alter data in JSON outputs
+- Preserve all methodological transparency in diagnostics
+
+---
+
+WHEN READY
+
+1. Confirm you can see the repository structure and current output files (R1, R2, cumulative)
+2. Confirm which R3 data files have been uploaded
+3. Run the R3 build
+4. After R3 build completes, run the full structured 54-hole assessment

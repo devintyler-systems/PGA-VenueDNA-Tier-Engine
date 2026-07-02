@@ -1,0 +1,91 @@
+{
+  "event_name": "John Deere Classic",
+  "event_slug": "2026_john_deere_classic",
+  "event_id": 33,
+  "season_year": 2026,
+  "venue_name": "TPC Deere Run",
+  "venue_code": "TPC_DEERE_RUN",
+  "venue_file_version": "2026_v1",
+  "course_par": 71,
+  "course_yardage": 7327,
+  "course_yardage_dg": 7133,
+  "surface": "Southshore Bentgrass (fairways + greens); Kentucky Bluegrass/Fine Fescue rough",
+  "cut_rule": "top_65_and_ties",
+  "field_size": 144,
+  "weather_forecast_class": "soft_wet",
+  "venue_variance_class": "standard",
+  "birdie_fest_flag": true,
+  "expected_scoring_band": "-18 to -22 (4 rounds); avg round -1.5 to -1.8 vs par",
+  "variance_expectation": "standard_to_slightly_widened_due_to_delay_risk",
+  "fairway_width_class": "moderate",
+  "rough_severity_class": "moderate",
+  "firmness_class": "soft",
+  "green_speed_policy": "medium_fast",
+  "rollout_class": "reduced",
+  "long_iron_frequency_class": "low_to_moderate",
+  "difficulty_class": "birdie_fest",
+  "event_class": "standard_pga_cut_event",
+  "engine_version": "1.1",
+  "scoring_spec_version": "1.1",
+  "learning_loop_version": "1.1",
+  "event_iteration": "initial_weather_locked",
+  "notes_on_setup_change": [
+    "Hole 4 extended from 454 to 492 yards for 2026 championship routing.",
+    "Friday-Saturday rain risk softens greens and fairways.",
+    "Reduced rollout lessens pure distance advantage; increases receptive-approach conditions."
+  ],
+  "notes_on_data_gaps": [
+    "One player absent from fit-adj file (143 rows vs 144 field); assigned median fit values.",
+    "No separate 2026 DG performance file available; form_vs_baseline=0 for all players.",
+    "Players with rounds_played=0 in CH flagged as debut class."
+  ],
+  "tee_times_available": false,
+  "wind_outlook": "moderate_non_dominant",
+  "expected_conditions": "Extreme heat early, storms/rain risk Friday-Saturday, cleaner Sunday.",
+  "firmness_outlook": "Softening through week, especially after Friday precipitation.",
+  "generated_at": "2026-07-01T20:56:28.086577",
+  "field_locked": true,
+  "field_size_actual": 144,
+  "tier_distribution": {
+    "1": 1,
+    "2": 40,
+    "3": 72,
+    "4": 26,
+    "5": 5
+  },
+  "venue_trait_weights": {
+    "app_wedge": 0.18,
+    "app_100_150": 0.15,
+    "app_150_200": 0.08,
+    "ott_accuracy": 0.11,
+    "ott_distance": 0.04,
+    "putt_short_conv": 0.14,
+    "putt_lag": 0.1,
+    "arg_rough": 0.07,
+    "arg_bunker": 0.03,
+    "par5_scoring": 0.1
+  },
+  "anti_patterns_active": [
+    "bomb_and_spray",
+    "wedge_liability",
+    "poor_birdie_conv",
+    "rough_approach_liab"
+  ],
+  "model_winner": "Koivun, Jackson",
+  "model_top3": [
+    "Koivun, Jackson",
+    "Griffin, Ben",
+    "Wallace, Matt"
+  ],
+  "win_pct_sum_check": 1.0,
+  "tier_gate_errors": [],
+  "weather_summary": {
+    "forecast_class": "soft_wet",
+    "heat_alert": "Extreme Heat Warning through Thursday night",
+    "primary_risk_window": "Friday afternoon through Saturday afternoon",
+    "wind_profile": "10-15 mph, non-dominant",
+    "course_effect": "Softer, more receptive, lower-rollout scoring setup",
+    "best_scoring_day": "Sunday",
+    "delay_risk": "Moderate Friday-Saturday"
+  }
+}
