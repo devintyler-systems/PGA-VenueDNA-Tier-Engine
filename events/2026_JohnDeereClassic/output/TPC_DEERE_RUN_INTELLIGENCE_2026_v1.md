@@ -1,5 +1,5 @@
 # TPC DEERE RUN INTELLIGENCE — 2026 John Deere Classic
-*PGA VenueDNA Tier Engine v1.1 | Venue File: 2026_v1 | Generated: 2026-07-01*
+*PGA VenueDNA Tier Engine v1.1 | Venue File: 2026_v1 | Generated: 2026-07-02*
 
 ---
 
@@ -83,27 +83,27 @@
 
 ## MODEL OUTPUTS — 2026 FIELD
 
-**Model winner**: Koivun, Jackson (VTS: 82.9)
+**Model winner**: Koivun, Jackson (VTS: 85.1)
 
 **Top-5 win probability:**
-  1. Koivun, Jackson — 2.9%
-  2. Griffin, Ben — 2.0%
-  3. Wallace, Matt — 2.0%
-  4. Fowler, Rickie — 1.8%
-  5. Kim, Tom — 1.8%
+  1. Koivun, Jackson — 3.1%
+  2. Griffin, Ben — 2.3%
+  3. Wallace, Matt — 2.2%
+  4. Kim, Tom — 2.1%
+  5. Fowler, Rickie — 1.8%
 
-**Tier 1 — Course Architects (1 players):**
-Koivun, Jackson
+**Tier 1 — Course Architects (2 players):**
+Koivun, Jackson, Griffin, Ben
 
 **Tier 2 — Contention Windows (40 players):**
-Griffin, Ben, Wallace, Matt, Fowler, Rickie, Kim, Tom, Bridgeman, Jacob, Gotterup, Chris, Thorbjornsen, Michael, Bradley, Keegan, Bezuidenhout, Christiaan, Fisk, Steven, Bauchou, Zach, Homa, Max, Mccarthy, Denny, Kim, Michael, Cole, Eric, Spieth, Jordan, Brennan, Michael, Meissner, Mac, Yellamaraju, Sudarshan, Suber, Jackson, Poston, J.T., Pendrith, Taylor, Peterson, Paul, Greyserman, Max, Finau, Tony, Putnam, Andrew, Eckroat, Austin, Li, Haotong, Olesen, Thorbjorn, Mouw, William, Lipsky, David, Kanaya, Takumi, Thompson, Davis, Dumont De Chassart, Adrien, Kuchar, Matt, Mitchell, Keith, Ghim, Doug, Grillo, Emiliano, Johnson, Zach, Novak, Andrew
+Wallace, Matt, Kim, Tom, Fowler, Rickie, Gotterup, Chris, Bridgeman, Jacob, Bradley, Keegan, Bauchou, Zach, Cole, Eric, Bezuidenhout, Christiaan, Fisk, Steven, Suber, Jackson, Thorbjornsen, Michael, Poston, J.T., Kim, Michael, Mccarthy, Denny, Meissner, Mac, Homa, Max, Yellamaraju, Sudarshan, Finau, Tony, Spieth, Jordan, Greyserman, Max, Pendrith, Taylor, Brennan, Michael, Mitchell, Keith, Putnam, Andrew, Peterson, Paul, Eckroat, Austin, Ghim, Doug, Thompson, Davis, Mouw, William, Novak, Andrew, Olesen, Thorbjorn, Li, Haotong, Grillo, Emiliano, Kanaya, Takumi, Kuchar, Matt, Lipsky, David, Potgieter, Aldrich, Dumont De Chassart, Adrien, Johnson, Zach
 
 **Tier distribution:**
-  T1: 1 players — Course Architects
+  T1: 2 players — Course Architects
   T2: 40 players — Contention Windows
-  T3: 72 players — Top-10 Range
-  T4: 26 players — Cut-Line Players
-  T5: 5 players — Course Mismatches
+  T3: 67 players — Top-10 Range
+  T4: 29 players — Cut-Line Players
+  T5: 6 players — Course Mismatches
 
 ---
 

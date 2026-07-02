@@ -89,7 +89,7 @@ EVENT_META = dict(
     ],
     notes_on_data_gaps      = [
         "One player absent from fit-adj file (143 rows vs 144 field); assigned median fit values.",
-        "No separate 2026 DG performance file available; form_vs_baseline=0 for all players.",
+        "Golfer_Last5_Form_Data.csv integrated: L5 SG-PUTT/ARG applied for players with form records; others default to form_vs_baseline=0.",
         "Players with rounds_played=0 in CH flagged as debut class.",
     ],
     tee_times_available     = False,
@@ -561,15 +561,43 @@ df["tier_eligibility_gate_status"] = "clear"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PHASE 6 — FORM (no separate 2026 DG file available)
-# form_vs_baseline = 0 for all players; no form gate triggers.
+# PHASE 6 — FORM (Golfer_Last5_Form_Data.csv available)
+# Form composite = L5_SG_PUTT * 0.6 + L5_SG_ARG * 0.4 (putt-dominant at birdie-fest).
+# form_delta_vts = composite * SG_TO_VTS / 4.0  (same scaling as debut penalty).
+# Players absent from form file default to form_vs_baseline=0.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-df["form_vs_baseline"]      = 0.0
-df["recent_form_index"]     = 50.0   # neutral
-df["form_score_adjusted"]   = df["neutral_skill_sg"]
-df["recent_form_gate_applied"] = False
-df["recent_form_gate_reason"]  = ""
+SG_TO_VTS        = 10.0   # 1 SG point = 10 VTS pts (also used in Phase 10 debut penalty)
+PUTT_FORM_WEIGHT = 0.6
+ARG_FORM_WEIGHT  = 0.4
+
+_form_raw = pd.read_csv(BASE_IN / "Golfer_Last5_Form_Data.csv")
+_form_raw.columns = [c.strip() for c in _form_raw.columns]
+_form_raw["name_key"] = _form_raw.apply(
+    lambda r: name_key_from_last_first(r["Last Name"], r["First Name"]), axis=1
+)
+_form_raw = _form_raw.rename(columns={"SG-PUTT": "l5_sg_putt", "SG-ARG": "l5_sg_arg"})
+df = df.merge(_form_raw[["name_key", "l5_sg_putt", "l5_sg_arg"]], on="name_key", how="left")
+
+def _calc_form(row):
+    putt = row["l5_sg_putt"]
+    arg  = row["l5_sg_arg"]
+    if pd.isna(putt) and pd.isna(arg):
+        return 0.0, 50.0, 0.0, False, ""
+    putt = float(putt) if not pd.isna(putt) else 0.0
+    arg  = float(arg)  if not pd.isna(arg)  else 0.0
+    composite = putt * PUTT_FORM_WEIGHT + arg * ARG_FORM_WEIGHT
+    delta_vts = composite * SG_TO_VTS / 4.0
+    rfi       = min(max(50.0 + composite * 5.0, 0.0), 100.0)
+    return composite, rfi, delta_vts, True, "l5_form_applied"
+
+_form_results = df.apply(_calc_form, axis=1, result_type="expand")
+_form_results.columns = [
+    "form_vs_baseline", "recent_form_index", "form_delta_vts",
+    "recent_form_gate_applied", "recent_form_gate_reason",
+]
+df = pd.concat([df, _form_results], axis=1)
+df["form_score_adjusted"] = df["neutral_skill_sg"] + df["form_vs_baseline"]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -672,8 +700,7 @@ df["trait_summary_label"]  = df.apply(trait_summary,  axis=1)
 
 sf = df.copy()
 
-# A. Debut penalties
-SG_TO_VTS = 10.0
+# A. Debut penalties  (SG_TO_VTS=10.0 defined in Phase 6)
 sf["debut_penalty_applied"] = sf["debut_class"].map(DEBUT_PENALTIES).fillna(0.0)
 sf["debut_penalty_vts"]     = sf["debut_penalty_applied"] * SG_TO_VTS / 4.0
 
@@ -723,8 +750,7 @@ sf["anti_pattern_modifier_trace"] = (
 )
 
 
-# C. Form delta (no 2026 DG file → 0 for all)
-sf["form_delta_vts"]  = 0.0
+# C. Form delta — carried from Phase 6 via df → sf copy; health always 0
 sf["health_delta_vts"] = 0.0
 
 
@@ -859,6 +885,8 @@ def trace_note(row):
         parts.append(f"debut-{row['debut_class']} pen={row['debut_penalty_applied']:.1f}SG")
     if float(row["anti_pattern_penalty_total"]) < -1.0:
         parts.append(f"AP={row['anti_pattern_penalty_total']:.1f}SG({row['anti_pattern_flags']})")
+    if float(row["form_delta_vts"]) != 0.0:
+        parts.append(f"FormΔ={row['form_delta_vts']:.1f}")
     parts.append(f"→Tier{row['tier']} VTS={row['vts_final']:.1f}")
     return "; ".join(parts)
 

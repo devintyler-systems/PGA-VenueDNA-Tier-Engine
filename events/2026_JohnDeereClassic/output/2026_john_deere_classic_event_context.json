@@ -36,22 +36,22 @@
   ],
   "notes_on_data_gaps": [
     "One player absent from fit-adj file (143 rows vs 144 field); assigned median fit values.",
-    "No separate 2026 DG performance file available; form_vs_baseline=0 for all players.",
+    "Golfer_Last5_Form_Data.csv integrated: L5 SG-PUTT/ARG applied for players with form records; others default to form_vs_baseline=0.",
     "Players with rounds_played=0 in CH flagged as debut class."
   ],
   "tee_times_available": false,
   "wind_outlook": "moderate_non_dominant",
   "expected_conditions": "Extreme heat early, storms/rain risk Friday-Saturday, cleaner Sunday.",
   "firmness_outlook": "Softening through week, especially after Friday precipitation.",
-  "generated_at": "2026-07-01T20:56:28.086577",
+  "generated_at": "2026-07-02T04:54:49.228592",
   "field_locked": true,
   "field_size_actual": 144,
   "tier_distribution": {
-    "1": 1,
+    "1": 2,
     "2": 40,
-    "3": 72,
-    "4": 26,
-    "5": 5
+    "3": 67,
+    "4": 29,
+    "5": 6
   },
   "venue_trait_weights": {
     "app_wedge": 0.18,
