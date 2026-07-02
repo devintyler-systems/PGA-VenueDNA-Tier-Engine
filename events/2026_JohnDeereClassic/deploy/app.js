@@ -105,9 +105,14 @@ async function init() {
   }
   allPlayers.sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
 
+  /* Tighten tier thresholds and sharpen win% curve before rendering */
+  recomputeTiers();
+  recomputeWinPct();
+
   renderHeader();
   renderInfoStrip();
   renderWinnerSection();
+  renderDecisionBoard();
   renderTraitWeights();
   renderAPPanel();
   renderTierSections();
@@ -154,10 +159,15 @@ function tierBadge(tier, label) {
   return `<span class="tier-badge t${tier}">${label || `T${tier}`}</span>`;
 }
 
-function vfdDisplay(vfd) {
+function vfdDisplay(vfd, showIcon = false) {
   if (vfd === null || vfd === undefined) return '<span style="color:var(--muted)">—</span>';
-  const cls = vfd <= 0 ? 'vfd-neg' : 'vfd-pos';
-  return `<span class="${cls}">${vfd > 0 ? '+' : ''}${Number(vfd).toFixed(1)}</span>`;
+  const fav  = vfd <= 0;
+  const cls  = fav ? 'vfd-neg' : 'vfd-pos';
+  const icon = showIcon ? (fav ? ' ▼' : ' ▲') : '';
+  const tip  = fav
+    ? `VFD ${Number(vfd).toFixed(1)}: Favorable course fit — negative = advantage at this venue`
+    : `VFD +${Number(vfd).toFixed(1)}: Unfavorable course fit — positive = penalty at this venue`;
+  return `<span class="${cls}" title="${tip}">${vfd > 0 ? '+' : ''}${Number(vfd).toFixed(1)}${icon}</span>`;
 }
 
 function sgDisplay(sg) {
@@ -235,18 +245,26 @@ function renderInfoStrip() {
   `;
 
   /* Model snapshot */
+  const topWin   = t1 ? t1.win_pct : 0;
+  const snapLabel = topWin >= 10 ? 'Clear Model Favorite'
+                  : topWin >= 7  ? 'Model Leader'
+                  : topWin >= 4  ? 'Top Model Fit'
+                  : 'Best Blended Rating';
+  const isWide = topWin < 8;
+
   document.querySelector('.model-snapshot-card').innerHTML = `
     <div class="info-card-title">Model Snapshot</div>
     <div class="model-winner-name">${fmtName(ms.model_winner)}</div>
-    <div class="model-winner-sub">Model Winner · VTS ${ms.model_winner_vts} · Tier 1 — ${PAYLOAD.tier_labels['1']}</div>
+    <div class="model-winner-sub">${snapLabel} · VTS ${ms.model_winner_vts} · Tier 1 — ${PAYLOAD.tier_labels[1] || PAYLOAD.tier_labels['1']}</div>
     ${t1 ? `
     <div class="stat-row">
-      <div class="stat-pill"><span class="stat-val">${t1.win_pct.toFixed(2)}%</span><span class="stat-label">Win</span></div>
+      <div class="stat-pill"><span class="stat-val">${t1.win_pct.toFixed(1)}%</span><span class="stat-label">Win</span></div>
       <div class="stat-pill"><span class="stat-val">${t1.top10_pct.toFixed(0)}%</span><span class="stat-label">Top 10</span></div>
       <div class="stat-pill"><span class="stat-val">${t1.top20_pct.toFixed(0)}%</span><span class="stat-label">Top 20</span></div>
       <div class="stat-pill"><span class="stat-val">${t1.make_cut_pct.toFixed(0)}%</span><span class="stat-label">Cut</span></div>
     </div>
-    <div style="font-size:.66rem;color:var(--muted);margin-bottom:.5rem">${t1.trait_summary}</div>
+    <div style="font-size:.66rem;color:var(--muted);margin-bottom:.35rem">${t1.trait_summary}</div>
+    ${isWide ? '<div style="font-size:.63rem;color:#fde68a;margin-bottom:.4rem;border-left:2px solid #d97706;padding-left:.4rem">Wide-open field — compressed win equity</div>' : ''}
     ` : ''}
     <div style="display:flex;gap:.38rem;flex-wrap:wrap">
       <span class="td-chip t1">T1 <b>${td['1']}</b></span>
@@ -263,33 +281,62 @@ function renderInfoStrip() {
 ════════════════════════════════════════════ */
 function renderWinnerSection() {
   const winner = PAYLOAD.tiers.tier_1?.[0];
-  const top3   = [
-    PAYLOAD.tiers.tier_1?.[0],
-    PAYLOAD.tiers.tier_2?.[0],
-    PAYLOAD.tiers.tier_2?.[1],
-  ].filter(Boolean);
+  const top3   = allPlayers.slice(0, 3);
 
   if (!winner) {
     document.querySelector('.winner-inner').innerHTML = '<p style="color:var(--muted)">No Tier 1 player found.</p>';
     return;
   }
 
+  const isWideOpen = winner.win_pct < 8;
+  const leaderLabel = winner.win_pct >= 10 ? 'Clear Model Favorite'
+                    : winner.win_pct >= 7  ? 'Model Leader'
+                    : winner.win_pct >= 4  ? 'Top Model Fit'
+                    : 'Best Blended Rating — Wide-Open Field';
+
+  const wideOpenNote = isWideOpen ? `
+    <div class="wide-open-note">
+      <div class="wide-open-label">Wide-Open Scoring Environment</div>
+      Win equity is compressed across the top of the board — no player projects as a dominant favorite.
+      Use the Decision Board below to identify the sharpest targets by frame of reference.
+    </div>` : '';
+
+  /* Model separation visual — top 15 */
+  const top15 = allPlayers.slice(0, 15);
+  const maxVts = Number(top15[0].vts_final);
+  const minVts = Number(top15[top15.length - 1].vts_final);
+  const vtsRange = Math.max(maxVts - minVts, 1);
+  const sepBars = top15.map((p, i) => {
+    const pct    = Math.max(5, ((Number(p.vts_final) - minVts) / vtsRange) * 100);
+    const gap    = i > 0 ? (Number(top15[i - 1].vts_final) - Number(p.vts_final)).toFixed(1) : null;
+    const gapEl  = (gap !== null && Number(gap) >= 0.5)
+      ? `<span class="sep-gap">▼${gap}</span>` : '<span class="sep-gap"></span>';
+    return `<div class="sep-row">
+      <span class="sep-rank">#${p.rank}</span>
+      <span class="sep-name">${fmtName(p.player_name)}</span>
+      <div class="sep-bar-wrap"><div class="sep-bar t${p.tier}-sep" style="width:${pct.toFixed(0)}%"></div></div>
+      <span class="sep-vts">${p.vts_final}</span>
+      ${gapEl}
+    </div>`;
+  }).join('');
+
   document.querySelector('.winner-inner').innerHTML = `
-    <div class="section-title">Model Winner — Sole Tier 1 Course Architect</div>
+    ${wideOpenNote}
+    <div class="section-title">${leaderLabel} — Tier 1 ${PAYLOAD.tier_labels[1]}</div>
     <div class="winner-card">
       <div>
-        <div class="winner-badge">Tier 1 — ${PAYLOAD.tier_labels['1']}</div>
+        <div class="winner-badge">Tier 1 — ${PAYLOAD.tier_labels[1]}</div>
         <div class="winner-name">${fmtName(winner.player_name)}</div>
         <div class="winner-name-sub">#${winner.rank} overall · VTS ${winner.vts_final} · ${winner.primary_driver}</div>
         <div class="winner-stats">
-          <div class="winner-stat"><div class="winner-stat-val">${winner.win_pct.toFixed(2)}%</div><div class="winner-stat-label">Win</div></div>
+          <div class="winner-stat"><div class="winner-stat-val">${winner.win_pct.toFixed(1)}%</div><div class="winner-stat-label">Win</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.top5_pct.toFixed(0)}%</div><div class="winner-stat-label">Top 5</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.top10_pct.toFixed(0)}%</div><div class="winner-stat-label">Top 10</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.top20_pct.toFixed(0)}%</div><div class="winner-stat-label">Top 20</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.make_cut_pct.toFixed(0)}%</div><div class="winner-stat-label">Cut</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.vts_final}</div><div class="winner-stat-label">VTS</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.neutral_sg >= 0 ? '+' : ''}${Number(winner.neutral_sg).toFixed(2)}</div><div class="winner-stat-label">SG Neutral</div></div>
-          <div class="winner-stat"><div class="winner-stat-val">${Number(winner.vfd).toFixed(1)}</div><div class="winner-stat-label">VFD</div></div>
+          <div class="winner-stat"><div class="winner-stat-val">${vfdDisplay(winner.vfd, true)}</div><div class="winner-stat-label">VFD</div></div>
         </div>
         <div class="winner-trace">${winner.trace_notes}</div>
       </div>
@@ -301,12 +348,21 @@ function renderWinnerSection() {
         ${winner.anti_pattern_flags
           ? `<p style="margin-top:.4rem;color:#fca5a5;font-size:.7rem">⚠ ${winner.anti_pattern_flags.split(';').filter(Boolean).join(', ')}</p>`
           : '<p style="margin-top:.4rem;color:#86efac;font-size:.7rem">✓ No anti-pattern flags</p>'}
+        <p style="margin-top:.5rem;font-size:.68rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.4rem">
+          This player rates as the strongest blended venue+skill fit.
+          ${isWideOpen ? 'In a wide-open field, outright confidence is moderated — the primary value is best-of-field course profile.' : ''}
+        </p>
       </div>
     </div>
 
     <div class="top3-label">Top-3 Model Contenders</div>
     <div class="top3-grid">
       ${top3.map(p => miniCard(p)).join('')}
+    </div>
+
+    <div class="sep-section">
+      <div class="sep-title">Model Separation — Top 15 VTS (identify gaps)</div>
+      <div class="sep-bars">${sepBars}</div>
     </div>
   `;
 }
@@ -471,11 +527,11 @@ function renderTierSections() {
   }
 
   const tierDescs = {
-    1: 'Elite fit + skill — primary win candidates',
-    2: 'High contention probability, weekend scoring upside',
-    3: 'Top-10 ceiling with variable floor',
-    4: 'Cut-line range, limited upside',
-    5: 'Course mismatches — significant scoring drag expected',
+    1: 'Elite fit + skill — best blended rating, primary win candidates',
+    2: 'Top contenders — primary outright targets (VTS ≥ 72)',
+    3: 'Secondary range — top-10 ceiling, variable floor (VTS 60–72)',
+    4: 'Placement range — cut-line to top-20, limited outright upside',
+    5: 'Course mismatches — strong scoring drag, avoid for outright',
   };
 
   const container = document.querySelector('.tier-containers');
@@ -515,6 +571,14 @@ function playerCard(p) {
     debutChip(p),
   ].filter(Boolean).join('');
 
+  const evHTML   = evidenceBadges(p);
+  const conf     = playerConfidence(p);
+  const vfdPill  = p.vfd !== null && p.vfd !== undefined
+    ? `<span class="pc-vfd ${p.vfd <= 0 ? 'pc-vfd-fav' : 'pc-vfd-pen'}"
+         title="VFD: ${p.vfd <= 0 ? 'Favorable course fit (negative = advantage)' : 'Unfavorable course fit (positive = penalty)'}"
+       >VFD ${p.vfd > 0 ? '+' : ''}${Number(p.vfd).toFixed(1)}${p.vfd <= 0 ? ' ▼' : ' ▲'}</span>`
+    : '';
+
   return `
     <div class="player-card" data-player="${p.player_name}">
       <div class="pc-header">
@@ -525,13 +589,18 @@ function playerCard(p) {
       <div class="pc-driver">${p.primary_driver}</div>
       <div class="pc-trait">${p.trait_summary}</div>
       <div class="pc-stats">
-        <span class="pc-stat">Win <b>${p.win_pct.toFixed(2)}%</b></span>
+        <span class="pc-stat">Win <b>${p.win_pct.toFixed(1)}%</b></span>
         <span class="pc-stat">T10 <b>${p.top10_pct.toFixed(0)}%</b></span>
         <span class="pc-stat">Cut <b>${p.make_cut_pct.toFixed(0)}%</b></span>
         ${p.vh_rounds > 0 ? `<span class="pc-stat">CH <b>${p.vh_rounds}r</b></span>` : ''}
         <span class="pc-stat">SG <b>${p.neutral_sg >= 0 ? '+' : ''}${Number(p.neutral_sg).toFixed(2)}</b></span>
+        ${vfdPill}
       </div>
       ${chipsHTML ? `<div class="pc-flags">${chipsHTML}</div>` : ''}
+      ${evHTML ? `<div class="pc-evidence">${evHTML}</div>` : ''}
+      <div class="pc-confidence-row">
+        <span class="pc-conf ${conf.cls}" title="Model confidence based on course evidence, data depth, and variance profile">${conf.label} Conf</span>
+      </div>
       <div class="pc-reason">${p.tier_reason}</div>
       ${p.trace_notes ? `
         <details class="pc-trace">
@@ -659,11 +728,11 @@ function applyAndRender() {
       </td>
       <td>${tierBadge(p.tier, `T${p.tier}`)}</td>
       <td class="vts-cell">${vtsBar(p.vts_final)}</td>
-      <td class="prob-cell">${p.win_pct.toFixed(2)}%</td>
+      <td class="prob-cell">${p.win_pct.toFixed(1)}%</td>
       <td class="prob-cell">${p.top10_pct.toFixed(0)}%</td>
       <td class="prob-cell">${p.make_cut_pct.toFixed(0)}%</td>
       <td>${sgDisplay(p.neutral_sg)}</td>
-      <td>${vfdDisplay(p.vfd)}</td>
+      <td>${vfdDisplay(p.vfd, true)}</td>
       <td style="font-size:.72rem;color:var(--muted)">${vhdDisp}</td>
       <td style="font-size:.68rem;color:var(--muted)">${p.primary_driver}</td>
       <td>${flags.map(f => apChip(f)).join('')}</td>
@@ -914,7 +983,7 @@ function modalSectionProbabilities(p) {
   const cut = p.make_cut_pct.toFixed(0);
 
   /* Color-code: win high=gold, cut high=green, moderate=default */
-  const winCls = p.win_pct >= 5 ? 'color:#fde68a' : p.win_pct >= 2 ? 'color:#60a5fa' : '';
+  const winCls = p.win_pct >= 8 ? 'color:#fde68a' : p.win_pct >= 4 ? 'color:#60a5fa' : '';
   const cutCls = p.make_cut_pct >= 80 ? 'color:#4ade80' : p.make_cut_pct >= 60 ? 'color:#fde68a' : 'color:#f87171';
 
   return `<div class="modal-section">
@@ -960,15 +1029,20 @@ function modalSectionCourseFit(p, brief) {
 
   const compCourses = (PAYLOAD.venue.comp_courses || []).join(', ');
 
+  const vfdArrow = vfd <= 0 ? ' ▼ Favorable' : ' ▲ Unfavorable';
+
   return `<div class="modal-section">
     <h4>Course Fit at TPC Deere Run</h4>
     <div class="course-fit-meta">
       <span style="font-size:.78rem;color:var(--muted)">Net VFD:</span>
-      <span class="vfd-display ${vfdCls}">${vfdSign}${Number(vfd).toFixed(1)}</span>
+      <span class="vfd-display ${vfdCls}">${vfdSign}${Number(vfd).toFixed(1)}${vfdArrow}</span>
       <span class="conf-badge ${confCls}">${confLabel} Conf</span>
       ${cfAdj !== null ? `<span class="cf-adj-note">CF-adj: ${cfAdj > 0 ? '+' : ''}${cfAdj.toFixed(1)} VTS</span>` : ''}
     </div>
-    <p style="font-size:.68rem;color:var(--muted);margin-bottom:.45rem">Comp courses: ${compCourses}</p>
+    <p style="font-size:.63rem;color:var(--muted);margin-bottom:.45rem">
+      VFD sign convention: negative ▼ = favorable (player over-indexes on venue demands) · positive ▲ = unfavorable (scoring drag)<br>
+      Comp courses: ${compCourses}
+    </p>
     <ul class="fit-list">
       ${posHTML}
       ${negHTML}
@@ -1101,7 +1175,7 @@ const GLOSSARY_CONTENT = [
     section: 'Core Metrics',
     terms: [
       { name: 'VTS (Venue Trait Score)', def: 'The primary model output. A composite score (0–100) measuring how well a player\'s trait profile matches the weighted demands of the specific course. Higher VTS = better course-venue alignment.' },
-      { name: 'VFD (Venue Fit Delta)', def: 'The strokes-gained adjustment applied to a player\'s neutral SG based on how their traits match the course\'s weighted demands. Negative VFD = advantage (the player over-indexes on what the venue rewards). Positive = disadvantage.' },
+      { name: 'VFD (Venue Fit Delta)', def: 'The strokes-gained adjustment applied to a player\'s neutral SG based on how their traits match the course\'s weighted demands. SIGN CONVENTION: Negative VFD = favorable course fit (the player over-indexes on what the venue rewards) — displayed in green with ▼. Positive VFD = unfavorable fit (the player under-indexes on what the venue rewards) — displayed in red with ▲. A strong negative VFD can elevate a mid-skill player; a strong positive VFD penalizes even elite players at this venue.' },
       { name: 'Neutral SG', def: 'The player\'s baseline strokes-gained performance on a neutral course over the trailing 12 months. This is the foundation of the model — before any venue-specific adjustments.' },
       { name: 'Neutral Skill Index (NSI)', def: 'A composite index (0–100) derived from Neutral SG across all traits, normalized against the field. NSI 90+ = elite skill baseline; 75–89 = strong; below 60 = limited upside.' },
       { name: 'VH SG (Venue History SG)', def: 'The player\'s historical strokes-gained average per round at TPC Deere Run specifically, derived from course history data.' },
@@ -1128,9 +1202,19 @@ const GLOSSARY_CONTENT = [
     ],
   },
   {
+    section: 'Evidence & Confidence',
+    terms: [
+      { name: 'Debut Profile', def: 'The player has no previous starts at TPC Deere Run. The model relies entirely on neutral SG and venue fit profile — no course history adjustment. Outright confidence is moderated by this uncertainty.' },
+      { name: 'Low Evidence', def: 'The player has no course history at TPC Deere Run but is not flagged as a debut. Limited venue evidence reduces confidence in trait scoring at this specific course.' },
+      { name: 'Limited Sample', def: 'The player has 1–3 rounds of course history at TPC Deere Run. Enough to inform the model but not enough to establish a reliable pattern — confidence is medium.' },
+      { name: 'High Volatility', def: 'Wide outcome distribution — applies to debut players and those with minimal venue history. The model\'s point estimate is less reliable; the player can outperform or underperform it significantly.' },
+      { name: 'Confidence (Low / Medium / High)', def: 'Overall model confidence in the player\'s outcome projection. Driven by course evidence depth: High = 8+ rounds at this venue; Medium = 4–7 rounds; Low = debut or 0–1 rounds.' },
+    ],
+  },
+  {
     section: 'Probabilities',
     terms: [
-      { name: 'Win %', def: 'Model-derived probability of outright victory. Derived via VTS power curve with field-wide normalization (all win probabilities sum to 100%). Capped at 14% per player.' },
+      { name: 'Win %', def: 'Model-derived probability of outright victory. Derived via exponential VTS curve with field-wide normalization (all win probabilities sum to 100%). Capped at 14% per player. Uses steeper separation curve so differences between ranks 1–15 are meaningful.' },
       { name: 'Top 5 / Top 10 / Top 20', def: 'Model-derived finish probabilities using logistic curves centered on specific VTS thresholds (76/68/59 respectively). These approximate the scoring runs needed to reach those positions at TPC Deere Run.' },
       { name: 'Make Cut %', def: 'Probability of making the cut (top 65 and ties). Derived via logistic curve centered on VTS=48. Players below ~45 VTS have below-50% cut probability.' },
     ],
@@ -1166,6 +1250,188 @@ function wireGlossary() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') overlay.style.display = 'none';
   });
+}
+
+/* ════════════════════════════════════════════
+   TIER RECOMPUTATION — tighter gates
+   Old thresholds: T2 ≥ 65 → put 40 players in T2 (too flat)
+   New: T2 ≥ 72 targets 6-15 elite contenders
+════════════════════════════════════════════ */
+function recomputeTiers() {
+  const GATES  = { 1: 80, 2: 72, 3: 60, 4: 45 };
+  const LABELS = {
+    1: 'Course Architects',
+    2: 'Elite Contenders',
+    3: 'Contention Window',
+    4: 'Placement Range',
+    5: 'Course Mismatches',
+  };
+
+  allPlayers.forEach(p => {
+    const v = Number(p.vts_final);
+    p.tier  = v >= GATES[1] ? 1 : v >= GATES[2] ? 2 : v >= GATES[3] ? 3 : v >= GATES[4] ? 4 : 5;
+  });
+
+  for (let t = 1; t <= 5; t++) {
+    PAYLOAD.tiers[`tier_${t}`]                 = allPlayers.filter(p => p.tier === t);
+    PAYLOAD.model_summary.tier_distribution[t] = PAYLOAD.tiers[`tier_${t}`].length;
+    PAYLOAD.model_summary.tier_distribution[String(t)] = PAYLOAD.tiers[`tier_${t}`].length;
+    PAYLOAD.tier_labels[t]                     = LABELS[t];
+    PAYLOAD.tier_labels[String(t)]             = LABELS[t];
+  }
+}
+
+/* ════════════════════════════════════════════
+   WIN% RECOMPUTATION — steeper separation
+   Old: (vts/100)^4.5 → nearly flat (#1=2.85%, #33=1.02%)
+   New: exp(K*(vts-BASE)) → #1 ~8-12%, clear separation top-5
+════════════════════════════════════════════ */
+function recomputeWinPct() {
+  const K   = 0.12, BASE = 55, CAP = 14; /* CAP in percentage points */
+  const VAR = { low: 1.00, medium: 1.05, high: 1.12 };
+
+  function pvb(p) {
+    if (p.debut_flag)               return 'high';
+    if ((p.vh_rounds || 0) < 2)    return 'high';
+    if ((p.vh_rounds || 0) < 6)    return 'medium';
+    return 'low';
+  }
+
+  const raw = allPlayers.map(p => ({
+    p,
+    w: Math.exp(K * (Number(p.vts_final) - BASE)) * (VAR[pvb(p)] || 1.0),
+  }));
+
+  const sum1 = raw.reduce((s, x) => s + x.w, 0);
+  raw.forEach(({ p, w }) => { p.win_pct = (w / sum1) * 100; });
+  raw.forEach(({ p }) => { p.win_pct = Math.min(CAP, p.win_pct); });
+
+  const sum2 = allPlayers.reduce((s, p) => s + p.win_pct, 0);
+  allPlayers.forEach(p => { p.win_pct = (p.win_pct / sum2) * 100; });
+}
+
+/* ════════════════════════════════════════════
+   EVIDENCE BADGES
+════════════════════════════════════════════ */
+function evidenceBadges(p) {
+  const chips = [];
+
+  if (p.debut_flag) {
+    chips.push(`<span class="ev-badge ev-debut"
+      title="Debut Profile: No course history — model relies on neutral SG and venue fit only. Outright confidence moderated."
+    >Debut Profile</span>`);
+  } else if ((p.vh_rounds || 0) === 0) {
+    chips.push(`<span class="ev-badge ev-low"
+      title="Low Evidence: No course history on file for TPC Deere Run."
+    >Low Evidence</span>`);
+  } else if ((p.vh_rounds || 0) < 4) {
+    chips.push(`<span class="ev-badge ev-sample"
+      title="Limited Course Sample: Only ${p.vh_rounds} rounds of history at TPC Deere Run."
+    >Limited Sample (${p.vh_rounds}r)</span>`);
+  }
+
+  if (p.debut_flag || (p.vh_rounds || 0) < 2) {
+    chips.push(`<span class="ev-badge ev-volatile"
+      title="High Volatility: Wide outcome distribution — debut or near-debut at this venue."
+    >High Volatility</span>`);
+  }
+
+  return chips.join('');
+}
+
+/* ════════════════════════════════════════════
+   PLAYER CONFIDENCE
+════════════════════════════════════════════ */
+function playerConfidence(p) {
+  if (p.debut_flag || (p.vh_rounds || 0) < 2) return { label: 'Low',    cls: 'pc-conf-low'  };
+  if ((p.vh_rounds || 0) >= 8)                 return { label: 'High',   cls: 'pc-conf-high' };
+  return                                               { label: 'Medium', cls: 'pc-conf-med'  };
+}
+
+/* ════════════════════════════════════════════
+   DECISION BOARD — Three Frames of Reference
+════════════════════════════════════════════ */
+function renderDecisionBoard() {
+  const el = document.getElementById('decision-board');
+  if (!el) return;
+
+  /* Frame 1: Best Course Fit — most favorable VFD (most negative) */
+  const fitTargets = [...allPlayers]
+    .filter(p => p.vfd !== null && p.vfd !== undefined)
+    .sort((a, b) => Number(a.vfd) - Number(b.vfd))
+    .slice(0, 8);
+
+  /* Frame 2: Best Outright Win Targets — highest win_pct */
+  const outrightTargets = [...allPlayers]
+    .sort((a, b) => b.win_pct - a.win_pct)
+    .slice(0, 8);
+
+  /* Frame 3: Best Placement / Top-10 Targets — highest top10_pct, cut-safe (≥ 75%) */
+  const placementTargets = [...allPlayers]
+    .filter(p => p.make_cut_pct >= 75)
+    .sort((a, b) => b.top10_pct - a.top10_pct)
+    .slice(0, 8);
+
+  const isWideOpen = allPlayers[0] && allPlayers[0].win_pct < 8;
+
+  function moduleCard(title, subtitle, icon, players, metaFn, headerCls) {
+    return `<div class="db-module">
+      <div class="db-module-header ${headerCls}">
+        <span class="db-icon">${icon}</span>
+        <div><div class="db-title">${title}</div><div class="db-subtitle">${subtitle}</div></div>
+      </div>
+      <div class="db-players">
+        ${players.map((p, i) => {
+          const ev = evidenceBadges(p);
+          return `<div class="db-player-row">
+            <span class="db-idx">${i + 1}</span>
+            <div class="db-player-info">
+              <span class="db-name">${fmtName(p.player_name)}</span>
+              <span class="db-rank-tier">#${p.rank} · ${tierBadge(p.tier, `T${p.tier}`)}</span>
+            </div>
+            <div class="db-meta">${metaFn(p)}</div>
+            ${ev ? `<div class="db-ev">${ev}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  const contextNote = isWideOpen ? `
+    <div class="db-context-note">
+      <span class="db-context-icon">⚠</span>
+      <span>Wide-open scoring environment — win equity is compressed across the top of the board.
+      Use the three frames below to identify the sharpest targets by decision type.</span>
+    </div>` : '';
+
+  el.innerHTML = `
+    ${contextNote}
+    <div class="db-grid">
+      ${moduleCard(
+        'Best Course Fit',
+        'Sorted by VFD — most favorable venue profile (most negative)',
+        '⛳',
+        fitTargets,
+        p => `<span class="vfd-neg" title="VFD: Venue Fit Delta — negative = course advantage">${Number(p.vfd).toFixed(1)} ▼</span>`,
+        'db-fit'
+      )}
+      ${moduleCard(
+        'Best Outright Win',
+        'Sorted by model win probability — primary betting targets',
+        '🏆',
+        outrightTargets,
+        p => `<span style="color:var(--gold);font-weight:700">${p.win_pct.toFixed(1)}%</span>`,
+        'db-outright'
+      )}
+      ${moduleCard(
+        'Best Placement / Top-10',
+        'Top-10 probability, filtered for cut safety (≥ 75% cut)',
+        '📊',
+        placementTargets,
+        p => `<span style="color:#60a5fa;font-weight:700">${p.top10_pct.toFixed(0)}%</span> T10`,
+        'db-placement'
+      )}
+    </div>`;
 }
 
 /* ── Boot ── */
