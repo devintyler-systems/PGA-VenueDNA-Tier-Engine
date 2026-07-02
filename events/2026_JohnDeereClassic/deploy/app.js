@@ -50,6 +50,638 @@ const TRAIT_FIT_DESCS = {
   'ARG_Bunker':      'bunker play — greenside sand save conversion rate',
 };
 
+const FORM_DATA = {
+  'CLARK,WYNDHAM': [3.53,2.28],
+  'SCHEFFLER,SCOTTIE': [2.92,-0.27],
+  'BURNS,SAM': [2.56,0.94],
+  'MCILROY,RORY': [2.43,0.25],
+  'THOMAS,JUSTIN': [2.19,1.08],
+  'FLEETWOOD,TOMMY': [2.15,0.14],
+  'FITZPATRICK,MATT': [2.11,0.05],
+  'RAHM,JON': [1.96,-0.18],
+  'HATTON,TYRRELL': [1.93,1.04],
+  'SPAUN,J.J.': [1.93,0.48],
+  'RAI,AARON': [1.84,0.9],
+  'CAULEY,BUD': [1.81,1.14],
+  'CHACARRA,EUGENIO': [1.78,1.61],
+  'NIEMANN,JOAQUIN': [1.77,1.11],
+  'COLE,ERIC': [1.76,1.17],
+  'FITZPATRICK,ALEX': [1.76,1.24],
+  'GRIFFIN,BEN': [1.62,0.21],
+  'CANTLAY,PATRICK': [1.58,0.05],
+  'GOTTERUP,CHRIS': [1.56,0.11],
+  'KIM,SI WOO': [1.56,0.11],
+  'REITAN,KRISTOFFER': [1.54,0.64],
+  'ROSE,JUSTIN': [1.52,-0.03],
+  'HOVLAND,VIKTOR': [1.51,0.11],
+  'KITAYAMA,KURT': [1.51,0.28],
+  'LOWRY,SHANE': [1.47,0.32],
+  'MITCHELL,KEITH': [1.46,0.81],
+  'POSTON,J.T.': [1.39,0.71],
+  'KOIVUN,JACKSON': [1.38,0.09],
+  'MORIKAWA,COLLIN': [1.37,-0.1],
+  'ABERG,LUDVIG': [1.34,-0.46],
+  'GERARD,RYAN': [1.33,0.44],
+  'VINCENT,SCOTT': [1.33,1.04],
+  'ENGLISH,HARRIS': [1.32,-0.02],
+  'JOHNSON,DUSTIN': [1.31,0.86],
+  'MCNEALY,MAVERICK': [1.31,-0.1],
+  'POTGIETER,ALDRICH': [1.29,1.22],
+  'KIM,TOM': [1.27,0.99],
+  'SUBER,JACKSON': [1.25,1.22],
+  'HENLEY,RUSSELL': [1.21,-0.55],
+  'SCHAUFFELE,XANDER': [1.21,-0.69],
+  'REED,PATRICK': [1.18,0.35],
+  'SHERWOOD,COLE': [1.16,1.38],
+  'BRADLEY,KEEGAN': [1.14,0.22],
+  'BAUCHOU,ZACH': [1.13,0.95],
+  'BHATIA,AKSHAY': [1.12,-0.15],
+  'HARMAN,BRIAN': [1.07,0.42],
+  'FOX,RYAN': [1.01,0.57],
+  'MACINTYRE,ROBERT': [0.97,-0.44],
+  'KANEKO,KOTA': [0.96,1.08],
+  'YOUNG,CAMERON': [0.96,-1.08],
+  'BURMESTER,DEAN': [0.95,0.7],
+  'MATSUYAMA,HIDEKI': [0.94,-0.31],
+  'LINDELL,OLIVER': [0.93,0.31],
+  'HOJGAARD,NICOLAI': [0.91,-0.18],
+  'SMALLEY,ALEX': [0.91,0.28],
+  'SNEDEKER,BRANDT': [0.86,0.85],
+  'HOWELL III,CHARLES': [0.85,0.48],
+  'EICHHORN,HUNTER': [0.85,0.82],
+  'GHIM,DOUG': [0.82,0.44],
+  'WALLACE,MATT': [0.81,0.37],
+  'PEREZ,VICTOR': [0.81,0.66],
+  'LEISHMAN,MARC': [0.8,0.51],
+  'KIM,MICHAEL': [0.79,0.24],
+  'BEZUIDENHOUT,CHRISTIAAN': [0.79,0.09],
+  'DECHAMBEAU,BRYSON': [0.78,-0.36],
+  'KOHLES,BEN': [0.78,0.75],
+  'NOVAK,ANDREW': [0.76,0.46],
+  'SMITH,CAMERON': [0.76,0.55],
+  'PUIG,DAVID': [0.75,0],
+  'THEEGALA,SAHITH': [0.75,0.14],
+  'SCOTT,ADAM': [0.74,-0.19],
+  'WOODLAND,GARY': [0.74,0.1],
+  'HILL,CALUM': [0.72,0.75],
+  'NOREN,ALEX': [0.71,-0.5],
+  'FINAU,TONY': [0.7,0.69],
+  'KNAPP,JAKE': [0.7,-0.82],
+  'RYDER,SAM': [0.69,0.84],
+  'KOEPKA,BROOKS': [0.68,0.45],
+  'COODY,PIERCESON': [0.67,0.24],
+  'MCCARTHY,DENNY': [0.67,0.16],
+  'LEE,MIN WOO': [0.67,-0.42],
+  'GOUVEIA,RICARDO': [0.66,1.5],
+  'MEISSNER,MAC': [0.66,-0.06],
+  'JENNINGS,WILLIAM': [0.65,1.1],
+  'KEEFER,JOHNNY': [0.62,0.5],
+  'NORRIS,SHAUN': [0.61,1.62],
+  'TAYLOR,NICK': [0.59,-0.23],
+  'ECHAVARRIA,NICO': [0.59,0.23],
+  'IM,SUNGJAE': [0.58,0.37],
+  'AYORA,ANGEL': [0.57,-0.15],
+  'SNYMAN,IAN': [0.55,1.27],
+  'GREYSERMAN,MAX': [0.55,0.22],
+  'SCOTT,SANDY': [0.55,0.85],
+  'JAMES,BEN': [0.55,0.23],
+  'MOORE,TAYLOR': [0.52,0.54],
+  'MORRISON,TOMMY': [0.52,1.01],
+  'EWART,A.J.': [0.5,0.68],
+  'FISK,STEVEN': [0.5,0.47],
+  'VAN ROOYEN,ERIK': [0.48,1.05],
+  'BRIDGEMAN,JACOB': [0.45,-0.52],
+  'GRILLO,EMILIANO': [0.43,0.39],
+  'FERGUSON,EWEN': [0.42,0.47],
+  'BERGER,DANIEL': [0.42,0],
+  'CARR,BEN': [0.41,1.23],
+  'AKINA,KIHEI': [0.41,1.29],
+  'SIDES,WILLIAM': [0.41,0.75],
+  'KIM,CHAN': [0.4,0.85],
+  'BROWN,BLADES': [0.38,0.43],
+  'YELLAMARAJU,SUDARSHAN': [0.38,0.19],
+  'PONDER,THOMAS': [0.37,0.95],
+  'ANCER,ABRAHAM': [0.36,-0.13],
+  'NEERGAARD-PETERSEN,RASMUS': [0.35,-0.02],
+  'YU,KEVIN': [0.34,0.28],
+  'THOMPSON,DAVIS': [0.34,-0.05],
+  'PENDRITH,TAYLOR': [0.33,-0.03],
+  'KOBORI,KAZUMA': [0.33,0.7],
+  'CONNERS,COREY': [0.32,-0.31],
+  'HOEY,RICO': [0.31,-0.03],
+  'STEINLECHNER,MAXIMILIAN': [0.3,1.16],
+  'WIESBERGER,BERND': [0.29,0.79],
+  'PUTNAM,ANDREW': [0.29,0.01],
+  'WATSON,BUBBA': [0.26,0.35],
+  'FOWLER,RICKIE': [0.26,-0.92],
+  'GRIFFIN,LANTO': [0.25,0.38],
+  'VALIMAKI,SAMI': [0.24,-0.14],
+  'BRYANT,DAVIS': [0.23,0.9],
+  'ISHIKAWA,RYO': [0.23,0.81],
+  'REDMAN,DOC': [0.23,0.6],
+  'PEREIRA,COREY': [0.23,0.15],
+  'GARCIA,SERGIO': [0.22,0.17],
+  'GRACE,BRANDEN': [0.22,-0.52],
+  'STOUT,PRESTON': [0.21,0.33],
+  'HOSSLER,BEAU': [0.2,0.09],
+  'JAKUBCIK,FILIP': [0.2,0.91],
+  'SPIETH,JORDAN': [0.2,-0.58],
+  'HOGE,TOM': [0.18,0.78],
+  'LINDBERG,MIKAEL': [0.17,0.07],
+  'SMITH,JORDAN': [0.17,-0.31],
+  'YOUNG,CARSON': [0.17,0.53],
+  'DOSSEY,COOPER': [0.17,0.19],
+  'KIMSEY,NATHAN': [0.16,0.54],
+  'DETRY,THOMAS': [0.15,-0.32],
+  'HERBERT,LUCAS': [0.15,0.16],
+  'HOMA,MAX': [0.14,-0.35],
+  'RITCHIE,JC': [0.13,0.26],
+  'THORBJORNSEN,MICHAEL': [0.12,-0.59],
+  'COUSSAUD,UGO': [0.12,0.3],
+  'HALL,HARRY': [0.11,-0.87],
+  'SKINNS,DAVID': [0.1,0.45],
+  'JOHNSON,MICHAEL': [0.09,0.24],
+  'FISHBURN,PATRICK': [0.08,0.16],
+  'MCCARTY,MATT': [0.08,-0.65],
+  'DE LEO,GREGORIO': [0.08,0.68],
+  'OLESEN,JACOB SKOV': [0.08,0.14],
+  'STEVENS,SAM': [0.07,-0.4],
+  'HUBBARD,MARK': [0.07,0.3],
+  'SMOTHERMAN,AUSTIN': [0.06,0.05],
+  'MAAS,CHRISTIAAN': [0.05,0.09],
+  'KUCHAR,MATT': [0.05,-0.14],
+  'ORTIZ,ALVARO': [0.05,0.77],
+  'MIGLIOZZI,GUIDO': [0.04,0.79],
+  'GARNETT,BRICE': [0.03,0.67],
+  'MOUW,WILLIAM': [0.01,-0.33],
+  'PEPPERELL,EDDIE': [0.01,0.35],
+  'TAYLOR,BEN': [0,0.49],
+  'GOOCH,TALOR': [0,-0.16],
+  'JOHNSON,ZACH': [-0.01,0.13],
+  'CASTILLO,RICKY': [-0.01,-0.27],
+  'DAY,JASON': [-0.02,-0.63],
+  'MCGREEVY,MAX': [-0.03,-0.38],
+  'HILLIER,DANIEL': [-0.04,-0.58],
+  'HISATSUNE,RYO': [-0.04,-0.16],
+  'KIM,S.H.': [-0.04,0.14],
+  'BRENNAN,MICHAEL': [-0.05,-0.44],
+  'BLAIR,ZAC': [-0.05,-0.04],
+  'STEELMAN,ROSS': [-0.05,0.76],
+  'NAKAJIMA,KEITA': [-0.05,0.09],
+  'WARING,PAUL': [-0.06,0.6],
+  'OLESEN,THORBJORN': [-0.06,-0.44],
+  'PAVON,MATTHIEU': [-0.06,0.18],
+  'DOU,ZECHENG': [-0.07,-0.12],
+  'MENANTE,DYLAN': [-0.08,0.56],
+  'LUNDIN,JACK': [-0.08,1.01],
+  'ERENO PEREZ,PABLO': [-0.08,0.75],
+  'DEAN,JOE': [-0.09,0.84],
+  'STEELE,BRENDAN': [-0.1,0.53],
+  'VARNER III,HAROLD': [-0.1,0.28],
+  'HORSCHEL,BILLY': [-0.1,0.04],
+  'REAVIE,CHEZ': [-0.11,0.79],
+  'SHORE,DAVIS': [-0.11,0.39],
+  'HIGGO,GARRICK': [-0.11,-0.18],
+  'NOH,S.Y.': [-0.12,0.26],
+  'RAVETTO,DAVID': [-0.12,0.7],
+  'HUGHES,MACKENZIE': [-0.12,-0.09],
+  'ARMITAGE,MARCUS': [-0.12,-0.06],
+  'GUERRIER,JULIEN': [-0.12,-0.04],
+  'ROZNER,ANTOINE': [-0.15,0.04],
+  'NORGAARD,NIKLAS': [-0.16,0.61],
+  'CROWE,TRACE': [-0.17,0.23],
+  'AN,BYEONG HUN': [-0.17,0.1],
+  'SONG,YOUNGHAN': [-0.18,0.5],
+  'DAFFUE,MJ': [-0.18,0.93],
+  'PAK,JOHN': [-0.18,0.32],
+  'HITT,AUSTIN': [-0.19,0.54],
+  'ECKROAT,AUSTIN': [-0.2,-0.26],
+  'HARRIS,FRANKIE': [-0.21,0.77],
+  'POWER,SEAMUS': [-0.21,-0.23],
+  'MCKIBBIN,TOM': [-0.21,-0.6],
+  'COUVRA,MARTIN': [-0.22,0.15],
+  'COWAN,RYDER': [-0.23,0.68],
+  'JANG,YUBIN': [-0.24,0.77],
+  'WHALEY,VINCE': [-0.24,-0.38],
+  'CLANTON,LUKE': [-0.24,0.55],
+  'PARRY,JOHN': [-0.25,-0.63],
+  'VAILLANT,TOM': [-0.25,0.01],
+  'MCALLISTER,LOGAN': [-0.26,0.69],
+  'SUMMY,JASE': [-0.26,0.55],
+  'KAYMER,MARTIN': [-0.27,0.45],
+  'CANTER,LAURIE': [-0.27,0.12],
+  'KANAYA,TAKUMI': [-0.27,-0.32],
+  'DOCHERTY,ALISTAIR': [-0.28,0.33],
+  'JARVIS,CASEY': [-0.29,-0.32],
+  'SCHMID,MATTI': [-0.29,-0.35],
+  'HADWIN,ADAM': [-0.29,0.34],
+  'POULTER,IAN': [-0.3,0.59],
+  'KIRK,CHRIS': [-0.3,-0.59],
+  'VAN DRIEL,DARIUS': [-0.31,0.43],
+  'BUCKLEY,HAYDEN': [-0.31,0.36],
+  'WANG,JEUNGHUN': [-0.31,0.63],
+  'DUMONT DE CHASSART,ADRIEN': [-0.33,-0.45],
+  'WINTHER,JEFF': [-0.33,0.39],
+  'POTTER,LUKE': [-0.34,0.79],
+  'GUILLAMOUNDEGUY,OIHAN': [-0.34,0.21],
+  'SUH,JUSTIN': [-0.34,0.64],
+  'SVENSSON,JESPER': [-0.34,-0.14],
+  'PETERSON,PAUL': [-0.35,0.07],
+  'DEL REY,ALEJANDRO': [-0.35,0.12],
+  'STANGER,JIMMY': [-0.35,0.08],
+  'OOSTHUIZEN,LOUIS': [-0.35,-0.25],
+  'DUNLAP,NICK': [-0.35,0.47],
+  'LI,HAOTONG': [-0.35,-0.49],
+  'PREMLALL,YURAV': [-0.35,1.26],
+  'NAGANO,RYUTARO': [-0.36,0.58],
+  'STREELMAN,KEVIN': [-0.36,0.53],
+  'CAMPILLO,JORGE': [-0.36,-0.26],
+  'APHIBARNRAT,KIRADECH': [-0.36,0.54],
+  'VILIPS,KARL': [-0.37,0.09],
+  'ZHOU,YANHAN': [-0.37,0.09],
+  'SCHAPER,JAYDEN': [-0.37,-1.03],
+  'FIORONI,CADEN': [-0.37,0.76],
+  'GILLIGAN,IAN': [-0.39,0.14],
+  'SVENSSON,ADAM': [-0.39,0.07],
+  'VAN DER MERWE,GRAHAM': [-0.4,1.22],
+  'SIMPSON,WEBB': [-0.4,-0.23],
+  'GOMEZ,FABIAN': [-0.4,0.4],
+  'BUTLER,JOHN MARSHALL': [-0.4,0.87],
+  'MUNOZ,SEBASTIAN': [-0.4,-0.71],
+  'YONEZAWA,REN': [-0.4,0.27],
+  'VANARRAGON,CALEB': [-0.41,-0.18],
+  'FIGUEIREDO,PEDRO': [-0.42,0.88],
+  'BRADBURY,DAN': [-0.42,-0.3],
+  'JORDAN,MATTHEW': [-0.43,0.03],
+  'SMYLIE,ELVIS': [-0.43,-0.32],
+  'WILLIAMS,MASON': [-0.43,0.47],
+  'BARRON,HAYDN': [-0.44,0.43],
+  'KANG,JEFFREY': [-0.45,0.38],
+  'KATSUMATA,RYO': [-0.45,0.61],
+  'LIPSKY,DAVID': [-0.46,-0.52],
+  'VEGAS,JHONATTAN': [-0.46,-0.01],
+  'KHO,TAICHI': [-0.47,0.68],
+  'MEISSNER,MITCHELL': [-0.47,0.34],
+  'HODGES,LEE': [-0.47,-0.41],
+  'MOLINARI,FRANCESCO': [-0.47,-0.11],
+  'RUSSELL,MILES': [-0.48,-0.17],
+  'JUNG,CHANMIN': [-0.48,1.12],
+  'EGE,MATS': [-0.48,1],
+  'VAN TONDER,DANIEL': [-0.48,0.53],
+  'FRITTELLI,DYLAN': [-0.49,0.43],
+  'CABRERA BELLO,RAFA': [-0.5,-0.11],
+  'NYHOLM,PONTUS': [-0.51,0.16],
+  'RODGERS,PATRICK': [-0.51,-0.61],
+  'HOSONO,YUSAKU': [-0.51,0.33],
+  'PHILLIPS,CHANDLER': [-0.51,-0.07],
+  'DA COSTA RODRIGUES,DANIEL': [-0.51,0.12],
+  'BOLTON,BEN': [-0.52,0.41],
+  'HIDALGO PORTILLO,ANGEL': [-0.52,0.71],
+  'SHEILS DONEGAN,NIALL': [-0.52,0.76],
+  'RAMEY,CHAD': [-0.52,-0.58],
+  'WU,ASHUN': [-0.52,0.42],
+  'LEVY,ALEXANDER': [-0.53,0.33],
+  'CHANG,PAUL': [-0.53,0.61],
+  'JUNG,HANMIL': [-0.54,1.43],
+  'FUJIMOTO,YOSHINORI': [-0.54,0.88],
+  'KINHULT,MARCUS': [-0.54,0.43],
+  'PRINSLOO,JACO': [-0.55,0.39],
+  'BERGSTROM,ALBIN': [-0.55,0.75],
+  'BLANCHET,CHANDLER': [-0.55,-0.72],
+  'SPRINGER,HAYDEN': [-0.55,-0.22],
+  'IDERIHA,TAICHIRO': [-0.56,1.14],
+  'SHIPLEY,NEAL': [-0.57,-0.31],
+  'SATO,TAIHEI': [-0.57,0.44],
+  'HACK,JHARED': [-0.57,0.21],
+  'YUAN,CARL': [-0.57,0.44],
+  'PENGE,MARCO': [-0.58,-1.07],
+  'MANASSERO,MATTEO': [-0.58,0.14],
+  'PENG,BO': [-0.6,1.51],
+  'SADDIER,ADRIEN': [-0.6,-0.45],
+  'HALVORSEN,ANDREAS': [-0.61,0.04],
+  'ATKINS,MATT': [-0.61,0.27],
+  'BROWN,DAN': [-0.61,-0.8],
+  'ELVIRA MIJARES,IGNACIO': [-0.61,0.06],
+  'LAHIRI,ANIRBAN': [-0.62,0.03],
+  'SAVOIE,JOEY': [-0.62,1.2],
+  'VRZICH,JOEY': [-0.62,0.67],
+  'THOMAS,RAYHAN': [-0.63,0.61],
+  'WILLETT,DANNY': [-0.64,0.61],
+  'TRUSLOW,AUSTEN': [-0.64,0.06],
+  'LANGASQUE,ROMAIN': [-0.65,0.03],
+  'SOLOMON,JACOB': [-0.66,0.89],
+  'HIGGS,HARRY': [-0.66,0.2],
+  'WIEDEMEYER,TIM': [-0.66,0.34],
+  'LAGERGREN,JOAKIM': [-0.66,-0.21],
+  'BAE,YONGJUN': [-0.67,0.36],
+  'LEBIODA,HANK': [-0.68,-0.21],
+  'TETAK,TADEÁŠ': [-0.69,1.33],
+  'JOHANNESSEN,KRISTIAN K.': [-0.69,0.2],
+  'SILVERMAN,BEN': [-0.69,-0.1],
+  'KINOSHITA,RYOSUKE': [-0.7,-0.05],
+  'KIM,ANTHONY': [-0.7,0.15],
+  'VENTURA,KRIS': [-0.7,-0.77],
+  'WESTMORELAND,KYLE': [-0.71,0.71],
+  'ORTIZ,CARLOS': [-0.71,-0.65],
+  'MAZZOLI,STEFANO': [-0.71,0.39],
+  'FLAVIN,PATRICK': [-0.71,0.68],
+  'CANNON,WILL': [-0.71,0.13],
+  'DOUGHERTY,KEVIN': [-0.72,0.13],
+  'FRANCOEUR,CHRIS': [-0.72,0.21],
+  'SCRIVENER,JASON': [-0.73,0.03],
+  'HARRINGTON,PADRAIG': [-0.73,0.62],
+  'GOODMAN,DREW': [-0.73,0.54],
+  'EASTERBROOK,SAM': [-0.73,1.34],
+  'NABETANI,TAICHI': [-0.73,1],
+  'BALLESTER,JOSE LUIS': [-0.73,-0.83],
+  'LEE,SANG-HEE': [-0.73,0.78],
+  'WOLCOTT,HUNTER': [-0.74,1.13],
+  'TRACE,TRAVIS': [-0.74,0.13],
+  'ELVIRA,MANUEL': [-0.75,-0.11],
+  'ADAM,CAMERON': [-0.75,0.43],
+  'BROWN,HAMISH': [-0.75,0.41],
+  'HUMPHREY,THEO': [-0.75,0.6],
+  'GALLETTI,NICOLO': [-0.75,-0.38],
+  'SCHOTT,FREDDY': [-0.76,0.23],
+  'ANDERSEN,MASON': [-0.76,-0.07],
+  'TANKERSLEY,CAMERON': [-0.76,0.55],
+  'KATSURAGAWA,YUTO': [-0.76,0.31],
+  'MOLDOVAN,MAXWELL': [-0.76,0.48],
+  'LAMB,RICK': [-0.76,0.14],
+  'ALBERTSE,LOUIS': [-0.77,0.83],
+  'JAEGER,STEPHAN': [-0.77,-0.61],
+  'RAMSAY,RICHIE': [-0.77,0.07],
+  'KOZUMA,JINICHIRO': [-0.77,0.43],
+  'CATLIN,JOHN': [-0.77,0.5],
+  'TRINGALE,CAMERON': [-0.77,-0.34],
+  'DING,WENYI': [-0.77,-0.5],
+  'MALNATI,PETER': [-0.78,-0.13],
+  'ROBINSON THOMPSON,BRANDON': [-0.78,-0.27],
+  'DOYLE,DREW': [-0.78,1.12],
+  'LEE,HYUNGJOON': [-0.79,1.18],
+  'ROY,KEVIN': [-0.79,-0.78],
+  'CRISTONI,MATTEO': [-0.79,1.05],
+  'GOOSEN,RETIEF': [-0.79,0.63],
+  'SIMPSON,SAMUEL': [-0.8,0.82],
+  'DU PLESSIS,HENNIE': [-0.8,-0.96],
+  'LEDESMA,NELSON': [-0.8,0.61],
+  'CHOI,SAM': [-0.81,0.75],
+  'NICHOLAS,JAMES': [-0.82,0.03],
+  'NEWCOMB,PATRICK': [-0.82,0.03],
+  'DANTORP,JENS': [-0.83,0.25],
+  'PHILLIPS,TRENT': [-0.83,-0.48],
+  'BRAMLETT,JOSEPH': [-0.84,-0.16],
+  'BROWN,BARCLAY': [-0.85,1.21],
+  'GOFF,ALEX': [-0.85,0.41],
+  'WALLIN,ADAM': [-0.86,0.28],
+  'IKEMURA,TOMOYO': [-0.86,0.32],
+  'GIBOUDOT,MAXENCE': [-0.87,0.87],
+  'SUGIURA,YUTA': [-0.87,0.07],
+  'SOUTHGATE,MATTHEW': [-0.88,1.09],
+  'SHEEHAN,PATRICK': [-0.88,0.68],
+  'SODERBERG,SEBASTIAN': [-0.89,0.17],
+  'LEWIS,RILEY': [-0.89,0.01],
+  'COTTAM,KYLE': [-0.89,0.06],
+  'SIMONSEN,MARTIN': [-0.89,0.77],
+  'SLOAN,ROGER': [-0.89,-0.1],
+  'CLEMENTS,TODD': [-0.89,-0.52],
+  'ENNIS,WHEATON': [-0.9,0.68],
+  'MUN,DOYEOB': [-0.9,-0.07],
+  'SURRATT,CALEB': [-0.91,-0.62],
+  'STONE,BRANDON': [-0.91,-0.15],
+  'LEE,SOOMIN': [-0.91,0.72],
+  'FISCHER,ZACK': [-0.93,0.36],
+  'STRAKA,SEPP': [-0.93,-1.49],
+  'ELS,ERNIE': [-0.93,0.11],
+  'CARD III,JAY': [-0.94,0.02],
+  'PETTIT,TURK': [-0.94,0.35],
+  'LAMB,DAVIS': [-0.94,-0.36],
+  'SCHNEIDER,MARCEL': [-0.94,-0.23],
+  'GLOVER,LUCAS': [-0.94,-0.7],
+  'HEND,SCOTT': [-0.94,0.74],
+  'CELIA,RICARDO': [-0.94,0.61],
+  'ROMANO,ANDREA': [-0.95,0.88],
+  'PIETERS,THOMAS': [-0.95,-1.02],
+  'GRINBERG,LEV': [-0.95,0.75],
+  'CAMPBELL,BRIAN': [-0.95,-0.04],
+  'LAPORTA,FRANCESCO': [-0.96,-0.77],
+  'BAKER,ELIOT': [-0.96,0.24],
+  'SEMIKAWA,TAIGA': [-0.96,-0.58],
+  'TURNER,JACK': [-0.96,0.1],
+  'ENEFER,WILL': [-0.97,0.43],
+  'FISHER,ROSS': [-0.97,0.43],
+  'HIRATA,KENSEI': [-0.97,-0.02],
+  'FORREST,GRANT': [-0.98,-0.75],
+  'SCHWARTZEL,CHARL': [-0.98,-0.57],
+  'MAEDA,KOSHIRO': [-0.98,0.64],
+  'CHOI,SEUNGBIN': [-0.98,0.07],
+  'HOSHINO,RIKUYA': [-0.99,0.04],
+  'KOZAN,ANDREW': [-0.99,0.36],
+  'GABRELCIK,NICK': [-0.99,-0.02],
+  'GARCIA,JORGE': [-1,0.69],
+  'LEWTON,STEVE': [-1,0.74],
+  'SMYTH,TRAV': [-1,-0.29],
+  'DUNCAN,TYLER': [-1,0.04],
+  'STERNE,RICHARD': [-1.01,-0.46],
+  'MERRITT,TROY': [-1.01,0.21],
+  'LACROIX,FREDERIC': [-1.01,-0.39],
+  'HALE JR,BLAINE': [-1.02,0.57],
+  'WILKES,TYLER': [-1.04,0.63],
+  'ROZO,MARCELO': [-1.04,0.19],
+  'NESBITT,DREW': [-1.04,0.27],
+  'SCHMIDT,BEN': [-1.05,-0.35],
+  'PEACOCK,JAKE': [-1.05,0.67],
+  'BLAND,RICHARD': [-1.05,-0.4],
+  'KOKRAK,JASON': [-1.05,-0.5],
+  'SULLIVAN,ANDY': [-1.07,-0.83],
+  'WALKER,EUAN': [-1.07,0.24],
+  'TOSTI,ALEJANDRO': [-1.07,0.5],
+  'CREEL,JOSHUA': [-1.08,0.7],
+  'SUMMERHAYS,PRESTON': [-1.08,0.74],
+  'KOCHER,DAVID': [-1.09,0.42],
+  'HARDY,NICK': [-1.1,-0.08],
+  'CANTERO GUTIERREZ,IVAN': [-1.11,0.33],
+  'QUAYLE,ANTHONY': [-1.11,-0.02],
+  'BLAUM,RYAN': [-1.11,0.32],
+  'MERONK,ADRIAN': [-1.12,-0.29],
+  'CHATFIELD,DAVIS': [-1.12,-0.51],
+  'VILLEGAS,CAMILO': [-1.13,-0.1],
+  'KNOWLES,PHILIP': [-1.17,0.52],
+  'LEE,DANNY': [-1.17,0.56],
+  'PARATORE,RENATO': [-1.17,0.28],
+  'DICKSON,TAYLOR': [-1.17,0.28],
+  'KORTE,CHRIS': [-1.18,-0.07],
+  'KRUYSWIJK,JACQUES': [-1.18,-0.41],
+  'WU,BRANDON': [-1.19,0.54],
+  'CELLI,FILIPPO': [-1.19,0.19],
+  'UIHLEIN,PETER': [-1.19,-0.57],
+  'BALDWIN,MATTHEW': [-1.19,0.49],
+  'BJERREGAARD,LUCAS': [-1.2,0.09],
+  'MORY,FELIX': [-1.2,0.41],
+  'HRUBY,PETR': [-1.21,-0.25],
+  'SHARMA,SHUBHANKAR': [-1.23,0.44],
+  'BLOMME,ADAM': [-1.23,0.64],
+  'SHELTON,ROBBY': [-1.23,-0.16],
+  'HAMMER,COLE': [-1.24,-0.61],
+  'OTAEGUI,ADRIAN': [-1.24,-0.41],
+  'PAUL,JEREMY': [-1.24,-0.12],
+  'LAWRENCE,THRISTON': [-1.24,-0.92],
+  'WESTWOOD,LEE': [-1.25,-0.6],
+  'XIONG,NORMAN': [-1.25,0.44],
+  'KNOX,RUSSELL': [-1.25,-0.13],
+  'MASAVEU,LUIS': [-1.26,0],
+  'HITCHNER,DEREK': [-1.26,-0.26],
+  'SCHENK,ADAM': [-1.29,-0.14],
+  'LEMKE,NIKLAS': [-1.3,-0.22],
+  'WILLIAMS,ROBIN': [-1.31,0.42],
+  'LEE,RICHARD': [-1.32,-0.96],
+  'BAIRSTOW,SAM': [-1.32,-0.22],
+  'LAMPRECHT,CHRISTO': [-1.34,-0.53],
+  'HOLLICK,MICHAEL': [-1.34,-0.11],
+  'LEACH,TYLER': [-1.35,0.29],
+  'GANDON,JEREMY': [-1.35,-0.66],
+  'YOUNG,DANIEL': [-1.36,-0.41],
+  'GUTSCHEWSKI,LUKE': [-1.37,-0.46],
+  'LA SASSO,MICHAEL': [-1.37,0.64],
+  'PAUL,YANNIK': [-1.38,0.48],
+  'NORLANDER,HENRIK': [-1.38,-0.28],
+  'WU,DYLAN': [-1.38,-0.9],
+  'HARKINS,BRANDON': [-1.39,0.62],
+  'SARGENT,GORDON': [-1.39,-0.17],
+  'MORRISON,JAMES': [-1.4,0.09],
+  'CROCKER,SEAN': [-1.4,-0.24],
+  'SCHMIDT,THOMAS': [-1.4,0.39],
+  'LAW,DAVID': [-1.41,-0.5],
+  'DAHMEN,JOEL': [-1.41,-1.06],
+  'BOTHA,BAREND': [-1.41,-0.82],
+  'LAIRD,MARTIN': [-1.41,-0.36],
+  'LIST,LUKE': [-1.41,-0.12],
+  'TEATER,JOSH': [-1.42,0.45],
+  'LOMBARD,ZANDER': [-1.42,-0.31],
+  'GOODWIN,NOAH': [-1.42,-0.74],
+  'LEE,JUNGHWAN': [-1.43,-0.31],
+  'KAEWKANJANA,SADOM': [-1.44,-0.64],
+  'CONE,TREVOR': [-1.44,-0.93],
+  'VEERMAN,JOHANNES': [-1.44,-0.3],
+  'DEL SOLAR,CRISTOBAL': [-1.45,0.02],
+  'TOWNSEND,HUGO': [-1.46,-0.4],
+  'WALKER,DANNY': [-1.5,-0.37],
+  'NAIDOO,DYLAN': [-1.5,0.63],
+  'GORDON,WILL': [-1.51,-0.2],
+  'JONSSON,TOBIAS': [-1.51,-0.23],
+  'VON DELLINGSHAUSEN,NICOLAI': [-1.51,-0.38],
+  'VOOIS,RYAN': [-1.53,-0.12],
+  'CHANDLER,WILL': [-1.53,-0.09],
+  'LUITEN,JOOST': [-1.54,-1.13],
+  'GARCIA RODRIGUEZ,SEBASTIAN': [-1.55,-0.21],
+  'LOWER,JUSTIN': [-1.55,-0.74],
+  'SURI,JULIAN': [-1.56,-0.67],
+  'VAN PARIS,JACKSON': [-1.56,-0.56],
+  'ARNAUS,ADRI': [-1.57,-0.08],
+  'BURNETT,RYAN': [-1.57,0],
+  'DUNCAN,AUSTIN': [-1.58,0.22],
+  'WHITNEY,TOM': [-1.6,-0.43],
+  'CHAMP,CAMERON': [-1.6,-0.83],
+  'RILEY,DAVIS': [-1.61,-0.33],
+  'VANDERLAAN,JOHN': [-1.61,-1.06],
+  'TABUENA,MIGUEL': [-1.62,-0.31],
+  'MARZILIO,VICENTE': [-1.65,0.31],
+  'NESMITH,MATT': [-1.69,-0.03],
+  'GUMBERG,JORDAN': [-1.69,-0.08],
+  'RIEDEL,MATTHEW': [-1.7,-0.15],
+  'ZANOTTI,FABRIZIO': [-1.7,-0.04],
+  'REPETTO TAYLOR,ROCCO PAOLO': [-1.7,-0.44],
+  'GIBSON,RHEIN': [-1.71,-0.21],
+  'HOLT,IAN': [-1.73,-1.37],
+  'BYRD,JONATHAN': [-1.75,-0.98],
+  'GUTHRIE,LUKE': [-1.75,-0.29],
+  'FEAGLES,MICHAEL': [-1.76,-0.32],
+  'BIONDI,FRED': [-1.77,-0.25],
+  'ROSENMUELLER,THOMAS': [-1.78,-1.19],
+  'FOOS,DOMINIC': [-1.78,-0.09],
+  'MAICHON,PHICHAKSN': [-1.79,-0.22],
+  'FERNANDEZ VALDES,JORGE': [-1.81,-1.2],
+  'VIDAL,QUIM': [-1.82,0.21],
+  'LEWIS,BRYCE': [-1.83,-0.34],
+  'MCDOWELL,GRAEME': [-1.83,-0.71],
+  'INFANTI,NICK': [-1.83,0.29],
+  'STEGMAIER,BRETT': [-1.84,-0.16],
+  'VAN HORNE,ASHTON': [-1.85,-0.51],
+  'HIGHSMITH,JOE': [-1.85,-0.36],
+  'ANDERSON,MATTHEW': [-1.86,-0.34],
+  'SARGENT,BILLY TOM': [-1.86,-0.41],
+  'CAPPELEN,SEBASTIAN': [-1.87,-0.11],
+  'LEE,K.H.': [-1.87,0.42],
+  'BUCHANAN,JACK': [-1.88,-0.05],
+  'GIRRBACH,JOEL': [-1.89,-1],
+  'OPPENHEIM,ROB': [-1.9,-0.06],
+  'CAMPBELL,BEN': [-1.92,-0.51],
+  'HELLGREN,BJORN': [-1.94,-0.41],
+  'WHITE,BRETT': [-1.96,-0.57],
+  'THORNBERRY,BRADEN': [-1.96,-0.23],
+  'WOLFF,MATTHEW': [-2,-0.66],
+  'NIMMER,BRYSON': [-2,-0.23],
+  'HOFFMAN,CHARLEY': [-2,0.17],
+  'BUCHANAN,JACKSON': [-2.01,-0.79],
+  'SANDHU,YUVRAJ SINGH': [-2.02,-0.33],
+  'CHARMASSON,CLEMENT': [-2.04,-0.39],
+  'PEAKE,RYAN': [-2.04,0.03],
+  'MONTGOMERY,TAYLOR': [-2.04,-1.64],
+  'STRYDOM,OCKIE': [-2.05,0.5],
+  'NUNEZ,AUGUSTO': [-2.06,-0.21],
+  'SENIOR,JACK': [-2.07,-0.78],
+  'HORSFIELD,SAM': [-2.1,0.05],
+  'MARTIN,BEN': [-2.11,-0.95],
+  'TARREN,CALLUM': [-2.15,-0.44],
+  'MACDONALD,STUART': [-2.18,-1.16],
+  'LARRAZABAL,PABLO': [-2.21,-0.42],
+  'SEWELL,CHAD': [-2.22,-0.64],
+  'BARJON,PAUL': [-2.22,0.55],
+  'MICHELUZZI,DAVID': [-2.22,-0.5],
+  'JAMIESON,SCOTT': [-2.22,-0.83],
+  'CAMPOS,RAFAEL': [-2.26,-0.44],
+  'GREY,J.J.': [-2.28,-0.09],
+  'MEISEL,MARSHALL': [-2.28,-0.64],
+  'SIEM,MARCEL': [-2.31,-0.64],
+  'BREHM,RYAN': [-2.32,-0.25],
+  'KIM,MINKYU': [-2.32,-0.31],
+  'ASAJI,YOSUKE': [-2.34,-0.67],
+  'MOLINARI,EDOARDO': [-2.39,-0.46],
+  'MAGUIRE,JACK': [-2.41,-0.39],
+  'KO,JEONG WEON': [-2.41,-0.06],
+  'KIEFFER,MAX': [-2.41,-0.72],
+  'SUMMERHAYS,DANIEL': [-2.42,-0.87],
+  'WEILER,JOE': [-2.45,-0.8],
+  'BROOMHEAD,JONOTHAN': [-2.47,-0.35],
+  'OVERTON,JEFF': [-2.5,-0.38],
+  'DAVIS,CAM': [-2.51,-0.77],
+  'LOGAN,HUNTER': [-2.51,-0.06],
+  'JOHNSTON,RYGGS': [-2.51,-0.4],
+  'ALEXANDER,TYSON': [-2.56,-0.43],
+  'KIZZIRE,PATTON': [-2.56,-1.5],
+  'SYME,CONNOR': [-2.59,-1.02],
+  'SULLIVAN,RYAN': [-2.61,-0.07],
+  'HASTINGS,JUSTIN': [-2.62,-1.04],
+  'FOLLET-SMITH,BENJAMIN': [-2.64,-0.74],
+  'BACHA,CARSON': [-2.65,-1.39],
+  'DEBOVE,QUENTIN': [-2.74,-0.8],
+  'FURR,WILSON': [-2.76,-1.5],
+  'KOLLE,FINN': [-2.78,0.03],
+  'VOGELSONG,ALEX': [-2.85,-0.18],
+  'BERRY,BRANDON': [-2.94,-1.03],
+  'GALLEGOS,ANDRES': [-2.97,-0.27],
+  'LEVIN,SPENCER': [-3.28,-1.05],
+  'WINSTEAD,TREY': [-3.34,-1.33],
+  'SONG,JAMES': [-3.36,0.38],
+  'YULE,JACK': [-3.38,-0.64],
+  'HIGGINS,ROBBIE': [-3.5,-0.86],
+  'MCKINNEY,CONNOR': [-3.78,-1.44],
+  'TOOROP,MIKE': [-3.8,-1.08],
+  'STEWART,DILLON': [-4.21,-2.13],
+  'BERRY,JOSHUA': [-4.45,-1.9],
+  'MATTHEWS,BRANDON': [-4.57,-0.04],
+};
+
 /* ── Global state ── */
 let PAYLOAD      = null;
 let allPlayers   = [];
@@ -60,8 +692,58 @@ let sortDir      = 1;        // 1 = asc, -1 = desc
 let filterFlagged = false;
 let filterDebut  = false;
 let BRIEFS_MAP = {};  /* player_name → brief object */
+let filterFormPositive = false;
+let filterFormNegative = false;
+let filterFormHot     = false;
+let filterFormCold    = false;
+let filterVtsMin      = null;
+let filterWinMin      = null;
+let filterSgMin       = null;
 
 const DATA_PATH = 'data/event_payload.json';
+
+/* Normalize player name to match FORM_DATA keys: "Last, First" → "LAST,FIRST" */
+function formKey(name) {
+  return (name || '').toUpperCase().replace(/,\s+/, ',').trim();
+}
+
+function computeFormStats() {
+  const vals = [];
+  for (const p of allPlayers) {
+    const fd = FORM_DATA[formKey(p.player_name)];
+    if (fd) vals.push(0.6 * fd[0] + 0.4 * fd[1]);
+  }
+  if (!vals.length) return { mean: 0, sd: 1 };
+  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const sd   = Math.sqrt(vals.map(v => (v - mean) ** 2).reduce((a, b) => a + b, 0) / vals.length);
+  return { mean, sd: Math.max(sd, 0.01) };
+}
+
+function applyFormAdjustments() {
+  const { mean, sd } = computeFormStats();
+  for (const p of allPlayers) {
+    p.vts_original = Number(p.vts_final);
+    const fd = FORM_DATA[formKey(p.player_name)];
+    if (!fd) {
+      p.form_sg_putt = null;
+      p.form_sg_arg  = null;
+      p.form_raw     = null;
+      p.form_adj     = 0;
+      p.form_missing = true;
+    } else {
+      p.form_sg_putt = fd[0];
+      p.form_sg_arg  = fd[1];
+      const formRaw  = 0.6 * fd[0] + 0.4 * fd[1];
+      p.form_raw     = formRaw;
+      const z        = (formRaw - mean) / sd;
+      p.form_adj     = Math.max(-4.0, Math.min(4.0, z * 1.5));
+      p.form_missing = false;
+    }
+    p.vts_final = (Math.max(0, Math.min(100, p.vts_original + p.form_adj))).toFixed(1);
+  }
+  allPlayers.sort((a, b) => Number(b.vts_final) - Number(a.vts_final));
+  allPlayers.forEach((p, i) => { p.rank = i + 1; });
+}
 
 /* ════════════════════════════════════════════
    BOOT
@@ -104,6 +786,7 @@ async function init() {
     }
   }
   allPlayers.sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
+  applyFormAdjustments();
 
   /* Tighten tier thresholds and sharpen win% curve before rendering */
   recomputeTiers();
@@ -163,11 +846,14 @@ function vfdDisplay(vfd, showIcon = false) {
   if (vfd === null || vfd === undefined) return '<span style="color:var(--muted)">—</span>';
   const fav  = vfd <= 0;
   const cls  = fav ? 'vfd-neg' : 'vfd-pos';
-  const icon = showIcon ? (fav ? ' ▼' : ' ▲') : '';
+  const icon = showIcon ? (fav ? ' ★' : ' ▲') : '';
   const tip  = fav
-    ? `VFD ${Number(vfd).toFixed(1)}: Favorable course fit — negative = advantage at this venue`
-    : `VFD +${Number(vfd).toFixed(1)}: Unfavorable course fit — positive = penalty at this venue`;
-  return `<span class="${cls}" title="${tip}">${vfd > 0 ? '+' : ''}${Number(vfd).toFixed(1)}${icon}</span>`;
+    ? `Fit Edge +${Math.abs(Number(vfd)).toFixed(1)}: Favorable course fit — this player over-indexes on what TPC Deere Run rewards`
+    : `VFD +${Number(vfd).toFixed(1)}: Unfavorable course fit — this player under-indexes on venue demands`;
+  const label = fav
+    ? `+${Math.abs(Number(vfd)).toFixed(1)} Fit${icon}`
+    : `${Number(vfd).toFixed(1)}${icon}`;
+  return `<span class="${cls}" title="${tip}">${label}</span>`;
 }
 
 function sgDisplay(sg) {
@@ -303,14 +989,12 @@ function renderWinnerSection() {
 
   /* Model separation visual — top 15 */
   const top15 = allPlayers.slice(0, 15);
-  const maxVts = Number(top15[0].vts_final);
-  const minVts = Number(top15[top15.length - 1].vts_final);
-  const vtsRange = Math.max(maxVts - minVts, 1);
   const sepBars = top15.map((p, i) => {
-    const pct    = Math.max(5, ((Number(p.vts_final) - minVts) / vtsRange) * 100);
+    const vts = Number(p.vts_final);
+    const pct = Math.min(100, Math.max(2, vts));
     const gap    = i > 0 ? (Number(top15[i - 1].vts_final) - Number(p.vts_final)).toFixed(1) : null;
-    const gapEl  = (gap !== null && Number(gap) >= 0.5)
-      ? `<span class="sep-gap">▼${gap}</span>` : '<span class="sep-gap"></span>';
+    const gapEl  = (gap !== null && Number(gap) >= 0.3)
+      ? `<span class="sep-gap">Δ ${gap}</span>` : '<span class="sep-gap"></span>';
     return `<div class="sep-row">
       <span class="sep-rank">#${p.rank}</span>
       <span class="sep-name">${fmtName(p.player_name)}</span>
@@ -336,7 +1020,7 @@ function renderWinnerSection() {
           <div class="winner-stat"><div class="winner-stat-val">${winner.make_cut_pct.toFixed(0)}%</div><div class="winner-stat-label">Cut</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.vts_final}</div><div class="winner-stat-label">VTS</div></div>
           <div class="winner-stat"><div class="winner-stat-val">${winner.neutral_sg >= 0 ? '+' : ''}${Number(winner.neutral_sg).toFixed(2)}</div><div class="winner-stat-label">SG Neutral</div></div>
-          <div class="winner-stat"><div class="winner-stat-val">${vfdDisplay(winner.vfd, true)}</div><div class="winner-stat-label">VFD</div></div>
+          <div class="winner-stat"><div class="winner-stat-val">${vfdDisplay(winner.vfd, true)}</div><div class="winner-stat-label">Fit Edge</div></div>
         </div>
         <div class="winner-trace">${winner.trace_notes}</div>
       </div>
@@ -575,8 +1259,8 @@ function playerCard(p) {
   const conf     = playerConfidence(p);
   const vfdPill  = p.vfd !== null && p.vfd !== undefined
     ? `<span class="pc-vfd ${p.vfd <= 0 ? 'pc-vfd-fav' : 'pc-vfd-pen'}"
-         title="VFD: ${p.vfd <= 0 ? 'Favorable course fit (negative = advantage)' : 'Unfavorable course fit (positive = penalty)'}"
-       >VFD ${p.vfd > 0 ? '+' : ''}${Number(p.vfd).toFixed(1)}${p.vfd <= 0 ? ' ▼' : ' ▲'}</span>`
+         title="${p.vfd <= 0 ? 'Favorable course fit — player over-indexes on venue demands' : 'Unfavorable course fit — player under-indexes on venue demands'}"
+       >${p.vfd <= 0 ? '+' + Math.abs(Number(p.vfd)).toFixed(1) + ' Fit ★' : Number(p.vfd).toFixed(1) + ' ▲'}</span>`
     : '';
 
   return `
@@ -662,6 +1346,28 @@ function getFiltered() {
 
   if (filterDebut) {
     players = players.filter(p => p.debut_flag);
+  }
+
+  if (filterFormHot) {
+    players = players.filter(p => (p.form_adj || 0) >= 2.5);
+  }
+  if (filterFormCold) {
+    players = players.filter(p => (p.form_adj || 0) <= -2.5);
+  }
+  if (filterFormPositive) {
+    players = players.filter(p => (p.form_adj || 0) >= 0.5);
+  }
+  if (filterFormNegative) {
+    players = players.filter(p => (p.form_adj || 0) <= -0.5);
+  }
+  if (filterVtsMin !== null) {
+    players = players.filter(p => Number(p.vts_final) >= filterVtsMin);
+  }
+  if (filterWinMin !== null) {
+    players = players.filter(p => p.win_pct >= filterWinMin);
+  }
+  if (filterSgMin !== null) {
+    players = players.filter(p => Number(p.neutral_sg) >= filterSgMin);
   }
 
   /* Sort */
@@ -893,17 +1599,110 @@ function wireToggles() {
     sortDir       = 1;
     filterFlagged = false;
     filterDebut   = false;
+    filterFormHot = filterFormCold = filterFormPositive = filterFormNegative = false;
+    filterVtsMin  = filterWinMin = filterSgMin = null;
     document.getElementById('search-input').value = '';
     document.getElementById('search-clear').style.display = 'none';
     document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
     document.querySelector('.tier-tab[data-tier="all"]').classList.add('active');
     btnFlags.classList.remove('active');
     btnDebut.classList.remove('active');
+    const btn = document.getElementById('btn-filters');
+    if (btn) btn.classList.remove('active');
     applyAndRender();
   }
 
   btnReset.addEventListener('click', doReset);
   if (btnEmptyReset) btnEmptyReset.addEventListener('click', doReset);
+
+  /* Filter drawer */
+  const btnFilters     = document.getElementById('btn-filters');
+  const filterOverlay  = document.getElementById('filter-overlay');
+  const filterClose    = document.getElementById('filter-drawer-close');
+  const filterApply    = document.getElementById('filter-apply');
+  const filterReset    = document.getElementById('filter-reset');
+  const sliderVts      = document.getElementById('fslider-vts');
+  const sliderWin      = document.getElementById('fslider-win');
+  const sliderSg       = document.getElementById('fslider-sg');
+  const valVts         = document.getElementById('fval-vts');
+  const valWin         = document.getElementById('fval-win');
+  const valSg          = document.getElementById('fval-sg');
+
+  if (btnFilters && filterOverlay) {
+    btnFilters.addEventListener('click', () => {
+      filterOverlay.style.display = 'flex';
+    });
+    filterClose?.addEventListener('click', () => { filterOverlay.style.display = 'none'; });
+    filterOverlay.addEventListener('click', e => {
+      if (e.target === filterOverlay) filterOverlay.style.display = 'none';
+    });
+
+    sliderVts?.addEventListener('input', () => {
+      valVts.textContent = sliderVts.value;
+    });
+    sliderWin?.addEventListener('input', () => {
+      valWin.textContent = `${parseFloat(sliderWin.value).toFixed(1)}%`;
+    });
+    sliderSg?.addEventListener('input', () => {
+      const v = parseFloat(sliderSg.value);
+      valSg.textContent = v <= -2 ? '—' : (v >= 0 ? `+${v.toFixed(1)}` : `${v.toFixed(1)}`);
+    });
+
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+      });
+    });
+
+    filterApply?.addEventListener('click', () => {
+      const vtsVal = parseFloat(sliderVts?.value || 0);
+      const winVal = parseFloat(sliderWin?.value || 0);
+      const sgVal  = parseFloat(sliderSg?.value || -2);
+
+      filterVtsMin = vtsVal > 0 ? vtsVal : null;
+      filterWinMin = winVal > 0 ? winVal : null;
+      filterSgMin  = sgVal > -2 ? sgVal : null;
+
+      filterFormHot      = document.getElementById('fchip-hot')?.classList.contains('active') || false;
+      filterFormCold     = document.getElementById('fchip-cold')?.classList.contains('active') || false;
+      filterFormPositive = document.getElementById('fchip-pos')?.classList.contains('active') || false;
+      filterFormNegative = document.getElementById('fchip-neg')?.classList.contains('active') || false;
+
+      updateFilterChips();
+      filterOverlay.style.display = 'none';
+      applyAndRender();
+    });
+
+    filterReset?.addEventListener('click', () => {
+      filterVtsMin = filterWinMin = filterSgMin = null;
+      filterFormHot = filterFormCold = filterFormPositive = filterFormNegative = false;
+      sliderVts && (sliderVts.value = 0);
+      sliderWin && (sliderWin.value = 0);
+      sliderSg  && (sliderSg.value  = -2);
+      valVts && (valVts.textContent = '0');
+      valWin && (valWin.textContent = '0%');
+      valSg  && (valSg.textContent  = '—');
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      updateFilterChips();
+      applyAndRender();
+    });
+  }
+
+  function updateFilterChips() {
+    const container = document.getElementById('filter-active-chips');
+    if (!container) return;
+    const chips = [];
+    if (filterFormHot)      chips.push('Hot Form');
+    if (filterFormCold)     chips.push('Cold Form');
+    if (filterFormPositive) chips.push('Positive Form');
+    if (filterFormNegative) chips.push('Negative Form');
+    if (filterVtsMin)       chips.push(`VTS ≥ ${filterVtsMin}`);
+    if (filterWinMin)       chips.push(`Win ≥ ${filterWinMin.toFixed(1)}%`);
+    if (filterSgMin !== null) chips.push(`SG ≥ ${filterSgMin.toFixed(1)}`);
+    container.innerHTML = chips.map(c => `<span class="active-filter-chip">${c}</span>`).join('');
+    const btn = document.getElementById('btn-filters');
+    if (btn) btn.classList.toggle('active', chips.length > 0);
+  }
 }
 
 /* ── Trait score synthesis ── */
@@ -1029,18 +1828,19 @@ function modalSectionCourseFit(p, brief) {
 
   const compCourses = (PAYLOAD.venue.comp_courses || []).join(', ');
 
-  const vfdArrow = vfd <= 0 ? ' ▼ Favorable' : ' ▲ Unfavorable';
+  const vfdLabel = vfd <= 0
+    ? `+${Math.abs(Number(vfd)).toFixed(1)} Fit Edge ★`
+    : `+${Number(vfd).toFixed(1)} Fit Drag ▲`;
 
   return `<div class="modal-section">
     <h4>Course Fit at TPC Deere Run</h4>
     <div class="course-fit-meta">
-      <span style="font-size:.78rem;color:var(--muted)">Net VFD:</span>
-      <span class="vfd-display ${vfdCls}">${vfdSign}${Number(vfd).toFixed(1)}${vfdArrow}</span>
+      <span class="vfd-display ${vfdCls}">${vfdLabel}</span>
       <span class="conf-badge ${confCls}">${confLabel} Conf</span>
       ${cfAdj !== null ? `<span class="cf-adj-note">CF-adj: ${cfAdj > 0 ? '+' : ''}${cfAdj.toFixed(1)} VTS</span>` : ''}
     </div>
     <p style="font-size:.63rem;color:var(--muted);margin-bottom:.45rem">
-      VFD sign convention: negative ▼ = favorable (player over-indexes on venue demands) · positive ▲ = unfavorable (scoring drag)<br>
+      Fit Edge = player over-indexes on what TPC Deere Run rewards (positive value) · Fit Drag = player under-indexes on venue demands<br>
       Comp courses: ${compCourses}
     </p>
     <ul class="fit-list">
@@ -1073,27 +1873,64 @@ function modalSectionTraitBreakdown(p) {
 }
 
 function modalSectionFormWindow(p, brief) {
-  const penalties = brief?.penalties_summary || '';
-  /* Parse FormΔ */
-  const formDeltaMatch = penalties.match(/FormΔ=([0-9.-]+)/);
-  const formDelta = formDeltaMatch ? parseFloat(formDeltaMatch[1]) : 0;
-
   const sg = Number(p.neutral_sg);
-  let interpretation;
-  if (Math.abs(formDelta) < 0.5) {
-    interpretation = 'Form delta within normal variance — no gate triggered. Baseline SG remains the primary signal.';
-  } else if (formDelta < 0) {
-    interpretation = `Form delta of ${formDelta.toFixed(1)} VTS — mild decline from 12-month baseline. Monitor for continued trend.`;
+
+  if (p.form_missing) {
+    return `<div class="modal-section">
+      <h4>Form Window</h4>
+      <div class="form-note">
+        <b style="color:var(--text)">12-mo Baseline SG:</b> <span style="color:#86efac">${sg >= 0 ? '+' : ''}${sg.toFixed(3)}</span>
+        <br><span style="color:var(--muted);margin-top:.3rem;display:block">Form data unavailable — player not in last-5 form data set. Confidence on short-term signal is reduced; model relies on 12-month baseline and venue fit only.</span>
+      </div>
+    </div>`;
+  }
+
+  const adj    = p.form_adj;
+  const adjAbs = Math.abs(adj);
+  const adjCls = adjAbs < 0.5 ? 'color:var(--muted)' : adj > 0 ? 'color:#4ade80' : 'color:#f87171';
+
+  let bucket, interpretation;
+  if (adj >= 2.5) {
+    bucket = 'Elite Form';
+    interpretation = `Last-5 SG is running significantly above the 12-month baseline. Recent play is at a high level — a meaningful positive short-term boost is applied (${adj >= 0 ? '+' : ''}${adj.toFixed(1)} VTS).`;
+  } else if (adj >= 0.5) {
+    bucket = 'Positive Form';
+    interpretation = `Recent form is trending above baseline over the last 5 starts. A modest positive adjustment is applied (+${adj.toFixed(1)} VTS) — baseline SG remains the primary anchor.`;
+  } else if (adj > -0.5) {
+    bucket = 'Neutral Form';
+    interpretation = `Form is consistent with 12-month baseline — no meaningful short-term signal in either direction. Model leans on baseline SG and venue fit as the primary drivers.`;
+  } else if (adj > -2.5) {
+    bucket = 'Below-Trend Form';
+    interpretation = `Recent results are tracking below baseline over the last 5 starts. A modest negative adjustment is applied (${adj.toFixed(1)} VTS) — baseline SG remains the anchor but short-term drag is noted.`;
   } else {
-    interpretation = `Form delta of +${formDelta.toFixed(1)} VTS — recent form trending above baseline. Positive signal.`;
+    bucket = 'Cold Form';
+    interpretation = `Last-5 SG is running well below baseline. This is a meaningful short-term drag — a negative adjustment is applied (${adj.toFixed(1)} VTS). Monitor whether this represents a real slump or a temporary variance pocket.`;
   }
 
   return `<div class="modal-section">
-    <h4>Form Window</h4>
+    <h4>Form Window <span style="font-size:.65rem;font-weight:400;color:var(--muted)">Last 5 Starts</span></h4>
+    <div class="vh-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:.6rem">
+      <div class="vh-stat">
+        <div class="vh-stat-val" style="color:${p.form_sg_putt >= 0 ? '#4ade80' : '#f87171'}">${p.form_sg_putt >= 0 ? '+' : ''}${p.form_sg_putt.toFixed(2)}</div>
+        <div class="vh-stat-label">L5 SG Putt</div>
+      </div>
+      <div class="vh-stat">
+        <div class="vh-stat-val" style="color:${p.form_sg_arg >= 0 ? '#4ade80' : '#f87171'}">${p.form_sg_arg >= 0 ? '+' : ''}${p.form_sg_arg.toFixed(2)}</div>
+        <div class="vh-stat-label">L5 SG ARG</div>
+      </div>
+      <div class="vh-stat">
+        <div class="vh-stat-val" style="${adjCls}">${adj >= 0 ? '+' : ''}${adj.toFixed(1)}</div>
+        <div class="vh-stat-label">Form Δ VTS</div>
+      </div>
+    </div>
     <div class="form-note">
-      Current season SG: <b style="color:var(--text)">${sg >= 0 ? '+' : ''}${sg.toFixed(3)}</b> (12-month TrueSG baseline) &nbsp;·&nbsp;
-      Form Δ: <b style="color:${Math.abs(formDelta) < 0.5 ? 'var(--muted)' : formDelta < 0 ? '#f87171' : '#4ade80'}">${formDelta > 0 ? '+' : ''}${formDelta.toFixed(1)} VTS</b>
+      <span style="font-size:.7rem;font-weight:600;color:${adj >= 2.5 ? '#4ade80' : adj >= 0.5 ? '#86efac' : adj > -0.5 ? 'var(--muted)' : adj > -2.5 ? '#fca5a5' : '#f87171'}">${bucket}</span>
       <br><span style="margin-top:.3rem;display:block">${interpretation}</span>
+    </div>
+    <div class="form-note" style="margin-top:.4rem;border-top:1px solid var(--border);padding-top:.35rem">
+      12-mo Baseline SG: <b style="color:var(--text)">${sg >= 0 ? '+' : ''}${sg.toFixed(3)}</b>
+      &nbsp;·&nbsp; L5 Form Composite: <b style="color:${(0.6*p.form_sg_putt + 0.4*p.form_sg_arg) >= 0 ? '#86efac' : '#f87171'}">${(0.6*p.form_sg_putt + 0.4*p.form_sg_arg) >= 0 ? '+' : ''}${(0.6*p.form_sg_putt + 0.4*p.form_sg_arg).toFixed(2)}</b>
+      &nbsp;·&nbsp; VTS adj: <b style="${adjCls}">${adj >= 0 ? '+' : ''}${adj.toFixed(1)}</b>
     </div>
   </div>`;
 }
@@ -1175,7 +2012,7 @@ const GLOSSARY_CONTENT = [
     section: 'Core Metrics',
     terms: [
       { name: 'VTS (Venue Trait Score)', def: 'The primary model output. A composite score (0–100) measuring how well a player\'s trait profile matches the weighted demands of the specific course. Higher VTS = better course-venue alignment.' },
-      { name: 'VFD (Venue Fit Delta)', def: 'The strokes-gained adjustment applied to a player\'s neutral SG based on how their traits match the course\'s weighted demands. SIGN CONVENTION: Negative VFD = favorable course fit (the player over-indexes on what the venue rewards) — displayed in green with ▼. Positive VFD = unfavorable fit (the player under-indexes on what the venue rewards) — displayed in red with ▲. A strong negative VFD can elevate a mid-skill player; a strong positive VFD penalizes even elite players at this venue.' },
+      { name: 'Fit Edge / Fit Drag', def: 'The venue-specific fit signal derived from how a player\'s trait profile matches TPC Deere Run\'s weighted demands. Fit Edge ★ (green) = player over-indexes on what the venue rewards — a course advantage. Fit Drag ▲ (red) = player under-indexes on venue demands — a scoring penalty. Larger Fit Edge values indicate stronger course alignment; larger Fit Drag values indicate venue mismatch.' },
       { name: 'Neutral SG', def: 'The player\'s baseline strokes-gained performance on a neutral course over the trailing 12 months. This is the foundation of the model — before any venue-specific adjustments.' },
       { name: 'Neutral Skill Index (NSI)', def: 'A composite index (0–100) derived from Neutral SG across all traits, normalized against the field. NSI 90+ = elite skill baseline; 75–89 = strong; below 60 = limited upside.' },
       { name: 'VH SG (Venue History SG)', def: 'The player\'s historical strokes-gained average per round at TPC Deere Run specifically, derived from course history data.' },
@@ -1409,10 +2246,10 @@ function renderDecisionBoard() {
     <div class="db-grid">
       ${moduleCard(
         'Best Course Fit',
-        'Sorted by VFD — most favorable venue profile (most negative)',
+        'Sorted by venue fit edge — players who best match TPC Deere Run demands',
         '⛳',
         fitTargets,
-        p => `<span class="vfd-neg" title="VFD: Venue Fit Delta — negative = course advantage">${Number(p.vfd).toFixed(1)} ▼</span>`,
+        p => `<span class="vfd-neg" title="Fit Edge: Player over-indexes on what TPC Deere Run rewards — favorable venue profile">+${Math.abs(Number(p.vfd)).toFixed(1)} Fit ★</span>`,
         'db-fit'
       )}
       ${moduleCard(

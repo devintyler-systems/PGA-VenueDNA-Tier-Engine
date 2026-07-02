@@ -426,3 +426,143 @@ details.pc-trace summary::-webkit-details-marker{display:none}
 /* ── Wide-open field context ── */
 .wide-open-note{background:color-mix(in srgb,var(--t4) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--t4) 30%,var(--border));border-radius:var(--radius-sm);padding:.55rem .8rem;font-size:.74rem;color:var(--muted);line-height:1.5;margin-bottom:.85rem}
 .wide-open-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fde68a;margin-bottom:.2rem}
+
+/* ── Filter Drawer ── */
+.filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 900;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.filter-drawer {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  width: min(360px, 92vw);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.filter-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.filter-drawer-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.filter-drawer-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: .25rem .5rem;
+}
+.filter-drawer-close:hover { color: var(--text); }
+.filter-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.filter-group {}
+.filter-group-label {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .4rem;
+}
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+.filter-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: .25rem;
+  color: var(--text);
+  font-size: .72rem;
+  padding: .3rem .65rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-chip:hover { border-color: var(--accent); }
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0f1117;
+  font-weight: 700;
+}
+.filter-range-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.filter-slider {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.filter-range-val {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 2.5rem;
+  text-align: right;
+}
+.filter-active-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+.active-filter-chip {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border: 1px solid var(--accent);
+  border-radius: .2rem;
+  color: var(--accent);
+  font-size: .65rem;
+  padding: .2rem .5rem;
+}
+.filter-drawer-footer {
+  padding: .75rem 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: .5rem;
+  background: var(--surface2);
+}
+.filter-reset-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .25rem;
+  color: var(--muted);
+  font-size: .75rem;
+  padding: .45rem;
+  cursor: pointer;
+}
+.filter-reset-btn:hover { color: var(--text); }
+.filter-apply-btn {
+  flex: 2;
+  background: var(--accent);
+  border: none;
+  border-radius: .25rem;
+  color: #0f1117;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: .45rem;
+  cursor: pointer;
+}
+.filter-apply-btn:hover { opacity: .9; }

@@ -87,9 +87,10 @@
           <button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">✕</button>
         </div>
         <div class="control-actions">
+          <button class="ctrl-btn" id="btn-filters" title="Open advanced filter drawer">Filters ▾</button>
           <button class="ctrl-btn" id="btn-antipattern" title="Show only flagged players">Risk Flags</button>
           <button class="ctrl-btn" id="btn-debut" title="Show only debut players">Debuts</button>
-          <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset</button>
+          <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset All</button>
         </div>
       </div>
     </div>
@@ -118,7 +119,7 @@
             <th class="th-sort" data-col="top10_pct">Top 10% <span class="sort-ind">↕</span></th>
             <th class="th-sort" data-col="make_cut_pct">Cut % <span class="sort-ind">↕</span></th>
             <th class="th-sort" data-col="neutral_sg">Neutral SG <span class="sort-ind">↕</span></th>
-            <th title="Venue Fit Delta — course-specific SG adjustment vs. neutral baseline">VFD</th>
+            <th title="Fit Edge (★) = favorable venue profile · Fit Drag (▲) = unfavorable">Fit</th>
             <th title="Venue History Delta — SG delta from course history rounds">VHD</th>
             <th>Primary Driver</th>
             <th class="th-sort" data-col="flag_count">Flags <span class="sort-ind">↕</span></th>
@@ -168,6 +169,56 @@
       <button class="modal-close" id="glossary-close">✕</button>
     </div>
     <div class="glossary-body" id="glossary-body"></div>
+  </div>
+</div>
+
+<!-- Filter Drawer -->
+<div class="filter-overlay" id="filter-overlay" style="display:none">
+  <div class="filter-drawer" id="filter-drawer">
+    <div class="filter-drawer-header">
+      <span class="filter-drawer-title">Advanced Filters</span>
+      <button class="filter-drawer-close" id="filter-drawer-close">✕</button>
+    </div>
+    <div class="filter-drawer-body">
+      <div class="filter-group">
+        <div class="filter-group-label">Form Signal</div>
+        <div class="filter-chips">
+          <button class="filter-chip" id="fchip-hot" data-filter="hot">Hot Form 🔥</button>
+          <button class="filter-chip" id="fchip-cold" data-filter="cold">Cold Form ❄</button>
+          <button class="filter-chip" id="fchip-pos" data-filter="positive">Positive Form ↑</button>
+          <button class="filter-chip" id="fchip-neg" data-filter="negative">Negative Form ↓</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">VTS Minimum</div>
+        <div class="filter-range-row">
+          <input type="range" id="fslider-vts" min="0" max="90" step="1" value="0" class="filter-slider">
+          <span class="filter-range-val" id="fval-vts">0</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">Win % Minimum</div>
+        <div class="filter-range-row">
+          <input type="range" id="fslider-win" min="0" max="10" step="0.1" value="0" class="filter-slider">
+          <span class="filter-range-val" id="fval-win">0%</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">Neutral SG Minimum</div>
+        <div class="filter-range-row">
+          <input type="range" id="fslider-sg" min="-2" max="4" step="0.1" value="-2" class="filter-slider">
+          <span class="filter-range-val" id="fval-sg">—</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">Active Filters</div>
+        <div id="filter-active-chips" class="filter-active-chips"></div>
+      </div>
+    </div>
+    <div class="filter-drawer-footer">
+      <button class="filter-reset-btn" id="filter-reset">Reset All Filters</button>
+      <button class="filter-apply-btn" id="filter-apply">Apply</button>
+    </div>
   </div>
 </div>
 
