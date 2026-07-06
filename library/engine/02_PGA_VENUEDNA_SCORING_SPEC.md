@@ -234,6 +234,12 @@ Rules:
 Example venue rule:
 - If `bomb_and_spray` is active and `fairway_width_class = wide` and `green_speed_policy = no_softening_for_wind`, reduce penalty magnitude by a bounded venue-defined percentage because the venue still punishes misses but offers more corridor tolerance than the historical baseline.
 
+Setup-conditional sizing — confirmed JDC 2026 cases:
+- If `bomb_and_spray` is active and weekly conditions are classified `soft_wet` (rain-softened rough, `rough_moisture_class = wet`, or `adj_penalties < 0.20`), reduce the base penalty by 30–50%. The concept remains valid; the rough-liability component is neutralized when rough plays wet. Confirmed: 2026 JDC — bomb_and_spray over-penalized the eventual winner (OTT 1st, +5.41 SG) and a T6 finisher in soft/wet conditions.
+- If `rough_approach_liab` is active and the weekly rough is playing soft or wet (`fairway_hit_pct > 65%` OR `rough_moisture_class = wet`), reduce the base penalty by 20–40%. The structural punishment of this anti-pattern depends on rough severity; soft/wet rough materially reduces penalty applicability. Confirmed: 2026 JDC — rough_approach_liab over-penalized two top-10 finishers (Suber T6, Brennan T33) in soft conditions.
+
+These are venue-file-level modifiers, not global engine defaults. Each venue file must explicitly define the `soft_wet` trigger threshold and the modifier range.
+
 ### 7.2.2 Anti-pattern tier caps
 Venue files may define anti-pattern caps that limit maximum tier eligibility.
 
@@ -306,6 +312,21 @@ When stressor logic is active, the venue file or engine rule may authorize one o
 
 Probability discounts should be bounded and logged separately from anti-pattern penalties.
 
+### 7.6 Thin-VHD Tier 1 gate
+Players with fewer than 6 venue history rounds cannot positively support a Tier 1 designation by default.
+
+Rules:
+- VHD rounds < 6: VHD contribution must be capped at ±1.0 VTS points and may not carry positive Tier 1 support.
+- VHD rounds < 8 AND VHD score ≤ +1.0: Tier 1 eligibility is blocked unless the venue file provides an explicit override with documented justification.
+- The gate applies regardless of NeutralSkill or VenueFitDelta level. A high-skill player with thin venue history is a Tier 2 ceiling player until venue history depth is established.
+- Override condition: the venue file may unlock Tier 1 for a thin-VHD player only when the player's comp-course performance is explicitly strong and the override is logged in `tier_eligibility_gate_status`.
+
+Required storage:
+- vhd_thin_gate_active
+- vhd_gate_reason
+
+Evidence basis: 2026 JDC — the sole Tier 1 player with VHD rounds < 6 (4 rounds, VHD +0.024) missed the cut. VHD directional accuracy at ≥6 rounds was 100% in the same event.
+
 ## 8. Variance layer
 This engine must not operate as a pure point-estimate model.
 
@@ -366,10 +387,11 @@ Tier assignment must honor hard eligibility rules before final publication.
 Precedence order:
 1. Health gate
 2. Venue-specific anti-pattern cap
-3. VenueFit minimum threshold when defined
-4. Debut cap when defined
-5. Recent-form hard ceiling
-6. Final VTS band
+3. Thin-VHD Tier 1 gate when VHD rounds < 8 and VHD score ≤ +1.0 (see section 7.6)
+4. VenueFit minimum threshold when defined
+5. Debut cap when defined
+6. Recent-form hard ceiling
+7. Final VTS band
 
 A player may have a Tier 1-caliber raw score and still publish as Tier 2 or Tier 3 if an eligibility gate is active.
 

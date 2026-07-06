@@ -129,3 +129,55 @@ Wallace, Matt, Kim, Tom, Fowler, Rickie, Gotterup, Chris, Bridgeman, Jacob, Brad
 ---
 
 *Scoring spec: v1.1 | Learning loop: v1.1 | Engine: PGA_VenueDNA_Tier_Engine_v1*
+
+---
+
+## POST-EVENT WRITE-BACK BLOCK — 2026 JDC Final Audit
+*Appended: 2026-07-05 | Source: 2026_JDC_audit_postmortem.md | Confidence: HIGH*
+
+### Venue DNA — Confirmed
+
+**Birdie-fest conversion venue: CONFIRMED.**
+Tournament scoring (-20 winner, -2 cut) validates the pre-tournament difficulty class. Par 5 holes (2, 10, 17) and short par-4 hole 14 were the primary birdie sources. Putting was the single strongest SG differentiator among top finishers (Hodges 1st: +8.93, Meissner 2nd: +8.41, Gotterup 5th: +5.40). Core DNA traits confirmed: APP_Wedge, Putt_Short_Conv, Par5_Scoring. No trait weight changes warranted from this event alone.
+
+### Anti-Pattern Status
+
+**bomb_and_spray — CONCEPT VALID. SIZING NOW SETUP-CONDITIONAL.**
+
+| Player | Penalty Applied | Actual Finish | OTT SG | Conditions | Verdict |
+|--------|----------------|---------------|--------|------------|---------|
+| Gotterup | -2.67 SG | 1st (WON) | +5.41 (1st) | Soft/wet | OVER-PENALIZED |
+| Meissner | -1.10 SG | T6 | +0.29 (38th) | Soft/wet | OVER-PENALIZED |
+| Spieth | -1.24 SG | T58 | -0.95 (56th) | Soft/wet | CORRECT (direction validated) |
+
+Write-back applied: on soft/wet Deere weeks — weekly FW% > 65%, rough_moisture_class = wet, or adj_penalties < 0.20 — reduce bomb_and_spray base penalty by **30–50%**. The concept is correct under standard dry conditions. Soft rough at Deere's already-low miss_fw_pen_frac (0.0264) materially neutralizes the structural punishment.
+
+**rough_approach_liab — CONCEPT VALID. SIZING NOW SETUP-CONDITIONAL.**
+
+| Player | Penalty Applied | Actual Finish | ARG/App SG | Conditions | Verdict |
+|--------|----------------|---------------|------------|------------|---------|
+| Suber | -1.11 SG | T6 | App +3.73 (16th) | Soft/wet | OVER-PENALIZED |
+| Brennan | -1.39 SG | T33 | App +4.44 (13th) | Soft/wet | OVER-PENALIZED |
+| Poston | -1.18 SG | T51 | App -2.11 (69th) | Soft/wet | CORRECT |
+| Yellamaraju | -1.11 SG | CUT | N/A (cut) | Soft/wet | CORRECT (direction) |
+
+Write-back applied: on soft/wet Deere weeks (same conditions class as bomb_and_spray modifier), reduce rough_approach_liab base penalty by **20–40%**. Low rough severity in wet conditions reduces the structural approach-from-rough demand.
+
+### VHD Gate — Applied
+
+VHD directional accuracy at ≥6 rounds in this event: 5/5 (100%). VHD with <6 rounds (Koivun, 4 rounds, VHD +0.024) produced the only Tier 1 failure (CUT). Write-back applied to scoring spec: VHD rounds < 6 caps contribution at ±1.0 VTS points and cannot support Tier 1. VHD rounds < 8 AND VHD ≤ +1.0 blocks Tier 1 by default.
+
+### Tier 3 Probability Review — Monitoring Flag
+
+5 of 11 top-10 finishers were Tier 3 players. VTS compressed Tier 3 ceiling too aggressively at this birdie-fest profile. No hard rule change applied — flagged for probability calibration review across 2+ birdie-fest events. At next Deere Run event, apply an explicit Tier 3 top-10 probability floor uplift if venue scoring profile is again classified birdie-fest.
+
+### Venue File Status: 2026 Final
+
+| Component | Status |
+|-----------|--------|
+| DNA traits | CONFIRMED — no weight changes |
+| bomb_and_spray anti-pattern | VALID — soft-week modifier added |
+| rough_approach_liab anti-pattern | VALID — soft-week modifier added |
+| VHD gate | NEW RULE applied to scoring spec |
+| Tier 3 probability floor | MONITORING — not yet adjusted |
+| Comp courses | HOLD — needs 2+ events to recalibrate VFD at birdie-fest venues |

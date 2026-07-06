@@ -300,6 +300,7 @@ Review:
 - were Tier 4 and Tier 5 make-cut probabilities too pessimistic?
 - were longshot top-10 outcomes underrepresented?
 - did high-variance venues flatten outcomes more than the model expected?
+- at birdie-fest venues (high birdie conversion rate, scoring profile easy-to-standard, `venue_variance_class = standard`), were Tier 3 top-10 probability bands set too low? Birdie-fests compress the NeutralSkill advantage gap; Tier 3 players require higher top-10 probability floors at these venues than at tight or penal tracks. Flag for review when 4+ Tier 3 players finish in the top 10 at a birdie-fest venue.
 
 Where possible, probability review should compare predicted bands to realized frequencies over multiple events, not one event alone.
 
