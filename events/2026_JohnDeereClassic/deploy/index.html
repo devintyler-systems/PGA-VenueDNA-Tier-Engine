@@ -26,8 +26,16 @@
   </div>
 </header>
 
+<!-- ── Page tab nav ── -->
+<nav class="page-tab-nav" id="page-tab-nav">
+  <div class="page-tab-nav-inner">
+    <button class="page-tab active" data-tab="pre">Pre-Tournament Board</button>
+    <button class="page-tab" data-tab="final">Final Tournament</button>
+  </div>
+</nav>
+
 <!-- ── Info strip: Venue DNA | Weather | Model Snapshot ── -->
-<div class="info-strip">
+<div class="info-strip" data-tab-group="pre">
   <div class="info-strip-inner">
     <div class="venue-dna-card"><div class="info-card-title">Venue DNA</div><div style="color:var(--muted);font-size:.75rem">Loading…</div></div>
     <div class="weather-card"><div class="info-card-title">Weather Lock</div><div style="color:var(--muted);font-size:.75rem">Loading…</div></div>
@@ -36,12 +44,12 @@
 </div>
 
 <!-- ── Winner spotlight ── -->
-<div class="winner-section">
+<div class="winner-section" data-tab-group="pre">
   <div class="winner-inner">Loading…</div>
 </div>
 
 <!-- ── Decision Board — 3 Frames of Reference ── -->
-<section class="decision-board-section">
+<section class="decision-board-section" data-tab-group="pre">
   <div class="section-inner">
     <div class="section-title">Decision Board — Three Frames of Reference</div>
     <div id="decision-board">Loading…</div>
@@ -49,7 +57,7 @@
 </section>
 
 <!-- ── Trait weight matrix ── -->
-<section class="weights-section">
+<section class="weights-section" data-tab-group="pre">
   <div class="section-inner">
     <div class="section-title">Trait Weight Matrix — Weather-Adjusted</div>
     <div class="weights-panel">Loading…</div>
@@ -57,7 +65,7 @@
 </section>
 
 <!-- ── Anti-pattern panel ── -->
-<section class="ap-section">
+<section class="ap-section" data-tab-group="pre">
   <div class="section-inner">
     <div class="section-title">Anti-Pattern Panel</div>
     <div class="ap-panel">Loading…</div>
@@ -65,7 +73,7 @@
 </section>
 
 <!-- ── Tier architecture ── -->
-<section class="tiers-section">
+<section class="tiers-section" data-tab-group="pre">
   <div class="section-inner">
     <div class="section-title">Tier Architecture</div>
     <div class="tier-dist-row"></div>
@@ -74,7 +82,7 @@
 </section>
 
 <!-- ── Full-field table ── -->
-<section class="table-section">
+<section class="table-section" data-tab-group="pre">
   <div class="section-inner">
     <div class="section-title">Full-Field Rankings</div>
 
@@ -139,9 +147,106 @@
 </section>
 
 <!-- ── Audit footer ── -->
-<footer class="audit-footer">
+<footer class="audit-footer" data-tab-group="pre">
   <div class="audit-inner">Loading…</div>
 </footer>
+
+<!-- ── Final Tournament Tab Panel ── -->
+<div id="final-tournament-panel" data-tab-group="final" style="display:none">
+  <div class="ft-panel">
+    <!-- A: Final Leaderboard -->
+    <section class="ft-section">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Final Leaderboard</div>
+        <div class="ft-lb-controls">
+          <div class="ft-search-wrap">
+            <span class="ft-search-icon">⌕</span>
+            <input type="text" id="ft-search" class="ft-search-input" placeholder="Search player…" autocomplete="off" />
+          </div>
+          <select id="ft-tier-filter" class="ft-select">
+            <option value="all">All Tiers</option>
+            <option value="1">Tier 1</option>
+            <option value="2">Tier 2</option>
+            <option value="3">Tier 3</option>
+            <option value="4">Tier 4</option>
+            <option value="5">Tier 5</option>
+            <option value="cut">CUT</option>
+          </select>
+          <select id="ft-sort" class="ft-select">
+            <option value="pos">Sort: Position</option>
+            <option value="r4">Sort: R4</option>
+            <option value="sg">Sort: SG Total</option>
+          </select>
+        </div>
+        <div class="ft-table-wrap" id="ft-lb-table-wrap">
+          <div id="ft-lb-loading" class="ft-loading">Loading leaderboard…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- B: SG Dashboard -->
+    <section class="ft-section ft-section-alt">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Strokes Gained Dashboard — Top 10</div>
+        <div class="ft-sg-layout">
+          <div class="ft-sg-chart-wrap">
+            <canvas id="ft-sg-chart" height="320"></canvas>
+          </div>
+          <div class="ft-sg-sidebar">
+            <div class="ft-sg-callouts" id="ft-sg-callouts"></div>
+            <div class="ft-sg-cat-leaders" id="ft-sg-cat-leaders"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- C: Model Scorecard -->
+    <section class="ft-section">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Model Scorecard</div>
+        <div class="ft-scorecard-grid" id="ft-scorecard-grid"></div>
+      </div>
+    </section>
+
+    <!-- D: Winner Profile -->
+    <section class="ft-section ft-section-alt">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Winner Profile — Chris Gotterup</div>
+        <div id="ft-winner-profile"></div>
+      </div>
+    </section>
+
+    <!-- E: Miss Log -->
+    <section class="ft-section">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Notable Miss Log</div>
+        <div class="ft-table-wrap" id="ft-miss-log-wrap"></div>
+      </div>
+    </section>
+
+    <!-- F: Course DNA -->
+    <section class="ft-section ft-section-alt">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Course DNA Confirmation</div>
+        <div class="ft-dna-layout">
+          <div id="ft-dna-traits"></div>
+          <div class="ft-hole-chart-wrap">
+            <div class="ft-sub-title">Hole-by-Hole Birdie Production</div>
+            <canvas id="ft-hole-chart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- G: Write-Back Flags -->
+    <section class="ft-section">
+      <div class="ft-section-inner">
+        <div class="ft-section-title">Write-Back Recommendations</div>
+        <div class="ft-wb-grid" id="ft-wb-grid"></div>
+      </div>
+    </section>
+  </div>
+</div>
 
 <!-- ── Site footer ── -->
 <footer class="site-footer"></footer>
@@ -171,6 +276,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

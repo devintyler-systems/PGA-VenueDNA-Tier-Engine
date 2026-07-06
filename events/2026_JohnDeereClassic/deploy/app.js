@@ -2273,3 +2273,496 @@ function renderDecisionBoard() {
 
 /* ── Boot ── */
 document.addEventListener('DOMContentLoaded', init);
+
+/* ══════════════════════════════════════════════════════
+   FINAL TOURNAMENT MODULE
+   ══════════════════════════════════════════════════════ */
+
+/* ── Tab switching ── */
+function initPageTabs() {
+  const tabs = document.querySelectorAll('.page-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.tab;
+      document.querySelectorAll('[data-tab-group]').forEach(el => {
+        el.style.display = el.dataset.tabGroup === target ? '' : 'none';
+      });
+      if (target === 'final' && !window._ftBuilt) {
+        window._ftBuilt = true;
+        buildFinalTournament();
+      }
+    });
+  });
+}
+
+/* ── Embedded tournament data ── */
+const FT_LEADERBOARD = [
+  {pos:'1',player:'Chris Gotterup',total:'-20',r1:66,r2:68,r3:68,r4:62,strokes:264,tier:2,sg_total:12.91},
+  {pos:'2',player:'Max Homa',total:'-19',r1:67,r2:66,r3:68,r4:64,strokes:265,tier:2,sg_total:11.91},
+  {pos:'T3',player:'Lucas Glover',total:'-18',r1:63,r2:65,r3:69,r4:69,strokes:266,tier:3,sg_total:10.91},
+  {pos:'T3',player:'Lee Hodges',total:'-18',r1:64,r2:66,r3:67,r4:69,strokes:266,tier:3,sg_total:10.91},
+  {pos:'T3',player:'Ben Kohles',total:'-18',r1:65,r2:67,r3:66,r4:68,strokes:266,tier:3,sg_total:10.91},
+  {pos:'T6',player:'Mac Meissner',total:'-17',r1:67,r2:70,r3:66,r4:64,strokes:267,tier:2,sg_total:9.91},
+  {pos:'T6',player:'Jackson Suber',total:'-17',r1:68,r2:64,r3:66,r4:69,strokes:267,tier:2,sg_total:9.91},
+  {pos:'T6',player:'Doug Ghim',total:'-17',r1:69,r2:65,r3:65,r4:68,strokes:267,tier:2,sg_total:9.91},
+  {pos:'T9',player:'Ryo Hisatsune',total:'-16',r1:67,r2:65,r3:69,r4:67,strokes:268,tier:3,sg_total:8.91},
+  {pos:'T9',player:'Zach Johnson',total:'-16',r1:64,r2:70,r3:66,r4:68,strokes:268,tier:2,sg_total:8.91},
+  {pos:'T9',player:'Zac Blair',total:'-16',r1:63,r2:68,r3:67,r4:70,strokes:268,tier:3,sg_total:8.91},
+  {pos:'T12',player:'Christiaan Bezuidenhout',total:'-15',r1:68,r2:68,r3:68,r4:65,strokes:269,tier:2,sg_total:7.91},
+  {pos:'T12',player:'Tyler Duncan',total:'-15',r1:66,r2:66,r3:71,r4:66,strokes:269,tier:3,sg_total:7.91},
+  {pos:'T12',player:'Blades Brown',total:'-15',r1:69,r2:66,r3:67,r4:67,strokes:269,tier:3,sg_total:7.91},
+  {pos:'T15',player:'Kevin Yu',total:'-14',r1:66,r2:72,r3:66,r4:66,strokes:270,tier:3,sg_total:6.91},
+  {pos:'T15',player:'Stephan Jaeger',total:'-14',r1:64,r2:72,r3:68,r4:66,strokes:270,tier:3,sg_total:6.91},
+  {pos:'T15',player:'Matt Kuchar',total:'-14',r1:72,r2:66,r3:65,r4:67,strokes:270,tier:4,sg_total:6.91},
+  {pos:'T15',player:'Rickie Fowler',total:'-14',r1:70,r2:69,r3:63,r4:68,strokes:270,tier:2,sg_total:6.91},
+  {pos:'T15',player:'Chandler Phillips',total:'-14',r1:69,r2:67,r3:65,r4:69,strokes:270,tier:3,sg_total:6.91},
+  {pos:'T21',player:'Harry Higgs',total:'-13',r1:67,r2:68,r3:69,r4:67,strokes:271,tier:3,sg_total:5.91},
+  {pos:'T21',player:'Ben Griffin',total:'-13',r1:69,r2:65,r3:70,r4:67,strokes:271,tier:1,sg_total:5.91},
+  {pos:'T21',player:'Zecheng Dou',total:'-13',r1:67,r2:69,r3:68,r4:67,strokes:271,tier:3,sg_total:5.91},
+  {pos:'T21',player:'David Lipsky',total:'-13',r1:67,r2:65,r3:71,r4:68,strokes:271,tier:3,sg_total:5.91},
+  {pos:'T21',player:'Troy Merritt',total:'-13',r1:66,r2:66,r3:70,r4:69,strokes:271,tier:3,sg_total:5.91},
+  {pos:'T26',player:'Keegan Bradley',total:'-12',r1:70,r2:69,r3:69,r4:64,strokes:272,tier:2,sg_total:4.91},
+  {pos:'T26',player:'Jacob Bridgeman',total:'-12',r1:67,r2:70,r3:68,r4:67,strokes:272,tier:2,sg_total:4.91},
+  {pos:'T26',player:'Davis Thompson',total:'-12',r1:69,r2:69,r3:66,r4:68,strokes:272,tier:3,sg_total:4.91},
+  {pos:'T26',player:'Pontus Nyholm',total:'-12',r1:68,r2:66,r3:69,r4:69,strokes:272,tier:4,sg_total:4.91},
+  {pos:'T26',player:'Erik van Rooyen',total:'-12',r1:70,r2:69,r3:64,r4:69,strokes:272,tier:3,sg_total:4.91},
+  {pos:'T26',player:'Emiliano Grillo',total:'-12',r1:70,r2:66,r3:67,r4:69,strokes:272,tier:3,sg_total:4.91},
+  {pos:'T26',player:'William Mouw',total:'-12',r1:66,r2:68,r3:68,r4:70,strokes:272,tier:3,sg_total:4.91},
+  {pos:'T33',player:'Matt Wallace',total:'-11',r1:67,r2:71,r3:70,r4:65,strokes:273,tier:2,sg_total:3.91},
+  {pos:'T33',player:'Michael Brennan',total:'-11',r1:66,r2:68,r3:72,r4:67,strokes:273,tier:2,sg_total:3.91},
+  {pos:'T33',player:'Nick Dunlap',total:'-11',r1:67,r2:72,r3:67,r4:67,strokes:273,tier:3,sg_total:3.91},
+  {pos:'T33',player:'Davis Chatfield',total:'-11',r1:69,r2:66,r3:70,r4:68,strokes:273,tier:4,sg_total:3.91},
+  {pos:'T33',player:'David Skinns',total:'-11',r1:72,r2:67,r3:66,r4:68,strokes:273,tier:3,sg_total:3.91},
+  {pos:'T33',player:'Tom Hoge',total:'-11',r1:73,r2:64,r3:67,r4:69,strokes:273,tier:3,sg_total:3.91},
+  {pos:'T39',player:'Eric Cole',total:'-10',r1:76,r2:63,r3:70,r4:65,strokes:274,tier:2,sg_total:2.91},
+  {pos:'T39',player:'Lanto Griffin',total:'-10',r1:67,r2:72,r3:69,r4:66,strokes:274,tier:3,sg_total:2.91},
+  {pos:'T39',player:'Trace Crowe',total:'-10',r1:69,r2:69,r3:69,r4:67,strokes:274,tier:3,sg_total:2.91},
+  {pos:'T39',player:'Karl Vilips',total:'-10',r1:72,r2:65,r3:68,r4:69,strokes:274,tier:3,sg_total:2.91},
+  {pos:'T39',player:'Pierceson Coody',total:'-10',r1:69,r2:68,r3:67,r4:70,strokes:274,tier:3,sg_total:2.91},
+  {pos:'T39',player:'Beau Hossler',total:'-10',r1:70,r2:67,r3:66,r4:71,strokes:274,tier:2,sg_total:2.91},
+  {pos:'T39',player:'Aaron Wise',total:'-10',r1:66,r2:69,r3:67,r4:72,strokes:274,tier:3,sg_total:2.91},
+  {pos:'T46',player:'Mackenzie Hughes',total:'-9',r1:72,r2:67,r3:70,r4:66,strokes:275,tier:3,sg_total:1.91},
+  {pos:'T46',player:'Joel Dahmen',total:'-9',r1:66,r2:71,r3:71,r4:67,strokes:275,tier:3,sg_total:1.91},
+  {pos:'T46',player:'Keita Nakajima',total:'-9',r1:70,r2:69,r3:68,r4:68,strokes:275,tier:3,sg_total:1.91},
+  {pos:'T46',player:'Mark Hubbard',total:'-9',r1:72,r2:67,r3:68,r4:68,strokes:275,tier:3,sg_total:1.91},
+  {pos:'T46',player:'Tom Kim',total:'-9',r1:67,r2:68,r3:69,r4:71,strokes:275,tier:2,sg_total:1.91},
+  {pos:'T51',player:'Adrien Dumont de Chassart',total:'-8',r1:72,r2:67,r3:71,r4:66,strokes:276,tier:3,sg_total:0.91},
+  {pos:'T51',player:'Max McGreevy',total:'-8',r1:71,r2:68,r3:69,r4:68,strokes:276,tier:3,sg_total:0.91},
+  {pos:'T51',player:'Keith Mitchell',total:'-8',r1:73,r2:66,r3:69,r4:68,strokes:276,tier:2,sg_total:0.91},
+  {pos:'T51',player:'J.T. Poston',total:'-8',r1:68,r2:69,r3:71,r4:68,strokes:276,tier:2,sg_total:0.91},
+  {pos:'T51',player:'Luke Gutschewski',total:'-8',r1:67,r2:68,r3:72,r4:69,strokes:276,tier:3,sg_total:0.91},
+  {pos:'T51',player:'Chan Kim',total:'-8',r1:68,r2:67,r3:71,r4:70,strokes:276,tier:3,sg_total:0.91},
+  {pos:'T51',player:'Andrew Putnam',total:'-8',r1:67,r2:68,r3:67,r4:74,strokes:276,tier:3,sg_total:0.91},
+  {pos:'T58',player:'Jordan Spieth',total:'-7',r1:70,r2:69,r3:69,r4:69,strokes:277,tier:2,sg_total:-0.09},
+  {pos:'T58',player:'Austin Eckroat',total:'-7',r1:71,r2:67,r3:69,r4:70,strokes:277,tier:3,sg_total:-0.09},
+  {pos:'T58',player:'Hayden Springer',total:'-7',r1:66,r2:68,r3:71,r4:72,strokes:277,tier:3,sg_total:-0.09},
+  {pos:'T58',player:'Peter Malnati',total:'-7',r1:71,r2:66,r3:69,r4:71,strokes:277,tier:4,sg_total:-0.09},
+  {pos:'T58',player:'Tony Finau',total:'-7',r1:70,r2:68,r3:68,r4:71,strokes:277,tier:2,sg_total:-0.09},
+  {pos:'T58',player:'Austin Smotherman',total:'-7',r1:66,r2:69,r3:70,r4:72,strokes:277,tier:3,sg_total:-0.09},
+  {pos:'64',player:'Will Gordon',total:'-6',r1:70,r2:69,r3:71,r4:68,strokes:278,tier:3,sg_total:-1.09},
+  {pos:'T65',player:'Camilo Villegas',total:'-5',r1:71,r2:67,r3:73,r4:68,strokes:279,tier:4,sg_total:-2.09},
+  {pos:'T65',player:'Davis Riley',total:'-5',r1:65,r2:72,r3:71,r4:71,strokes:279,tier:3,sg_total:-2.09},
+  {pos:'T67',player:'Zach Bauchou',total:'-4',r1:69,r2:70,r3:72,r4:69,strokes:280,tier:2,sg_total:-3.09},
+  {pos:'T67',player:'Rafael Campos',total:'-4',r1:66,r2:71,r3:72,r4:71,strokes:280,tier:3,sg_total:-3.09},
+  {pos:'T67',player:'Steven Fisk',total:'-4',r1:68,r2:68,r3:73,r4:71,strokes:280,tier:2,sg_total:-3.09},
+  {pos:'T67',player:'Patrick Fishburn',total:'-4',r1:65,r2:71,r3:71,r4:73,strokes:280,tier:3,sg_total:-3.09},
+  {pos:'T71',player:'Jonathan Byrd',total:'-3',r1:69,r2:70,r3:72,r4:70,strokes:281,tier:4,sg_total:-4.09},
+  {pos:'T71',player:'A.J. Ewart',total:'-3',r1:67,r2:72,r3:70,r4:72,strokes:281,tier:3,sg_total:-4.09},
+  {pos:'T71',player:'Sungjae Im',total:'-3',r1:68,r2:69,r3:68,r4:76,strokes:281,tier:2,sg_total:-4.09},
+  {pos:'T74',player:'Fabián Gómez',total:'-2',r1:72,r2:67,r3:75,r4:68,strokes:282,tier:4,sg_total:-5.09},
+  {pos:'T74',player:'Nicholas Lindheim',total:'-2',r1:69,r2:68,r3:76,r4:69,strokes:282,tier:4,sg_total:-5.09},
+  {pos:'T74',player:'Michael Feagles',total:'-2',r1:69,r2:70,r3:74,r4:69,strokes:282,tier:4,sg_total:-5.09},
+  {pos:'77',player:'Ryan Voois',total:'E',r1:68,r2:70,r3:72,r4:74,strokes:284,tier:4,sg_total:-7.09},
+  {pos:'78',player:'Gordon Sargent',total:'+2',r1:67,r2:69,r3:74,r4:76,strokes:286,tier:5,sg_total:-9.09},
+  {pos:'79',player:'Ryan Brehm',total:'+4',r1:68,r2:69,r3:77,r4:74,strokes:288,tier:5,sg_total:-11.09},
+  {pos:'CUT',player:'Jackson Koivun',total:'+1',r1:73,r2:70,r3:null,r4:null,strokes:143,tier:1,sg_total:null},
+  {pos:'CUT',player:'Michael Thorbjornsen',total:'-2',r1:68,r2:72,r3:null,r4:null,strokes:140,tier:2,sg_total:null},
+  {pos:'CUT',player:'Denny McCarthy',total:'E',r1:71,r2:71,r3:null,r4:null,strokes:142,tier:2,sg_total:null},
+];
+
+const FT_SG_TOP10 = [
+  {player:'Gotterup',ott:5.413,app:-0.042,atg:2.132,putt:5.406,total:12.91},
+  {player:'Homa',ott:1.593,app:3.434,atg:3.819,putt:3.063,total:11.91},
+  {player:'Glover',ott:-0.27,app:9.047,atg:2.012,putt:0.12,total:10.91},
+  {player:'Hodges',ott:2.285,app:-0.709,atg:0.405,putt:8.928,total:10.91},
+  {player:'Kohles',ott:1.978,app:3.679,atg:2.895,putt:2.357,total:10.91},
+  {player:'Meissner',ott:0.289,app:1.026,atg:0.189,putt:8.405,total:9.91},
+  {player:'Suber',ott:3.104,app:3.727,atg:2.501,putt:0.577,total:9.91},
+  {player:'Ghim',ott:2.126,app:2.323,atg:1.201,putt:4.259,total:9.91},
+  {player:'Hisatsune',ott:1.455,app:2.479,atg:1.796,putt:3.179,total:8.91},
+  {player:'Z.Johnson',ott:0.149,app:3.042,atg:1.502,putt:4.216,total:8.91},
+  {player:'Blair',ott:-2.117,app:5.616,atg:0.051,putt:5.359,total:8.91},
+];
+
+const FT_COURSE_STATS = [
+  {hole:1,par:4,yards:416,avg:3.883,pm:-0.117,eagles:0,birdies:104,pars:294,bogeys:42,dbl:5},
+  {hole:2,par:5,yards:561,avg:4.380,pm:-0.620,eagles:37,birdies:231,pars:151,bogeys:23,dbl:3},
+  {hole:3,par:3,yards:186,avg:3.025,pm:0.025,eagles:0,birdies:58,pars:320,bogeys:65,dbl:2},
+  {hole:4,par:4,yards:492,avg:4.169,pm:0.169,eagles:0,birdies:45,pars:288,bogeys:105,dbl:7},
+  {hole:5,par:4,yards:433,avg:3.865,pm:-0.135,eagles:2,birdies:104,pars:295,bogeys:40,dbl:4},
+  {hole:6,par:4,yards:367,avg:3.874,pm:-0.126,eagles:1,birdies:106,pars:289,bogeys:46,dbl:3},
+  {hole:7,par:3,yards:226,avg:3.043,pm:0.043,eagles:0,birdies:53,pars:324,bogeys:64,dbl:4},
+  {hole:8,par:4,yards:428,avg:3.901,pm:-0.099,eagles:1,birdies:96,pars:295,bogeys:52,dbl:1},
+  {hole:9,par:4,yards:503,avg:4.211,pm:0.211,eagles:0,birdies:45,pars:275,bogeys:115,dbl:10},
+  {hole:10,par:5,yards:596,avg:4.694,pm:-0.306,eagles:3,birdies:166,pars:245,bogeys:26,dbl:5},
+  {hole:11,par:4,yards:432,avg:3.984,pm:-0.016,eagles:0,birdies:79,pars:300,bogeys:60,dbl:6},
+  {hole:12,par:3,yards:215,avg:3.054,pm:0.054,eagles:0,birdies:55,pars:324,bogeys:56,dbl:10},
+  {hole:13,par:4,yards:424,avg:3.894,pm:-0.106,eagles:2,birdies:84,pars:320,bogeys:37,dbl:2},
+  {hole:14,par:4,yards:361,avg:3.672,pm:-0.328,eagles:5,birdies:167,pars:247,bogeys:23,dbl:3},
+  {hole:15,par:4,yards:484,avg:4.079,pm:0.079,eagles:0,birdies:73,pars:278,bogeys:81,dbl:13},
+  {hole:16,par:3,yards:158,avg:2.946,pm:-0.054,eagles:1,birdies:85,pars:301,bogeys:53,dbl:5},
+  {hole:17,par:5,yards:569,avg:4.519,pm:-0.481,eagles:19,birdies:205,pars:194,bogeys:25,dbl:2},
+  {hole:18,par:4,yards:476,avg:4.137,pm:0.137,eagles:0,birdies:53,pars:295,bogeys:81,dbl:16},
+];
+
+const FT_WRITEBACKS = [
+  {id:'WB-2026-JDC-001',layer:'ANTI_PATTERN',confidence:'HIGH',current:'bomb_and_spray penalty applied at full weight regardless of course conditions',proposed:'Add soft/wet week modifier: reduce bomb_and_spray penalty 30–50% when FW% > 65% or course plays wet.',evidence:'Gotterup (bomb_and_spray → -2.67 SG) WON at -20. OTT 1st (+5.41). Meissner T6. Soft conditions neutered rough liability.'},
+  {id:'WB-2026-JDC-002',layer:'VFD',confidence:'MEDIUM',current:'VFD weight held constant at venue-fit blend regardless of scoring profile',proposed:'At birdie-fest flat venues (Deere Run profile), reduce VFD weight 0.05 and transfer to NeutralSkill.',evidence:'Top-10 split across wide VFD range (-24.75 to +3.98). NeutralSkill SG correlated more cleanly with finish.'},
+  {id:'WB-2026-JDC-003',layer:'DEBUT',confidence:'LOW',current:'B-class debut penalty: -1.75 SG applied uniformly',proposed:'Track B-class debut outcomes across 5+ events. Potential graduated penalty by data depth class.',evidence:'Brennan (debut B) finished T33, approach 13th (+4.44 SG). Over-penalized. Yellamaraju CUT — directionally correct.'},
+  {id:'WB-2026-JDC-004',layer:'VHD',confidence:'HIGH',current:'VHD contributes at standard weight regardless of rounds history depth',proposed:'VHD rounds < 6 → widen variance band; cap VHD contribution at ±1.0 VTS pts.',evidence:'Koivun (Tier 1, VHD only 4 rounds, delta +0.024) missed cut at +1. Thin VHD = false confidence.'},
+  {id:'WB-2026-JDC-005',layer:'NEUTRAL_SKILL',confidence:'MEDIUM',current:'ATG weight in NeutralSkill not venue-specific',proposed:'Increase ATG weight 5–10% at Deere Run profile venues (short par-4s, high wedge volume).',evidence:'Homa ATG 2nd (+3.82). Phillips ATG 1st (+4.56, T15). ATG consistently over-delivered vs. NeutralSkill projection.'},
+  {id:'WB-2026-JDC-006',layer:'VHD',confidence:'HIGH',current:'No Tier 1 gate for thin VHD players',proposed:'Tier 1 gate: require VHD rounds ≥8 OR VHD >+1.0. Without it, Tier 1 is unsupported by venue signal.',evidence:'Koivun sole Tier 1 miss. Only 4 venue history rounds. VHD +0.024. Insufficient to support Tier 1.'},
+];
+
+const FT_MISS_LOG = [
+  {player:'Jackson Koivun',tier:1,vts_rank:1,win_pct:'3.15%',top10_pct:'82.3%',finish:'CUT',miss_type:'CRITICAL MISS',layer:'VHD',wb:'WB-2026-JDC-004, 006'},
+  {player:'Michael Thorbjornsen',tier:2,vts_rank:14,win_pct:'1.36%',top10_pct:'53.8%',finish:'CUT',miss_type:'CUT MISS',layer:'VARIANCE',wb:'—'},
+  {player:'Denny McCarthy',tier:2,vts_rank:17,win_pct:'1.29%',top10_pct:'51.8%',finish:'CUT',miss_type:'CUT MISS',layer:'VARIANCE',wb:'—'},
+  {player:'Michael Kim',tier:2,vts_rank:16,win_pct:'1.32%',top10_pct:'52.1%',finish:'CUT',miss_type:'CUT MISS',layer:'VARIANCE',wb:'—'},
+  {player:'Max Greyserman',tier:2,vts_rank:23,win_pct:'1.24%',top10_pct:'49.6%',finish:'CUT',miss_type:'CUT MISS',layer:'VARIANCE',wb:'—'},
+];
+
+const FT_DNA_TRAITS = [
+  {trait:'Par 5 Attack / Birdie-Fest Scoring',priority:'HIGH',evidence:'Hole 17: 205 birdies (most of any hole). Hole 14: 167 birdies (2nd most, par-4 playing as eagle hole). Holes 2, 10, 14, 17 generated 769 combined birdies.',status:'CONFIRMED'},
+  {trait:'Putting Premium',priority:'HIGH',evidence:'Hodges putting 1st (+8.93). Meissner putting 2nd (+8.41). Gotterup putting 5th (+5.41). 3 of top-6 finishers had top-5 putting SG. Strongest DNA signal confirmed.',status:'CONFIRMED'},
+  {trait:'OTT Importance',priority:'MODERATE',evidence:'Gotterup OTT 1st (+5.41). Suber OTT 7th (+3.10). But putting was more dominant. OTT important but secondary to putting in soft conditions.',status:'CONFIRMED'},
+  {trait:'Approach Proximity',priority:'MODERATE',evidence:'Glover approach 1st (+9.05). Kohles 18th (+3.68). Homa 20th (+3.43). Approach leaders clustered in top 10. Trait confirmed.',status:'CONFIRMED'},
+  {trait:'Bomb-and-Spray Risk',priority:'ANTI-PATTERN',evidence:'Gotterup won despite bomb_and_spray flag (-2.67 SG penalty). Meissner T6 despite flag. Soft conditions neutered rough liability penalty. Pattern needs conditions-conditioned modifier.',status:'CHALLENGED'},
+];
+
+const FT_SCORECARD = [
+  {label:'Tier 1 Coverage Rate',value:'50%',detail:'1/2 T1 players: Griffin T21 (PARTIAL HIT). Koivun MISS (CUT).',status:'warn'},
+  {label:'Tier 2 Hit+Partial Rate',value:'70%',detail:'28/40 T2 players: 6 HIT, 22 PARTIAL HIT, 9 MISS, 3 JUSTIFIED MISS.',status:'pass'},
+  {label:'Top-10 Coverage',value:'54.5%',detail:'6 of 11 top-10 finishers were T1/T2. 5 Tier 3 players cracked top 10.',status:'warn'},
+  {label:'Anti-Pattern Accuracy',value:'43%',detail:'3/7 key cases over-penalized. Soft conditions reduced rough liability impact.',status:'warn'},
+  {label:'Cut Model',value:'PASS',detail:'Center 48% / steepness 0.07 appropriate. Koivun miss is VHD quality issue, not center parameter issue.',status:'pass'},
+  {label:'Debut Accuracy (B-class)',value:'67%',detail:'2/3 directionally correct. Brennan T33 outperformed — over-penalized.',status:'pass'},
+];
+
+/* ── Build Final Tournament UI ── */
+function buildFinalTournament() {
+  buildFTLeaderboard();
+  buildFTSGChart();
+  buildFTScorecard();
+  buildFTWinnerProfile();
+  buildFTMissLog();
+  buildFTDNA();
+  buildFTWritebacks();
+}
+
+/* A: Leaderboard */
+function buildFTLeaderboard() {
+  const wrap = document.getElementById('ft-lb-table-wrap');
+  if (!wrap) return;
+
+  const allData = FT_LEADERBOARD;
+
+  function posNum(p) {
+    if (p === 'CUT' || p === 'WD') return 9999;
+    return parseInt(p.replace('T','')) || 9999;
+  }
+
+  function renderTable(data) {
+    const tierFilter = document.getElementById('ft-tier-filter')?.value || 'all';
+    const search = (document.getElementById('ft-search')?.value || '').toLowerCase();
+    const sortKey = document.getElementById('ft-sort')?.value || 'pos';
+
+    let rows = data.filter(r => {
+      if (tierFilter === 'cut') return r.pos === 'CUT';
+      if (tierFilter !== 'all' && tierFilter !== 'cut') {
+        if (r.pos === 'CUT') return false;
+        if (String(r.tier) !== tierFilter) return false;
+      }
+      if (search && !r.player.toLowerCase().includes(search)) return false;
+      return true;
+    });
+
+    if (sortKey === 'r4') rows.sort((a,b) => (a.r4||99)-(b.r4||99));
+    else if (sortKey === 'sg') rows.sort((a,b) => (b.sg_total||(-999))-(a.sg_total||(-999)));
+    else rows.sort((a,b) => posNum(a.pos)-posNum(b.pos));
+
+    const tbody = rows.map(r => {
+      const isCut = r.pos === 'CUT';
+      const pn = posNum(r.pos);
+      let rowCls = isCut ? 'ft-row-cut' : (pn === 1 ? 'ft-row-gold' : pn <= 2 ? 'ft-row-silver' : pn <= 5 ? 'ft-row-bronze' : '');
+      const posCls = pn === 1 ? 'p1' : pn === 2 ? 'p2' : pn <= 5 ? 'p3' : '';
+      const tierBadgeHtml = `<span class="tier-badge t${r.tier}">T${r.tier}</span>`;
+      const scoreVal = parseFloat(r.total);
+      const scoreCls = isNaN(scoreVal) ? 'ft-score even' : scoreVal < 0 ? 'ft-score under' : scoreVal > 0 ? 'ft-score over' : 'ft-score even';
+      const sgHtml = r.sg_total != null ? `<span class="${r.sg_total >= 0 ? 'ft-sg-pos' : 'ft-sg-neg'}">${r.sg_total >= 0 ? '+' : ''}${r.sg_total.toFixed(2)}</span>` : '<span style="color:var(--muted)">N/A</span>';
+      const madeCut = isCut ? '<span style="color:#fca5a5;font-size:.65rem;font-weight:700">CUT</span>' : '<span style="color:#86efac;font-size:.65rem;font-weight:700">✓</span>';
+      return `<tr class="${rowCls}">
+        <td class="ft-pos-cell ${posCls}">${r.pos}</td>
+        <td>${tierBadgeHtml}</td>
+        <td style="font-weight:600;color:var(--text)">${r.player}</td>
+        <td><span class="${scoreCls}">${r.total}</span></td>
+        <td class="ft-rd">${r.r1 ?? '—'}</td>
+        <td class="ft-rd">${r.r2 ?? '—'}</td>
+        <td class="ft-rd">${r.r3 ?? '—'}</td>
+        <td class="ft-rd">${r.r4 ?? '—'}</td>
+        <td style="font-size:.72rem;color:var(--muted)">${r.strokes ?? '—'}</td>
+        <td class="ft-sg-cell">${sgHtml}</td>
+        <td>${madeCut}</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `<table class="ft-table">
+      <thead><tr>
+        <th>Pos</th><th>Tier</th><th>Player</th><th>Total</th>
+        <th>R1</th><th>R2</th><th>R3</th><th>R4</th>
+        <th>Strokes</th><th>SG Total</th><th>Cut</th>
+      </tr></thead>
+      <tbody>${tbody || '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:1.5rem">No players match filter</td></tr>'}</tbody>
+    </table>`;
+  }
+
+  renderTable(allData);
+  document.getElementById('ft-tier-filter')?.addEventListener('change', () => renderTable(allData));
+  document.getElementById('ft-sort')?.addEventListener('change', () => renderTable(allData));
+  document.getElementById('ft-search')?.addEventListener('input', () => renderTable(allData));
+}
+
+/* B: SG Chart */
+function buildFTSGChart() {
+  const canvas = document.getElementById('ft-sg-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const labels = FT_SG_TOP10.map(p => p.player);
+  const datasets = [
+    {label:'OTT',data:FT_SG_TOP10.map(p=>Math.max(0,p.ott)),backgroundColor:'#d97706'},
+    {label:'Approach',data:FT_SG_TOP10.map(p=>Math.max(0,p.app)),backgroundColor:'#3b82f6'},
+    {label:'ATG',data:FT_SG_TOP10.map(p=>Math.max(0,p.atg)),backgroundColor:'#8b5cf6'},
+    {label:'Putting',data:FT_SG_TOP10.map(p=>Math.max(0,p.putt)),backgroundColor:'#16a34a'},
+  ];
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#8896a8', font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: +${ctx.parsed.x.toFixed(2)}` } }
+      },
+      scales: {
+        x: { stacked: true, grid: { color: '#2d3748' }, ticks: { color: '#8896a8' } },
+        y: { stacked: true, grid: { color: '#2d3748' }, ticks: { color: '#e2e8f0', font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Callout cards
+  const callouts = document.getElementById('ft-sg-callouts');
+  if (callouts) {
+    callouts.innerHTML = [
+      {val:'#1 OTT (+5.41)',label:"Winner's Off-the-Tee Rank"},
+      {val:'#5 Putt (+5.40)',label:"Winner's Putting Rank"},
+      {val:'54.5%',label:'Top-10 Coverage (T1+T2)'},
+    ].map(c => `<div class="ft-sg-callout"><div class="ft-sg-callout-val">${c.val}</div><div class="ft-sg-callout-label">${c.label}</div></div>`).join('');
+  }
+
+  // Category leaders
+  const leaders = document.getElementById('ft-sg-cat-leaders');
+  if (leaders) {
+    leaders.innerHTML = `<table class="ft-cat-leader-table">
+      <thead><tr><th>Category</th><th>Leader</th><th>SG</th><th>Tier</th></tr></thead>
+      <tbody>
+        <tr><td>Off the Tee</td><td>Gotterup</td><td style="color:#86efac;font-weight:700">+5.41</td><td><span class="tier-badge t2">T2</span></td></tr>
+        <tr><td>Approach</td><td>Glover</td><td style="color:#86efac;font-weight:700">+9.05</td><td><span class="tier-badge t3">T3</span></td></tr>
+        <tr><td>ATG</td><td>Homa</td><td style="color:#86efac;font-weight:700">+3.82</td><td><span class="tier-badge t2">T2</span></td></tr>
+        <tr><td>Putting</td><td>Hodges</td><td style="color:#86efac;font-weight:700">+8.93</td><td><span class="tier-badge t3">T3</span></td></tr>
+      </tbody>
+    </table>`;
+  }
+}
+
+/* C: Model Scorecard */
+function buildFTScorecard() {
+  const el = document.getElementById('ft-scorecard-grid');
+  if (!el) return;
+  el.innerHTML = FT_SCORECARD.map(card => {
+    const badgeCls = card.status === 'pass' ? 'ft-badge-pass' : card.status === 'warn' ? 'ft-badge-warn' : 'ft-badge-fail';
+    const badgeLabel = card.status === 'pass' ? 'PASS' : card.status === 'warn' ? 'WARN' : 'FAIL';
+    const valColor = card.status === 'pass' ? '#86efac' : card.status === 'warn' ? '#fde68a' : '#fca5a5';
+    return `<div class="ft-scorecard-card">
+      <div class="ft-scorecard-label">${card.label}</div>
+      <div class="ft-scorecard-val" style="color:${valColor}">${card.value}</div>
+      <div class="ft-scorecard-badge ${badgeCls}">${badgeLabel}</div>
+      <div style="font-size:.67rem;color:var(--muted);margin-top:.5rem;line-height:1.4">${card.detail}</div>
+    </div>`;
+  }).join('');
+}
+
+/* D: Winner Profile */
+function buildFTWinnerProfile() {
+  const el = document.getElementById('ft-winner-profile');
+  if (!el) return;
+  const maxSG = 10;
+  const sg = FT_SG_TOP10[0];
+  const bars = [
+    {label:'Off the Tee',val:sg.ott,rank:'1st',cls:'ott-bar'},
+    {label:'Approach',val:sg.app,rank:'52nd',cls:'app-bar'},
+    {label:'ATG',val:sg.atg,rank:'13th',cls:'atg-bar'},
+    {label:'Putting',val:sg.putt,rank:'5th',cls:'putt-bar'},
+  ].map(b => {
+    const pct = Math.max(0, (b.val / maxSG) * 100).toFixed(0);
+    const valStr = (b.val >= 0 ? '+' : '') + b.val.toFixed(2);
+    return `<div class="ft-sg-bar-row">
+      <span class="ft-sg-bar-label">${b.label}</span>
+      <div class="ft-sg-bar-bg"><div class="ft-sg-bar-fill ${b.cls}" style="width:${pct}%"></div></div>
+      <span class="ft-sg-bar-val">${valStr}</span>
+      <span class="ft-sg-bar-rank">(${b.rank})</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="ft-winner-card">
+    <div class="ft-winner-left">
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.4rem">CHAMPION — 2026 John Deere Classic</div>
+      <div class="ft-winner-name">Chris Gotterup</div>
+      <div class="ft-winner-score">-20</div>
+      <div class="ft-winner-sub">264 total strokes | TPC Deere Run, Silvis IL | Rounds: 66-68-68-62</div>
+      <div class="ft-winner-sg-bars" style="margin-top:1rem">${bars}</div>
+    </div>
+    <div class="ft-winner-right">
+      <div class="ft-winner-proj-box">
+        <div class="ft-proj-title">Pre-Tournament Model Projection</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:.55rem">Tier 2 · Rank #6 · VTS 75.5</div>
+        <div class="ft-proj-pills">
+          <div class="ft-proj-pill"><div class="ft-proj-pill-val" style="color:var(--gold)">1.70%</div><div class="ft-proj-pill-label">Win%</div></div>
+          <div class="ft-proj-pill"><div class="ft-proj-pill-val" style="color:#60a5fa">59.6%</div><div class="ft-proj-pill-label">Top 10%</div></div>
+          <div class="ft-proj-pill"><div class="ft-proj-pill-val" style="color:#86efac">78.5%</div><div class="ft-proj-pill-label">Cut%</div></div>
+        </div>
+      </div>
+      <div class="ft-ap-alert">
+        <div class="ft-ap-alert-title">Anti-Pattern Alert</div>
+        <div class="ft-ap-alert-body">
+          <b>bomb_and_spray + rough_approach_liab</b> flags applied → <b>-2.67 SG total penalty</b><br>
+          Actual OTT: <b>+5.41 (1st in field)</b><br>
+          Soft/wet conditions neutered rough liability. Penalty over-applied.<br>
+          → <span style="color:#fde68a;font-weight:600">Write-back: WB-2026-JDC-001 triggered</span>
+        </div>
+      </div>
+      <div>
+        <span class="ft-verdict-badge">LOW-PROB HIT</span>
+        <span class="ft-verdict-wb">WRITE-BACK TRIGGERED</span>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:.55rem;line-height:1.4">
+        Model correctly identified Gotterup in contention window (Top10% 59.6%). Win at 1.70% projected probability is within model variance. The VFD (-24.75) and bomb_and_spray penalty interaction with soft conditions is the systematic write-back finding.
+      </div>
+    </div>
+  </div>`;
+}
+
+/* E: Miss Log */
+function buildFTMissLog() {
+  const el = document.getElementById('ft-miss-log-wrap');
+  if (!el) return;
+  const rows = FT_MISS_LOG.map(r => `<tr>
+    <td style="font-weight:600;color:var(--text)">${r.player}</td>
+    <td><span class="tier-badge t${r.tier}">T${r.tier}</span></td>
+    <td style="color:var(--muted);font-size:.72rem">#${r.vts_rank}</td>
+    <td style="color:var(--gold);font-size:.72rem">${r.win_pct}</td>
+    <td style="color:#60a5fa;font-size:.72rem">${r.top10_pct}</td>
+    <td style="font-weight:700;color:#fca5a5">${r.finish}</td>
+    <td style="font-size:.68rem;color:#fca5a5">${r.miss_type}</td>
+    <td><span class="ft-layer-badge">${r.layer}</span></td>
+    <td style="font-size:.65rem;color:var(--muted)">${r.wb}</td>
+  </tr>`).join('');
+  el.innerHTML = `<table class="ft-miss-table">
+    <thead><tr>
+      <th>Player</th><th>Tier</th><th>VTS Rank</th><th>Proj Win%</th><th>Proj Top10%</th>
+      <th>Actual Finish</th><th>Miss Type</th><th>Layer</th><th>Write-Back</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+/* F: Course DNA */
+function buildFTDNA() {
+  const traitsEl = document.getElementById('ft-dna-traits');
+  if (traitsEl) {
+    traitsEl.innerHTML = `<div class="ft-sub-title">DNA Trait Confirmation</div>` + FT_DNA_TRAITS.map(t => {
+      const cls = t.status === 'CONFIRMED' ? 'ft-dna-confirm' : t.status === 'CHALLENGED' ? 'ft-dna-challenge' : 'ft-dna-partial';
+      const icon = t.status === 'CONFIRMED' ? '✓ CONFIRMED' : t.status === 'CHALLENGED' ? '✗ CHALLENGED' : '⚠ PARTIAL';
+      return `<div class="ft-dna-row">
+        <div>
+          <div class="ft-dna-trait">${t.trait} <span style="font-size:.62rem;color:var(--muted)">[${t.priority}]</span></div>
+          <div class="ft-dna-evidence">${t.evidence}</div>
+        </div>
+        <span class="ft-dna-badge ${cls}" style="white-space:nowrap;flex-shrink:0">${icon}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Hole chart
+  const canvas = document.getElementById('ft-hole-chart');
+  if (canvas && typeof Chart !== 'undefined') {
+    const par5Holes = [2,10,17];
+    const bgColors = FT_COURSE_STATS.map(h => par5Holes.includes(h.hole) ? '#16a34a' : h.pm < 0 ? '#3b82f6' : '#ef4444');
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: FT_COURSE_STATS.map(h => `H${h.hole}`),
+        datasets: [{
+          label: 'Birdies',
+          data: FT_COURSE_STATS.map(h => h.birdies),
+          backgroundColor: bgColors,
+          borderRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: (ctx) => {
+              const h = FT_COURSE_STATS[ctx.dataIndex];
+              return [`Birdies: ${h.birdies}`, `Avg: ${h.avg}`, `Par ${h.par} | ${h.yards}y`, `${h.pm > 0 ? '+' : ''}${h.pm} vs par`];
+            }
+          }}
+        },
+        scales: {
+          x: { grid: { color: '#2d3748' }, ticks: { color: '#8896a8', font: { size: 10 } } },
+          y: { grid: { color: '#2d3748' }, ticks: { color: '#8896a8' }, title: { display: true, text: 'Birdies', color: '#8896a8', font: { size: 11 } } }
+        }
+      }
+    });
+  }
+}
+
+/* G: Write-back recommendations */
+function buildFTWritebacks() {
+  const el = document.getElementById('ft-wb-grid');
+  if (!el) return;
+  el.innerHTML = FT_WRITEBACKS.map(wb => {
+    const confCls = wb.confidence.toLowerCase();
+    return `<div class="ft-wb-card">
+      <div class="ft-wb-flag">
+        <span class="ft-wb-id">${wb.id}</span>
+        <span class="ft-wb-layer">${wb.layer}</span>
+        <span class="ft-wb-conf ${confCls}">${wb.confidence}</span>
+      </div>
+      <div class="ft-wb-current"><b style="color:var(--muted)">Current:</b> ${wb.current}</div>
+      <div class="ft-wb-proposed">${wb.proposed}</div>
+      <div class="ft-wb-evidence"><b>Evidence:</b> ${wb.evidence}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Init page tabs on load ── */
+document.addEventListener('DOMContentLoaded', initPageTabs);
