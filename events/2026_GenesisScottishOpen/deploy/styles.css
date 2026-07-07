@@ -422,6 +422,32 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 /* ── Footer ── */
 footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2rem 1rem; }
 
+/* ══════════════════════════════════════════════════════
+   INTERACTIVE BADGES (tier + player badge clicks)
+══════════════════════════════════════════════════════ */
+.tier-badge-link { cursor: pointer; transition: opacity .15s; }
+.tier-badge-link:hover { opacity: .75; }
+.player-badge-link { transition: opacity .15s; }
+.player-badge-link:hover { opacity: .8; }
+
+/* Compare tray slot hint */
+.compare-slot-hint { font-size: .7rem; color: #7c3aed; opacity: .7; padding: .25rem .5rem; align-self: center; }
+
+/* Badge filter pill */
+.pill-badge { border-color: #16a34a; color: #86efac; background: color-mix(in srgb, #16a34a 12%, var(--surface)); }
+.pill-badge .filter-pill-remove { color: #86efac; }
+
+/* ══════════════════════════════════════════════════════
+   GLOSSARY MODAL
+══════════════════════════════════════════════════════ */
+.gloss-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.gloss-section { background: var(--bg); border: 1px solid var(--border); border-radius: .6rem; padding: .75rem 1rem; }
+.gloss-section h4 { font-size: .65rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: .5rem; border-bottom: 1px solid var(--border); padding-bottom: .25rem; }
+.gloss-row { display: grid; grid-template-columns: 8rem 1fr; gap: .4rem; padding: .2rem 0; border-bottom: 1px solid var(--border); font-size: .74rem; }
+.gloss-row:last-child { border-bottom: none; }
+.gloss-key { color: var(--text); font-weight: 600; white-space: nowrap; }
+.gloss-val { color: var(--muted); line-height: 1.45; }
+
 /* ── Mobile ── */
 @media (max-width: 640px) {
   main { padding: 1rem .75rem 6rem; }

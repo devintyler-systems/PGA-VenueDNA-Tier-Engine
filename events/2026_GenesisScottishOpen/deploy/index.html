@@ -73,6 +73,7 @@
             <button class="preset-item preset-item-toggle" id="btn-toggle-vfd" title="Show or hide the VFS (Venue Fit Score) column">VFD Column ✓</button>
           </div>
         </div>
+        <button class="ctrl-btn ctrl-btn-muted" id="btn-glossary" title="Metrics glossary, tier definitions, and badge guide">? Glossary</button>
         <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
         <button class="ctrl-btn ctrl-compare" id="btn-compare" style="display:none">
           Compare (<span id="compare-num">0</span>)
@@ -87,7 +88,7 @@
   <div class="filter-panel" id="filter-panel" style="display:none">
     <div class="filter-panel-inner">
       <div class="filter-panel-header">
-        <span class="filter-panel-title">Trait Filters — Genesis Scottish Open</span>
+        <span class="filter-panel-title">Filters — Genesis Scottish Open</span>
         <button class="fp-close" id="fp-close">✕</button>
       </div>
       <div class="filter-rules" id="filter-rules"></div>
@@ -135,7 +136,7 @@
           <th class="th-sort" data-col="player_name">Player <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="tier">Tier <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="vts_final">VTS <span class="sort-ind"></span></th>
-          <th class="col-vfd" title="Venue Fit Score (0-100 percentile): course-specific fit at The Renaissance Club. Higher = better fit.">VFS</th>
+          <th class="th-sort col-vfd" data-col="venue_fit_score" title="Venue Fit Score (0-100 percentile): course-specific fit at The Renaissance Club. Higher = better fit.">VFS <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="win_pct">Win % <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="top10_pct">Top 10 % <span class="sort-ind"></span></th>
           <th class="th-sort" data-col="top20_pct">Top 20 % <span class="sort-ind"></span></th>
@@ -225,6 +226,17 @@
       <button class="modal-close" aria-label="Close">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── Glossary modal ── -->
+<div class="modal-overlay" id="glossary-modal-overlay" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h2>Glossary &amp; Key — Genesis Scottish Open</h2>
+      <button class="modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body gloss-body" id="glossary-modal-body">Loading…</div>
   </div>
 </div>
 

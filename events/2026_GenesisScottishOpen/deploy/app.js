@@ -40,6 +40,7 @@ let unmatchedR4FullNames = [];
 let showVfdCol = true;
 let weatherData = null;
 let fieldTraitPercentiles = {};
+let activeBadgeFilter = null;
 
 /* ── Trait definitions — weights must match event_payload.json trait_weight_matrix ── */
 const TRAIT_DEFS = [
@@ -52,6 +53,16 @@ const TRAIT_DEFS = [
 ];
 
 const TRAIT_KEY_MAP = Object.fromEntries(TRAIT_DEFS.map(t => [t.key, t]));
+
+/* Extra numeric columns available in filter panel (non-trait direct fields) */
+const EXTRA_FILTER_DEFS = [
+  { key: 'venue_fit_score', label: 'VFS — Venue Fit Score (0–100)' },
+  { key: 'vts_final',       label: 'VTS — Final Score (0–100)' },
+  { key: 'win_prob',        label: 'Win % (e.g. 5 = 5%)' },
+  { key: 'top10_prob',      label: 'Top 10 % (e.g. 25 = 25%)' },
+  { key: 'top20_prob',      label: 'Top 20 % (e.g. 45 = 45%)' },
+  { key: 'make_cut_prob',   label: 'Make Cut % (0–100)' },
+];
 
 /* Maps payload trait_weight_matrix keys → display labels (canonical source) */
 const PAYLOAD_WEIGHT_LABELS = {
@@ -620,6 +631,9 @@ async function init() {
   wireCompare();
   wireFilterPanel();
   wirePresetDropdown();
+  const glossaryBody = document.getElementById('glossary-modal-body');
+  if (glossaryBody) glossaryBody.innerHTML = buildGlossaryHTML();
+  wireGlossaryModal();
 
   applyAndRender();
 }
@@ -701,8 +715,6 @@ function renderHeader(payload) {
 
   const badges = document.querySelector('.badges');
   if (ev.field_locked) badges.insertAdjacentHTML('beforeend','<span class="badge-locked">FIELD LOCKED</span>');
-  const hasRoundData = r1Data || r2Data || r3Data || r4Data;
-  if (!hasRoundData) badges.insertAdjacentHTML('beforeend','<span class="badge-tbd">TEE TIMES TBD</span>');
   const currentRound = r4Data ? 'r4' : r3Data ? 'r3' : r2Data ? 'r2' : r1Data ? 'r1' : null;
   if (currentRound) badges.insertAdjacentHTML('beforeend',`<span class="badge-tbd">iter:${currentRound}</span>`);
 }
@@ -824,6 +836,10 @@ function applyAndRender() {
     players = players.filter(p => traitFilterPassGlobal(p, f));
   });
 
+  if (activeBadgeFilter) {
+    players = players.filter(p => (p.badges || []).includes(activeBadgeFilter));
+  }
+
   players = sortPlayers(players);
 
   renderTable(players);
@@ -840,10 +856,14 @@ function traitFilterPassGlobal(p, f) {
   }
   /* Fall through to direct fields for non-trait filters */
   const directMap = {
-    'make_cut_prob': p.make_cut_prob,
-    'venue_history': p.venue_history_normalized,
-    'win_prob':      p.win_prob,
-    'form_score':    p.form_score,
+    'make_cut_prob':   p.make_cut_prob,
+    'venue_history':   p.venue_history_normalized,
+    'win_prob':        p.win_prob,
+    'form_score':      p.form_score,
+    'top10_prob':      p.top10_prob,
+    'top20_prob':      p.top20_prob,
+    'venue_fit_score': p.venue_fit_score,
+    'vts_final':       +p.vts_final,
   };
   const score = directMap[f.trait];
   if (score == null) return false;
@@ -901,6 +921,7 @@ function sortPlayers(players) {
       va = useAdj ? (a.vts_conf_adj ?? a.vts_raw ?? 0) : (+a.vts_final || 0);
       vb = useAdj ? (b.vts_conf_adj ?? b.vts_raw ?? 0) : (+b.vts_final || 0);
     }
+    else if (col === 'venue_fit_score'){ va = +a.venue_fit_score || 0; vb = +b.venue_fit_score || 0; }
     else if (col === 'win_pct')      { va = +a.win_pct  || 0; vb = +b.win_pct  || 0; }
     else if (col === 'top10_pct')    { va = +a.top10_pct || 0; vb = +b.top10_pct || 0; }
     else if (col === 'top20_pct')    { va = +a.top20_pct || 0; vb = +b.top20_pct || 0; }
@@ -958,7 +979,7 @@ function renderTable(players) {
         <div class="player-name">${displayName} ${dataBadge}${unmatchedBadge}</div>
         <div class="player-driver">${p.best_betting_lane || ''} ${playerBadgesHTML}</div>
       </td>
-      <td>${tierBadgeHTML(p.tier)}</td>
+      <td><span class="tier-badge t${p.tier} tier-badge-link" title="Click to filter Tier ${p.tier}">T${p.tier}</span></td>
       <td class="vts-cell">${vtsDisplayHTML(p)}</td>
       <td class="vts-label col-vfd" style="text-align:center">${vfdFitHTML(p)}</td>
       <td class="prob-cell">${fmtPct(p.win_pct)}</td>
@@ -976,6 +997,24 @@ function renderTable(players) {
 
     tr.addEventListener('click', e => {
       if (e.target.classList.contains('fav-btn') || e.target.classList.contains('cmp-btn')) return;
+
+      /* Tier badge click → jump to that tier filter */
+      if (e.target.classList.contains('tier-badge-link')) {
+        const t = String(p.tier);
+        activeTier = t;
+        document.querySelectorAll('.tier-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tier === t));
+        applyAndRender();
+        return;
+      }
+
+      /* Player badge click → toggle badge filter */
+      if (e.target.classList.contains('player-badge-link')) {
+        const badge = e.target.dataset.badge;
+        activeBadgeFilter = activeBadgeFilter === badge ? null : badge;
+        applyAndRender();
+        return;
+      }
+
       const brief = briefsById[p.player_id] || briefsByNk[makeNameKey(p)];
       openModal(p, brief);
     });
@@ -1043,7 +1082,7 @@ function renderPlayerBadges(badges) {
   };
   return badges.slice(0,2).map(b => {
     const style = BADGE_COLORS[b] || 'background:#33415533;border-color:#475569;color:#94a3b8';
-    return `<span style="${style};border:1px solid;border-radius:999px;font-size:.62rem;font-weight:600;padding:.1rem .45rem;margin-left:.2rem">${b}</span>`;
+    return `<span class="player-badge-link" data-badge="${b}" title="Click to filter: ${b}" style="${style};border:1px solid;border-radius:999px;font-size:.62rem;font-weight:600;padding:.1rem .45rem;margin-left:.2rem;cursor:pointer">${b}</span>`;
   }).join('');
 }
 
@@ -1166,7 +1205,7 @@ function toggleCompare(p) {
   const idx = comparePlayers.findIndex(c => c.player_name === p.player_name);
   if (idx >= 0) {
     comparePlayers.splice(idx, 1);
-  } else if (comparePlayers.length < 4) {
+  } else if (comparePlayers.length < 3) {
     comparePlayers.push(p);
   }
   updateCompareTray();
@@ -1195,12 +1234,16 @@ function updateCompareTray() {
     return;
   }
   tray.style.display = 'block';
+  const slotsLeft = 3 - comparePlayers.length;
+  const slotHint = slotsLeft > 0
+    ? `<span class="compare-slot-hint">+ ${slotsLeft} slot${slotsLeft > 1 ? 's' : ''} available</span>`
+    : '';
   playersEl.innerHTML = comparePlayers.map(p =>
     `<div class="compare-chip">
        ${p.first_name || p.player_name.split(', ')[1] || p.player_name.split(',')[0]}
        <button class="compare-chip-remove" data-name="${p.player_name}" title="Remove">✕</button>
      </div>`
-  ).join('');
+  ).join('') + slotHint;
   playersEl.querySelectorAll('.compare-chip-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const name = btn.dataset.name;
@@ -1218,7 +1261,7 @@ function openCompareModal() {
   const overlay = document.getElementById('compare-modal-overlay');
   const body = document.getElementById('compare-modal-body');
   const n = comparePlayers.length;
-  const colClass = n === 2 ? 'cols-2' : n === 3 ? 'cols-3' : 'cols-4';
+  const colClass = n === 2 ? 'cols-2' : 'cols-3';
 
   const STAT_KEYS = [
     ['VTS',       p => (+p.vts_final).toFixed(1)],
@@ -1328,9 +1371,15 @@ function syncFilterRulesUI() {
     row.className = 'filter-rule';
     row.dataset.id = f.id;
 
-    const traitOpts = TRAIT_DEFS.map(t =>
-      `<option value="${t.key}" ${t.key === f.trait ? 'selected' : ''}>${t.label} (${Math.round(t.weight*100)}%)</option>`
-    ).join('');
+    const traitOpts = [
+      ...TRAIT_DEFS.map(t =>
+        `<option value="${t.key}" ${t.key === f.trait ? 'selected' : ''}>${t.label} (${Math.round(t.weight*100)}%)</option>`
+      ),
+      `<option disabled>─── Numeric columns ───</option>`,
+      ...EXTRA_FILTER_DEFS.map(t =>
+        `<option value="${t.key}" ${t.key === f.trait ? 'selected' : ''}>${t.label}</option>`
+      ),
+    ].join('');
 
     row.innerHTML = `
       <select class="fp-select fp-trait-sel">
@@ -1381,8 +1430,14 @@ function updateActivePills() {
       <button class="filter-pill-remove" data-action="clear-tier">✕</button></span>`);
   }
 
+  if (activeBadgeFilter) {
+    pills.push(`<span class="filter-pill pill-badge">${activeBadgeFilter}
+      <button class="filter-pill-remove" data-action="clear-badge">✕</button></span>`);
+  }
+
+  const allFilterDefs = [...TRAIT_DEFS, ...EXTRA_FILTER_DEFS];
   activeFilters.forEach(f => {
-    const td = TRAIT_KEY_MAP[f.trait];
+    const td = allFilterDefs.find(d => d.key === f.trait);
     const label = td ? td.label : f.trait;
     pills.push(`<span class="filter-pill">${label} ${f.op} ${f.value}
       <button class="filter-pill-remove" data-action="remove-filter" data-id="${f.id}">✕</button></span>`);
@@ -1398,6 +1453,7 @@ function updateActivePills() {
       if (action === 'clear-preset') { activePreset = null; syncPresetDropdownUI(); }
       else if (action === 'clear-fav') { favOnly = false; document.getElementById('btn-favonly').classList.remove('active'); }
       else if (action === 'clear-tier') { activeTier = 'all'; document.querySelectorAll('.tier-tab').forEach(t => { t.classList.toggle('active', t.dataset.tier === 'all'); }); }
+      else if (action === 'clear-badge') { activeBadgeFilter = null; }
       else if (action === 'remove-filter') {
         const id = parseInt(btn.dataset.id);
         activeFilters = activeFilters.filter(f => f.id !== id);
@@ -1474,6 +1530,7 @@ function resetAll() {
   favOnly     = false;
   activeFilters = [];
   activePreset  = null;
+  activeBadgeFilter = null;
   sortCol = 'rank';
   sortDir = 1;
   allowImputedInFilters = VENUEDNA_CONFIG.allowImputedInFiltersDefault;
@@ -2155,6 +2212,86 @@ function renderRoundPanel(body, rData, roundNum) {
         </div>
       </div>
     </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   GLOSSARY MODAL
+══════════════════════════════════════════════════════ */
+function wireGlossaryModal() {
+  const overlay = document.getElementById('glossary-modal-overlay');
+  if (!overlay) return;
+
+  document.getElementById('btn-glossary')?.addEventListener('click', () => {
+    overlay.style.display = 'flex';
+  });
+  overlay.addEventListener('click', e => {
+    if (e.target === e.currentTarget || e.target.classList.contains('modal-close')) {
+      overlay.style.display = 'none';
+    }
+  });
+}
+
+function buildGlossaryHTML() {
+  const section = (title, rows) => `
+    <div class="gloss-section">
+      <h4>${title}</h4>
+      ${rows.map(([k, v]) => `<div class="gloss-row"><span class="gloss-key">${k}</span><span class="gloss-val">${v}</span></div>`).join('')}
+    </div>`;
+
+  return [
+    section('Scores & Metrics', [
+      ['VTS', 'Venue Tier Score (0–100) — composite ranking: NSI 40% + VFS 30% + VHN 15% + Form 15%.'],
+      ['VFS', 'Venue Fit Score (0–100 percentile) — course-specific trait alignment at The Renaissance Club.'],
+      ['NSI', 'Neutral Skill Index — baseline tour-wide skill, independent of venue or form.'],
+      ['Win %', 'Model-estimated win probability for this event.'],
+      ['Top 10 %', 'Model-estimated probability of a Top 10 finish.'],
+      ['Top 20 %', 'Model-estimated probability of a Top 20 finish.'],
+      ['Make Cut %', 'Probability of making the 36-hole cut (Top 65 + ties).'],
+      ['CH Rds', 'Course history rounds — prior starts at The Renaissance Club. "Debut" = first start.'],
+      ['Flags', 'Count of anti-pattern risk flags assigned to this player.'],
+    ]),
+    section('Tiers', [
+      ['T1', 'Elite course fits — highest VTS. Primary contender zone.'],
+      ['T2', 'Strong fits — legitimate contention probability.'],
+      ['T3', 'Moderate fits — value / mid-field plays.'],
+      ['T4', 'Longshot territory — specific edge required to outperform.'],
+      ['T5', 'Poor fits — significant course-profile mismatches.'],
+    ]),
+    section('Trait Abbreviations', [
+      ['APP 150-200', 'Strokes gained on approach shots from 150–200 yards (primary scoring zone, 30%).'],
+      ['OTT / Positional', 'Off-the-tee positional driving — accuracy-weighted distance (20%).'],
+      ['APP Overall', 'Overall strokes gained: approach, full-field baseline (15%).'],
+      ['DA', 'Driving Accuracy — % of fairways hit, expressed as adj. vs. field avg (12%).'],
+      ['SG:PUTT', 'Strokes gained: putting, regressed for links surfaces (13%).'],
+      ['SG:ARG', 'Strokes gained: around-the-green / short game (10%).'],
+    ]),
+    section('Player Badges', [
+      ['Course Horse', 'Strong historical record at this venue. History weight inflated.'],
+      ['Ceiling Play', 'High upside if primary traits fire. Variance elevated.'],
+      ['Fragile Favorite', 'High VTS but fragile anti-pattern profile. Risk of blowup round.'],
+      ['Cut Sweat', 'Make-cut probability borderline (55–70%). Model uncertain on weekend status.'],
+      ['False Safety', 'High Cut% but low win/top10 ceiling. Safe to survive, limited upside.'],
+      ['Live Longshot', 'T3/T4 player with specific course fit that market may undervalue.'],
+      ['Debut Watch', 'First start at The Renaissance Club. No venue history adjustment.'],
+      ['Volatile Putter', 'High putting variance — could swing score 3–5 shots either way.'],
+      ['Form Spike', 'Recent form significantly above 12-month baseline. Momentum factor.'],
+      ['Anti-Pattern', 'Player carries at least one significant course anti-pattern flag.'],
+    ]),
+    section('Anti-Pattern Flags', [
+      ['Bomb + Spray', 'Elite distance but below-field driving accuracy — punished at Renaissance Club placement holes.'],
+      ['Approach Liability', 'Below-field in the 150–200yd zone — drag on primary scoring trait.'],
+      ['Poor Links Putter', 'Below-field putting on links surfaces. Limits birdie upside.'],
+      ['Long-Iron Weakness', 'Below-field in 150–200yd approach zone — highest-weighted trait.'],
+      ['Debut Risk', 'No prior starts at this venue. No history adjustment applied.'],
+    ]),
+    section('Data Quality Badges', [
+      ['OBSERVED', 'All trait scores from measured 12-month SG data.'],
+      ['IMPUTED', 'One or more traits estimated from tier/field average. VTS shown as-is from pipeline.'],
+      ['LOW CONF', 'Significant missing trait weight (≥20%). Confidence penalty applied.'],
+      ['UNKNOWN', 'Trait data unavailable — no imputation possible. Excluded from filters.'],
+      ['VTS adj', 'Confidence-adjusted display VTS shown alongside raw pipeline value.'],
+    ]),
+  ].join('');
 }
 
 /* ══════════════════════════════════════════════════════
