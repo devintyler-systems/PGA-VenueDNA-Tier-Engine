@@ -501,10 +501,17 @@ df["venue_fit_total_adj_ex_da"] = df["venue_fit_total_adj"].fillna(0.0) - df["fi
 # Canonical driving accuracy signal from SG source: 0.015 strokes/rnd per pp of DA vs field avg.
 # Field DA range ≈ -10 to +12pp → signal range ≈ -0.15 to +0.18 (clipped to ±0.15).
 df["drive_acc_sg_signal"] = (df["drive_acc_12m"].fillna(0.0) * 0.015).clip(-0.15, 0.15)
+
+# Phase-3 variance expansion (2026 Genesis Scottish Open only — Renaissance Club).
+# Pre-Phase-3: top-30 VFS std ≈1.16 vs NSI std ≈9.94; approach composite contributing ~0.35 VTS pts.
+# Scaling ×3.0 lets the primary course trait (APP 150-200, 30% VTS weight) earn real spread
+# without altering top-level VTS weights. FC-2 formula structure is otherwise untouched.
+df["approach_composite_value_scaled"] = df["approach_composite_value"] * 3.0
+
 df["venue_fit_raw"] = (
-    df["venue_fit_total_adj_ex_da"] * 0.45   # DA removed; weight reduced from 0.55
-    + df["approach_composite_value"] * 0.40  # primary Renaissance trait; up from 0.30
-    + df["drive_acc_sg_signal"] * 0.15       # SG-CSV accuracy; correct sign, non-redundant
+    df["venue_fit_total_adj_ex_da"] * 0.45         # DA removed; weight reduced from 0.55
+    + df["approach_composite_value_scaled"] * 0.40  # approach ×3.0 Phase-3 scale; primary Renaissance trait
+    + df["drive_acc_sg_signal"] * 0.15              # SG-CSV accuracy; correct sign, non-redundant
 )
 
 # ─── ANTI-PATTERN FLAGS ───
@@ -1924,6 +1931,7 @@ for pb in player_briefs:
         "rough_under150_value":  float(row.get("rough_under150_value"))  if not pd.isna(row.get("rough_under150_value", None))  else None,
         "app_50_100_value":      float(row.get("app_50_100_value"))      if not pd.isna(row.get("app_50_100_value", None))      else None,
         "approach_composite_value": float(row.get("approach_composite_value")) if not pd.isna(row.get("approach_composite_value", None)) else None,
+        "approach_composite_value_scaled": float(row.get("approach_composite_value_scaled")) if not pd.isna(row.get("approach_composite_value_scaled", None)) else None,
         "venue_fit_total_adj": float(row.get("venue_fit_total_adj")) if not pd.isna(row.get("venue_fit_total_adj", None)) else None,
         "conviction_level": row.get("conviction_level", "LOW"),
         "ap_total_flags": int(row.get("ap_total_flags", 0)),

@@ -163,8 +163,8 @@ The Renaissance Club champion is typically an iron-first player who keeps the ba
 |----------|-------|
 | Field Size | 166 |
 | Tier 1 | 4 |
-| Tier 2 | 24 |
-| Tier 3 | 79 |
+| Tier 2 | 25 |
+| Tier 3 | 78 |
 | Tier 4 | 28 |
 | Tier 5 | 31 |
 | Anti-Pattern Players (2+ flags) | 24 |
