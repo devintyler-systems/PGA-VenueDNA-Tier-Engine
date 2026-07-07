@@ -493,19 +493,28 @@ async function init() {
       ? merged.anti_pattern_flags.split(';').filter(f => f.trim() && f.trim() !== 'none').length
       : 0;
 
-    /* Build trait_scores from available SG data (for imputation + filter panel) */
-    const sgApp12m    = +(p.sg_app_12m    || brief.sg_app_12m    || 0);
-    const sgOtt12m    = +(p.sg_ott_12m    || brief.sg_ott_12m    || 0);
-    const sgPutt12m   = +(p.sg_putt_12m   || brief.sg_putt_12m   || 0);
-    const sgArg12m    = +(p.sg_arg_12m    || brief.sg_arg_12m    || 0);
-
-    /* Map SG values to 0-100 percentile estimates for display */
-    function sgToPercentile(sg, min=-2.5, max=2.5) {
-      return Math.max(0, Math.min(100, ((sg - min) / (max - min)) * 100));
+    /* Build trait_scores from available SG data (for imputation + filter panel).
+       Use pickSg to distinguish null (no data) from 0.0 (exactly average) — the
+       || 0 pattern would collapse both to zero and hide legitimate avg performers. */
+    function pickSg(a, b) {
+      if (a != null && !isNaN(+a)) return +a;
+      if (b != null && !isNaN(+b)) return +b;
+      return null;
     }
+    const sgApp12m  = pickSg(p.sg_app_12m,  brief.sg_app_12m);
+    const sgOtt12m  = pickSg(p.sg_ott_12m,  brief.sg_ott_12m);
+    const sgPutt12m = pickSg(p.sg_putt_12m, brief.sg_putt_12m);
+    const sgArg12m  = pickSg(p.sg_arg_12m,  brief.sg_arg_12m);
+
+    /* Store raw SG values for field-relative percentile post-pass (computed after full field is built) */
+    merged.sg_app_raw  = sgApp12m;
+    merged.sg_ott_raw  = sgOtt12m;
+    merged.sg_putt_raw = sgPutt12m;
+    merged.sg_arg_raw  = sgArg12m;
 
     /* driving_accuracy_baseline is a %-point adj vs field avg (e.g. -3.3 = 3.3pp below avg).
-       Map range -12..+12 to 0..100 so 0-adj players land at 50, not treated as zero/missing. */
+       Map range -12..+12 to 0..100 so 0-adj players land at 50, not treated as zero/missing.
+       Actual field range is -9.5% to +11.7% so bounds are never hit. */
     const driveAccRaw = (p.driving_accuracy_baseline != null) ? +p.driving_accuracy_baseline : null;
     const driveAccScore = (driveAccRaw !== null && !isNaN(driveAccRaw))
       ? Math.max(0, Math.min(100, ((driveAccRaw + 12) / 24) * 100))
@@ -519,12 +528,12 @@ async function init() {
     merged.app_150_200_raw = (app150Raw !== null && !isNaN(app150Raw)) ? app150Raw : null;
 
     merged.trait_scores = [
-      { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)',   weight: 0.30, score: null }, // set in post-pass below
-      { key: 'ott_positional', label: 'OTT / Positional Drive',    weight: 0.20, score: sgOtt12m !== 0 ? sgToPercentile(sgOtt12m) : null },
-      { key: 'app_overall',    label: 'APP Overall',               weight: 0.15, score: sgApp12m !== 0 ? sgToPercentile(sgApp12m) : null },
+      { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)',   weight: 0.30, score: null }, // post-pass
+      { key: 'ott_positional', label: 'OTT / Positional Drive',    weight: 0.20, score: null }, // post-pass
+      { key: 'app_overall',    label: 'APP Overall',               weight: 0.15, score: null }, // post-pass
       { key: 'driving_accuracy', label: 'Driving Accuracy',        weight: 0.12, score: driveAccScore },
-      { key: 'sg_putt',        label: 'Putting (Links-Regressed)', weight: 0.13, score: sgPutt12m !== 0 ? sgToPercentile(sgPutt12m) : null },
-      { key: 'sg_arg',         label: 'Short Game/ARG',             weight: 0.10, score: sgArg12m !== 0 ? sgToPercentile(sgArg12m) : null },
+      { key: 'sg_putt',        label: 'Putting (Links-Regressed)', weight: 0.13, score: null }, // post-pass
+      { key: 'sg_arg',         label: 'Short Game/ARG',             weight: 0.10, score: null }, // post-pass
     ];
 
     return merged;
@@ -532,21 +541,27 @@ async function init() {
 
   allPlayers.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
 
-  /* ── APP 150-200 field-relative percentile rank (post-pass) ──
-     Rank each player's raw fairway 150-200 shot value against the full tournament field.
-     This correctly reflects that e.g. Koivun (+0.122) > Kim Si Woo (+0.079) > Scheffler (+0.055)
-     rather than using venue_fit_score which conflates driving accuracy penalties. */
-  (function() {
-    const withData = allPlayers.filter(p => p.app_150_200_raw != null);
+  /* ── Field-relative percentile post-passes ──
+     Each pass ranks players who have data against the full tournament field.
+     Players with null raw values are excluded and keep score: null (shown as no-data).
+     This ensures McIlroy SG-OTT 0.96 (rank 1) → 100, not 69 from a fixed ±2.5 range. */
+  [
+    ['app_150_200_raw', 'app_150_200'],
+    ['sg_ott_raw',      'ott_positional'],
+    ['sg_app_raw',      'app_overall'],
+    ['sg_putt_raw',     'sg_putt'],
+    ['sg_arg_raw',      'sg_arg'],
+  ].forEach(([rawKey, traitKey]) => {
+    const withData = allPlayers.filter(p => p[rawKey] != null);
     if (withData.length < 2) return;
-    const sorted = [...withData].sort((a, b) => a.app_150_200_raw - b.app_150_200_raw);
+    const sorted = [...withData].sort((a, b) => a[rawKey] - b[rawKey]);
     const n = sorted.length;
     sorted.forEach((p, i) => {
       const pct = (i / (n - 1)) * 100;
-      const ts = p.trait_scores.find(t => t.key === 'app_150_200');
+      const ts = p.trait_scores.find(t => t.key === traitKey);
       if (ts) ts.score = Math.round(pct * 10) / 10;
     });
-  })();
+  });
 
   /* ── Missing-trait validation + imputation ── */
   DIAGNOSTICS = runImputationPass(allPlayers);
