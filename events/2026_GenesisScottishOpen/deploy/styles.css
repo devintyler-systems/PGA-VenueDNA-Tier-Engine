@@ -423,6 +423,99 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2rem 1rem; }
 
 /* ══════════════════════════════════════════════════════
+   TYPED BADGE SYSTEM (v2 — fit / ceiling / risk)
+══════════════════════════════════════════════════════ */
+
+/* Base player-badge pill — colors injected via inline style from BADGE_SCHEMA */
+.player-badge {
+  display: inline-block;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 700;
+  padding: .1rem .42rem;
+  border: 1px solid;
+  vertical-align: middle;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 7rem;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.player-badge:hover { opacity: .75; }
+.player-badge.modal-badge {
+  font-size: .73rem;
+  padding: .2rem .78rem;
+  max-width: none;
+  overflow: visible;
+}
+
+/* "+N more" overflow chip */
+.badge-overflow-chip {
+  display: inline-block;
+  font-size: .57rem;
+  font-weight: 700;
+  background: #33415533;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  border-radius: 999px;
+  padding: .08rem .32rem;
+  vertical-align: middle;
+  cursor: default;
+  margin-left: .1rem;
+}
+
+/* Modal badge groups */
+.badge-groups { display: flex; flex-direction: column; gap: .55rem; margin-top: .15rem; }
+.badge-group { }
+.badge-group-label {
+  display: block;
+  font-size: .6rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: .28rem;
+}
+.badge-group-pills { display: flex; flex-wrap: wrap; gap: .3rem; }
+
+/* ── Tier tab semantic sub-label ── */
+.tier-tab-sub {
+  font-size: .62rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: .75;
+  margin-left: .25rem;
+}
+.tier-tab.active .tier-tab-sub { opacity: 1; }
+
+/* ── Dark Horse Thesis section (T3 modal) ── */
+.dh-thesis-section h4 { border-bottom: 1px solid #3b076455; }
+.dh-thesis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .55rem;
+  margin-top: .4rem;
+}
+@media (max-width: 520px) { .dh-thesis-grid { grid-template-columns: 1fr; } }
+.dh-thesis-item {
+  background: #3b076414;
+  border: 1px solid #3b076455;
+  border-radius: .45rem;
+  padding: .5rem .65rem;
+}
+.dh-thesis-q {
+  font-size: .6rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #c4b5fd;
+  font-weight: 700;
+  margin-bottom: .22rem;
+}
+.dh-thesis-a { font-size: .72rem; color: var(--text); line-height: 1.5; }
+
+/* ══════════════════════════════════════════════════════
    INTERACTIVE BADGES (tier + player badge clicks)
 ══════════════════════════════════════════════════════ */
 .tier-badge-link { cursor: pointer; transition: opacity .15s; }

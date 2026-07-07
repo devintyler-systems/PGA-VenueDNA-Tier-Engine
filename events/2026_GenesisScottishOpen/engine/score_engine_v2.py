@@ -1090,6 +1090,12 @@ print(f"  File 3 written: {len(file3)} rows")
 # ─────────────────────────────────────────────
 # BADGE LOGIC
 # ─────────────────────────────────────────────
+# Engine produces base badge strings. Client-side enhanceBadges() in app.js adds:
+#   Defending Champ, Iron Edge, Elite NSI, Form Cold, Dark Horse (from Live Longshot logic)
+# Badge type schema (enforced in app.js BADGE_SCHEMA):
+#   fit:     Course Horse, Form Spike, Iron Edge, Elite NSI, Defending Champ
+#   ceiling: Live Longshot, Ceiling Play, Dark Horse
+#   risk:    Fragile Favorite, Anti-Pattern, Cut Sweat, False Safety, Debut Watch, Volatile Putter, Form Cold
 def compute_badges(row):
     badges = []
     vh = row.get("venue_history_depth", "NONE")
@@ -1097,16 +1103,25 @@ def compute_badges(row):
     ap_flags = int(row.get("ap_total_flags", 0))
     mc = float(row.get("make_cut_prob", 50))
     wp = float(row.get("win_prob", 0))
-    t10 = float(row.get("top10_prob", 0))
     vsb = float(row.get("true_sg_vs_baseline", 0) or 0)
     sg_putt_r = float(row.get("sg_putt_12m_r", 0) or 0)
     ch_adj = float(row.get("ch_adjustment_f", 0))
     debut = bool(row.get("debut_flag", False))
 
+    # Fit badges
     if vh in ("STRONG", "MODERATE") and ch_adj > 0:
         badges.append("Course Horse")
+    if vsb > 1.0:
+        badges.append("Form Spike")
+    # Ceiling badges
     if tier >= 3 and wp > 2.0:
         badges.append("Live Longshot")
+    if tier >= 3:
+        nsi = float(row.get("neutral_skill_index", 50) or 50)
+        vfs = float(row.get("venue_fit_score", 50) or 50)
+        if (nsi > 70 or vfs > 70) and wp <= 2.0:
+            badges.append("Ceiling Play")
+    # Risk badges
     if tier <= 2 and ap_flags >= 1:
         badges.append("Fragile Favorite")
     if mc < 60.0:
@@ -1119,14 +1134,6 @@ def compute_badges(row):
         badges.append("Debut Watch")
     if sg_putt_r > 1.5:
         badges.append("Volatile Putter")
-    if vsb > 1.0:
-        badges.append("Form Spike")
-    # Ceiling Play: Tier 3+ with one elite trait
-    if tier >= 3:
-        nsi = float(row.get("neutral_skill_index", 50) or 50)
-        vfs = float(row.get("venue_fit_score", 50) or 50)
-        if nsi > 70 or vfs > 70:
-            badges.append("Ceiling Play")
     return badges
 
 

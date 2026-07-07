@@ -64,6 +64,81 @@ const EXTRA_FILTER_DEFS = [
   { key: 'make_cut_prob',   label: 'Make Cut % (0–100)' },
 ];
 
+/* ── Tier semantic labels ── */
+const TIER_LABELS = {
+  1: 'Structural Winner',
+  2: 'Primary Contender',
+  3: 'Dark Horse',
+  4: 'Fragile Path',
+  5: 'Fade / Cut Risk',
+};
+
+/* ── Badge schema: type (fit | ceiling | risk), color, tooltip ── */
+const BADGE_SCHEMA = {
+  /* Fit / style */
+  'Defending Champ':  { type: 'fit',     color: '#c4a000', tooltip: 'Defending champion at The Renaissance Club — maximum venue calibration' },
+  'Course Horse':     { type: 'fit',     color: '#16a34a', tooltip: 'Positive venue history + course-adj — proven scorer at The Renaissance Club' },
+  'Iron Edge':        { type: 'fit',     color: '#0891b2', tooltip: 'Top-tier venue fit score (≥64) — approach profile optimally matched to Renaissance 150-200yd zone' },
+  'Form Spike':       { type: 'fit',     color: '#16a34a', tooltip: 'Current scoring pace significantly above 12-month baseline (+1.0 SG) — momentum confirmed' },
+  'Elite NSI':        { type: 'fit',     color: '#4f46e5', tooltip: 'World-class neutral skill index (≥85) — elite ball-striking profile translates to any surface' },
+  /* Ceiling */
+  'Dark Horse':       { type: 'ceiling', color: '#7c3aed', tooltip: 'Win probability ≥2% from Tier 3 — structural ceiling underpriced by market at this venue' },
+  'Ceiling Play':     { type: 'ceiling', color: '#6d28d9', tooltip: 'Elevated win ceiling score — one elite-trait spike can produce a top-5 result from this tier' },
+  'Live Longshot':    { type: 'ceiling', color: '#7c3aed', tooltip: 'Win probability >2% from Tier 3+ — market may be underpricing this player' },
+  /* Risk */
+  'Fragile Favorite': { type: 'risk',    color: '#dc2626', tooltip: 'Top-2-tier player with anti-pattern flags — structural blowup risk present' },
+  'Anti-Pattern':     { type: 'risk',    color: '#dc2626', tooltip: '2+ recurring weak-link trait flags for this venue profile — pattern of failure here' },
+  'Cut Sweat':        { type: 'risk',    color: '#d97706', tooltip: 'Make-cut probability below 60% — weekend status structurally uncertain' },
+  'False Safety':     { type: 'risk',    color: '#a16003', tooltip: 'High cut rate but near-zero win ceiling — a positional trap for bettors' },
+  'Debut Watch':      { type: 'risk',    color: '#d97706', tooltip: 'First start at The Renaissance Club — zero venue-specific calibration data' },
+  'Volatile Putter':  { type: 'risk',    color: '#b45309', tooltip: 'High putting variance — links fescue greens can amplify or collapse this trait' },
+  'Form Cold':        { type: 'risk',    color: '#dc2626', tooltip: 'Scoring pace below seasonal baseline — negative momentum entering event' },
+};
+
+/* Classify a badge label → schema entry (fallback to misc) */
+function classifyBadge(label) {
+  return BADGE_SCHEMA[label] || { type: 'misc', color: '#475569', tooltip: label };
+}
+
+/* Derive additional badges client-side from available merged player fields.
+   Called after allPlayers is fully built. Mutates p.badges in place. */
+function enhanceBadges(p) {
+  const badgeSet = new Set(p.badges || []);
+
+  /* Defending Champ supersedes Course Horse */
+  if ((p.venue_history_summary || '').toLowerCase().includes('defending champion')) {
+    badgeSet.delete('Course Horse');
+    badgeSet.add('Defending Champ');
+  }
+
+  /* Iron Edge: top-tier VFS not already covered by a venue-history badge */
+  if (+p.venue_fit_score >= 64 && !badgeSet.has('Course Horse') && !badgeSet.has('Defending Champ')) {
+    badgeSet.add('Iron Edge');
+  }
+
+  /* Elite NSI: world-class neutral skill */
+  if (+p.neutral_skill_index >= 85) {
+    badgeSet.add('Elite NSI');
+  }
+
+  /* Form Cold: below-baseline form momentum */
+  if (/Form (COOL|COLD)\b/.test(p.form_summary || '') && !badgeSet.has('Form Spike')) {
+    badgeSet.add('Form Cold');
+  }
+
+  /* T3+ ceiling differentiation */
+  if (p.tier >= 3) {
+    if (+p.win_prob >= 2.0) {
+      if (!badgeSet.has('Live Longshot')) badgeSet.add('Dark Horse');
+      badgeSet.delete('Ceiling Play'); /* Live Longshot / Dark Horse supersedes — one ceiling badge only */
+    } else if (+p.win_ceiling_score >= 75 && !badgeSet.has('Ceiling Play')) {
+      badgeSet.add('Ceiling Play');
+    }
+  }
+
+  p.badges = [...badgeSet];
+}
+
 /* Maps payload trait_weight_matrix keys → display labels (canonical source) */
 const PAYLOAD_WEIGHT_LABELS = {
   'approach_150_200':  'APP 150-200 (Long Iron)',
@@ -491,6 +566,12 @@ async function init() {
       badges:        p.badges        || brief.badges        || [],
       brief_depth:   p.brief_depth   || brief.brief_depth   || '',
 
+      /* Latent scores (continuous probability engine) */
+      win_ceiling_score:  +(p.win_ceiling_score  || brief.win_ceiling_score  || 0),
+      contention_score:   +(p.contention_score   || brief.contention_score   || 0),
+      floor_score:        +(p.floor_score        || brief.floor_score        || 0),
+      cut_survival_score: +(p.cut_survival_score || brief.cut_survival_score || 0),
+
       /* Extra fields */
       debut_flag:    p.debut_flag ?? brief.debut_flag ?? false,
       form_class:    p.form_class  || brief.form_class  || '',
@@ -573,6 +654,9 @@ async function init() {
       if (ts) ts.score = Math.round(pct * 10) / 10;
     });
   });
+
+  /* ── Client-side badge enrichment (must run after allPlayers fully built) ── */
+  allPlayers.forEach(p => enhanceBadges(p));
 
   /* ── Missing-trait validation + imputation ── */
   DIAGNOSTICS = runImputationPass(allPlayers);
@@ -1065,25 +1149,24 @@ function renderTable(players) {
   }
 }
 
-/* Render player badges (badges array from player_briefs) */
+/* Render player badges — table row: typed, truncation-safe, max 2 + "+N" overflow chip.
+   Sorted: fit first, then ceiling, then risk. */
 function renderPlayerBadges(badges) {
   if (!badges || badges.length === 0) return '';
-  const BADGE_COLORS = {
-    'Course Horse':      'background:#16a34a33;border-color:#16a34a;color:#86efac',
-    'Ceiling Play':      'background:#1d4ed833;border-color:#1d4ed8;color:#93c5fd',
-    'Fragile Favorite':  'background:#dc262633;border-color:#dc2626;color:#fca5a5',
-    'Cut Sweat':         'background:#d9770633;border-color:#d97706;color:#fcd34d',
-    'False Safety':      'background:#a1600333;border-color:#a16003;color:#fde68a',
-    'Live Longshot':     'background:#7c3aed33;border-color:#7c3aed;color:#c4b5fd',
-    'Anti-Pattern':      'background:#dc262633;border-color:#dc2626;color:#fca5a5',
-    'Debut Watch':       'background:#d9770633;border-color:#d97706;color:#fcd34d',
-    'Volatile Putter':   'background:#a1600333;border-color:#a16003;color:#fde68a',
-    'Form Spike':        'background:#16a34a33;border-color:#16a34a;color:#86efac',
-  };
-  return badges.slice(0,2).map(b => {
-    const style = BADGE_COLORS[b] || 'background:#33415533;border-color:#475569;color:#94a3b8';
-    return `<span class="player-badge-link" data-badge="${b}" title="Click to filter: ${b}" style="${style};border:1px solid;border-radius:999px;font-size:.62rem;font-weight:600;padding:.1rem .45rem;margin-left:.2rem;cursor:pointer">${b}</span>`;
+  const TYPE_ORDER = { fit: 0, ceiling: 1, risk: 2, misc: 3 };
+  const sorted = [...badges].sort((a, b) =>
+    ((TYPE_ORDER[classifyBadge(a).type] ?? 9) - (TYPE_ORDER[classifyBadge(b).type] ?? 9))
+  );
+  const visible = sorted.slice(0, 2);
+  const extra   = sorted.length - 2;
+  const pills = visible.map(b => {
+    const { color, tooltip } = classifyBadge(b);
+    return `<span class="player-badge player-badge-link" data-badge="${b}" title="${tooltip} — click to filter" style="background:${color}22;border:1px solid ${color};color:${color}">${b}</span>`;
   }).join('');
+  const morePill = extra > 0
+    ? `<span class="badge-overflow-chip" title="${sorted.slice(2).join(', ')}">+${extra}</span>`
+    : '';
+  return pills + morePill;
 }
 
 function updateResultBar(count) {
@@ -1603,7 +1686,8 @@ function vtsBarHTML(vts) {
 }
 
 function tierBadgeHTML(tier) {
-  return `<span class="tier-badge t${tier}">T${tier}</span>`;
+  const label = TIER_LABELS[tier] || '';
+  return `<span class="tier-badge t${tier}" title="Tier ${tier}: ${label}">T${tier}</span>`;
 }
 
 function vfdFitHTML(p) {
@@ -1668,6 +1752,8 @@ function openModal(p, brief) {
   const body = document.getElementById('modal-body');
   body.innerHTML = [
     sectionProbability(p),
+    sectionPlayerBadges(p),
+    sectionDarkHorseThesis(p),
     sectionBriefSummaries(p, b),
     sectionTraitBars(p.trait_scores),
     sectionTopDragTraits(p, b),
@@ -1675,7 +1761,6 @@ function openModal(p, brief) {
     sectionRiskFailure(p),
     sectionConviction(p.conviction_statement || b.conviction_statement),
     sectionDecomposition(p),
-    sectionPlayerBadges(p),
   ].join('');
 
   overlay.classList.add('open');
@@ -1684,6 +1769,18 @@ function openModal(p, brief) {
     const open  = panel.style.display !== 'none';
     panel.style.display = open ? 'none' : 'block';
     this.textContent = open ? '▶ Score decomposition' : '▼ Score decomposition';
+  });
+
+  /* Modal badge click → close modal, activate badge filter */
+  body.addEventListener('click', e => {
+    if (e.target.classList.contains('player-badge-link')) {
+      const badge = e.target.dataset.badge;
+      if (badge) {
+        activeBadgeFilter = activeBadgeFilter === badge ? null : badge;
+        overlay.classList.remove('open');
+        applyAndRender();
+      }
+    }
   });
 }
 
@@ -1725,8 +1822,8 @@ function sectionProbability(p) {
   // Recalibrated thresholds: T1≈88%, T2≈69%, T3≈43% (logistic center=55, slope=12)
   const cutColor = +p.make_cut_prob >= 70 ? '#4ade80' : +p.make_cut_prob >= 45 ? '#fcd34d' : '#f87171';
 
-  // Latent score pills (only render if present in payload)
-  const hasLatent = p.win_ceiling_score != null;
+  // Latent score pills — render if WCS is populated (now always true after merged-object fix)
+  const hasLatent = +p.win_ceiling_score > 0;
   const latentRow = hasLatent ? `
     <div class="stat-row" style="margin-top:.4rem;opacity:.8">
       <span class="stat-pill" title="Win Ceiling Score — venue history wins + peak form"><span class="sk">WCS:</span> <span class="sv" style="color:#a78bfa">${(+p.win_ceiling_score).toFixed(1)}</span></span>
@@ -1915,28 +2012,87 @@ function sectionDecomposition(p) {
   </div>`;
 }
 
+/* Modal badges — grouped by type (fit / ceiling / risk), all badges shown, clickable to filter */
 function sectionPlayerBadges(p) {
   const badges = p.badges || [];
   if (badges.length === 0) return '';
-  const BADGE_COLORS = {
-    'Course Horse':      'background:#16a34a33;border-color:#16a34a;color:#86efac',
-    'Ceiling Play':      'background:#1d4ed833;border-color:#1d4ed8;color:#93c5fd',
-    'Fragile Favorite':  'background:#dc262633;border-color:#dc2626;color:#fca5a5',
-    'Cut Sweat':         'background:#d9770633;border-color:#d97706;color:#fcd34d',
-    'False Safety':      'background:#a1600333;border-color:#a16003;color:#fde68a',
-    'Live Longshot':     'background:#7c3aed33;border-color:#7c3aed;color:#c4b5fd',
-    'Anti-Pattern':      'background:#dc262633;border-color:#dc2626;color:#fca5a5',
-    'Debut Watch':       'background:#d9770633;border-color:#d97706;color:#fcd34d',
-    'Volatile Putter':   'background:#a1600333;border-color:#a16003;color:#fde68a',
-    'Form Spike':        'background:#16a34a33;border-color:#16a34a;color:#86efac',
-  };
-  const badgeHTML = badges.map(b => {
-    const style = BADGE_COLORS[b] || 'background:#33415533;border-color:#475569;color:#94a3b8';
-    return `<span style="${style};border:1px solid;border-radius:999px;font-size:.75rem;font-weight:600;padding:.25rem .85rem">${b}</span>`;
-  }).join(' ');
-  return `<div class="modal-section">
-    <h4>Badges</h4>
-    <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.15rem">${badgeHTML}</div>
+  const TYPE_ORDER  = { fit: 0, ceiling: 1, risk: 2, misc: 3 };
+  const GROUP_LABEL = { fit: 'Style / Fit', ceiling: 'Ceiling', risk: 'Risk', misc: 'Other' };
+  const groups = {};
+  badges.forEach(b => {
+    const type = classifyBadge(b).type;
+    (groups[type] = groups[type] || []).push(b);
+  });
+  const html = Object.keys(groups)
+    .sort((a, b) => (TYPE_ORDER[a] ?? 9) - (TYPE_ORDER[b] ?? 9))
+    .map(type => {
+      const pills = groups[type].map(b => {
+        const { color, tooltip } = classifyBadge(b);
+        return `<span class="player-badge player-badge-link modal-badge" data-badge="${b}" title="${tooltip}" style="background:${color}22;border:1px solid ${color};color:${color}">${b}</span>`;
+      }).join('');
+      return `<div class="badge-group"><span class="badge-group-label">${GROUP_LABEL[type] || type}</span><div class="badge-group-pills">${pills}</div></div>`;
+    }).join('');
+  return `<div class="modal-section"><h4>Badges</h4><div class="badge-groups">${html}</div></div>`;
+}
+
+/* Dark Horse Thesis — Tier 3 only: answers the 4 structural questions for casual and sharp users */
+function sectionDarkHorseThesis(p) {
+  if (p.tier !== 3) return '';
+  const nsi = +p.neutral_skill_index || 0;
+  const vfs = +p.venue_fit_score || 0;
+  const wcs = +p.win_ceiling_score || 0;
+
+  /* Q1: Why can he win here */
+  const q1 = (p.top_traits || [])[0]
+    || `Venue fit score ${vfs.toFixed(1)}/100 — approach profile matches the Renaissance 150-200yd scoring zone`;
+
+  /* Q2: Structural ceiling mechanism */
+  let q2;
+  if (wcs >= 78)      q2 = `Win Ceiling Score ${wcs.toFixed(1)} — elite ceiling; venue history or a form spike can produce a top-5 result from this field position`;
+  else if (wcs >= 72) q2 = `Win Ceiling Score ${wcs.toFixed(1)} — elevated ceiling; one primary-trait fire above baseline is sufficient for contention`;
+  else if (nsi >= 70) q2 = `Elite neutral skill (NSI ${nsi.toFixed(1)}) — world-class ball-striking creates ceiling on any course; venue history is the constraint, not skill`;
+  else if (vfs >= 62) q2 = `Venue Fit Score ${vfs.toFixed(1)} — approach pattern structurally matched to Renaissance 150-200yd zone; fit can compensate for limited history sample`;
+  else                q2 = `Win Ceiling Score ${wcs.toFixed(1)} — ceiling constrained; requires simultaneous multi-trait fire; high-variance outcome range`;
+
+  /* Q3: What must spike */
+  const drag = (p.drag_traits || [])[0];
+  let q3;
+  if (drag) {
+    q3 = drag; /* Specific structural weakness is the most accurate answer */
+  } else if (p.flag_count > 0) {
+    q3 = `Anti-pattern flag(s) must not activate — ${p.anti_pattern_flags || 'course-specific structural weakness present'}`;
+  } else if (/form (cool|cold)/i.test(p.form_summary || '')) {
+    q3 = 'Form must recover to baseline — current below-average pace must mean-revert for ceiling to open';
+  } else {
+    q3 = 'Approach game from 150-200yds must hold above +0.3 SG for the week — this is the dominant scoring zone at Renaissance';
+  }
+
+  /* Q4: Why market may underrate */
+  const vhText   = (p.venue_history_summary || '').toLowerCase();
+  const isThin   = vhText.includes('thin') || /\b[12] start/.test(vhText) || vhText.includes('debut');
+  const isCool   = /form (cool|cold)/i.test(p.form_summary || '');
+  const hasLowNsi = nsi < 55;
+  let q4;
+  if (p.debut_flag || vhText.includes('debut')) {
+    q4 = `Debut at The Renaissance Club — market has no venue history to anchor price; debut CSS penalty already applied in the model; structural fit profile is intact`;
+  } else if (isThin) {
+    q4 = `Thin venue sample creates market uncertainty; model already discounts through VHN score — if approach fit holds, the market gap widens`;
+  } else if (isCool) {
+    q4 = `Below-baseline recent form suppresses market price; structural profile unchanged — form regression is mean-reverting, not a structural deficit at links venues`;
+  } else if (hasLowNsi) {
+    q4 = `Below-median neutral skill (NSI ${nsi.toFixed(1)}) creates market skepticism; venue fit and course history create a compensating edge the raw-skill market doesn't price`;
+  } else {
+    q4 = `DP World Tour co-sanctioned field — market pricing often underweights DP Tour regulars with established Renaissance history vs. PGA Tour-only comparables`;
+  }
+
+  return `<div class="modal-section dh-thesis-section">
+    <h4>Dark Horse Thesis</h4>
+    <div class="dh-thesis-grid">
+      <div class="dh-thesis-item"><div class="dh-thesis-q">Why can he win here?</div><div class="dh-thesis-a">${q1}</div></div>
+      <div class="dh-thesis-item"><div class="dh-thesis-q">Structural ceiling mechanism</div><div class="dh-thesis-a">${q2}</div></div>
+      <div class="dh-thesis-item"><div class="dh-thesis-q">What must spike?</div><div class="dh-thesis-a">${q3}</div></div>
+      <div class="dh-thesis-item"><div class="dh-thesis-q">Why market may underrate</div><div class="dh-thesis-a">${q4}</div></div>
+    </div>
   </div>`;
 }
 
@@ -1968,16 +2124,7 @@ function renderBriefs() {
 
     const cutColor = +p.make_cut_prob >= 75 ? '#4ade80' : +p.make_cut_prob >= 55 ? '#fcd34d' : '#f87171';
 
-    const badgesHTML = (p.badges || []).slice(0, 2).map(b => {
-      const colors = {
-        'Course Horse': '#16a34a', 'Form Spike': '#16a34a',
-        'Ceiling Play': '#1d4ed8', 'Fragile Favorite': '#dc2626',
-        'Cut Sweat': '#d97706', 'Live Longshot': '#7c3aed',
-        'Debut Watch': '#d97706', 'Anti-Pattern': '#dc2626',
-      };
-      const c = colors[b] || '#475569';
-      return `<span style="background:${c}22;border:1px solid ${c};color:${c === '#475569' ? '#94a3b8' : 'white'};border-radius:999px;font-size:.6rem;font-weight:600;padding:.1rem .4rem">${b}</span>`;
-    }).join(' ');
+    const badgesHTML = renderPlayerBadges(p.badges);
 
     return `<div class="brief-card ${tc}" style="cursor:pointer" data-player-name="${p.player_name}">
       <div class="brief-name">${displayName} ${tierBadgeHTML(p.tier)} ${badgesHTML}</div>
@@ -1992,16 +2139,26 @@ function renderBriefs() {
     </div>`;
   }).join('');
 
-  /* Wire click on brief cards → modal */
-  grid.querySelectorAll('.brief-card').forEach(card => {
-    card.addEventListener('click', () => {
+  /* Wire click on brief cards → badge filter (if badge clicked) or modal */
+  grid.addEventListener('click', e => {
+    if (e.target.classList.contains('player-badge-link')) {
+      const badge = e.target.dataset.badge;
+      if (badge) {
+        e.stopPropagation();
+        activeBadgeFilter = activeBadgeFilter === badge ? null : badge;
+        applyAndRender();
+      }
+      return;
+    }
+    const card = e.target.closest('.brief-card');
+    if (card) {
       const name = card.dataset.playerName;
       const p = allPlayers.find(x => x.player_name === name);
       if (p) {
         const brief = briefsById[p.player_id] || briefsByNk[makeNameKey(p)];
         openModal(p, brief);
       }
-    });
+    }
   });
 }
 
@@ -2277,17 +2434,33 @@ function buildGlossaryHTML() {
       ['SG:PUTT', 'Strokes gained: putting, regressed for links surfaces (13%).'],
       ['SG:ARG', 'Strokes gained: around-the-green / short game (10%).'],
     ]),
-    section('Player Badges', [
-      ['Course Horse', 'Strong historical record at this venue. History weight inflated.'],
-      ['Ceiling Play', 'High upside if primary traits fire. Variance elevated.'],
-      ['Fragile Favorite', 'High VTS but fragile anti-pattern profile. Risk of blowup round.'],
-      ['Cut Sweat', 'Make-cut probability borderline (55–70%). Model uncertain on weekend status.'],
-      ['False Safety', 'High Cut% but low win/top10 ceiling. Safe to survive, limited upside.'],
-      ['Live Longshot', 'T3/T4 player with specific course fit that market may undervalue.'],
-      ['Debut Watch', 'First start at The Renaissance Club. No venue history adjustment.'],
-      ['Volatile Putter', 'High putting variance — could swing score 3–5 shots either way.'],
-      ['Form Spike', 'Recent form significantly above 12-month baseline. Momentum factor.'],
-      ['Anti-Pattern', 'Player carries at least one significant course anti-pattern flag.'],
+    section('Tier Definitions', [
+      ['T1 · Structural Winner', 'Full-profile match: elite NSI + strong venue fit + course history. Win probability ≥3%.'],
+      ['T2 · Primary Contender', 'Strong two-of-three component match. Real contention ceiling. Top-10 most likely lane.'],
+      ['T3 · Dark Horse', 'Structural ceiling exists but one component limits VTS. Win probability real but requires trait spike.'],
+      ['T4 · Fragile Path', 'Thin venue history or form drag limits ceiling. Make-cut is not certain; approach must hold.'],
+      ['T5 · Fade / Cut Risk', 'Profile mismatch or structural weakness. Miss-cut risk elevated. Fade or avoid in betting context.'],
+    ]),
+    section('Style / Fit Badges', [
+      ['Defending Champ', 'Defending tournament champion — maximum venue calibration.'],
+      ['Course Horse', 'Positive venue history + course-adjustment — proven scorer at The Renaissance Club.'],
+      ['Iron Edge', 'Venue fit score ≥64 — approach profile optimally matched to Renaissance 150-200yd zone.'],
+      ['Elite NSI', 'World-class neutral skill index (≥85) — elite ball-striking translates to any surface.'],
+      ['Form Spike', 'Current scoring pace significantly above 12-month baseline — momentum confirmed.'],
+    ]),
+    section('Ceiling Badges', [
+      ['Dark Horse', 'Win probability ≥2% from Tier 3 — structural ceiling underpriced by market.'],
+      ['Ceiling Play', 'Elevated win ceiling score — one elite-trait spike can produce a top-5 result.'],
+      ['Live Longshot', 'Win probability >2% from Tier 3+ — market may be underpricing this player.'],
+    ]),
+    section('Risk Badges', [
+      ['Fragile Favorite', 'Top-2-tier player with anti-pattern flags — structural blowup risk present.'],
+      ['Anti-Pattern', '2+ recurring weak-link trait flags for this venue profile.'],
+      ['Cut Sweat', 'Make-cut probability below 60% — weekend status structurally uncertain.'],
+      ['False Safety', 'High cut rate but near-zero win ceiling — positional trap for bettors.'],
+      ['Debut Watch', 'First start at The Renaissance Club — zero venue-specific calibration.'],
+      ['Volatile Putter', 'High putting variance — links fescue greens can amplify or collapse this trait.'],
+      ['Form Cold', 'Scoring pace below seasonal baseline — negative momentum entering event.'],
     ]),
     section('Anti-Pattern Flags', [
       ['Bomb + Spray', 'Elite distance but below-field driving accuracy — punished at Renaissance Club placement holes.'],
