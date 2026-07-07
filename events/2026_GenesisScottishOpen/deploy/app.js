@@ -562,6 +562,12 @@ async function init() {
       risk_vector:   p.risk_vector   || brief.risk_vector   || '',
       failure_condition: p.failure_condition || brief.failure_condition || '',
       conviction_statement: p.conviction_statement || brief.conviction_statement || '',
+      conviction_level:  p.conviction_level  || brief.conviction_level  || '',
+      structural_edge:   p.structural_edge   || brief.structural_edge   || '',
+      win_path:          p.win_path          || brief.win_path          || '',
+      failure_mode:      p.failure_mode      || brief.failure_mode      || '',
+      betting_use:       p.betting_use       || brief.betting_use       || '',
+      market_misread:    p.market_misread    || brief.market_misread    || '',
       decomposition: p.decomposition || brief.decomposition || {},
       badges:        p.badges        || brief.badges        || [],
       brief_depth:   p.brief_depth   || brief.brief_depth   || '',
@@ -1383,7 +1389,7 @@ function openCompareModal() {
       <h5>Output</h5>
       ${statRows}
       ${traitRows ? `<h5>Trait Profile</h5>${traitRows}` : ''}
-      ${p.conviction_statement ? `<h5>Conviction</h5><div style="font-size:.7rem;color:var(--muted);line-height:1.5">${p.conviction_statement}</div>` : ''}
+      ${(p.structural_edge || p.conviction_statement) ? `<h5>${p.structural_edge ? 'Intelligence' : 'Conviction'}</h5><div style="font-size:.7rem;color:var(--muted);line-height:1.5">${p.structural_edge ? `<strong>Edge:</strong> ${p.structural_edge}` : p.conviction_statement}</div>` : ''}
     </div>`;
   }).join('');
 
@@ -1759,7 +1765,7 @@ function openModal(p, brief) {
     sectionTopDragTraits(p, b),
     sectionAntiPattern(p, b),
     sectionRiskFailure(p),
-    sectionConviction(p.conviction_statement || b.conviction_statement),
+    sectionConviction(p, b),
     sectionDecomposition(p),
   ].join('');
 
@@ -1984,9 +1990,30 @@ function sectionRiskFailure(p) {
   </div>`;
 }
 
-function sectionConviction(text) {
-  if (!text) return '';
-  return `<div class="modal-section"><h4>Conviction</h4><p>${text}</p></div>`;
+function sectionConviction(p, b) {
+  const pp = (p && typeof p === 'object') ? p : {};
+  const bb = (b && typeof b === 'object') ? b : {};
+  const fallback = pp.conviction_statement || bb.conviction_statement || '';
+  const hasNew = pp.structural_edge || pp.win_path || pp.failure_mode || pp.betting_use;
+  if (hasNew) {
+    const level = pp.conviction_level || '';
+    const levelSlug = level.toLowerCase().replace(/[^a-z]/g, '-');
+    const levelBadge = level
+      ? ` &nbsp;<span class="conv-level conv-level-${levelSlug}">${level}</span>`
+      : '';
+    const rows = [
+      ['Structural Edge', pp.structural_edge],
+      ['Win Path',        pp.win_path],
+      ['Failure Mode',    pp.failure_mode],
+      ['Betting Use',     pp.betting_use],
+      ['Market Misread',  pp.market_misread],
+    ].filter(([, v]) => v)
+     .map(([k, v]) => `<div class="conv-row"><span class="conv-key">${k}</span><span class="conv-body">${v}</span></div>`)
+     .join('');
+    return `<div class="modal-section"><h4>Intelligence${levelBadge}</h4><div class="conv-grid">${rows}</div></div>`;
+  }
+  if (!fallback) return '';
+  return `<div class="modal-section"><h4>Conviction</h4><p>${fallback}</p></div>`;
 }
 
 function sectionDecomposition(p) {
@@ -2133,9 +2160,9 @@ function renderBriefs() {
       <ul class="fit-list fit-compact">${topTraitsHTML}</ul>
       <div class="brief-label">Course History</div>
       <div class="brief-val">${p.venue_history_summary || '—'}</div>
-      <div class="brief-label">Conviction</div>
-      <div class="brief-val">${p.conviction_statement || '—'}</div>
-      ${p.failure_condition ? `<div class="brief-risk">${cleanRawKeys(p.failure_condition.split('|')[0]?.trim())}</div>` : ''}
+      <div class="brief-label">${p.structural_edge ? 'Structural Edge' : 'Conviction'}</div>
+      <div class="brief-val">${p.structural_edge || p.conviction_statement || '—'}</div>
+      ${(p.failure_mode || p.failure_condition) ? `<div class="brief-risk">${p.failure_mode ? cleanRawKeys(p.failure_mode.split('|')[0]?.trim()) : cleanRawKeys(p.failure_condition.split('|')[0]?.trim())}</div>` : ''}
     </div>`;
   }).join('');
 

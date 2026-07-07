@@ -215,6 +215,17 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 .modal-section { margin-bottom: 1.1rem; }
 .modal-section h4 { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: .45rem; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
 .modal-section p { font-size: .82rem; color: var(--text); line-height: 1.65; }
+/* ── Intelligence / conviction sections ── */
+.conv-grid { display: flex; flex-direction: column; gap: .55rem; }
+.conv-row { display: grid; grid-template-columns: 8.5rem 1fr; gap: .4rem .6rem; align-items: baseline; }
+.conv-key { font-size: .63rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); opacity: .8; padding-top: .15rem; white-space: nowrap; }
+.conv-body { font-size: .8rem; color: var(--text); line-height: 1.6; }
+.conv-level { font-size: .6rem; font-weight: 700; letter-spacing: .05em; padding: .1rem .4rem; border-radius: .25rem; vertical-align: middle; }
+.conv-level-high { background: #16a34a33; border: 1px solid #16a34a; color: #86efac; }
+.conv-level-medium-high { background: #0891b233; border: 1px solid #0891b2; color: #67e8f9; }
+.conv-level-medium { background: #7c3aed33; border: 1px solid #7c3aed; color: #c4b5fd; }
+.conv-level-low-medium { background: #d9770633; border: 1px solid #d97706; color: #fcd34d; }
+.conv-level-low { background: #dc262633; border: 1px solid #dc2626; color: #fca5a5; }
 .stat-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .5rem; }
 .stat-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: .4rem; padding: .25rem .6rem; font-size: .75rem; }
 .stat-pill.small { font-size: .7rem; padding: .15rem .45rem; }
