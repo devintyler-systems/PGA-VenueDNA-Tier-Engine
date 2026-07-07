@@ -1,0 +1,473 @@
+PGA Venuedna Event App — V2 Front-End Product Spec
+This replaces the prior board/app rendering spec.
+
+Your job is to build a premium, static, deployable PGA VenueDNA event app that is visually sharp, mobile-friendly, fast, and fully data-driven from the canonical event payload and scored-field outputs.
+
+NON-NEGOTIABLE PRODUCT GOAL
+This app is not just a rankings board. It is an interactive venue-fit scouting tool that lets a user:
+- scan the full field quickly
+- understand exactly why each player grades where he does
+- filter for custom trait combinations
+- save favorites
+- compare players
+- see best betting lane by player
+- inspect score decomposition without losing auditability
+
+DATA / MODEL INTEGRITY RULES
+- Core rankings must remain data-driven from source files only.
+- Do not hand-write rankings into HTML or JS.
+- Do not let betting, DFS, popularity, or visual presentation alter core model outputs.
+- Preserve traceability for every player:
+  - NeutralSkill
+  - VenueFitDelta
+  - VenueHistoryDelta
+  - penalties / anti-patterns / gates
+- The front end may display derivative interpretations, but never rewrite the core model layer.
+- Follow canonical event payload / scored field / deploy package structure.
+
+FILES / DEPLOY CONTRACT
+Use the canonical deploy package pattern:
+- index.html
+- styles.css
+- app.js
+- /data/event_payload.json
+- /data/vts_full.csv
+- /data/player_briefs.json
+- /data/links.json
+- /assets/logo.svg
+- README.md
+
+The app must work as a static site with no build step.
+
+PRIMARY UX REQUIREMENT
+ALL PLAYERS MUST HAVE PLAYER CARDS / NOTES
+Do not limit expandable player cards to Tier 1 and Tier 2 only.
+Every player in the field must have some level of structured card and notes.
+
+CARD DEPTH BY TIER
+- Tier 1: rich brief
+- Tier 2: rich brief
+- Tier 3: medium brief with explicit upside / dark-horse logic
+- Tier 4: compact brief with conditional upside
+- Tier 5: compact fade brief with structural failure explanation
+
+EVERY PLAYER CARD MUST INCLUDE
+- player name
+- tier
+- rank
+- VTS / VenueDNA score
+- Venue Fit score if available
+- win / top5 / top10 / top20 / make cut / miss cut probabilities when applicable
+- note when make_cut / miss_cut is not applicable for no-cut events
+- NeutralSkill summary
+- VenueFit summary
+- VenueHistory summary
+- Form summary
+- penalties / anti-pattern summary
+- top positive traits
+- top drag traits
+- risk vector
+- named failure condition
+- conviction statement
+- trace / decomposition access
+- best betting lane label
+
+If a field is unavailable, render graceful fallback text rather than leaving blank.
+
+TIER 3 DARK-HORSE RULE
+Tier 3 players cannot be generic “interesting names.”
+Every Tier 3 card must explicitly answer:
+- Why he can win here
+- What exact structural mechanism gives him ceiling
+- What has to spike for contention
+- Why the board / market / casual user may underrate him
+
+Examples of valid mechanisms:
+- elite APP 150-200 at a course demanding repeated long-iron scoring looks
+- strong OTT accuracy + wedge proximity on a positional venue
+- positive venue history delta with enough rounds to matter
+- high-end par-5 leverage at an otherwise low-scoring layout
+- spike putting ceiling on this surface combined with enough approach baseline
+
+TIER 4 / TIER 5 RULE
+Lower tiers still need useful notes.
+- Tier 4 must explain what has to go right and why ceiling is limited
+- Tier 5 must explain why the player is structurally weak here, not just “bad form”
+- Anti-pattern flags must be visible and human-readable
+
+LEFT RAIL / BOARD STRUCTURE
+Build a sticky left-side player rail on desktop and a collapsible top / drawer rail on mobile.
+Each row should include:
+- favorite star
+- player name
+- tier color marker
+- rank
+- compact score
+- one-line thesis
+- optional badge cluster (Course Horse / Ceiling Play / Fragile Favorite / Cut Sweat / Anti-Pattern)
+
+Clicking a player opens or scroll-syncs to his card.
+The board should feel instant and interactive, not like a long static article.
+
+FAVORITES — MUST WORK AND HOLD
+Add a clickable star beside every player name anywhere players are listed.
+Favorites must:
+- persist across sorting and filtering
+- appear in a “My Guys” tray
+- support “show favorites only”
+- support compare mode for favorites
+- not disappear or reset during rerenders
+
+Persistence model:
+- use stable app state for current session
+- attempt localStorage persistence when environment allows
+- if storage is blocked, fail gracefully without breaking the UI
+- never let favorites logic delete players or corrupt filtered lists
+
+ADVANCED FILTER LAB — CORE FEATURE
+The app must include an obvious filter button / drawer / panel.
+This is a must-have, not a bonus.
+
+Users must be able to build filters against:
+- trait scores
+- trait percentile / label if available
+- Venue Fit score
+- VenueFitDelta
+- VenueHistoryDelta
+- NeutralSkill / neutral SG
+- recent form
+- VTS final
+- win / top5 / top10 / top20 / make cut / miss cut
+- anti-pattern flags
+- debut status
+- health / risk flags if present
+- favorites only
+- tier
+- confidence band / variance band if present
+
+Supported operators:
+- >
+- <
+- >=
+- <=
+- =
+- between
+- contains
+- excludes
+
+Support multi-rule filtering:
+- AND
+- OR
+
+EXAMPLE FILTER THAT MUST WORK
+A user should be able to create:
+- Approach 150-200 > 70
+AND
+- Putting > 80
+AND
+- Venue Fit > 7
+
+The board must return only players who match those rules.
+
+FILTER UX REQUIREMENTS
+- instant results count
+- active filter chips visible above board
+- clear all button
+- save preset option
+- reset to default board option
+- favorites toggle
+- anti-pattern exclusion toggle
+- mobile-friendly controls
+
+DEFAULT FILTER PRESETS
+Include at minimum:
+- Iron Elites
+- Wedge Specialists
+- Long-Iron Fits
+- Bombers
+- Positional Drivers
+- Birdie Makers
+- Course Horses
+- Safe Cut Makers
+- Ceiling Plays
+- Volatile Upside
+- Anti-Pattern Fades
+
+COMPARE MODE
+Users should be able to select 2–4 players and compare them side-by-side.
+Compare view should show:
+- tier
+- VTS
+- win/top10/top20/make cut
+- top traits
+- drag traits
+- Venue Fit
+- Venue History
+- form
+- anti-patterns
+- score decomposition
+- betting lane
+
+BETTING UTILITY LAYER
+Add a sportsbook-agnostic betting utility layer.
+Do not require odds feeds.
+Do not pretend to price market edge if market data is absent.
+
+For every player, compute / display a “Best Betting Lane” using the model probabilities and player profile.
+Supported labels:
+- Winner
+- Top 5
+- Top 10
+- Top 20
+- Make Cut
+- Miss Cut
+- Pass / No Edge
+
+Also render a simple betting-profile strip with:
+- Winner viability
+- Top 5 viability
+- Top 10 viability
+- Top 20 viability
+- Make Cut safety
+- Miss Cut danger
+
+Use intuitive color/status language:
+- green = preferred lane
+- amber = viable secondary lane
+- red = fragile / avoid / thin
+
+ADDITIONAL PLAYER TAGS / BADGES
+Use clean, useful badges only when supported by data:
+- Fragile Favorite
+- Ceiling Play
+- Course Horse
+- Cut Sweat
+- False Safety
+- Live Longshot
+- Anti-Pattern
+- Debut Watch
+- Volatile Putter
+- Form Spike
+
+Do not over-badge every player.
+
+CARD LAYOUT MODES
+Support at least 3 viewing modes:
+- Compact
+- Standard
+- Scout
+
+Compact:
+- faster scanning
+- smaller trait display
+- one-paragraph thesis
+
+Standard:
+- default mode
+- balanced information density
+
+Scout:
+- expanded analysis
+- full trait stack
+- decomposition
+- risk and betting profile visible
+
+PLAYER CARD CONTENT DESIGN
+Each card should have clear, scannable modules:
+1. Header
+- name
+- star
+- tier
+- rank
+- VTS
+- best betting lane badge
+
+2. Thesis
+- 1–2 sentence structural summary
+
+3. Probabilities
+- win / top5 / top10 / top20 / make cut / miss cut
+- handle no-cut events cleanly
+
+4. Trait profile
+- top traits
+- drag traits
+- weighted trait bars or chips
+- trait labels in plain English
+
+5. Venue mechanism
+- why he fits or doesn’t fit this course
+- course-history note
+- comp-course note if present
+
+6. Risk
+- anti-pattern flags
+- named failure condition
+- volatility / confidence if available
+
+7. Decomposition
+- NeutralSkill
+- VenueFitDelta
+- VenueHistoryDelta
+- penalties
+- trace notes in accessible compact form
+
+8. Betting utility
+- best lane
+- caution label if probability profile is thin or fragile
+
+SCORE DECOMPOSITION — MUST BE VISIBLE
+Users must be able to inspect why a player sits where he sits.
+Add a tooltip, drawer, modal, hover panel, or expandable section showing:
+- NeutralSkill
+- VenueFitDelta
+- VenueHistoryDelta
+- anti-pattern penalties
+- other gates / discounts if present
+- trace notes
+
+This is essential for trust and auditability.
+
+TRAIT VISUALIZATION
+Add a compact visual profile to every card.
+Preferred options:
+- horizontal trait bars
+- mini radar
+- weighted chips
+- spark-style profile strip
+
+Prioritize readability over novelty.
+Do not use cluttered charts.
+
+ANTI-PATTERN UX
+Anti-pattern flags should be:
+- visible
+- clickable
+- explainable
+
+Clicking an anti-pattern chip should filter the board to players sharing that flag or exclude them, depending on user intent.
+
+SEARCH
+Include a fast player search box that filters by name instantly.
+Search should work alongside filters and favorites.
+
+MOBILE UX
+The app must be genuinely usable on mobile.
+Requirements:
+- left rail collapses elegantly
+- filter drawer is touch-friendly
+- compare mode remains usable
+- cards stack cleanly
+- no tiny text
+- no hover-only critical interactions
+- sticky actions remain accessible without covering content
+
+VISUAL DIRECTION
+This should feel premium and differentiated from a generic dashboard.
+Aesthetic direction:
+- dark coastal / tournament-night feel
+- restrained gold reserved for true emphasis
+- sea-glass / slate / deep navy palette
+- subtle motion only
+- premium typography
+- sharp spacing rhythm
+- high legibility
+
+Avoid:
+- generic SaaS template look
+- neon gradients
+- noisy shadows
+- overuse of badges
+- over-decorated stat cards
+- anything that feels like AI-generated filler UI
+
+ANIMATION / INTERACTION
+Use tasteful, lightweight motion:
+- smooth filter transitions
+- card expand / collapse
+- favorite star response
+- compare dock entrance
+- sticky rail focus state
+- small count-up / state changes where appropriate
+
+Respect reduced motion preferences.
+
+DESIGN TASTE
+The board should make scanning easy.
+Prioritize:
+- fast pattern recognition
+- low friction exploration
+- discoverability of “my guys”
+- confidence in why a player is ranked there
+- delight in interaction, not gimmicks
+
+EMPTY / ERROR STATES
+Design polished states for:
+- no results from filter
+- missing data fields
+- no favorites saved
+- compare mode with fewer than 2 players selected
+- no-cut event probability handling
+- payload load error
+
+RECOMMENDED HOME SECTIONS
+The app homepage / main board should include:
+- event hero header
+- venue trait summary
+- model summary / trait weights
+- top-tier spotlight strip
+- favorites tray
+- filter / search / compare control bar
+- full board with left rail + player cards
+- anti-pattern summary
+- betting lane summary
+- methodology / traceability footer
+
+BOARD SUMMARY MODULES
+Add small, useful overview modules above the full player section:
+- tier counts
+- strongest course-fit archetypes
+- top anti-pattern clusters
+- safest top-20 profiles
+- best make-cut profiles when applicable
+- highest-volatility ceiling plays
+
+NO-CUT HANDLING
+If the event is no-cut:
+- do not show make-cut / miss-cut as normal values
+- render a clear “N/A — no cut event” state
+- avoid misleading betting labels tied to cut survival
+
+DATA EXTENSION EXPECTATION
+If the canonical player_briefs.json only includes Tier 1 and Tier 2, extend the front-end app data model so every player in players[] or tier buckets can still render a brief card using:
+- event_payload player fields
+- vts_full data
+- trait scores
+- anti-pattern flags
+- trace notes
+- generated short summaries derived from source fields
+
+Do not leave Tier 3–5 blank.
+
+IMPORTANT PRODUCT PRINCIPLE
+A user should be able to come into the app and do any of the following in under a minute:
+- find all players matching a specific trait formula
+- save favorites
+- compare 3 players
+- understand why a Tier 3 player can actually win
+- identify which favorite is better for winner vs top10 vs top20
+- inspect the structural reason a player is a fade
+
+OUTPUT STANDARD
+Build the app as if it will be shown to serious golf bettors, DFS players, and model-driven users who care about both edge and traceability.
+
+The result should feel:
+- premium
+- fast
+- interactive
+- trustworthy
+- fun to use
+- easy to navigate
+- structurally faithful to the VenueDNA model
+
+Tier 3 cards should include a dedicated “Path to first-page contention” line, because that is often more useful to users than a generic upside blurb and matches the kind of structural mechanism surfaced in post-event trait audits, where players can outperform their initial VTS through a specific OTT/ARG/Putt or approach-driven path. That small section will help users distinguish a true dark horse from a low-tier player who merely isn’t dead on arrival.

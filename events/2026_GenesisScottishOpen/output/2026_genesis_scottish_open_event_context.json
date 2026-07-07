@@ -1,0 +1,59 @@
+{
+  "event_id": "2026_genesis_scottish_open",
+  "event_name": "2026 Genesis Scottish Open",
+  "venue": "The Renaissance Club",
+  "location": "North Berwick, East Lothian, Scotland",
+  "dates": "2026-07-10 to 2026-07-13",
+  "tour": "DP World Tour / PGA Tour co-sanctioned",
+  "purse_usd": 9000000,
+  "field_size": 166,
+  "cut_rule": "Top 65 and ties after 36 holes",
+  "par": 71,
+  "yards": 7103,
+  "course_type": "Links",
+  "variance_class": "HIGH",
+  "variance_rationale": "Links setup — wind exposure, firm/fast conditions, unpredictable bounce. Historical winner spread: multiple T40+ players have won in the field. Winner typically requires 4-round consistency across variable conditions.",
+  "primary_scoring_zone": "Approach 150-200yds (dominant par-4 approach zone)",
+  "trait_weight_matrix": {
+    "approach_150_200": 0.3,
+    "sg_app_overall": 0.15,
+    "sg_ott_positional": 0.2,
+    "driving_accuracy": 0.12,
+    "sg_putt": 0.13,
+    "sg_arg_short_game": 0.1
+  },
+  "winner_trait_profile": "Strong approach from 150-200yds, positive driving accuracy adjustment, elite or near-elite SG:APP, reliable short game (ARG ≥ 0), competent putting. Historical: winners often +1.0 to +2.0 SG:APP for the week.",
+  "comp_courses": [
+    {
+      "name": "Carnoustie Golf Links",
+      "similarity": 0.85,
+      "note": "Similar long-iron demand, firm/fast, wind exposure"
+    },
+    {
+      "name": "Kingsbarns Golf Links",
+      "similarity": 0.78,
+      "note": "Comparable approach-from-rough premium"
+    },
+    {
+      "name": "Royal Troon",
+      "similarity": 0.8,
+      "note": "Links DNA, accuracy premium on approach corridors"
+    },
+    {
+      "name": "Castle Stuart / Cabot Highlands",
+      "similarity": 0.7,
+      "note": "Similar elevated links feel, wind variable"
+    }
+  ],
+  "model_version": "VenueDNA v2",
+  "generated_date": "2026-07-06",
+  "tier_counts": {
+    "1": 5,
+    "2": 24,
+    "3": 69,
+    "4": 40,
+    "5": 28
+  },
+  "anti_pattern_count": 30,
+  "debut_count": 39
+}
