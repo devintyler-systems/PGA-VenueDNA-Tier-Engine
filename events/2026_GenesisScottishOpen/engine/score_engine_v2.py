@@ -132,10 +132,30 @@ print(f"  Field: {len(field_df)} players")
 sg_raw = pd.read_csv(INPUT / "field_player_Last12month_TrueSG_Data.csv",
                       encoding="cp1252")
 sg_raw.columns = [c.strip() for c in sg_raw.columns]
+# Normalize SG column names to lowercase for consistent downstream access
+sg_raw.columns = [c.lower() if c.upper().startswith("SG-") else c for c in sg_raw.columns]
+# Rename alternate column headers to canonical names
+_sg_renames = {
+    "events": "Events Last 12 Months",
+    "sg-ott.1": None,       # duplicate OTT column — drop
+    "ev-text 7": None,
+    "shotlink-rounds": None,
+    "wins": None,
+}
+sg_raw = sg_raw.drop(columns=[c for c in sg_raw.columns if _sg_renames.get(c.lower()) is None and c.lower() in _sg_renames], errors="ignore")
+if "Events" in sg_raw.columns and "Events Last 12 Months" not in sg_raw.columns:
+    sg_raw.rename(columns={"Events": "Events Last 12 Months"}, inplace=True)
+# Compute sg-total if missing
+if "sg-total" not in sg_raw.columns and all(c in sg_raw.columns for c in ["sg-app", "sg-ott", "sg-putt", "sg-arg"]):
+    sg_raw["sg-total"] = sg_raw[["sg-app", "sg-ott", "sg-putt", "sg-arg"]].sum(axis=1, min_count=1)
 sg_raw["key"] = sg_raw.apply(
     lambda r: make_key(str(r.get("Last Name", "")), str(r.get("First Name", ""))), axis=1)
 sg_raw["Driving-Accuracy"] = sg_raw["Driving-Accuracy"].apply(parse_pct)
-sg_raw["Win %"] = sg_raw["Win %"].apply(parse_pct)
+# Column name varies between data pulls ("Win %" vs "WIN%") — normalize
+if "Win %" not in sg_raw.columns and "WIN%" in sg_raw.columns:
+    sg_raw.rename(columns={"WIN%": "Win %"}, inplace=True)
+if "Win %" in sg_raw.columns:
+    sg_raw["Win %"] = sg_raw["Win %"].apply(parse_pct)
 
 # 3. Approach skill
 app_raw = pd.read_csv(INPUT / "approach_skill_Last12mon.csv", encoding="cp1252")
@@ -407,8 +427,11 @@ def form_adj_neutral(true_sg_vs_baseline):
         return adj
     return 0.0
 
-df["form_adj_neutral"] = df["true_sg_vs_baseline"].apply(form_adj_neutral)
-df["neutral_skill_sg"] = df["neutral_skill_raw"] + df["form_adj_neutral"]
+# FIX (FC-2): form_adj_neutral removed — form belongs ONLY in the dedicated FORM layer (Step 5).
+# Previously, HOT form boosted NSI via this path AND received a separate form_score weight,
+# double-counting the signal and overriding structural skill differences (e.g. Scheffler vs Clark).
+df["form_adj_neutral"] = pd.Series(0.0, index=df.index)
+df["neutral_skill_sg"] = df["neutral_skill_raw"]  # pure structural skill, no form injection
 
 # Normalize to 0-100
 df["neutral_skill_index"] = zscore_scale(df["neutral_skill_sg"], target_mean=50.0, target_std=16.0)
@@ -466,10 +489,22 @@ df["approach_composite_value"] = (
     + df["rough_under150_value_c"] * 0.05  # rough wedge recovery
 )
 
+# FIX (FC-2 Bug 1+2): Two distinct bugs corrected here:
+#   Bug 1 — fit_drive_acc was already baked inside venue_fit_total_adj (it is the "driving-accuracy"
+#            component of that total). Adding it again at ×0.15 gave driving accuracy an effective
+#            weight of 0.55+0.15=0.70 — double-counted and asymmetrically penalising accurate players.
+#   Bug 2 — the venue fit CSV's driving-accuracy column is inverted vs actual SG data
+#            (Scheffler +5.4pp actual accuracy → fit_drive_acc=-0.13 penalty; Clark -3.3pp actual
+#            → fit_drive_acc=+0.07 bonus). Replacing with SG-CSV canonical signal.
+# Strip DA from total_adj so it is not counted twice:
+df["venue_fit_total_adj_ex_da"] = df["venue_fit_total_adj"].fillna(0.0) - df["fit_drive_acc"].fillna(0.0)
+# Canonical driving accuracy signal from SG source: 0.015 strokes/rnd per pp of DA vs field avg.
+# Field DA range ≈ -10 to +12pp → signal range ≈ -0.15 to +0.18 (clipped to ±0.15).
+df["drive_acc_sg_signal"] = (df["drive_acc_12m"].fillna(0.0) * 0.015).clip(-0.15, 0.15)
 df["venue_fit_raw"] = (
-    df["venue_fit_total_adj"] * 0.55
-    + df["approach_composite_value"] * 0.30
-    + df["fit_drive_acc"].fillna(0.0) * 0.15
+    df["venue_fit_total_adj_ex_da"] * 0.45   # DA removed; weight reduced from 0.55
+    + df["approach_composite_value"] * 0.40  # primary Renaissance trait; up from 0.30
+    + df["drive_acc_sg_signal"] * 0.15       # SG-CSV accuracy; correct sign, non-redundant
 )
 
 # ─── ANTI-PATTERN FLAGS ───
@@ -484,9 +519,10 @@ df["ap_flag1"] = (
     df["sg_app_12m"].fillna(0.0) < 0
 ) & (~df.apply(ch_positive, axis=1))
 
-# Flag 2: fit_drive_acc < 0 AND approach_composite_value <= 0 (both negative)
+# Flag 2: below-avg driving accuracy (SG-based) AND negative approach composite
+# FIX (FC-2): now uses drive_acc_sg_signal (canonical SG source) instead of fit_drive_acc (suspect CSV)
 df["ap_flag2"] = (
-    df["fit_drive_acc"] < 0
+    df["drive_acc_sg_signal"] < -0.03  # accuracy ≥ 2pp below field avg by SG data
 ) & (df["approach_composite_value"] <= 0)
 
 # Flag 3: sg_putt > 1.5 (volatile putter — flag only, not venue_fit penalty)
@@ -569,10 +605,21 @@ df["bonus_2025"] = df.apply(recent_2025_bonus, axis=1)
 df["ch_adjustment_f"] = pd.to_numeric(df.get("ch_adjustment", np.nan), errors="coerce").fillna(0.0)
 df["experience_adjustment_f"] = pd.to_numeric(df.get("experience_adjustment", np.nan), errors="coerce").fillna(0.0)
 
+# FIX (FC-2 Bug 5): Add explicit podium (T2-T5) and venue-win quality bonuses.
+# Previously ch_adjustment rewarded consistency-vs-expected only — Scheffler's T3 podium
+# was not credited because his CUT in 2022 pulled his versus_expected negative.
+# A T3 must outweigh a pattern of T10-T11 finishes; separate quality bonuses enforce this.
+df["podium_bonus_vhn"] = df.apply(
+    lambda r: 0.08 if (r.get("has_venue_podium", False) and not r.get("has_venue_win", False)) else 0.0,
+    axis=1)
+df["win_bonus_vhn"] = df["has_venue_win"].astype(float) * 0.12
+
 df["venue_history_raw"] = (
-    df["ch_adjustment_f"] * 4.0
-    + df["experience_adjustment_f"] * 2.0
+    df["ch_adjustment_f"] * 3.0            # reduced from 4.0 — less dominance of baseline-vs-expected
+    + df["experience_adjustment_f"] * 1.5   # reduced from 2.0
     + df["bonus_2025"]
+    + df["podium_bonus_vhn"]
+    + df["win_bonus_vhn"]
 )
 # Players with no course history: neutral
 df["debut_flag"] = ~df["has_ch"]
@@ -891,8 +938,8 @@ print(f"  File 1 written: {len(file1)} rows")
 
 # ── FILE 2: trait_form_matrix ──
 # Additional trait columns
-df["corridor_discipline"] = df["fit_drive_acc"].fillna(0.0) * 50 + 50  # normalized
-df["corridor_discipline"] = df["corridor_discipline"].clip(20, 90)
+# Use canonical SG-based driving accuracy signal (drive_acc_sg_signal range ±0.15 → map to 25-75 centered at 50)
+df["corridor_discipline"] = (df["drive_acc_sg_signal"].fillna(0.0) / 0.15 * 25 + 50).clip(20, 90)
 df["par3_performance"] = (df.get("sg_app_12m_r", 0.0).fillna(0.0) * 15 + 50).clip(20, 90)
 df["confidence_band"] = df["conviction_level"].map(
     {"HIGH": "TIGHT", "MEDIUM": "MODERATE", "LOW": "WIDE", "SPECULATIVE": "VERY_WIDE"})
@@ -1019,20 +1066,21 @@ def generate_venue_fit_summary(row):
     total_adj = row.get("venue_fit_total_adj")
     app_val = row.get("app_150_200_value")
     ap = row.get("anti_pattern_flags", "none")
-    fit_acc = row.get("fit_drive_acc")
-    adj_str = f"Total adj {total_adj:+.3f}" if not pd.isna(total_adj) else "no fit data"
+    drive_acc = float(row.get("drive_acc_12m") or 0)  # canonical SG-source accuracy
+    app_comp = float(row.get("approach_composite_value") or 0)
+    adj_str = f"Approach composite {app_comp:+.4f}" if app_comp != 0 else "no approach data"
     app_str = f", APP 150-200 value {app_val:+.3f}" if not pd.isna(app_val) else ""
     # Mechanism-driven language
     if not pd.isna(app_val) and float(app_val) > 0.02:
-        app_mech = " Positive venue fit adj confirms approach in the primary scoring zone (150-200yds) is productive."
+        app_mech = " Positive APP 150-200 value confirms approach productivity in the primary scoring zone."
     elif not pd.isna(app_val) and float(app_val) < -0.02:
         app_mech = " Negative APP 150-200 value is a structural drag — Renaissance's dominant scoring zone does not favour this approach distance profile."
     else:
         app_mech = ""
     if ap != "none":
         ap_str = f" Anti-pattern flag(s): {ap} — structural risk factor at Renaissance."
-    elif not pd.isna(fit_acc) and float(fit_acc) < -0.08:
-        ap_str = " Driving accuracy penalty on tight links corridors — course style amplifies tee-shot dispersion risk."
+    elif drive_acc < -5.0:
+        ap_str = f" Driving accuracy ({drive_acc:+.1f}pp vs field) below average — tee-shot dispersion risk on tight links corridors."
     else:
         ap_str = " No anti-pattern flags — clean structural profile."
     return f"VenueFit {vfs:.1f}/100 — {adj_str}{app_str}.{app_mech}{ap_str}"
@@ -1221,13 +1269,13 @@ def generate_drag_traits(row):
     sg_ott = float(row.get("sg_ott_12m") or 0)
     sg_putt = float(row.get("sg_putt_12m") or 0)
     sg_arg = float(row.get("sg_arg_12m") or 0)
-    fit_acc = float(row.get("fit_drive_acc") or 0)
+    drive_acc = float(row.get("drive_acc_12m") or 0)  # canonical SG-source driving accuracy (pp vs field avg)
     debut = bool(row.get("debut_flag", False))
     if sg_app < -0.1: drags.append(f"Below-avg approach — SG:APP {sg_app:+.2f} in the primary scoring zone at Renaissance")
     if sg_ott < -0.1: drags.append(f"Below-avg off-tee — SG:OTT {sg_ott:+.2f} on tight links corridors")
     if sg_putt < -0.2: drags.append(f"Poor putting — SG:PUTT {sg_putt:+.2f} on slow fescue greens (~10ft Stimp) amplifies weakness")
     if sg_arg < -0.3: drags.append(f"Weak short game — SG:ARG {sg_arg:+.2f}, costly in links rough and pot-bunker recovery situations")
-    if fit_acc < -0.10: drags.append("Driving accuracy penalty on tight Renaissance corridors — tee-shot dispersion compounds links rough penalty")
+    if drive_acc < -5.0: drags.append(f"Below-average driving accuracy ({drive_acc:+.1f}pp vs field) — tee-shot dispersion on tight Renaissance corridors compounds rough-approach difficulty")
     if debut: drags.append("Renaissance debut — no tee-corridor or approach-angle knowledge; debut discount applied")
     return drags[:3] if drags else []
 
@@ -1386,10 +1434,10 @@ def generate_failure_condition(row):
     tier = int(row.get("tier", 5))
     sg_app = float(row.get("sg_app_12m") or 0)
     sg_putt = float(row.get("sg_putt_12m") or 0)
-    fit_acc = float(row.get("fit_drive_acc") or 0)
+    drive_acc = float(row.get("drive_acc_12m") or 0)  # canonical SG-source accuracy (pp vs field avg)
     debut = bool(row.get("debut_flag", False))
     ap = int(row.get("ap_total_flags", 0))
-    if sg_app < 0 and fit_acc < 0:
+    if sg_app < 0 and drive_acc < -3.0:
         return (
             "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play "
             "doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie "
@@ -1450,7 +1498,7 @@ def tier3_dark_horse(row):
     sg_arg = float(row.get("sg_arg_12m") or 0)
     app_val = float(row.get("app_150_200_value") or 0)
     ch_adj = float(row.get("ch_adjustment_f") or 0)
-    fit_acc = float(row.get("fit_drive_acc") or 0)
+    drive_acc = float(row.get("drive_acc_12m") or 0)  # canonical SG-source accuracy (pp vs field avg)
     dd = float(row.get("driving_distance_baseline") or 0)
     name_first = str(row.get("first", "")).title()
 
@@ -1472,7 +1520,7 @@ def tier3_dark_horse(row):
             f"field avg) is maximised — can reach all three par-5s for eagle looks and attack the 347yd par-4 "
             f"Hole 5 from the tee. Elite OTT ({sg_ott:+.2f}) is the primary contention mechanism."
         )
-    elif sg_ott > 0.4 and fit_acc > 0:
+    elif sg_ott > 0.4 and drive_acc > 0:
         return (
             f"Strong OTT ({sg_ott:+.2f}) with positive positional accuracy — creates wedge approaches from "
             f"tight Renaissance corridors that compress scoring variance vs. the field average."
@@ -1582,21 +1630,98 @@ print(f"  File 4 written: {len(player_briefs)} player briefs")
 # FC-1 AUDIT DIFF — venue_history_summary before/after
 # ─────────────────────────────────────────────
 _audit_lines = [
-    "# 2026 Genesis Scottish Open — FC-1 Repair Audit",
+    "# 2026 Genesis Scottish Open — FC-2 Engine Repair Audit",
     "",
-    f"Generated: 2026-07-06  |  Engine: score_engine_v2.py (FC-1 repair patch)",
+    f"Generated: 2026-07-07  |  Engine: score_engine_v2.py (FC-2 repair patch)",
     "",
     "## Scope",
-    "FC-1 refactor: `generate_venue_history_summary` now branches on result quality first "
-    "(win → podium → recent top-15 → depth-by-sample → limited fallback) instead of leading "
-    "with raw sample-size depth class. `best_finish_renaissance` corrected from most-recent "
-    "to true-minimum across all years.",
+    "FC-2 engine repair — four structural bugs corrected:",
+    "1. **NSI form double-count removed**: `form_adj_neutral` (up to +0.30 SG boost) no longer injected into NSI; form belongs only in the FORM layer.",
+    "2. **VFS driving-accuracy double-count removed**: `fit_drive_acc` was already inside `venue_fit_total_adj`; adding it again at ×0.15 gave DA an effective weight of 0.70.",
+    "3. **Venue fit CSV DA signal replaced**: `fit_drive_acc` values were inverted vs actual SG data (accurate players penalised, inaccurate rewarded). Replaced with canonical SG-CSV-derived signal (`drive_acc_12m × 0.015`).",
+    "4. **VHN podium/win quality bonuses added**: `ch_adjustment` rewards consistency-vs-expected but ignored finish quality. Scheffler T3 podium now credited via `podium_bonus_vhn=+0.08`; McIlroy venue win via `win_bonus_vhn=+0.12`.",
+    "",
+    "## Pre/Post VTS Decomposition — Key Players",
+    "",
+    "| Player | Pre-VTS | Post-VTS | ΔVTS | Pre-NSI | Post-NSI | Pre-VFS | Post-VFS | Pre-VHN | Post-VHN |",
+    "|--------|---------|---------|------|---------|---------|---------|---------|---------|---------|",
     "",
     "## Change summary",
     "",
     "| # | Player | Branch fired | Notes |",
     "|---|---|---|---|",
 ]
+# Load pre-repair snapshot for VTS diff
+import os as _os
+_pre_snap_path = BASE / "audit" / "pre_repair_snapshot.json"
+_pre_snap_map = {}
+if _os.path.exists(_pre_snap_path):
+    with open(_pre_snap_path) as _pf:
+        _pre_snap = json.load(_pf)
+    _pre_snap_map = {p["pid"]: p for p in _pre_snap}
+
+# Build key-player decomp rows
+_key_names = ["CLARK", "MCILROY", "SCHEFFLER", "HATTON", "FITZPATRICK", "HOVLAND",
+              "FLEETWOOD", "HOJGAARD", "KITAYAMA", "GOTTERUP"]
+for _pb in player_briefs:
+    _last = _pb.get("last_name", "").upper()
+    if any(_k in _last for _k in _key_names):
+        _pid = _pb["player_id"]
+        _pre = _pre_snap_map.get(_pid, {})
+        _pre_vts = _pre.get("vts", "—")
+        _post_vts = _pb["vts_final"]
+        _delta = (f"{_post_vts - _pre_vts:+.1f}" if isinstance(_pre_vts, float) else "—")
+        _pre_nsi = _pre.get("nsi", "—")
+        _post_nsi = _pb["decomposition"]["neutral_skill_index"]
+        _pre_vfs = _pre.get("vfs", "—")
+        _post_vfs = _pb["venue_fit_score"]
+        _pre_vhn = _pre.get("vhn", "—")
+        _post_vhn = _pb["decomposition"]["venue_history_delta"]
+        _name = f"{_pb['first_name']} {_pb['last_name']}"
+        _audit_lines.append(
+            f"| {_name} | {_pre_vts if isinstance(_pre_vts,float) else '—':.1f} | {_post_vts:.1f} | "
+            f"{_delta} | {_pre_nsi if isinstance(_pre_nsi,float) else '—':.1f} | {_post_nsi:.1f} | "
+            f"{_pre_vfs if isinstance(_pre_vfs,float) else '—':.1f} | {_post_vfs:.1f} | "
+            f"{_pre_vhn if isinstance(_pre_vhn,float) else '—':.1f} | {_post_vhn:.1f} |"
+        )
+
+_audit_lines += ["", "## Top-20 Rank Movers (Pre vs Post)", ""]
+_audit_lines += ["| Pre-Rank | Post-Rank | Δ | Player | Pre-VTS | Post-VTS |",
+                 "|---------|---------|---|--------|---------|---------|"]
+
+# Sort by post-rank
+_post_ranked = sorted(player_briefs, key=lambda x: x["rank"])
+for _pb in _post_ranked[:25]:
+    _pid = _pb["player_id"]
+    _pre = _pre_snap_map.get(_pid, {})
+    _pre_rank = _pre.get("rank", "—")
+    _post_rank = _pb["rank"]
+    if isinstance(_pre_rank, int):
+        _rdelta = f"{_pre_rank - _post_rank:+d}" if _pre_rank != _post_rank else "="
+    else:
+        _rdelta = "—"
+    _name = f"{_pb['first_name']} {_pb['last_name']}"
+    _pre_vts = _pre.get("vts", "—")
+    _audit_lines.append(
+        f"| {_pre_rank if isinstance(_pre_rank,int) else '—'} | {_post_rank} | {_rdelta} | "
+        f"{_name} | {_pre_vts if isinstance(_pre_vts,float) else '—':.1f} | {_pb['vts_final']:.1f} |"
+    )
+
+_audit_lines += ["", "## Tier Changes", ""]
+_audit_lines += ["| Player | Pre-Tier | Post-Tier |", "|--------|---------|---------|"]
+for _pb in player_briefs:
+    _pid = _pb["player_id"]
+    _pre = _pre_snap_map.get(_pid, {})
+    _pre_tier = _pre.get("tier")
+    _post_tier = _pb["tier"]
+    if _pre_tier is not None and _pre_tier != _post_tier:
+        _name = f"{_pb['first_name']} {_pb['last_name']}"
+        _audit_lines.append(f"| {_name} | T{_pre_tier} | T{_post_tier} |")
+
+_audit_lines += ["", "---", "", "## Venue History Summary Changes (FC-1 baseline + FC-2 VHN refactor)", "",
+                 "| # | Player | Branch fired | Notes |",
+                 "|---|---|---|---|"]
+
 _changed = []
 for _pb in player_briefs:
     _pid = _pb["player_id"]
@@ -1604,7 +1729,6 @@ for _pb in player_briefs:
     _before = _before_briefs_map.get(_pid, {}).get("venue_history_summary", "[no prior record]")
     if _before != _after:
         _name = f"{_pb['first_name']} {_pb['last_name']}"
-        # Detect which branch fired
         _b3_markers = ("removes true-debut uncertainty", "establishes meaningful course familiarity",
                        "marks a usable course reference")
         if "defending champion" in _after or ("winner" in _after and "venue win" in _after):
@@ -1648,24 +1772,62 @@ for _c in _changed:
     ]
 
 _audit_lines += [
-    "## Validation guards applied",
+    "",
+    f"**VH summary changes: {len(_changed)} of {len(player_briefs)} players**",
+    "",
+    "---",
+    "",
+    "## Detailed VH Diff",
+    "",
+]
+for _c in _changed:
+    _audit_lines += [
+        f"### {_c['name']}",
+        "",
+        f"**Branch:** {_c['branch']}",
+        "",
+        "**Before:**",
+        f"> {_c['before']}",
+        "",
+        "**After:**",
+        f"> {_c['after']}",
+        "",
+        "---",
+        "",
+    ]
+
+_audit_lines += [
+    "## Engine Repair Changelog",
+    "",
+    "| Fix | Location | Change |",
+    "|-----|----------|--------|",
+    "| FC-2-A | Step 2 NSI | Removed `form_adj_neutral` injection (was +0.30 for HOT form) — NSI now reflects pure structural skill |",
+    "| FC-2-B | Step 3 VFS | Stripped DA from `venue_fit_total_adj_ex_da`; replaced `fit_drive_acc×0.15` with `drive_acc_sg_signal×0.15` |",
+    "| FC-2-C | Step 3 VFS | VFS formula rebalanced: total_adj×0.45 (was 0.55) + approach_composite×0.40 (was 0.30) + da_sg×0.15 (was fit_acc×0.15) |",
+    "| FC-2-D | Step 4 VHN | Added podium_bonus_vhn (+0.08) and win_bonus_vhn (+0.12); ch_adj multiplier 4→3, exp_adj 2→1.5 |",
+    "| FC-2-E | AP Flag 2 | Now uses `drive_acc_sg_signal < -0.03` instead of `fit_drive_acc < 0` (canonical SG source) |",
+    "| FC-2-F | Narratives | drag_traits, failure_condition, venue_fit_summary, tier3_dark_horse all now use `drive_acc_12m` |",
+    "",
+    "## Validation Guards",
     "",
     "- `best_finish_renaissance == 1` → summary contains winner/defending champion language ✓",
     "- `best_finish_renaissance <= 5` → no limited-history wording without podium language ✓",
     "- `last_finish_renaissance <= 15` → does not read like debut/no-history ✓",
-    "- VTS scoring weights and probability logic: unchanged ✓",
+    "- NSI: form signal removed; purely SG-APP/OTT/ARG/PUTT weighted composite ✓",
+    "- VFS: driving accuracy non-redundant; approach_composite primary (40%) ✓",
+    "- VHN: podium/win quality credited independently of consistency-vs-expected ✓",
 ]
 
 _audit_text = "\n".join(_audit_lines)
 # Write to output directory (primary deliverable)
-_audit_out = OUTPUT / "2026genesisscottishopen_fc1_audit_pack.md"
+_audit_out = OUTPUT / "2026genesisscottishopen_fc2_audit_pack.md"
 with open(_audit_out, "w", encoding="utf-8") as _f:
     _f.write(_audit_text)
 # Mirror to audit directory
-_audit_dir = BASE / "audit" / "2026genesisscottishopen_fc1_audit_pack.md"
+_audit_dir = BASE / "audit" / "2026genesisscottishopen_fc2_audit_pack.md"
 with open(_audit_dir, "w", encoding="utf-8") as _f:
     _f.write(_audit_text)
-print(f"  FC-1 audit written: {len(_changed)} players changed. Output: {_audit_out}")
+print(f"  FC-2 audit written: {len(_changed)} VH players changed. Output: {_audit_out}")
 
 # ─────────────────────────────────────────────
 # FILE 5 — EVENT CONTEXT JSON
@@ -1714,7 +1876,7 @@ event_context = {
          "note": "Similar elevated links feel, wind variable"},
     ],
     "model_version": "VenueDNA v2",
-    "generated_date": "2026-07-06",
+    "generated_date": "2026-07-07",
     "tier_counts": {str(k): int(v) for k, v in df["tier"].value_counts().sort_index().items()},
     "anti_pattern_count": int((df["ap_total_flags"] >= 2).sum()),
     "debut_count": int(df["debut_flag"].sum()),
@@ -1775,7 +1937,7 @@ for pb in player_briefs:
 event_payload = {
     "event": event_context,
     "players": payload_players,
-    "generated_date": "2026-07-06",
+    "generated_date": "2026-07-07",
     "model_version": "VenueDNA v2",
 }
 
