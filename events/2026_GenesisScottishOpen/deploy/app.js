@@ -39,19 +39,27 @@ let unmatchedR4LastNames = new Set();
 let unmatchedR4FullNames = [];
 let showVfdCol = true;
 
-/* ── Trait definitions for Genesis Scottish Open ── */
+/* ── Trait definitions — weights must match event_payload.json trait_weight_matrix ── */
 const TRAIT_DEFS = [
-  { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)', weight: 0.28 },
-  { key: 'app_overall',    label: 'APP Overall',             weight: 0.20 },
-  { key: 't2g_composite',  label: 'Tee-to-Green',            weight: 0.15 },
-  { key: 'driving_accuracy', label: 'Driving Accuracy',      weight: 0.12 },
-  { key: 'sg_putt',        label: 'Putting (Links-Regressed)', weight: 0.10 },
-  { key: 'sg_arg',         label: 'Short Game/ARG',           weight: 0.08 },
-  { key: 'ott_distance',   label: 'OTT Distance',             weight: 0.04 },
-  { key: 'par3_perf',      label: 'Par-3 Performance',        weight: 0.03 },
+  { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)',   weight: 0.30 },
+  { key: 'ott_positional', label: 'OTT / Positional Drive',    weight: 0.20 },
+  { key: 'app_overall',    label: 'APP Overall',               weight: 0.15 },
+  { key: 'driving_accuracy', label: 'Driving Accuracy',        weight: 0.12 },
+  { key: 'sg_putt',        label: 'Putting (Links-Regressed)', weight: 0.13 },
+  { key: 'sg_arg',         label: 'Short Game/ARG',             weight: 0.10 },
 ];
 
 const TRAIT_KEY_MAP = Object.fromEntries(TRAIT_DEFS.map(t => [t.key, t]));
+
+/* Maps payload trait_weight_matrix keys → display labels (canonical source) */
+const PAYLOAD_WEIGHT_LABELS = {
+  'approach_150_200':  'APP 150-200 (Long Iron)',
+  'sg_app_overall':    'APP Overall',
+  'sg_ott_positional': 'OTT / Positional Drive',
+  'driving_accuracy':  'Driving Accuracy',
+  'sg_putt':           'Putting (Links-Regressed)',
+  'sg_arg_short_game': 'Short Game/ARG',
+};
 
 /* ── Name-key helpers ── */
 function makeNameKey(p) {
@@ -495,15 +503,20 @@ async function init() {
       return Math.max(0, Math.min(100, ((sg - min) / (max - min)) * 100));
     }
 
+    /* driving_accuracy_baseline is a %-point adj vs field avg (e.g. -3.3 = 3.3pp below avg).
+       Map range -12..+12 to 0..100 so 0-adj players land at 50, not treated as zero/missing. */
+    const driveAccRaw = (p.driving_accuracy_baseline != null) ? +p.driving_accuracy_baseline : null;
+    const driveAccScore = (driveAccRaw !== null && !isNaN(driveAccRaw))
+      ? Math.max(0, Math.min(100, ((driveAccRaw + 12) / 24) * 100))
+      : null;
+
     merged.trait_scores = [
-      { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)', weight: 0.28, score: venueFitScore > 0 ? venueFitScore : null },
-      { key: 'app_overall',    label: 'APP Overall',             weight: 0.20, score: sgApp12m !== 0 ? sgToPercentile(sgApp12m) : null },
-      { key: 't2g_composite',  label: 'Tee-to-Green',            weight: 0.15, score: (p.sg_t2g_12m || brief.sg_t2g_12m) ? sgToPercentile(+(p.sg_t2g_12m || brief.sg_t2g_12m), -3, 4) : null },
-      { key: 'driving_accuracy', label: 'Driving Accuracy',      weight: 0.12, score: null },
-      { key: 'sg_putt',        label: 'Putting (Links-Regressed)', weight: 0.10, score: sgPutt12m !== 0 ? sgToPercentile(sgPutt12m) : null },
-      { key: 'sg_arg',         label: 'Short Game/ARG',           weight: 0.08, score: sgArg12m !== 0 ? sgToPercentile(sgArg12m) : null },
-      { key: 'ott_distance',   label: 'OTT Distance',             weight: 0.04, score: sgOtt12m !== 0 ? sgToPercentile(sgOtt12m) : null },
-      { key: 'par3_perf',      label: 'Par-3 Performance',        weight: 0.03, score: null },
+      { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)',   weight: 0.30, score: venueFitScore > 0 ? venueFitScore : null },
+      { key: 'ott_positional', label: 'OTT / Positional Drive',    weight: 0.20, score: sgOtt12m !== 0 ? sgToPercentile(sgOtt12m) : null },
+      { key: 'app_overall',    label: 'APP Overall',               weight: 0.15, score: sgApp12m !== 0 ? sgToPercentile(sgApp12m) : null },
+      { key: 'driving_accuracy', label: 'Driving Accuracy',        weight: 0.12, score: driveAccScore },
+      { key: 'sg_putt',        label: 'Putting (Links-Regressed)', weight: 0.13, score: sgPutt12m !== 0 ? sgToPercentile(sgPutt12m) : null },
+      { key: 'sg_arg',         label: 'Short Game/ARG',             weight: 0.10, score: sgArg12m !== 0 ? sgToPercentile(sgArg12m) : null },
     ];
 
     return merged;
@@ -602,6 +615,12 @@ function renderInfoCards(payload) {
   const ev = payload.event;
   const weights = ev.trait_weight_matrix || {};
 
+  /* Derive primary trait dynamically from canonical payload weights */
+  const sortedWeights = Object.entries(weights).sort((a, b) => b[1] - a[1]);
+  const [primaryKey, primaryVal] = sortedWeights[0] || ['approach_150_200', 0.30];
+  const primaryLabel = PAYLOAD_WEIGHT_LABELS[primaryKey] || primaryKey.replace(/_/g, ' ');
+  const primaryPct   = Math.round((primaryVal || 0) * 100);
+
   /* Winner profile */
   const winnerProfile = ev.winner_trait_profile || 'Strong approach from 150-200yds, positive driving accuracy, elite SG:APP.';
 
@@ -622,12 +641,12 @@ function renderInfoCards(payload) {
     <div class="info-card">
       <h3>Trait Weights</h3>
       ${Object.entries(weights).map(([k,w])=>kv(
-        TRAIT_KEY_MAP[k.replace(/-/g,'_')]?.label || k.replace(/_/g,' '),
+        PAYLOAD_WEIGHT_LABELS[k] || TRAIT_KEY_MAP[k.replace(/-/g,'_')]?.label || k.replace(/_/g,' '),
         `${Math.round(w*100)}%`
       )).join('')}
       <div class="kv" style="margin-top:.4rem;border-top:1px solid var(--border)">
         <span class="k" style="color:#38bdf8;font-size:.72rem">Primary trait</span>
-        <span class="v" style="color:#38bdf8;font-size:.72rem">APP 150-200: 28%</span>
+        <span class="v" style="color:#38bdf8;font-size:.72rem">${primaryLabel}: ${primaryPct}%</span>
       </div>
     </div>
     <div class="info-card">
@@ -1869,7 +1888,7 @@ function showRoundPanel(round, body) {
         <div class="ri-card">
           <h4>Venue Context — Links DNA</h4>
           <div style="font-size:.75rem;color:var(--muted);line-height:1.65">
-            <p>The Renaissance Club is a pure links test. Primary lever: approach from 150-200yds (28% weight). Wind exposure, firm/fast conditions, and unpredictable bounce elevate variance class to HIGH. Positional driving (12%) is rewarded over raw distance. Putting on links surfaces is regressed vs. parkland historical baselines.</p>
+            <p>The Renaissance Club is a pure links test. Primary lever: approach from 150-200yds (30% weight). Wind exposure, firm/fast conditions, and unpredictable bounce elevate variance class to HIGH. Positional driving (20%) is rewarded over raw distance. Putting on links surfaces is regressed vs. parkland historical baselines.</p>
             <p style="margin-top:.5rem">Winner profile: consistent approach quality across 4 rounds, positive driving accuracy adjustment, reliable short game. Historical winners include Chris Gotterup (2025) — approach-dominant, stable off tee. Tournament variance is high — field spread wider than typical PGA events.</p>
             <p style="margin-top:.5rem">Cut rule: Top 65 and ties after 36 holes. Make-cut probability is a significant differentiator for volatile Tier 3/4 players.</p>
           </div>

@@ -622,25 +622,15 @@ print("Computing probabilities …")
 FIELD_SIZE = len(df)
 
 def logistic_win(vts):
-    """Calibrated logistic for win probability."""
-    # center at VTS=75, slope adjusted so VTS90+ → ~10%, VTS65→~3%, VTS50→~0.8%
-    x = (vts - 55.0) / 12.0
-    p_raw = 1.0 / (1.0 + np.exp(-x))
-    # Scale so field sums to 100%
-    return p_raw
+    """Calibrated logistic — center=70 (T1 baseline), slope=6 for within-T1 differentiation.
+    Floor clips removed: they cause all T1 players to converge to the same value."""
+    x = (vts - 70.0) / 6.0
+    return 1.0 / (1.0 + np.exp(-x))
 
-# Raw logistic
+# Normalize over full field — no tier floor clips (they flatten T1)
 df["win_prob_raw"] = df["vts_final"].apply(logistic_win)
 total_raw = df["win_prob_raw"].sum()
 df["win_prob"] = (df["win_prob_raw"] / total_raw * 100.0).round(2)
-
-# Ensure minimum for top players
-df.loc[df["tier"] == 1, "win_prob"] = df.loc[df["tier"] == 1, "win_prob"].clip(lower=3.0)
-df.loc[df["tier"] == 2, "win_prob"] = df.loc[df["tier"] == 2, "win_prob"].clip(lower=1.0)
-
-# Re-normalize after clips
-total_after = df["win_prob"].sum()
-df["win_prob"] = (df["win_prob"] / total_after * 100.0).round(2)
 
 # Derived probs (links HIGH variance)
 df["top5_prob"] = (df["win_prob"] * 4.5).clip(upper=55.0).round(2)
@@ -1259,6 +1249,11 @@ for pb in player_briefs:
         "venue_fit_total_adj": float(row.get("venue_fit_total_adj")) if not pd.isna(row.get("venue_fit_total_adj", None)) else None,
         "conviction_level": row.get("conviction_level", "LOW"),
         "ap_total_flags": int(row.get("ap_total_flags", 0)),
+        # Driving fields — baseline from SG source, fit adj from venue file
+        "driving_distance_baseline": float(row.get("drive_dist_adj")) if not pd.isna(row.get("drive_dist_adj", None)) else None,
+        "driving_accuracy_baseline": float(row.get("drive_acc_12m")) if not pd.isna(row.get("drive_acc_12m", None)) else None,
+        "driving_distance_fit_adj": float(row.get("fit_drive_dist")) if not pd.isna(row.get("fit_drive_dist", None)) else None,
+        "driving_accuracy_fit_adj": float(row.get("fit_drive_acc")) if not pd.isna(row.get("fit_drive_acc", None)) else None,
     })
 
 event_payload = {
