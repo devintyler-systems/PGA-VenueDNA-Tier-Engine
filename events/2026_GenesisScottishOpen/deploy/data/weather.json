@@ -1,0 +1,53 @@
+{
+  "event_id": "2026_genesis_scottish_open",
+  "source": "UK Met Office, North Berwick, updated July 6 2026",
+  "tournament_summary": "Sub-20mph winds all four days. Benign analog to 2021/2024 editions. Winning score projected -16 to -22. Pure ball-strikers and birdie-makers gain model value vs wind specialists.",
+  "winning_score_range": "-16 to -22",
+  "traits_amplified": ["Elite ball-striking", "Driving distance (par 5s reachable)", "Aggressive putting", "Birdie-making ability"],
+  "rounds": [
+    {
+      "round": 1,
+      "date": "Thu Jul 9",
+      "high_c": 24,
+      "wind_mph": "6–9",
+      "wind_dir": "NE/NNE",
+      "rain_pct": 5,
+      "tag": "Exceptional",
+      "color": "green",
+      "note": "Near-perfect conditions. Go-low day. Club selection barely changes."
+    },
+    {
+      "round": 2,
+      "date": "Fri Jul 10",
+      "high_c": 23,
+      "wind_mph": "4–9",
+      "wind_dir": "N/NNE",
+      "rain_pct": 20,
+      "tag": "Very Benign",
+      "color": "green",
+      "note": "Morning starters advantaged. 20% afternoon shower risk for late tee times."
+    },
+    {
+      "round": 3,
+      "date": "Sat Jul 11",
+      "high_c": 18,
+      "wind_mph": "7–10",
+      "wind_dir": "NW",
+      "rain_pct": 20,
+      "tag": "Moderate",
+      "color": "amber",
+      "note": "NW shift — coolest day, trickier direction. Wind-savvy Europeans adapt better."
+    },
+    {
+      "round": 4,
+      "date": "Sun Jul 12",
+      "high_c": 20,
+      "wind_mph": "5–9",
+      "wind_dir": "NW/W",
+      "rain_pct": 5,
+      "tag": "Good Sunday",
+      "color": "green",
+      "note": "Mist clears early. Ideal for drama at new Hole 15 (The Thistle). Light wind, partial sun."
+    }
+  ]
+}

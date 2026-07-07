@@ -650,3 +650,28 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 .ri-flag-card-body { font-size: .69rem; color: var(--text); margin-bottom: .25rem; }
 .ri-flag-card-rec { font-size: .67rem; color: var(--muted); font-style: italic; margin-bottom: .15rem; }
 .ri-flag-card-status { font-size: .63rem; }
+
+/* ── Weather Module ── */
+.wx-module { background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem; }
+.wx-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem; }
+.wx-title { font-size:.82rem;font-weight:700;color:var(--fg, var(--text));letter-spacing:.02em; }
+.wx-summary-tag { font-size:.75rem;color:var(--muted); }
+.wx-rounds { display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:.75rem; }
+@media(max-width:640px){ .wx-rounds { grid-template-columns:repeat(2,1fr); } }
+.wx-round { background:var(--bg, var(--surface));border:1px solid var(--border);border-radius:6px;padding:.6rem .75rem; }
+.wx-round-label { font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem; }
+.wx-round-day { font-size:.68rem;color:var(--muted);margin-bottom:.3rem; }
+.wx-round-stats { display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.3rem; }
+.wx-stat { font-size:.68rem;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem;color:var(--fg, var(--text)); }
+.wx-round-note { font-size:.65rem;color:var(--muted);line-height:1.45; }
+.wx-bottom { display:flex;align-items:center;gap:.5rem;flex-wrap:wrap; }
+.wx-amplified-label { font-size:.7rem;color:var(--muted);font-weight:600; }
+.wx-trait-chip { font-size:.68rem;background:#0ea5e922;border:1px solid #0ea5e9;color:#38bdf8;border-radius:999px;padding:.15rem .55rem; }
+
+/* ── Betting Strip ── */
+.bet-strip { display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem;margin-top:.5rem; }
+@media(max-width:520px) { .bet-strip { grid-template-columns:repeat(3,1fr); } }
+.bet-lane-cell { background:var(--bg, var(--surface));border:1px solid var(--border);border-radius:6px;padding:.4rem .3rem;text-align:center; }
+.bet-lane-label { font-size:.6rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2rem; }
+.bet-lane-val { font-size:.78rem;font-weight:700;margin-bottom:.1rem; }
+.bet-lane-status { font-weight:600;letter-spacing:.03em; }

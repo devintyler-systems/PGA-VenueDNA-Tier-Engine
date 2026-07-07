@@ -38,6 +38,8 @@ let cumulativeData = null;
 let unmatchedR4LastNames = new Set();
 let unmatchedR4FullNames = [];
 let showVfdCol = true;
+let weatherData = null;
+let fieldTraitPercentiles = {};
 
 /* ── Trait definitions — weights must match event_payload.json trait_weight_matrix ── */
 const TRAIT_DEFS = [
@@ -527,6 +529,13 @@ async function init() {
   /* ── Missing-trait validation + imputation ── */
   DIAGNOSTICS = runImputationPass(allPlayers);
   logDiagnostics(DIAGNOSTICS);
+  fieldTraitPercentiles = buildFieldTraitPercentiles(allPlayers);
+
+  /* ── Weather forecast ── */
+  try {
+    const wxResp = await fetch(DATA_DIR + 'weather.json');
+    weatherData = wxResp.ok ? await wxResp.json() : null;
+  } catch(e) { weatherData = null; }
 
   /* ── Optional round analysis files ── */
   async function tryLoadRound(file, label) {
@@ -558,6 +567,7 @@ async function init() {
   renderHeader(payload);
   renderMetaBar(payload);
   renderInfoCards(payload);
+  renderWeatherModule(weatherData);
   renderTierAlert();
   renderBriefs();
   renderFooter(payload);
@@ -575,6 +585,68 @@ async function init() {
   wirePresetDropdown();
 
   applyAndRender();
+}
+
+/* ══════════════════════════════════════════════════════
+   FIELD TRAIT PERCENTILES
+══════════════════════════════════════════════════════ */
+function buildFieldTraitPercentiles(players) {
+  const buckets = {};
+  for (const p of players) {
+    for (const t of (p.trait_scores || [])) {
+      if (t.score != null && !isNaN(+t.score)) {
+        if (!buckets[t.key]) buckets[t.key] = [];
+        buckets[t.key].push(+t.score);
+      }
+    }
+  }
+  const result = {};
+  for (const [key, vals] of Object.entries(buckets)) {
+    const sorted = [...vals].sort((a, b) => a - b);
+    result[key] = {
+      p40: sorted[Math.floor(sorted.length * 0.40)] ?? 40,
+      p75: sorted[Math.floor(sorted.length * 0.75)] ?? 65,
+    };
+  }
+  return result;
+}
+
+/* ══════════════════════════════════════════════════════
+   WEATHER MODULE
+══════════════════════════════════════════════════════ */
+function renderWeatherModule(data) {
+  const el = document.getElementById('weather-module');
+  if (!el || !data) { if (el) el.style.display = 'none'; return; }
+
+  const colorMap = { green: '#4ade80', amber: '#fcd34d', red: '#f87171' };
+
+  const roundCards = (data.rounds || []).map(r => {
+    const c = colorMap[r.color] || '#94a3b8';
+    return `<div class="wx-round">
+      <div class="wx-round-label" style="color:${c}">${r.tag}</div>
+      <div class="wx-round-day">R${r.round} · ${r.date}</div>
+      <div class="wx-round-stats">
+        <span class="wx-stat">${r.high_c}°C</span>
+        <span class="wx-stat">${r.wind_mph}mph ${r.wind_dir}</span>
+        <span class="wx-stat">${r.rain_pct}% rain</span>
+      </div>
+      <div class="wx-round-note">${r.note}</div>
+    </div>`;
+  }).join('');
+
+  const amplified = (data.traits_amplified || []).map(t => `<span class="wx-trait-chip">${t}</span>`).join('');
+
+  el.innerHTML = `<div class="wx-module">
+    <div class="wx-header">
+      <span class="wx-title">🌬 Weather &amp; Conditions Forecast</span>
+      <span class="wx-summary-tag">Projected score: <b>${data.winning_score_range}</b></span>
+    </div>
+    <div class="wx-rounds">${roundCards}</div>
+    <div class="wx-bottom">
+      <span class="wx-amplified-label">Traits amplified by forecast:</span>
+      ${amplified}
+    </div>
+  </div>`;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1131,7 +1203,8 @@ function openCompareModal() {
 
     const traitRows = (p.trait_scores || []).filter(t => t.score != null).sort((a,b) => b.weight - a.weight).map(t => {
       const s = +t.score;
-      const cls = s >= 75 ? 'bar-elite' : s >= 50 ? 'bar-ok' : 'bar-weak';
+      const cmpPercs = fieldTraitPercentiles[t.key] || { p40: 40, p75: 65 };
+      const cls = s >= cmpPercs.p75 ? 'bar-elite' : s >= cmpPercs.p40 ? 'bar-ok' : 'bar-weak';
       return `<div class="compare-trait-row">
         <span class="compare-trait-label">${t.label.split('(')[0].trim()}</span>
         <div class="compare-trait-bar-bg"><div class="compare-trait-bar-fill ${cls}" style="width:${Math.min(100,s)}%"></div></div>
@@ -1569,7 +1642,44 @@ function sectionProbability(p) {
       <span class="stat-pill"><span class="sk">Miss Cut:</span> <span class="sv" style="color:${cutColor === '#4ade80' ? '#f87171' : '#94a3b8'}">${fmtPct(p.miss_cut_prob)}</span></span>
     </div>
     ${laneChip ? `<div style="margin-top:.5rem">${laneChip}</div>` : ''}
+    <div style="margin-top:.75rem">${buildBettingStrip(p)}</div>
   </div>`;
+}
+
+function buildBettingStrip(p) {
+  const wp  = +p.win_pct   || +p.win_prob   || 0;
+  const t5  = +p.top5_pct  || +p.top5_prob  || 0;
+  const t10 = +p.top10_pct || +p.top10_prob || 0;
+  const t20 = +p.top20_pct || +p.top20_prob || 0;
+  const mc  = +p.make_cut_prob || 0;
+  const isc = +p.miss_cut_prob || 0;
+
+  const lanes = [
+    { label: 'Winner',   val: wp,  green: 4.0, amber: 2.5 },
+    { label: 'Top 5',    val: t5,  green: 20,  amber: 12  },
+    { label: 'Top 10',   val: t10, green: 35,  amber: 20  },
+    { label: 'Top 20',   val: t20, green: 55,  amber: 35  },
+    { label: 'Make Cut', val: mc,  green: 75,  amber: 55  },
+    { label: 'Miss Cut', val: isc, green: 40,  amber: 25, invert: true },
+  ];
+
+  const cells = lanes.map(({ label, val, green, amber, invert }) => {
+    let status, color;
+    if (!invert) {
+      status = val >= green ? 'STRONG' : val >= amber ? 'VIABLE' : 'THIN';
+      color  = val >= green ? '#4ade80' : val >= amber ? '#fcd34d' : '#f87171';
+    } else {
+      status = val >= green ? 'DANGER' : val >= amber ? 'WATCH' : 'SAFE';
+      color  = val >= green ? '#f87171' : val >= amber ? '#fcd34d' : '#4ade80';
+    }
+    return `<div class="bet-lane-cell">
+      <div class="bet-lane-label">${label}</div>
+      <div class="bet-lane-val" style="color:${color}">${val > 0 ? fmtPct(val) : '—'}</div>
+      <div class="bet-lane-status" style="color:${color};font-size:.62rem">${status}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="bet-strip">${cells}</div>`;
 }
 
 function sectionBriefSummaries(p, b) {
@@ -1602,7 +1712,8 @@ function sectionTraitBars(traits) {
     const score   = t.score != null ? +t.score : null;
     const display = score != null ? score : 0;
     const pct     = Math.min(100, Math.max(0, display)).toFixed(0);
-    const cls     = display >= 75 ? 'bar-elite' : display >= 50 ? 'bar-ok' : 'bar-weak';
+    const percs   = fieldTraitPercentiles[t.key] || { p40: 40, p75: 65 };
+    const cls     = display >= percs.p75 ? 'bar-elite' : display >= percs.p40 ? 'bar-ok' : 'bar-weak';
     const imputedCls  = t.imputed ? ' bar-imputed' : '';
     const imputedTag  = t.imputed
       ? `<span class="trait-imputed-tag" title="Imputed from ${t.imputed_from?.replace('_',' ')}">~</span>`
@@ -1625,9 +1736,9 @@ function sectionTraitBars(traits) {
   return `<div class="modal-section">
     <h4>Trait Profile — Venue Weight × Player Score</h4>
     <div class="trait-legend">
-      <span class="tl-item bar-elite-swatch"></span><span>≥75 elite</span>
-      <span class="tl-item bar-ok-swatch"></span><span>50–74 ok</span>
-      <span class="tl-item bar-weak-swatch"></span><span>&lt;50 drag</span>
+      <span class="tl-item bar-elite-swatch"></span><span>Top 25% elite</span>
+      <span class="tl-item bar-ok-swatch"></span><span>Mid-field ok</span>
+      <span class="tl-item bar-weak-swatch"></span><span>Bottom 40% drag</span>
     </div>
     <div class="trait-bars">${bars}</div>
   </div>`;
@@ -1848,7 +1959,7 @@ function showRoundPanel(round, body) {
     const bars = Object.entries(weights).map(([k,w]) => {
       const pct = Math.round(w * 100);
       const def = TRAIT_KEY_MAP[k.replace(/-/g,'_')];
-      const label = def ? def.label : k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      const label = PAYLOAD_WEIGHT_LABELS[k] || (def ? def.label : k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()));
       return `<div class="ri-weight-bar">
         <span class="ri-weight-label">${label}</span>
         <div class="ri-weight-bar-bg"><div class="ri-weight-bar-fill" style="width:${pct*4}%"></div></div>

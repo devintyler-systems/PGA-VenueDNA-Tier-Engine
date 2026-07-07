@@ -898,6 +898,7 @@ def generate_neutral_skill_summary(row):
     sg_app = row.get("sg_app_12m")
     sg_ott = row.get("sg_ott_12m")
     sg_putt = row.get("sg_putt_12m")
+    sg_arg = row.get("sg_arg_12m")
     ddc = row.get("data_depth_class", "FULL")
     parts = []
     if not pd.isna(sg_app):
@@ -906,9 +907,23 @@ def generate_neutral_skill_summary(row):
         parts.append(f"OTT {sg_ott:+.2f}")
     if not pd.isna(sg_putt):
         parts.append(f"PUTT {sg_putt:+.2f}")
+    if not pd.isna(sg_arg):
+        parts.append(f"ARG {sg_arg:+.2f}")
     sg_str = ", ".join(parts) if parts else "limited data"
-    ddc_note = f" ({ddc} data depth)" if ddc != "FULL" else ""
-    return f"NeutralSkill index {nsi:.1f}/100 — 12-month SG: {sg_str}{ddc_note}."
+    reg_map = {"LIMITED": "40%", "DEBUT": "60%", "MODERATE": "15%"}
+    ddc_note = f" ({ddc} data depth — {reg_map.get(ddc, '0%')} regression applied)" if ddc != "FULL" else ""
+    # Identify the scoring threshold note
+    if not pd.isna(sg_app):
+        app_val = float(sg_app)
+        if app_val > 0.4:
+            threshold_note = " Approach game comfortably above the scoring threshold Renaissance demands from 175-200yds."
+        elif app_val > 0.1:
+            threshold_note = " Approach game near the scoring threshold Renaissance demands from 175-200yds."
+        else:
+            threshold_note = " Approach game below the scoring threshold Renaissance demands from 175-200yds."
+    else:
+        threshold_note = ""
+    return f"NeutralSkill {nsi:.1f}/100 — 12-month SG: {sg_str}{ddc_note}.{threshold_note}"
 
 
 def generate_venue_fit_summary(row):
@@ -916,10 +931,23 @@ def generate_venue_fit_summary(row):
     total_adj = row.get("venue_fit_total_adj")
     app_val = row.get("app_150_200_value")
     ap = row.get("anti_pattern_flags", "none")
+    fit_acc = row.get("fit_drive_acc")
     adj_str = f"Total adj {total_adj:+.3f}" if not pd.isna(total_adj) else "no fit data"
     app_str = f", APP 150-200 value {app_val:+.3f}" if not pd.isna(app_val) else ""
-    ap_str = f" Anti-pattern: {ap}." if ap != "none" else ""
-    return f"VenueFit {vfs:.1f}/100 — {adj_str}{app_str}.{ap_str}"
+    # Mechanism-driven language
+    if not pd.isna(app_val) and float(app_val) > 0.02:
+        app_mech = " Positive venue fit adj confirms approach in the primary scoring zone (150-200yds) is productive."
+    elif not pd.isna(app_val) and float(app_val) < -0.02:
+        app_mech = " Negative APP 150-200 value is a structural drag — Renaissance's dominant scoring zone does not favour this approach distance profile."
+    else:
+        app_mech = ""
+    if ap != "none":
+        ap_str = f" Anti-pattern flag(s): {ap} — structural risk factor at Renaissance."
+    elif not pd.isna(fit_acc) and float(fit_acc) < -0.08:
+        ap_str = " Driving accuracy penalty on tight links corridors — course style amplifies tee-shot dispersion risk."
+    else:
+        ap_str = " No anti-pattern flags — clean structural profile."
+    return f"VenueFit {vfs:.1f}/100 — {adj_str}{app_str}.{app_mech}{ap_str}"
 
 
 def generate_venue_history_summary(row):
@@ -928,10 +956,17 @@ def generate_venue_history_summary(row):
     bfr = row.get("best_finish_renaissance")
     bonus = float(row.get("bonus_2025", 0))
     starts = row.get("starts_at_renaissance")
-    starts_str = f"{int(starts)} rds" if not pd.isna(starts) else "0 rds"
-    bfr_str = f" Best finish: {int(bfr)}." if not pd.isna(bfr) and bfr is not None else " No recorded finish."
-    bonus_str = f" 2025 recency bonus: {bonus:+.2f}." if bonus != 0.0 else ""
-    return f"VenueHistory {vhn:.1f}/100 — depth={depth}, {starts_str}.{bfr_str}{bonus_str}"
+    starts_str = f"{int(starts)} starts" if not pd.isna(starts) and int(starts) > 0 else "no prior starts"
+    bfr_str = f" Best finish at Renaissance: {int(bfr)}." if not pd.isna(bfr) and bfr is not None else " No recorded finish at Renaissance Club."
+    # Mechanism note based on depth
+    if depth in ("STRONG", "MODERATE"):
+        depth_mech = f" Proven scorer at this venue — Renaissance-specific knowledge of tee corridors and green approach angles is a structural edge."
+    elif depth == "NONE":
+        depth_mech = " Renaissance debut — links-course learning curve applies even for elite players; course-specific hole knowledge gap on rerouted closing stretch (new Hole 15)."
+    else:
+        depth_mech = " Limited Renaissance history — partial calibration of venue-specific scoring patterns."
+    bonus_str = f" 2025 recency bonus: {bonus:+.2f} (recent form at venue extrapolated)." if bonus != 0.0 else ""
+    return f"VenueHistory {vhn:.1f}/100 — depth={depth}, {starts_str}.{bfr_str}{depth_mech}{bonus_str}"
 
 
 def generate_form_summary(row):
@@ -939,17 +974,31 @@ def generate_form_summary(row):
     vsb = row.get("true_sg_vs_baseline")
     tsg = row.get("true_sg_last5")
     fs = float(row.get("form_score", 50) or 50)
-    vsb_str = f"{vsb:+.2f}" if not pd.isna(vsb) else "N/A"
+    vsb_val = float(vsb) if not pd.isna(vsb) else None
+    vsb_str = f"{vsb:+.2f}" if vsb_val is not None else "N/A"
     tsg_str = f"{tsg:.2f}" if not pd.isna(tsg) else "N/A"
-    return f"Form {fc} (score {fs:.1f}/100) — True SG L5: {tsg_str}, vs baseline: {vsb_str}."
+    # Form class mechanism
+    if fc == "HOT" and vsb_val is not None and vsb_val > 1.5:
+        form_mech = f" HOT form (+{vsb_val:.2f} vs baseline) carries a regression risk by R3-R4 at this variance class, but current momentum is a real structural edge in calm forecast conditions."
+    elif fc == "HOT":
+        form_mech = " HOT form confirmed — current scoring pace is above seasonal baseline."
+    elif fc == "COLD":
+        form_mech = " COLD form is a structural drag — model applies a downward form penalty. Needs a reset week to deliver on structural profile."
+    elif fc == "COOL":
+        form_mech = " COOL form is a mild negative — below baseline scoring rate over last 5 events."
+    elif fc == "WARM":
+        form_mech = " WARM form trend — above baseline, consistent with an upward momentum cycle."
+    else:
+        form_mech = " NEUTRAL form — 12-month baseline is the reference; no strong directional signal from recent events."
+    return f"Form {fc} (score {fs:.1f}/100) — True SG L5: {tsg_str}, vs baseline: {vsb_str}.{form_mech}"
 
 
 def generate_anti_pattern_summary(row):
     flags = row.get("anti_pattern_flags", "none")
     if flags == "none":
-        return "No anti-pattern flags. Clean structural profile."
+        return "No anti-pattern flags. Clean structural profile — no recurring weak-link traits identified for Renaissance Club."
     count = int(row.get("ap_total_flags", 0))
-    return f"{count} anti-pattern signal(s): {flags}. Structural concerns noted."
+    return f"{count} anti-pattern signal(s): {flags}. Structural concerns apply at Renaissance where these patterns historically compound."
 
 
 def generate_top_traits(row):
@@ -960,15 +1009,17 @@ def generate_top_traits(row):
     sg_arg = float(row.get("sg_arg_12m") or 0)
     app_val = float(row.get("app_150_200_value") or 0)
     ch_adj = float(row.get("ch_adjustment_f") or 0)
-    if sg_app > 0.3: traits.append(f"Elite approach (SG:APP {sg_app:+.2f})")
-    elif sg_app > 0: traits.append(f"Positive approach (SG:APP {sg_app:+.2f})")
-    if sg_ott > 0.5: traits.append(f"Elite off-tee (SG:OTT {sg_ott:+.2f})")
-    elif sg_ott > 0.2: traits.append(f"Strong OTT (SG:OTT {sg_ott:+.2f})")
-    if sg_putt > 0.3: traits.append(f"Strong putting (SG:PUTT {sg_putt:+.2f})")
-    if sg_arg > 0.2: traits.append(f"Short-game skill (SG:ARG {sg_arg:+.2f})")
-    if app_val > 0.03: traits.append(f"150-200yd iron specialist (value {app_val:+.3f})")
-    if ch_adj > 0.03: traits.append("Positive course history adjustment")
-    return traits[:4] if traits else ["Limited positive trait signal"]
+    dd = float(row.get("driving_distance_baseline") or 0)
+    if sg_app > 0.3: traits.append(f"Elite approach game — SG:APP {sg_app:+.2f} over 12m")
+    elif sg_app > 0: traits.append(f"Positive approach — SG:APP {sg_app:+.2f} over 12m")
+    if sg_ott > 0.5: traits.append(f"Elite off-tee — SG:OTT {sg_ott:+.2f}, maximises distance edge on par-5s in calm forecast")
+    elif sg_ott > 0.2: traits.append(f"Strong OTT — SG:OTT {sg_ott:+.2f}, positional value on tight links corridors")
+    if sg_putt > 0.3: traits.append(f"Strong putting — SG:PUTT {sg_putt:+.2f} converts long-iron proximity on fescue greens")
+    if sg_arg > 0.2: traits.append(f"Short-game skill — SG:ARG {sg_arg:+.2f} recovers from links rough and pot-bunker escapes")
+    if app_val > 0.03: traits.append(f"150-200yd iron specialist — value {app_val:+.3f} in the dominant scoring zone at Renaissance")
+    if ch_adj > 0.03: traits.append("Positive course history — demonstrated scoring ability at Renaissance Club")
+    if dd > 5: traits.append(f"Distance advantage ({dd:+.1f}yds vs field avg) — par-5s reachable in two in calm R1/R2 forecast")
+    return traits[:4] if traits else ["Limited positive trait signal identified in current data"]
 
 
 def generate_drag_traits(row):
@@ -979,13 +1030,13 @@ def generate_drag_traits(row):
     sg_arg = float(row.get("sg_arg_12m") or 0)
     fit_acc = float(row.get("fit_drive_acc") or 0)
     debut = bool(row.get("debut_flag", False))
-    if sg_app < -0.1: drags.append(f"Weak approach (SG:APP {sg_app:+.2f})")
-    if sg_ott < -0.1: drags.append(f"Below-avg OTT (SG:OTT {sg_ott:+.2f})")
-    if sg_putt < -0.2: drags.append(f"Poor putting (SG:PUTT {sg_putt:+.2f})")
-    if sg_arg < -0.3: drags.append(f"Weak ARG (SG:ARG {sg_arg:+.2f})")
-    if fit_acc < -0.10: drags.append("Course accuracy penalty — wayward driver here")
-    if debut: drags.append("Renaissance debut — unknown ceiling")
-    return drags[:3] if drags else ["No material drag traits"]
+    if sg_app < -0.1: drags.append(f"Below-avg approach — SG:APP {sg_app:+.2f} in the primary scoring zone at Renaissance")
+    if sg_ott < -0.1: drags.append(f"Below-avg off-tee — SG:OTT {sg_ott:+.2f} on tight links corridors")
+    if sg_putt < -0.2: drags.append(f"Poor putting — SG:PUTT {sg_putt:+.2f} on slow fescue greens (~10ft Stimp) amplifies weakness")
+    if sg_arg < -0.3: drags.append(f"Weak short game — SG:ARG {sg_arg:+.2f}, costly in links rough and pot-bunker recovery situations")
+    if fit_acc < -0.10: drags.append("Driving accuracy penalty on tight Renaissance corridors — tee-shot dispersion compounds links rough penalty")
+    if debut: drags.append("Renaissance debut — no tee-corridor or approach-angle knowledge; debut discount applied")
+    return drags[:3] if drags else []
 
 
 def generate_conviction_statement(row):
@@ -995,21 +1046,121 @@ def generate_conviction_statement(row):
     vh = row.get("venue_history_depth", "NONE")
     ap = int(row.get("ap_total_flags", 0))
     name = f"{row.get('first', '')} {row.get('last', '')}".strip().title()
+    last = str(row.get("last", "")).upper()
+    first = str(row.get("first", "")).upper()
     vts = float(row.get("vts_final", 50))
+    nsi = float(row.get("neutral_skill_index", 50) or 50)
+    vfs = float(row.get("venue_fit_score", 50) or 50)
+    sg_app = float(row.get("sg_app_12m") or 0)
+    sg_ott = float(row.get("sg_ott_12m") or 0)
+    vsb = row.get("true_sg_vs_baseline")
+    vsb_val = float(vsb) if not pd.isna(vsb) else 0.0
+    ch_adj = float(row.get("ch_adjustment_f") or 0)
+    app_val = float(row.get("app_150_200_value") or 0)
 
     if tier == 1:
-        return f"{name} is a legitimate contender — elite cross-category score (VTS {vts:.1f}), {cl} conviction."
+        # Name the #1 structural reason per player
+        if last == "MCILROY":
+            return (
+                f"McIlroy is the most decorated player in Renaissance Club history (2023 winner, "
+                f"highest DG points all-time here) — his elite distance/iron combination is optimally "
+                f"suited for this benign-forecast week where pure scoring ability dominates over wind management."
+            )
+        elif last == "CLARK":
+            return (
+                f"Clark brings HOT form ({vsb_val:+.2f} vs baseline) to a venue where his approach game "
+                f"translated to a T11 finish — in calm conditions favouring birdie-making, his complete "
+                f"profile from tee to green is the field's best combination of current momentum and structural fit."
+            )
+        elif last == "SCHEFFLER":
+            return (
+                f"Scheffler's elite NSI ({nsi:.1f}/100) is the field ceiling — world No.1 SG:APP "
+                f"({sg_app:+.2f}) in the Renaissance primary scoring zone is the dominant structural advantage. "
+                f"Limited venue history is the only model caveat in an otherwise pristine profile."
+            )
+        elif last == "FITZPATRICK":
+            return (
+                f"Fitzpatrick's Renaissance pedigree (VHN {row.get('venue_history_normalized', 50):.0f}/100) "
+                f"is the defining edge — his precise iron game and elite positional driving are purpose-built "
+                f"for the tight corridors and long-iron demands of this links setup."
+            )
+        elif last == "HATTON":
+            return (
+                f"Hatton's combination of HOT form ({vsb_val:+.2f} vs baseline) and strong venue fit "
+                f"(VFS {vfs:.1f}/100) makes him a complete Tier 1 play — links DNA and elite short-game "
+                f"allow consistent scoring when the fairways are firm and greens receptive."
+            )
+        else:
+            # Generic but mechanism-driven
+            lead = "HOT form" if fc == "HOT" else ("strong course history" if vh in ("STRONG","MODERATE") else "elite NSI")
+            return (
+                f"{name} enters with {lead} (VTS {vts:.1f}) — "
+                f"SG:APP {sg_app:+.2f} in the primary scoring zone gives a structural edge that "
+                f"benign forecast conditions amplify further. {cl} conviction."
+            )
+
     elif tier == 2:
-        vh_note = "supported by venue history" if vh in ("STRONG","MODERATE") else "with limited course history"
-        return f"{name} is a firm Tier 2 play {vh_note} — top-shelf SG profile, {cl} conviction."
+        if vh in ("STRONG", "MODERATE") and app_val > 0.02:
+            return (
+                f"{name} — course history at Renaissance (VHN {row.get('venue_history_normalized',50):.0f}/100) "
+                f"combined with positive APP 150-200 value ({app_val:+.3f}) creates a dual-mechanism case. "
+                f"Firm Tier 2 candidate with {cl} conviction."
+            )
+        elif fc in ("HOT", "WARM"):
+            return (
+                f"{name} — current form ({fc}, {vsb_val:+.2f} vs baseline) elevates an already strong SG "
+                f"profile (NSI {nsi:.1f}) to a compelling Tier 2 case at a venue where birdie-making "
+                f"dominates in calm conditions. {cl} conviction."
+            )
+        elif sg_ott > 0.4:
+            return (
+                f"{name} — elite OTT ({sg_ott:+.2f}) is a primary structural weapon at Renaissance "
+                f"where driving distance maximises eagle looks on par-5s and creates wedge approaches from "
+                f"tight fairways. Tier 2 with {cl} conviction."
+            )
+        else:
+            vh_note = "supported by positive venue history" if vh in ("STRONG","MODERATE") else "building on a clean structural profile"
+        return (
+            f"{name} is a firm Tier 2 play {vh_note} — NSI {nsi:.1f}/100 with SG:APP {sg_app:+.2f} "
+            f"provides the approach-game foundation Renaissance rewards. {cl} conviction."
+        )
+
     elif tier == 3:
-        fc_note = f"Form is {fc.lower()}." if fc != "NEUTRAL" else ""
-        ap_note = f" {ap} anti-pattern flag(s) apply." if ap > 0 else ""
-        return f"{name} is a viable dark horse here — specific trait overlap with Renaissance demands.{fc_note}{ap_note}"
+        ap_note = f" {ap} anti-pattern flag(s) limit ceiling." if ap > 0 else ""
+        if fc in ("HOT", "WARM") and vsb_val > 0.5:
+            return (
+                f"{name} is a Tier 3 dark-horse play elevated by current form ({fc}, {vsb_val:+.2f} vs "
+                f"baseline) — needs form to carry into the calm forecast window to unlock contention upside.{ap_note}"
+            )
+        elif app_val > 0.02:
+            return (
+                f"{name} is a specific Tier 3 spike candidate — APP 150-200 value ({app_val:+.3f}) in "
+                f"the dominant scoring zone is the ceiling unlock. Calm conditions in R1/R2 amplify the "
+                f"approach-distance fit.{ap_note}"
+            )
+        elif ch_adj > 0.02:
+            return (
+                f"{name} is a Tier 3 value play anchored by positive Renaissance course history (adj "
+                f"{ch_adj:+.3f}) — proven scorer at this venue when structural profile aligns.{ap_note}"
+            )
+        else:
+            fc_note = f" Form is {fc.lower()}." if fc != "NEUTRAL" else ""
+            return (
+                f"{name} is a Tier 3 play with specific structural overlap — trait mix covers Renaissance's "
+                f"key demands without a single dominant edge.{fc_note}{ap_note}"
+            )
+
     elif tier == 4:
-        return f"{name} requires multiple components to converge — structural ceiling is limited but a quiet T20 run is possible."
+        return (
+            f"{name} requires multiple category overperformances to make noise — structural ceiling is "
+            f"limited (NSI {nsi:.1f}) and a T20-T30 run depends on variance in calm conditions where "
+            f"the scoring gap between tiers compresses."
+        )
     else:
-        return f"{name} faces structural headwinds at this venue — model flags recurring weak-link traits that often hurt at Renaissance."
+        return (
+            f"{name} faces structural headwinds at Renaissance — model flags recurring weak-link traits "
+            f"(SG:APP {sg_app:+.2f}, VFS {vfs:.1f}/100) that compound on a long-iron-demanding links setup."
+        )
 
 
 def generate_risk_vector(row):
@@ -1017,16 +1168,25 @@ def generate_risk_vector(row):
     ddc = row.get("data_depth_class", "FULL")
     fc = row.get("form_class", "NEUTRAL")
     debut = bool(row.get("debut_flag", False))
+    vsb = row.get("true_sg_vs_baseline")
+    vsb_val = float(vsb) if not pd.isna(vsb) else 0.0
     risks = []
     if ap >= 2:
-        risks.append("multi-flag anti-pattern")
+        risks.append(f"multi-flag anti-pattern ({ap} flags) — structural concerns compound at Renaissance")
+    elif ap == 1:
+        risks.append("single anti-pattern flag — course setup amplifies this weakness")
     if ddc in ("LIMITED", "DEBUT"):
-        risks.append(f"thin data ({ddc})")
+        reg_pct = "60%" if ddc == "DEBUT" else "40%"
+        risks.append(f"thin data ({ddc}, {reg_pct} regression toward field mean applied)")
     if fc in ("COLD", "COOL"):
-        risks.append(f"form drag ({fc})")
+        risks.append(f"form drag ({fc}) — below-baseline scoring rate heading into a benign-forecast week")
     if debut:
-        risks.append("venue debut discount")
-    return " + ".join(risks) if risks else "baseline variance only"
+        risks.append("Renaissance debut — links-course learning curve; no hole-knowledge calibration for tee corridors or rerouted closing stretch (new Hole 15)")
+    if not risks and fc == "HOT" and vsb_val > 1.5:
+        risks.append(f"regression risk from peak form ({vsb_val:+.2f} vs baseline) — HOT form at this level historically mean-reverts by R3-R4 at HIGH variance venues")
+    if not risks:
+        risks.append("standard model variance — no structural risk flags; outcome range driven by links-course randomness in calm conditions")
+    return " + ".join(risks)
 
 
 def generate_failure_condition(row):
@@ -1034,13 +1194,43 @@ def generate_failure_condition(row):
     sg_app = float(row.get("sg_app_12m") or 0)
     sg_putt = float(row.get("sg_putt_12m") or 0)
     fit_acc = float(row.get("fit_drive_acc") or 0)
+    debut = bool(row.get("debut_flag", False))
+    ap = int(row.get("ap_total_flags", 0))
     if sg_app < 0 and fit_acc < 0:
-        return "Approach from links rough + accuracy penalty compounds — misses cut if iron play doesn't spike."
+        return (
+            "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play "
+            "doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie "
+            "opportunities from off-fairway positions."
+        )
     elif sg_putt < -0.3:
-        return "Flat putter on fast links greens — can't convert enough long-iron proximity into birdies."
+        return (
+            f"Flat putter (SG:PUTT {sg_putt:+.2f}) on slow fescue greens (~10ft Stimp) — can't convert "
+            "enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland "
+            "Tour baseline where the SG metric was accumulated."
+        )
+    elif debut:
+        return (
+            "No Renaissance read on tee-shot corridors or green approach angles — debut discount plus "
+            "specific hole knowledge gap on the rerouted closing stretch (new Hole 15 pressure). "
+            "Even elite ball-strikers typically need one prior start to calibrate links-specific scoring."
+        )
+    elif ap >= 2:
+        return (
+            f"{ap} anti-pattern flags create compounding structural risk — Renaissance's exacting "
+            "approach demands leave no margin for weak-link category underperformance in a field "
+            "with multiple elite ball-strikers."
+        )
     elif tier >= 4:
-        return "SG ceiling too low to sustain contention — relies on variance, not repeatable skill edges."
-    return "Reverts to field average if form fades — no dominant skill separating him on this setup."
+        return (
+            "SG ceiling (NSI sub-65) too low to sustain contention at a venue where elite approach "
+            "play from 150-200yds is a prerequisite for top-20 finishes — needs atypical variance "
+            "spike across multiple rounds."
+        )
+    return (
+        "Form fade or approach regression below zero would eliminate the scoring edge — "
+        "no structural moat to absorb a -0.5 SG:APP week at Renaissance where proximity "
+        "from 175-200yds directly determines birdie conversion rate."
+    )
 
 
 def generate_trace_notes(row):
@@ -1060,26 +1250,63 @@ def generate_trace_notes(row):
 
 
 def tier3_dark_horse(row):
-    """Dark-horse mechanism for Tier 3 players."""
+    """Dark-horse mechanism for Tier 3 players — venue/weather-specific language, no filler phrases."""
     sg_app = float(row.get("sg_app_12m") or 0)
     sg_ott = float(row.get("sg_ott_12m") or 0)
     sg_putt = float(row.get("sg_putt_12m") or 0)
+    sg_arg = float(row.get("sg_arg_12m") or 0)
     app_val = float(row.get("app_150_200_value") or 0)
     ch_adj = float(row.get("ch_adjustment_f") or 0)
     fit_acc = float(row.get("fit_drive_acc") or 0)
+    dd = float(row.get("driving_distance_baseline") or 0)
     name_first = str(row.get("first", "")).title()
 
     if ch_adj > 0.02:
-        return f"{name_first} has proven he can score at Renaissance — positive course history is the ceiling unlock."
+        return (
+            f"{name_first} has a positive course-history adjustment at Renaissance ({ch_adj:+.3f}) — "
+            f"demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast "
+            f"conditions where tee-corridor familiarity converts directly into birdie-making pace."
+        )
     elif app_val > 0.02:
-        return f"Strong 150-200yd iron value ({app_val:+.3f}) — the primary scoring zone at Renaissance where he excels."
-    elif sg_ott > 0.5 and fit_acc > 0:
-        return f"Elite OTT ({sg_ott:+.2f}) combined with positional accuracy — sets up short-iron looks from tight fairways."
+        return (
+            f"APP 150-200 value {app_val:+.3f} places {name_first} in the productive range for Renaissance's "
+            f"dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance "
+            f"fit as pin positions become accessible with mid-iron precision."
+        )
+    elif sg_ott > 0.5 and dd > 3:
+        return (
+            f"In calm forecast conditions (R1/R2 sub-10mph), {name_first}'s distance advantage ({dd:+.1f}yds vs "
+            f"field avg) is maximised — can reach all three par-5s for eagle looks and attack the 347yd par-4 "
+            f"Hole 5 from the tee. Elite OTT ({sg_ott:+.2f}) is the primary contention mechanism."
+        )
+    elif sg_ott > 0.4 and fit_acc > 0:
+        return (
+            f"Strong OTT ({sg_ott:+.2f}) with positive positional accuracy — creates wedge approaches from "
+            f"tight Renaissance corridors that compress scoring variance vs. the field average."
+        )
     elif sg_putt > 0.5:
-        return f"Top-tier putter ({sg_putt:+.2f}) — if he hits enough greens, he can spike a leaderboard run."
+        return (
+            f"Top-tier putting (SG:PUTT {sg_putt:+.2f}) on slow fescue greens — if approach play reaches "
+            f"the minimum GIR threshold Renaissance demands, elite putting converts marginal proximity "
+            f"into birdies that comparable ball-strikers leave as pars."
+        )
     elif sg_app > 0.4:
-        return f"Above-average approach game ({sg_app:+.2f}) — can sustain GIR% needed for links contention."
-    return "Combination of marginal skill edges across multiple categories — upside available if form spikes."
+        return (
+            f"SG:APP {sg_app:+.2f} is above the minimum scoring threshold — can sustain the GIR% and "
+            f"proximity needed for first-page contention when the calm forecast removes wind-management "
+            f"as a scoring differentiator."
+        )
+    elif sg_arg > 0.3:
+        return (
+            f"Strong short-game (SG:ARG {sg_arg:+.2f}) provides a structural recovery edge in links rough "
+            f"and from pot-bunker escapes — a category where Renaissance's penal layout creates significant "
+            f"variance between the field's best and worst operators."
+        )
+    return (
+        f"Multiple marginal skill edges across categories — contention path requires above-average "
+        f"performance in at least two of {name_first}'s identified trait overlaps with Renaissance demands "
+        f"to stack enough birdie-making pace for a first-page Sunday position."
+    )
 
 
 # ─────────────────────────────────────────────
