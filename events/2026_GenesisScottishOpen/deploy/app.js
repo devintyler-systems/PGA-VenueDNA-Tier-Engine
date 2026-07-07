@@ -968,7 +968,7 @@ function renderTable(players) {
       : p.player_name.split(', ').reverse().join(' ').trim();
 
     /* Cut probability cell */
-    const cutCell = `<span style="color:${+p.make_cut_prob >= 75 ? '#4ade80' : +p.make_cut_prob >= 55 ? '#fcd34d' : '#f87171'};font-size:.8rem;font-weight:600">${fmtPct(p.make_cut_prob)}</span>`;
+    const cutCell = `<span style="color:${+p.make_cut_prob >= 70 ? '#4ade80' : +p.make_cut_prob >= 45 ? '#fcd34d' : '#f87171'};font-size:.8rem;font-weight:600">${fmtPct(p.make_cut_prob)}</span>`;
 
     /* Badges from player brief */
     const playerBadgesHTML = renderPlayerBadges(p.badges);
@@ -1722,7 +1722,18 @@ function sectionProbability(p) {
   const laneStyle = laneColors[lane] || 'background:#33415533;border-color:#475569;color:#94a3b8';
   const laneChip = lane ? `<span style="${laneStyle};border:1px solid;border-radius:999px;padding:.2rem .8rem;font-size:.72rem;font-weight:700">${lane}</span>` : '';
 
-  const cutColor = +p.make_cut_prob >= 75 ? '#4ade80' : +p.make_cut_prob >= 55 ? '#fcd34d' : '#f87171';
+  // Recalibrated thresholds: T1≈88%, T2≈69%, T3≈43% (logistic center=55, slope=12)
+  const cutColor = +p.make_cut_prob >= 70 ? '#4ade80' : +p.make_cut_prob >= 45 ? '#fcd34d' : '#f87171';
+
+  // Latent score pills (only render if present in payload)
+  const hasLatent = p.win_ceiling_score != null;
+  const latentRow = hasLatent ? `
+    <div class="stat-row" style="margin-top:.4rem;opacity:.8">
+      <span class="stat-pill" title="Win Ceiling Score — venue history wins + peak form"><span class="sk">WCS:</span> <span class="sv" style="color:#a78bfa">${(+p.win_ceiling_score).toFixed(1)}</span></span>
+      <span class="stat-pill" title="Contention Score — approach fit + skill; drives T5/T10"><span class="sk">CS:</span> <span class="sv" style="color:#60a5fa">${(+p.contention_score).toFixed(1)}</span></span>
+      <span class="stat-pill" title="Floor Score — balanced consistency; drives T10/T20"><span class="sk">FS:</span> <span class="sv" style="color:#34d399">${(+p.floor_score).toFixed(1)}</span></span>
+      <span class="stat-pill" title="Cut Survival Score — NSI dominant; calibrated to top-65 cut rule"><span class="sk">CSS:</span> <span class="sv" style="color:${cutColor}">${(+p.cut_survival_score).toFixed(1)}</span></span>
+    </div>` : '';
 
   return `<div class="modal-section">
     <h4>Probability &amp; Output</h4>
@@ -1735,6 +1746,7 @@ function sectionProbability(p) {
       <span class="stat-pill"><span class="sk">Make Cut:</span> <span class="sv" style="color:${cutColor}">${fmtPct(p.make_cut_prob)}</span></span>
       <span class="stat-pill"><span class="sk">Miss Cut:</span> <span class="sv" style="color:${cutColor === '#4ade80' ? '#f87171' : '#94a3b8'}">${fmtPct(p.miss_cut_prob)}</span></span>
     </div>
+    ${latentRow}
     ${laneChip ? `<div style="margin-top:.5rem">${laneChip}</div>` : ''}
     <div style="margin-top:.75rem">${buildBettingStrip(p)}</div>
   </div>`;
@@ -1753,7 +1765,7 @@ function buildBettingStrip(p) {
     { label: 'Top 5',    val: t5,  green: 20,  amber: 12  },
     { label: 'Top 10',   val: t10, green: 35,  amber: 20  },
     { label: 'Top 20',   val: t20, green: 55,  amber: 35  },
-    { label: 'Make Cut', val: mc,  green: 75,  amber: 55  },
+    { label: 'Make Cut', val: mc,  green: 70,  amber: 45  },
     { label: 'Miss Cut', val: isc, green: 40,  amber: 25, invert: true },
   ];
 

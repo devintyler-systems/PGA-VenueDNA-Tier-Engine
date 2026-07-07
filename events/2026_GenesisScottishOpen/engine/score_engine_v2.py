@@ -757,97 +757,197 @@ df = df.sort_values("vts_final", ascending=False).reset_index(drop=True)
 df["rank"] = df.index + 1
 
 # ─────────────────────────────────────────────
-# STEP 7 — PROBABILITIES
+# STEP 7 — PROBABILITIES (Continuous, Player-Specific)
 # ─────────────────────────────────────────────
 print("Computing probabilities …")
 
 FIELD_SIZE = len(df)
+_CUT_PLACES = 65  # top-65+ties; 39.2% of 166-player field makes cut
 
-def logistic_win(vts):
-    """Calibrated logistic — center=70 (T1 baseline), slope=6 for within-T1 differentiation.
-    Floor clips removed: they cause all T1 players to converge to the same value."""
-    x = (vts - 70.0) / 6.0
-    return 1.0 / (1.0 + np.exp(-x))
+# ── SNAPSHOT old formula for QA diff ───────────────────────────────────────
+_old_win_raw = 1.0 / (1.0 + np.exp(-(df["vts_final"] - 70.0) / 6.0))
+_old_win  = (_old_win_raw / _old_win_raw.sum() * 100.0).round(2)
+_old_t10  = (_old_win * 8.0).clip(upper=75.0).round(2)
 
-# Normalize over full field — no tier floor clips (they flatten T1)
-df["win_prob_raw"] = df["vts_final"].apply(logistic_win)
-total_raw = df["win_prob_raw"].sum()
-df["win_prob"] = (df["win_prob_raw"] / total_raw * 100.0).round(2)
-
-# Derived probs (links HIGH variance)
-df["top5_prob"] = (df["win_prob"] * 4.5).clip(upper=55.0).round(2)
-df["top10_prob"] = (df["win_prob"] * 8.0).clip(upper=75.0).round(2)
-df["top20_prob"] = (df["win_prob"] * 15.0).clip(upper=90.0).round(2)
-
-# Make cut probability from neutral_skill_index + form_score
-def make_cut_prob(nsi, fs):
-    if pd.isna(nsi):
-        nsi = 50.0
-    base_nsi = float(nsi)
-    base_fs = float(fs) if not pd.isna(fs) else 50.0
-    combined = base_nsi * 0.65 + base_fs * 0.35
-    if combined > 75:
-        return round(np.random.uniform(85, 92), 1)
-    elif combined > 65:
-        return round(np.random.uniform(75, 85), 1)
-    elif combined > 50:
-        return round(np.random.uniform(60, 75), 1)
-    elif combined > 35:
-        return round(np.random.uniform(45, 60), 1)
-    else:
-        return round(np.random.uniform(25, 45), 1)
-
-# Use deterministic version
-def make_cut_prob_det(row):
+def _old_cut_det(row):
     nsi = float(row.get("neutral_skill_index", 50) or 50)
-    fs = float(row.get("form_score", 50) or 50)
-    combined = nsi * 0.65 + fs * 0.35
-    if combined > 75:
-        lo, hi = 85.0, 92.0
-    elif combined > 65:
-        lo, hi = 75.0, 85.0
-    elif combined > 50:
-        lo, hi = 60.0, 75.0
-    elif combined > 35:
-        lo, hi = 45.0, 60.0
+    fs  = float(row.get("form_score", 50) or 50)
+    c   = nsi * 0.65 + fs * 0.35
+    for thresh, lo, hi in [(75, 85.0, 92.0), (65, 75.0, 85.0),
+                           (50, 60.0, 75.0), (35, 45.0, 60.0)]:
+        if c > thresh:
+            break
     else:
         lo, hi = 25.0, 45.0
-    # Use VTS rank to spread within band
     rank_pct = 1.0 - (row.get("rank", 80) - 1) / (FIELD_SIZE - 1)
     return round(lo + rank_pct * (hi - lo), 1)
 
-df["make_cut_prob"] = df.apply(make_cut_prob_det, axis=1)
+_old_cut = df.apply(_old_cut_det, axis=1)
+
+# ── LATENT SCORES ──────────────────────────────────────────────────────────
+# Four latent scores capture different probability profiles from the same inputs.
+# All primary inputs are 0-100 normalised (NSI, VFS, VHN) or 20-85 (form_score).
+
+# 1. WIN CEILING — venue history of winning + peak form; drives win probability
+df["win_ceiling_raw"] = (
+    df["neutral_skill_index"]        * 0.35
+    + df["venue_history_normalized"] * 0.28
+    + df["form_score"]               * 0.22
+    + df["venue_fit_score"]          * 0.15
+)
+df["win_ceiling_raw"] += df["has_venue_win"].astype(float)          * 3.0
+df["win_ceiling_raw"] += df["is_defending_champion"].astype(float)  * 2.0
+df["win_ceiling_raw"] += df["has_venue_podium"].astype(float)       * 1.5
+df["win_ceiling_raw"] -= df["ap_total_flags"].clip(upper=4)         * 2.5
+df["win_ceiling_raw"] -= (df["data_depth_class"] == "DEBUT").astype(float)   * 6.0
+df["win_ceiling_raw"] -= (df["data_depth_class"] == "LIMITED").astype(float) * 3.0
+
+# 2. CONTENTION — approach-fit dominant (primary Renaissance trait); drives top-5/top-10
+df["contention_raw"] = (
+    df["venue_fit_score"]            * 0.35
+    + df["neutral_skill_index"]      * 0.28
+    + df["form_score"]               * 0.22
+    + df["venue_history_normalized"] * 0.15
+)
+df["contention_raw"] += df["has_venue_podium"].astype(float)                      * 3.0
+df["contention_raw"] += df["is_defending_champion"].astype(float)                 * 2.5
+df["contention_raw"] += df["top5_count_renaissance"].fillna(0).clip(upper=3)      * 1.5
+df["contention_raw"] -= df["ap_total_flags"].clip(upper=4)                        * 2.0
+df["contention_raw"] -= (df["data_depth_class"] == "DEBUT").astype(float)         * 4.0
+
+# 3. FLOOR — balanced weights; drives top-10/top-20 for consistent players
+df["floor_raw"] = (
+    df["neutral_skill_index"]        * 0.30
+    + df["venue_fit_score"]          * 0.28
+    + df["venue_history_normalized"] * 0.25
+    + df["form_score"]               * 0.17
+)
+df["floor_raw"] += df["has_recent_top15_renaissance"].astype(float) * 3.0
+df["floor_raw"] += df["has_venue_podium"].astype(float)             * 2.0
+df["floor_raw"] -= df["ap_total_flags"].clip(upper=4)               * 1.5
+df["floor_raw"] -= (df["data_depth_class"] == "DEBUT").astype(float)   * 3.0
+
+# 4. CUT SURVIVAL — NSI dominant; no ceiling bonuses; hard penalty for anti-patterns
+df["cut_survival_raw"] = (
+    df["neutral_skill_index"]        * 0.45
+    + df["form_score"]               * 0.30
+    + df["venue_history_normalized"] * 0.15
+    + df["venue_fit_score"]          * 0.10
+)
+df["cut_survival_raw"] -= df["ap_flag7"].astype(float)     * 8.0
+df["cut_survival_raw"] -= df["debut_flag"].astype(float)   * 5.0
+df["cut_survival_raw"] -= (df["data_depth_class"] == "LIMITED").astype(float) * 3.0
+
+# Rescale all 4 to 0-100 with mean=50
+df["win_ceiling_score"]  = zscore_scale(df["win_ceiling_raw"],  50.0, 15.0)
+df["contention_score"]   = zscore_scale(df["contention_raw"],   50.0, 14.0)
+df["floor_score"]        = zscore_scale(df["floor_raw"],        50.0, 13.0)
+df["cut_survival_score"] = zscore_scale(df["cut_survival_raw"], 50.0, 14.0)
+
+# ── SOFTMAX PROBABILITIES ───────────────────────────────────────────────────
+# Softmax with temperature T — higher T compresses spread, lower T sharpens it.
+# Each outcome uses a different latent score and temperature:
+#   Win (T=15): sharpest — only ceiling predicts winning
+#   Top 5 (T=17): contention-based; softer than win
+#   Top 10 (T=19): contention×0.55 + floor×0.45 blend
+#   Top 20 (T=21): floor-dominant; broadest spread
+
+def _softmax_weights(scores: pd.Series, temperature: float) -> pd.Series:
+    shifted = scores - scores.mean()        # subtract mean for numeric stability
+    return np.exp(shifted / temperature)
+
+# Win — normalised to 100% (1 winner per tournament)
+_w_win = _softmax_weights(df["win_ceiling_score"], 15.0)
+df["win_prob"] = (_w_win / _w_win.sum() * 100.0).round(2)
+
+# Top 5 — normalised to 500% (5 places; avg player = 3.01%)
+_w_t5 = _softmax_weights(df["contention_score"], 17.0)
+df["top5_prob"] = (_w_t5 / _w_t5.sum() * 500.0).clip(upper=55.0).round(2)
+
+# Top 10 — normalised to 1000% (10 places; avg player = 6.02%)
+_blend_t10 = df["contention_score"] * 0.55 + df["floor_score"] * 0.45
+_w_t10 = _softmax_weights(_blend_t10, 19.0)
+df["top10_prob"] = (_w_t10 / _w_t10.sum() * 1000.0).clip(upper=75.0).round(2)
+
+# Top 20 — normalised to 2000% (20 places; avg player = 12.05%)
+_w_t20 = _softmax_weights(df["floor_score"], 21.0)
+df["top20_prob"] = (_w_t20 / _w_t20.sum() * 2000.0).clip(upper=90.0).round(2)
+
+# Monotonicity: win ≤ top5 ≤ top10 ≤ top20
+df["top5_prob"]  = df[["win_prob",   "top5_prob" ]].max(axis=1).round(2)
+df["top10_prob"] = df[["top5_prob",  "top10_prob"]].max(axis=1).round(2)
+df["top20_prob"] = df[["top10_prob", "top20_prob"]].max(axis=1).round(2)
+
+# ── MAKE CUT — continuous logistic on cut_survival_score ──────────────────
+# center=55, slope=12: average player (CSS=50) → ~40% cut probability,
+# calibrated to top-65+ties rule in 166-player field (65/166 = 39.2%).
+df["make_cut_prob"] = (
+    1.0 / (1.0 + np.exp(-(df["cut_survival_score"] - 55.0) / 12.0)) * 100.0
+).clip(5.0, 97.0).round(1)
+
+# Top-20 projection requires having made the cut — enforce as floor
+df["make_cut_prob"] = df[["make_cut_prob", "top20_prob"]].max(axis=1).round(1)
 df["miss_cut_prob"] = (100.0 - df["make_cut_prob"]).round(1)
 
-# Best betting lane
+# ── QA TABLE — top 25 before vs after ──────────────────────────────────────
+print("\n=== PROBABILITY DIFFERENTIATION QA — TOP 25 ===")
+_hdr = (f"{'Rk':>3}  {'Player':18s}  "
+        f"{'Win OLD':>7}  {'Win NEW':>7}  "
+        f"{'T10 OLD':>7}  {'T10 NEW':>7}  "
+        f"{'Cut OLD':>7}  {'Cut NEW':>7}  "
+        f"{'WCS':>5}  {'CS':>5}  {'FS':>5}  {'CSS':>5}")
+print(_hdr)
+print("-" * len(_hdr))
+for _qi in range(min(25, len(df))):
+    _r = df.iloc[_qi]
+    _nm = f"{_r['last'].title()} {_r['first'].title()}"[:18]
+    print(f"{int(_r['rank']):>3}  {_nm:18s}  "
+          f"{_old_win.iloc[_qi]:>6.2f}%  {_r['win_prob']:>6.2f}%  "
+          f"{_old_t10.iloc[_qi]:>6.2f}%  {_r['top10_prob']:>6.2f}%  "
+          f"{_old_cut.iloc[_qi]:>6.1f}%  {_r['make_cut_prob']:>6.1f}%  "
+          f"{_r['win_ceiling_score']:>5.1f}  {_r['contention_score']:>5.1f}  "
+          f"{_r['floor_score']:>5.1f}  {_r['cut_survival_score']:>5.1f}")
+print()
+_wsum = df["win_prob"].sum()
+print(f"  Sums: Win:{_wsum:.1f}%  Top5:{df['top5_prob'].sum():.1f}%  "
+      f"Top10:{df['top10_prob'].sum():.1f}%  Top20:{df['top20_prob'].sum():.1f}%")
+print(f"  Avg make_cut_prob: {df['make_cut_prob'].mean():.1f}%  "
+      f"(calibrated target: {_CUT_PLACES/FIELD_SIZE*100:.1f}%  top-{_CUT_PLACES} rule)")
+print(f"  Unique vals: Win:{df['win_prob'].nunique()}  "
+      f"Top10:{df['top10_prob'].nunique()}  Cut:{df['make_cut_prob'].nunique()}")
+
+# Best betting lane — thresholds calibrated to new continuous probability scales
 def best_betting_lane(row):
-    wp = float(row.get("win_prob", 0))
-    t5 = float(row.get("top5_prob", 0))
+    wp  = float(row.get("win_prob", 0))
+    t5  = float(row.get("top5_prob", 0))
     t10 = float(row.get("top10_prob", 0))
     t20 = float(row.get("top20_prob", 0))
-    mc = float(row.get("make_cut_prob", 50))
-    tier = int(row.get("tier", 5))
+    mc  = float(row.get("make_cut_prob", 50))
+    tier     = int(row.get("tier", 5))
     ap_flags = int(row.get("ap_total_flags", 0))
 
-    # Winner: highest-conviction Tier 1 with no anti-pattern
+    # T1: route by win probability and anti-pattern count
     if tier == 1 and ap_flags == 0 and wp >= 2.5:
         return "Winner"
-    elif tier == 1 and wp >= 2.0:
+    elif tier == 1 and wp >= 1.8:
         return "Top 5"
-    # Tier 2: route to Top 10 unless flagged
+    # T2: approach-fit unlocks Top 10; flagged players drop to Top 20
     elif tier == 2 and ap_flags == 0:
         return "Top 10"
     elif tier == 2 and ap_flags >= 1:
         return "Top 20"
-    # Tier 3: Top 20 as primary lane
-    elif tier == 3 and t20 >= 10.0:
+    # T3: Top 20 if model supports it; otherwise make-cut play
+    # Avg T3 make_cut ≈43%, so ≥55% is above-average cut confidence
+    elif tier == 3 and t20 >= 9.0:
         return "Top 20"
-    elif tier == 3 and mc >= 72.0:
+    elif tier == 3 and mc >= 55.0:
         return "Make Cut"
-    # Tier 4: Make Cut / Miss Cut
-    elif tier == 4 and mc >= 78.0:
+    # T4: Make Cut only for strongest cut-survival profiles
+    # Avg T4 make_cut ≈23%, so ≥40% is meaningful
+    elif tier == 4 and mc >= 40.0:
         return "Make Cut"
-    elif mc < 50.0:
+    # Miss Cut: genuinely below-average survival probability
+    elif mc < 30.0:
         return "Miss Cut"
     return "Pass / No Edge"
 
@@ -1589,6 +1689,10 @@ for _, row in df.iterrows():
         "top20_prob": round(float(row.get("top20_prob", 0) or 0), 2),
         "make_cut_prob": round(float(row.get("make_cut_prob", 50) or 50), 1),
         "miss_cut_prob": round(float(row.get("miss_cut_prob", 50) or 50), 1),
+        "win_ceiling_score":  round(float(row.get("win_ceiling_score",  50) or 50), 1),
+        "contention_score":   round(float(row.get("contention_score",   50) or 50), 1),
+        "floor_score":        round(float(row.get("floor_score",        50) or 50), 1),
+        "cut_survival_score": round(float(row.get("cut_survival_score", 50) or 50), 1),
         "best_betting_lane": row.get("best_betting_lane", "Pass / No Edge"),
         "neutral_skill_summary": generate_neutral_skill_summary(row),
         "venue_fit_summary": generate_venue_fit_summary(row),
@@ -1935,6 +2039,11 @@ for pb in player_briefs:
         "venue_fit_total_adj": float(row.get("venue_fit_total_adj")) if not pd.isna(row.get("venue_fit_total_adj", None)) else None,
         "conviction_level": row.get("conviction_level", "LOW"),
         "ap_total_flags": int(row.get("ap_total_flags", 0)),
+        # Latent probability scores — player-specific continuous signals
+        "win_ceiling_score":  round(float(row.get("win_ceiling_score",  50) or 50), 1),
+        "contention_score":   round(float(row.get("contention_score",   50) or 50), 1),
+        "floor_score":        round(float(row.get("floor_score",        50) or 50), 1),
+        "cut_survival_score": round(float(row.get("cut_survival_score", 50) or 50), 1),
         # Driving fields — baseline from SG source, fit adj from venue file
         "driving_distance_baseline": float(row.get("drive_dist_adj")) if not pd.isna(row.get("drive_dist_adj", None)) else None,
         "driving_accuracy_baseline": float(row.get("drive_acc_12m")) if not pd.isna(row.get("drive_acc_12m", None)) else None,
