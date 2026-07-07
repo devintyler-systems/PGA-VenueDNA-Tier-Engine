@@ -49,11 +49,11 @@
   "generated_date": "2026-07-06",
   "tier_counts": {
     "1": 5,
-    "2": 24,
-    "3": 69,
-    "4": 40,
-    "5": 28
+    "2": 25,
+    "3": 72,
+    "4": 35,
+    "5": 29
   },
-  "anti_pattern_count": 30,
+  "anti_pattern_count": 27,
   "debut_count": 39
 }

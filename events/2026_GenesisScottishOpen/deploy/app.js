@@ -498,7 +498,6 @@ async function init() {
     const sgOtt12m    = +(p.sg_ott_12m    || brief.sg_ott_12m    || 0);
     const sgPutt12m   = +(p.sg_putt_12m   || brief.sg_putt_12m   || 0);
     const sgArg12m    = +(p.sg_arg_12m    || brief.sg_arg_12m    || 0);
-    const venueFitScore = +(p.venue_fit_score || brief.venue_fit_score || 0);
 
     /* Map SG values to 0-100 percentile estimates for display */
     function sgToPercentile(sg, min=-2.5, max=2.5) {
@@ -512,8 +511,15 @@ async function init() {
       ? Math.max(0, Math.min(100, ((driveAccRaw + 12) / 24) * 100))
       : null;
 
+    /* app_150_200_value is strokes-gained-per-shot from fairway at 150-200yds relative to field avg.
+       Store raw value here; percentile rank within the tournament field is computed in a post-pass
+       after allPlayers is fully built, so the score reflects true field-relative ranking. */
+    const app150Raw = (p.app_150_200_value != null) ? +p.app_150_200_value
+                    : (brief.app_150_200_value != null ? +brief.app_150_200_value : null);
+    merged.app_150_200_raw = (app150Raw !== null && !isNaN(app150Raw)) ? app150Raw : null;
+
     merged.trait_scores = [
-      { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)',   weight: 0.30, score: venueFitScore > 0 ? venueFitScore : null },
+      { key: 'app_150_200',    label: 'APP 150-200 (Long Iron)',   weight: 0.30, score: null }, // set in post-pass below
       { key: 'ott_positional', label: 'OTT / Positional Drive',    weight: 0.20, score: sgOtt12m !== 0 ? sgToPercentile(sgOtt12m) : null },
       { key: 'app_overall',    label: 'APP Overall',               weight: 0.15, score: sgApp12m !== 0 ? sgToPercentile(sgApp12m) : null },
       { key: 'driving_accuracy', label: 'Driving Accuracy',        weight: 0.12, score: driveAccScore },
@@ -525,6 +531,22 @@ async function init() {
   });
 
   allPlayers.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+
+  /* ── APP 150-200 field-relative percentile rank (post-pass) ──
+     Rank each player's raw fairway 150-200 shot value against the full tournament field.
+     This correctly reflects that e.g. Koivun (+0.122) > Kim Si Woo (+0.079) > Scheffler (+0.055)
+     rather than using venue_fit_score which conflates driving accuracy penalties. */
+  (function() {
+    const withData = allPlayers.filter(p => p.app_150_200_raw != null);
+    if (withData.length < 2) return;
+    const sorted = [...withData].sort((a, b) => a.app_150_200_raw - b.app_150_200_raw);
+    const n = sorted.length;
+    sorted.forEach((p, i) => {
+      const pct = (i / (n - 1)) * 100;
+      const ts = p.trait_scores.find(t => t.key === 'app_150_200');
+      if (ts) ts.score = Math.round(pct * 10) / 10;
+    });
+  })();
 
   /* ── Missing-trait validation + imputation ── */
   DIAGNOSTICS = runImputationPass(allPlayers);

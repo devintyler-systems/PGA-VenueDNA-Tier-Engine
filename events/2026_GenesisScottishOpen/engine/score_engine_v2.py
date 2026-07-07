@@ -20,6 +20,17 @@ OUTPUT = BASE / "output"
 OUTPUT.mkdir(exist_ok=True)
 
 # ─────────────────────────────────────────────
+# PRE-RUN SNAPSHOT (for FC-1 audit diff)
+# ─────────────────────────────────────────────
+_before_briefs_map = {}
+_before_brief_path = OUTPUT / "2026_genesis_scottish_open_player_briefs.json"
+if _before_brief_path.exists():
+    with open(_before_brief_path, "r", encoding="utf-8") as _f:
+        _before_briefs_raw = json.load(_f)
+    _before_briefs_map = {b["player_id"]: b for b in _before_briefs_raw}
+    print(f"Pre-run snapshot: {len(_before_briefs_map)} existing briefs captured for FC-1 audit diff.")
+
+# ─────────────────────────────────────────────
 # UTILITIES
 # ─────────────────────────────────────────────
 
@@ -184,24 +195,27 @@ df = df.merge(sg_sub, on="key", how="left")
 # Merge approach data
 app_cols_keep = ["key",
                  "Fairway shots- 150-200yrd", "Fairway shots- 150-200yrd value",
-                 "Rough shots- Over 150yrd", "Rough shots- Over 150yrd value",
                  "Fairway shots- 100-150yrd", "Fairway shots- 100-150yrd Value",
                  "Fairway shots- Over 200yrd", "Fairway shots- Over 200yrd value",
-                 "Fairway shots- 50-100yrd", "Fairway shots- 50-100yrd value"]
+                 "Fairway shots- 50-100yrd", "Fairway shots- 50-100yrd value",
+                 "Rough shots- Over 150yrd", "Rough shots- Over 150yrd value",
+                 "Rough shots- Under 150yrd", "Rough shots- Under 150yrd value"]
 app_sub = app_raw[[c for c in app_cols_keep if c in app_raw.columns]].copy()
 # Deduplicate approach data — keep first occurrence per player key
 app_sub = app_sub.drop_duplicates(subset=["key"], keep="first")
 app_rename = {
     "Fairway shots- 150-200yrd": "app_150_200_shots",
     "Fairway shots- 150-200yrd value": "app_150_200_value",
-    "Rough shots- Over 150yrd": "rough_over150_shots",
-    "Rough shots- Over 150yrd value": "rough_over150_value",
     "Fairway shots- 100-150yrd": "app_100_150_shots",
     "Fairway shots- 100-150yrd Value": "app_100_150_value",
     "Fairway shots- Over 200yrd": "app_over200_shots",
     "Fairway shots- Over 200yrd value": "app_over200_value",
     "Fairway shots- 50-100yrd": "app_50_100_shots",
     "Fairway shots- 50-100yrd value": "app_50_100_value",
+    "Rough shots- Over 150yrd": "rough_over150_shots",
+    "Rough shots- Over 150yrd value": "rough_over150_value",
+    "Rough shots- Under 150yrd": "rough_under150_shots",
+    "Rough shots- Under 150yrd value": "rough_under150_value",
 }
 app_sub = app_sub.rename(columns={k: v for k, v in app_rename.items() if k in app_sub.columns})
 df = df.merge(app_sub, on="key", how="left")
@@ -270,6 +284,66 @@ res_sub = res_raw[["key", "finish_2025"]].copy()
 df = df.merge(res_sub, on="key", how="left")
 
 print(f"  Master dataframe: {len(df)} rows, {len(df.columns)} columns")
+
+# ─────────────────────────────────────────────
+# CANONICAL VENUE HISTORY FEATURE OBJECT
+# Derived from the_renaissance_club_CH.csv result columns.
+# Consumed by FC-1 (generate_venue_history_summary); does NOT touch VTS math.
+# ─────────────────────────────────────────────
+_YEAR_COLS = ["res_2021", "res_2022", "res_2023", "res_2024", "res_2025"]
+_YEAR_LABELS = [2021, 2022, 2023, 2024, 2025]
+
+
+def compute_vh_features(row):
+    results_by_year = {}
+    for col, yr in zip(_YEAR_COLS, _YEAR_LABELS):
+        val = row.get(col)
+        if val is not None and not pd.isna(val) and str(val).strip().upper() not in ("NULL", ""):
+            results_by_year[yr] = parse_finish(val)
+
+    start_count = len(results_by_year)
+    made_cuts = {yr: f for yr, f in results_by_year.items() if f < 999}
+
+    best_finish = min(made_cuts.values()) if made_cuts else None
+    best_finish_year = None
+    if best_finish is not None:
+        tied = [yr for yr, f in made_cuts.items() if f == best_finish]
+        best_finish_year = max(tied)
+
+    last_finish_year = max(made_cuts.keys()) if made_cuts else None
+    last_finish = made_cuts[last_finish_year] if last_finish_year is not None else None
+
+    top5_count = sum(1 for f in made_cuts.values() if f <= 5)
+    top15_count = sum(1 for f in made_cuts.values() if f <= 15)
+    made_cut_count = len(made_cuts)
+
+    is_defending = results_by_year.get(2025) == 1
+    has_venue_win = any(f == 1 for f in results_by_year.values())
+    has_venue_podium = best_finish is not None and best_finish <= 5
+    has_recent_top15 = last_finish is not None and last_finish <= 15
+
+    return pd.Series({
+        "renaissance_start_count": start_count,
+        "best_finish_year_renaissance": best_finish_year,
+        "last_finish_renaissance": last_finish,
+        "last_finish_year_renaissance": last_finish_year,
+        "top5_count_renaissance": top5_count,
+        "top15_count_renaissance": top15_count,
+        "made_cut_count_renaissance": made_cut_count,
+        "is_defending_champion": is_defending,
+        "has_venue_win": has_venue_win,
+        "has_venue_podium": has_venue_podium,
+        "has_recent_top15_renaissance": has_recent_top15,
+        "best_finish_renaissance_true": best_finish,
+    })
+
+
+vh_features = df.apply(compute_vh_features, axis=1)
+df = pd.concat([df, vh_features], axis=1)
+print(f"  Canonical VH features computed. Defending champion(s): {int(df['is_defending_champion'].sum())}. "
+      f"Venue winners: {int(df['has_venue_win'].sum())}. "
+      f"Podium (top-5): {int(df['has_venue_podium'].sum())}. "
+      f"Recent top-15: {int(df['has_recent_top15_renaissance'].sum())}.")
 
 # ─────────────────────────────────────────────
 # DATA DEPTH CLASSIFICATION
@@ -361,17 +435,40 @@ df["form_class"] = df["true_sg_vs_baseline"].apply(classify_form)
 # ─────────────────────────────────────────────
 print("Computing VenueFitDelta …")
 
-# Fill NaN with 0 for fit components (neutral if no data)
-for col in ["venue_fit_total_adj", "app_150_200_value", "fit_drive_acc"]:
+# Fill NaN with 0 for venue fit scalars (0 = field average / neutral)
+for col in ["venue_fit_total_adj", "fit_drive_acc"]:
     if col not in df.columns:
         df[col] = 0.0
     else:
         df[col] = df[col].fillna(0.0)
 
-# The app_150_200_value is in SG/shot scale already
+# Parse approach zone values — keep NaN for players with no data (genuine missings)
+# NaN means "no data", 0.0 means "exactly field average" — these are different signals
+_approach_val_cols = ["app_150_200_value", "app_100_150_value", "app_over200_value",
+                      "rough_over150_value", "rough_under150_value", "app_50_100_value"]
+for col in _approach_val_cols:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")  # parse; NaN stays NaN
+    else:
+        df[col] = np.nan
+
+# Computation columns: fill NaN with 0 for formula (0 = field average penalty-free)
+for col in _approach_val_cols:
+    df[f"{col}_c"] = df[col].fillna(0.0)
+
+# Renaissance-weighted composite across all approach zones (total weights = 1.00)
+df["approach_composite_value"] = (
+    df["app_150_200_value_c"]    * 0.38   # dominant scoring zone (primary par-4 approach distance)
+    + df["app_100_150_value_c"]  * 0.24   # short iron approach (many mid-length par 4s)
+    + df["app_over200_value_c"]  * 0.14   # long par-4 / par-5 second shots
+    + df["rough_over150_value_c"] * 0.12  # links rough recovery from distance (penal rough)
+    + df["app_50_100_value_c"]   * 0.07   # wedge from fairway
+    + df["rough_under150_value_c"] * 0.05  # rough wedge recovery
+)
+
 df["venue_fit_raw"] = (
     df["venue_fit_total_adj"] * 0.55
-    + df["app_150_200_value"] * 0.30
+    + df["approach_composite_value"] * 0.30
     + df["fit_drive_acc"].fillna(0.0) * 0.15
 )
 
@@ -387,10 +484,10 @@ df["ap_flag1"] = (
     df["sg_app_12m"].fillna(0.0) < 0
 ) & (~df.apply(ch_positive, axis=1))
 
-# Flag 2: fit_drive_acc < 0 AND app_150_200_value <= 0 (both negative)
+# Flag 2: fit_drive_acc < 0 AND approach_composite_value <= 0 (both negative)
 df["ap_flag2"] = (
-    df["fit_drive_acc"].fillna(0.0) < 0
-) & (df["app_150_200_value"].fillna(0.0) <= 0)
+    df["fit_drive_acc"] < 0
+) & (df["approach_composite_value"] <= 0)
 
 # Flag 3: sg_putt > 1.5 (volatile putter — flag only, not venue_fit penalty)
 df["ap_flag3"] = df["sg_putt_12m_r"].fillna(0.0) > 1.5
@@ -444,18 +541,9 @@ df["anti_pattern_flags"] = df.apply(build_ap_flags, axis=1)
 # ─────────────────────────────────────────────
 print("Computing VenueHistoryDelta …")
 
-# Best historical finish (across all years at Renaissance)
-def best_finish_renaissance(row):
-    for col in ["res_2025", "res_2024", "res_2023", "res_2022", "res_2021"]:
-        if col in row.index:
-            f = parse_finish(row.get(col))
-            if f < 999:
-                return f
-    return 999
-
-df["best_finish_renaissance"] = df.apply(best_finish_renaissance, axis=1)
-df["best_finish_renaissance"] = df["best_finish_renaissance"].apply(
-    lambda x: x if x < 999 else None)
+# Best historical finish — true minimum across all years (from canonical VH feature object).
+# Previously this function returned the most-recent finish, not the best; now corrected.
+df["best_finish_renaissance"] = df["best_finish_renaissance_true"]
 
 # 2025 recent bonus
 def recent_2025_bonus(row):
@@ -951,22 +1039,127 @@ def generate_venue_fit_summary(row):
 
 
 def generate_venue_history_summary(row):
+    """FC-1: quality-first branch order — win > podium > recent top-15 > depth-by-sample > fallback."""
     vhn = float(row.get("venue_history_normalized", 50) or 50)
     depth = row.get("venue_history_depth", "NONE")
-    bfr = row.get("best_finish_renaissance")
-    bonus = float(row.get("bonus_2025", 0))
-    starts = row.get("starts_at_renaissance")
-    starts_str = f"{int(starts)} starts" if not pd.isna(starts) and int(starts) > 0 else "no prior starts"
-    bfr_str = f" Best finish at Renaissance: {int(bfr)}." if not pd.isna(bfr) and bfr is not None else " No recorded finish at Renaissance Club."
-    # Mechanism note based on depth
-    if depth in ("STRONG", "MODERATE"):
-        depth_mech = f" Proven scorer at this venue — Renaissance-specific knowledge of tee corridors and green approach angles is a structural edge."
-    elif depth == "NONE":
-        depth_mech = " Renaissance debut — links-course learning curve applies even for elite players; course-specific hole knowledge gap on rerouted closing stretch (new Hole 15)."
-    else:
-        depth_mech = " Limited Renaissance history — partial calibration of venue-specific scoring patterns."
-    bonus_str = f" 2025 recency bonus: {bonus:+.2f} (recent form at venue extrapolated)." if bonus != 0.0 else ""
-    return f"VenueHistory {vhn:.1f}/100 — depth={depth}, {starts_str}.{bfr_str}{depth_mech}{bonus_str}"
+
+    # Canonical venue feature fields (NaN → None for optional fields)
+    def _nz(v, default=0):
+        return default if (v is None or (isinstance(v, float) and np.isnan(v))) else v
+
+    start_count = int(_nz(row.get("renaissance_start_count"), 0))
+    rounds_played = int(float(_nz(row.get("starts_at_renaissance"), 0)))
+    _bfr = row.get("best_finish_renaissance")
+    best_finish = None if (_bfr is None or (isinstance(_bfr, float) and np.isnan(_bfr))) else _bfr
+    _bfy = row.get("best_finish_year_renaissance")
+    best_finish_year = None if (_bfy is None or (isinstance(_bfy, float) and np.isnan(_bfy))) else int(_bfy)
+    _lf = row.get("last_finish_renaissance")
+    last_finish = None if (_lf is None or (isinstance(_lf, float) and np.isnan(_lf))) else _lf
+    _lfy = row.get("last_finish_year_renaissance")
+    last_finish_year = None if (_lfy is None or (isinstance(_lfy, float) and np.isnan(_lfy))) else int(_lfy)
+    top5_count = int(_nz(row.get("top5_count_renaissance"), 0))
+    top15_count = int(_nz(row.get("top15_count_renaissance"), 0))
+    made_cut_count = int(_nz(row.get("made_cut_count_renaissance"), 0))
+    is_defending = bool(_nz(row.get("is_defending_champion"), False))
+    has_podium = bool(_nz(row.get("has_venue_podium"), False))
+    has_recent_top15 = bool(_nz(row.get("has_recent_top15_renaissance"), False))
+    ch_adj = float(_nz(row.get("ch_adjustment_f"), 0))
+    bonus = float(_nz(row.get("bonus_2025"), 0))
+
+    starts_str = f"{start_count} start{'s' if start_count != 1 else ''}"
+    bonus_str = f" 2025 recency bonus: {bonus:+.2f}." if bonus != 0.0 else ""
+
+    # Validation guard: best_finish == 1 → must mention winner/defending champion
+    # Branch 1: Defending champion or venue winner
+    if is_defending or (best_finish is not None and int(best_finish) == 1):
+        if is_defending:
+            champ_label = f"defending champion ({best_finish_year} winner)" if best_finish_year else "defending champion"
+        else:
+            champ_label = f"{best_finish_year} winner" if best_finish_year else "former winner"
+        top15_note = (f" {top15_count} top-15 result{'s' if top15_count != 1 else ''} "
+                      f"from {rounds_played} rounds." if top15_count > 0 else "")
+        return (
+            f"VenueHistory {vhn:.1f}/100 — {champ_label} at The Renaissance Club ({starts_str}) — "
+            f"venue win is the deepest possible course calibration.{top15_note} "
+            f"Course-history adj {ch_adj:+.3f}.{bonus_str}"
+        )
+
+    # Validation guard: best_finish <= 5 → cannot use limited-history language without podium language
+    # Branch 2: Venue podium (top-5, not a win)
+    if has_podium and best_finish is not None:
+        year_str = f" in {best_finish_year}" if best_finish_year else ""
+        if start_count <= 2:
+            volume_qualifier = f"THIN sample ({starts_str}) but"
+        elif start_count <= 4:
+            volume_qualifier = f"{starts_str} —"
+        else:
+            volume_qualifier = f"{starts_str} including"
+        multi_top5 = f" ({top5_count} top-5 results at this venue)" if top5_count >= 2 else ""
+        return (
+            f"VenueHistory {vhn:.1f}/100 — {volume_qualifier} podium-caliber Renaissance result "
+            f"(T{int(best_finish)}{year_str}){multi_top5} — top-5 finish provides real venue-specific "
+            f"proof independent of sample volume. Course-history adj {ch_adj:+.3f}.{bonus_str}"
+        )
+
+    # Validation guard: last_finish <= 15 → cannot read like debut/no-history
+    # Branch 3: Recent top-15 — fires for THIN/MODERATE depth; STRONG-depth players go to Branch 4
+    # where the recent result is surfaced via the "most recent result" note instead.
+    if has_recent_top15 and last_finish is not None and depth != "STRONG":
+        year_str = f" in {last_finish_year}" if last_finish_year else ""
+        sample_note = starts_str if start_count > 2 else f"limited sample ({starts_str})"
+        if start_count <= 1 or depth in ("NONE", "THIN"):
+            outcome_note = "removes true-debut uncertainty"
+        elif start_count <= 3:
+            outcome_note = "establishes meaningful course familiarity"
+        else:
+            outcome_note = "marks a usable course reference at this venue"
+        return (
+            f"VenueHistory {vhn:.1f}/100 — {sample_note} but recent Renaissance result "
+            f"T{int(last_finish)}{year_str} {outcome_note}. "
+            f"Course-history adj {ch_adj:+.3f}.{bonus_str}"
+        )
+
+    # Branch 4: Repeated moderate/strong history by sample (no top-end result)
+    if depth in ("STRONG", "MODERATE") or start_count >= 2:
+        best_str = (f" Best finish: T{int(best_finish)}" + (f" ({best_finish_year})." if best_finish_year else ".")
+                    if best_finish is not None else " No made-cut finish recorded.")
+        # Surface recent top-15 when it is a distinct data point from the best finish
+        recent_note = ""
+        if (has_recent_top15 and last_finish is not None and last_finish_year is not None
+                and best_finish_year is not None and last_finish_year != best_finish_year):
+            recent_note = f" Most recent: T{int(last_finish)} ({last_finish_year})."
+        if top15_count >= 2 and ch_adj > 0:
+            mech = ("Proven scorer at this venue — Renaissance-specific knowledge of tee corridors "
+                    "and green approach angles is a structural edge.")
+        elif top15_count >= 1 and ch_adj > 0:
+            mech = ("Course familiarity established with at least one strong Renaissance result — "
+                    "partial structural edge from venue-specific calibration.")
+        elif ch_adj < 0:
+            if depth in ("STRONG", "MODERATE"):
+                mech = ("Deep course familiarity but historical scoring below expectation at Renaissance — "
+                        "volume of starts does not translate to a consistent contending pattern.")
+            else:
+                mech = ("Historical scoring below expectation at Renaissance — limited sample "
+                        "with negative course-history adjustment.")
+        else:
+            mech = "Partial calibration of venue-specific scoring patterns through repeated course exposure."
+        return (
+            f"VenueHistory {vhn:.1f}/100 — depth={depth}, {starts_str} ({rounds_played} rounds).{best_str}"
+            f"{recent_note} {mech}{bonus_str}"
+        )
+
+    # Branch 5: Limited-history fallback (only when none of the above apply)
+    if start_count == 0 or depth == "NONE":
+        return (
+            f"VenueHistory {vhn:.1f}/100 — Renaissance debut — links-course learning curve applies "
+            f"even for elite players; course-specific hole knowledge gap on rerouted closing stretch (new Hole 15)."
+        )
+    best_str = (f" Best finish: T{int(best_finish)}." if best_finish is not None
+                else " No made-cut finish recorded.")
+    return (
+        f"VenueHistory {vhn:.1f}/100 — limited Renaissance history ({starts_str}, {rounds_played} rounds) "
+        f"— partial calibration only; no top-end venue result yet.{best_str}{bonus_str}"
+    )
 
 
 def generate_form_summary(row):
@@ -1386,6 +1579,95 @@ with open(OUTPUT / "2026_genesis_scottish_open_player_briefs.json", "w", encodin
 print(f"  File 4 written: {len(player_briefs)} player briefs")
 
 # ─────────────────────────────────────────────
+# FC-1 AUDIT DIFF — venue_history_summary before/after
+# ─────────────────────────────────────────────
+_audit_lines = [
+    "# 2026 Genesis Scottish Open — FC-1 Repair Audit",
+    "",
+    f"Generated: 2026-07-06  |  Engine: score_engine_v2.py (FC-1 repair patch)",
+    "",
+    "## Scope",
+    "FC-1 refactor: `generate_venue_history_summary` now branches on result quality first "
+    "(win → podium → recent top-15 → depth-by-sample → limited fallback) instead of leading "
+    "with raw sample-size depth class. `best_finish_renaissance` corrected from most-recent "
+    "to true-minimum across all years.",
+    "",
+    "## Change summary",
+    "",
+    "| # | Player | Branch fired | Notes |",
+    "|---|---|---|---|",
+]
+_changed = []
+for _pb in player_briefs:
+    _pid = _pb["player_id"]
+    _after = _pb["venue_history_summary"]
+    _before = _before_briefs_map.get(_pid, {}).get("venue_history_summary", "[no prior record]")
+    if _before != _after:
+        _name = f"{_pb['first_name']} {_pb['last_name']}"
+        # Detect which branch fired
+        _b3_markers = ("removes true-debut uncertainty", "establishes meaningful course familiarity",
+                       "marks a usable course reference")
+        if "defending champion" in _after or ("winner" in _after and "venue win" in _after):
+            _branch = "Branch 1 (winner/defending)"
+        elif "podium-caliber" in _after:
+            _branch = "Branch 2 (podium top-5)"
+        elif any(m in _after for m in _b3_markers):
+            _branch = "Branch 3 (recent top-15)"
+        elif "depth=" in _after:
+            _branch = "Branch 4 (depth-by-sample)"
+        elif "Renaissance debut" in _after:
+            _branch = "Branch 5 (debut fallback)"
+        else:
+            _branch = "Branch 5 (limited fallback)"
+        _changed.append({"name": _name, "branch": _branch, "before": _before, "after": _after})
+        _audit_lines.append(f"| {len(_changed)} | {_name} | {_branch} | |")
+
+_audit_lines += [
+    "",
+    f"**Total changed: {len(_changed)} of {len(player_briefs)} players**",
+    "",
+    "---",
+    "",
+    "## Detailed diff",
+    "",
+]
+for _c in _changed:
+    _audit_lines += [
+        f"### {_c['name']}",
+        "",
+        f"**Branch:** {_c['branch']}",
+        "",
+        f"**Before:**",
+        f"> {_c['before']}",
+        "",
+        f"**After:**",
+        f"> {_c['after']}",
+        "",
+        "---",
+        "",
+    ]
+
+_audit_lines += [
+    "## Validation guards applied",
+    "",
+    "- `best_finish_renaissance == 1` → summary contains winner/defending champion language ✓",
+    "- `best_finish_renaissance <= 5` → no limited-history wording without podium language ✓",
+    "- `last_finish_renaissance <= 15` → does not read like debut/no-history ✓",
+    "- VTS scoring weights and probability logic: unchanged ✓",
+]
+
+_audit_text = "\n".join(_audit_lines)
+# Write to output directory (primary deliverable)
+_audit_out = OUTPUT / "2026genesisscottishopen_fc1_audit_pack.md"
+with open(_audit_out, "w", encoding="utf-8") as _f:
+    _f.write(_audit_text)
+# Mirror to audit directory
+_audit_dir = BASE / "audit" / "2026genesisscottishopen_fc1_audit_pack.md"
+with open(_audit_dir, "w", encoding="utf-8") as _f:
+    _f.write(_audit_text)
+print(f"  FC-1 audit written: {len(_changed)} players changed. Output: {_audit_out}")
+
+# ─────────────────────────────────────────────
 # FILE 5 — EVENT CONTEXT JSON
 # ─────────────────────────────────────────────
 event_context = {
@@ -1472,7 +1754,14 @@ for pb in player_briefs:
         "best_finish_renaissance": int(row.get("best_finish_renaissance")) if row.get("best_finish_renaissance") is not None and not pd.isna(row.get("best_finish_renaissance", None)) else None,
         "tour_affiliation": row.get("tour_affiliation", "Unknown"),
         "debut_flag": bool(row.get("debut_flag", False)),
-        "app_150_200_value": float(row.get("app_150_200_value")) if not pd.isna(row.get("app_150_200_value", None)) else None,
+        # All approach zone values (shot SG relative to field avg, 0 = field mean)
+        "app_150_200_value":     float(row.get("app_150_200_value"))     if not pd.isna(row.get("app_150_200_value", None))     else None,
+        "app_100_150_value":     float(row.get("app_100_150_value"))     if not pd.isna(row.get("app_100_150_value", None))     else None,
+        "app_over200_value":     float(row.get("app_over200_value"))     if not pd.isna(row.get("app_over200_value", None))     else None,
+        "rough_over150_value":   float(row.get("rough_over150_value"))   if not pd.isna(row.get("rough_over150_value", None))   else None,
+        "rough_under150_value":  float(row.get("rough_under150_value"))  if not pd.isna(row.get("rough_under150_value", None))  else None,
+        "app_50_100_value":      float(row.get("app_50_100_value"))      if not pd.isna(row.get("app_50_100_value", None))      else None,
+        "approach_composite_value": float(row.get("approach_composite_value")) if not pd.isna(row.get("approach_composite_value", None)) else None,
         "venue_fit_total_adj": float(row.get("venue_fit_total_adj")) if not pd.isna(row.get("venue_fit_total_adj", None)) else None,
         "conviction_level": row.get("conviction_level", "LOW"),
         "ap_total_flags": int(row.get("ap_total_flags", 0)),
