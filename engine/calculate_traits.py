@@ -1,266 +1,158 @@
 """
-Venue-fitness trait engine for PGA VenueDNA.
+Venue-fitness trait engine — CSV-backed.
 
-Computes four rolling metrics for a player against course-profile metadata:
-  tvl_score  (12 months) — miss-tolerance ratio via SG:OTT across MPI buckets
-  hew_score  ( 6 months) — exposure sensitivity via Ball Striking delta
-  brie_score (24 months) — turf-firmness edge via SG:APP delta (firm vs soft)
-  vfr_score  ( 6 months) — green-contour adaptability via SG:ARG delta
+Derives the four rolling trait scores directly from DataGolf True SG CSV
+exports placed in an event's input/ directory.  No database connection required.
 
-Lookback windows use hrl.round_date (ISO TEXT, YYYY-MM-DD) for exact date
-boundaries.  Rows without a round_date are excluded from all trait calculations.
+Expected files (all exported from DataGolf → True Strokes Gained):
+  dg_true_sg_6m.csv   — 6-month rolling window
+  dg_true_sg_12m.csv  — 12-month rolling window
+  dg_true_sg_24m.csv  — 24-month rolling window
+
+Trait definitions:
+  tvl_score  — SG:OTT (12 months)        off-the-tee consistency over a full year
+  hew_score  — Ball Striking (6 months)   combined OTT+APP over the recent window
+  brie_score — SG:APP (24 months)         approach precision over a 2-year base
+  vfr_score  — SG:ARG (6 months)          around-the-green adaptability
 """
 
 from __future__ import annotations
 
-import sqlite3
-from datetime import date, timedelta
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
-ROOT    = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "data" / "venuedna_master.db"
+MIN_ROUNDS = 10
 
-MIN_ROUNDS = 10  # minimum qualifying rows required to emit a score
+_CSV_FILES = {
+    "6m":  "dg_true_sg_6m.csv",
+    "12m": "dg_true_sg_12m.csv",
+    "24m": "dg_true_sg_24m.csv",
+}
+
+# trait → (source column in the True SG CSV, time horizon key)
+_TRAIT_MAP = {
+    "tvl_score":  ("ott_mean", "12m"),
+    "hew_score":  ("bs_mean",  "6m"),
+    "brie_score": ("app_mean", "24m"),
+    "vfr_score":  ("arg_mean", "6m"),
+}
+
+_KEEP_COLS = [
+    "player_name", "rounds_played",
+    "ott_mean", "arg_mean", "app_mean", "bs_mean",
+    "putt_mean", "t2g_mean", "total_mean",
+]
 
 
-# ── public entry point ────────────────────────────────────────────────────────
+# ── public API ────────────────────────────────────────────────────────────────
+
+def load_trait_inputs(input_dir: Path | str) -> pd.DataFrame:
+    """
+    Read and merge the three True SG CSV files from *input_dir*.
+
+    Returns a DataFrame indexed by player_name with all numeric columns
+    suffixed by the time horizon (_6m / _12m / _24m).
+
+    Raises FileNotFoundError if any of the three required CSVs are absent.
+    """
+    input_dir = Path(input_dir)
+    frames: dict[str, pd.DataFrame] = {}
+    for horizon, filename in _CSV_FILES.items():
+        path = input_dir / filename
+        if not path.exists():
+            raise FileNotFoundError(
+                f"Missing required input file: {path}\n"
+                f"Export it from DataGolf → True Strokes Gained → {horizon.upper()} window."
+            )
+        df = pd.read_csv(path, usecols=_KEEP_COLS)
+        df = df.rename(
+            columns={c: f"{c}_{horizon}" for c in df.columns if c != "player_name"}
+        )
+        frames[horizon] = df
+
+    merged = frames["6m"]
+    for h in ("12m", "24m"):
+        merged = merged.merge(frames[h], on="player_name", how="outer")
+    return merged.set_index("player_name")
+
+
+def compute_traits(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute the four trait scores from the merged DataFrame returned by
+    :func:`load_trait_inputs`.
+
+    A trait is set to ``None`` when the player has fewer than MIN_ROUNDS
+    qualifying rounds in that horizon's window, or when the source value
+    is unavailable.
+    """
+    out = pd.DataFrame(index=df.index)
+    for trait, (col, horizon) in _TRAIT_MAP.items():
+        value_col  = f"{col}_{horizon}"
+        rounds_col = f"rounds_played_{horizon}"
+        series     = df[value_col].copy().astype(float)
+        # Treat missing rounds as zero so the gate fires on NaN too
+        has_enough = df[rounds_col].fillna(0) >= MIN_ROUNDS
+        series[~has_enough] = None
+        out[trait] = series.round(4)
+    return out
+
 
 def compute_player_traits(
-    dg_id: str | int,
-    reference_date: Optional[date | str] = None,
+    player_name: str,
+    input_dir: Path | str,
 ) -> dict:
-    """Return the four venue-fitness scores for *dg_id* as of *reference_date*.
-
-    Any trait that has fewer than MIN_ROUNDS qualifying rows in its window,
-    or whose subgroup split is unsolvable (e.g. zero-denominator ratio),
-    is returned as ``None``.
     """
-    if reference_date is None:
-        reference_date = date.today()
-    elif isinstance(reference_date, str):
-        reference_date = date.fromisoformat(reference_date)
+    Return the four trait scores for a single *player_name* from the
+    CSV files in *input_dir*.
 
-    with sqlite3.connect(DB_PATH) as conn:
-        df = pd.read_sql_query(
-            """
-            SELECT
-                hrl.round_date,
-                hrl.sg_ott,
-                hrl.sg_app,
-                hrl.sg_arg,
-                cp.miss_penalty_index,
-                cp.exposure_index,
-                cp.turf_firmness_tag,
-                cp.green_contour_rating
-            FROM historical_round_logs hrl
-            JOIN course_profiles cp ON cp.course_name = hrl.course_name
-            WHERE CAST(hrl.player_id AS TEXT) = ?
-              AND hrl.round_date IS NOT NULL
-            """,
-            conn,
-            params=(str(dg_id),),
-        )
+    All four traits are ``None`` if the player is absent from the input
+    files or has insufficient rounds in a given window.
+    """
+    df_raw = load_trait_inputs(input_dir)
+    df_out = compute_traits(df_raw)
 
-    def _window(months: int) -> pd.DataFrame:
-        cutoff = (reference_date - timedelta(days=round(months * 30.44))).isoformat()
-        return df[df["round_date"] >= cutoff].copy()
-
-    w6  = _window(6)
-    w12 = _window(12)
-    w24 = _window(24)
-
-    return {
-        "dg_id":          dg_id,
-        "reference_date": str(reference_date),
-        "tvl_score":      _tvl(w12),
-        "hew_score":      _hew(w6),
-        "brie_score":     _brie(w24),
-        "vfr_score":      _vfr(w6),
+    base = {
+        "player_name": player_name,
+        "tvl_score":   None,
+        "hew_score":   None,
+        "brie_score":  None,
+        "vfr_score":   None,
     }
+    if player_name not in df_out.index:
+        return base
 
-
-# ── trait calculators ─────────────────────────────────────────────────────────
-
-def _tvl(w: pd.DataFrame) -> Optional[float]:
-    """avg SG:OTT (MPI ≤ 2) / avg SG:OTT (MPI ≥ 4)."""
-    subset = w[["sg_ott", "miss_penalty_index"]].dropna()
-    if len(subset) < MIN_ROUNDS:
-        return None
-    low  = subset.loc[subset["miss_penalty_index"] <= 2, "sg_ott"]
-    high = subset.loc[subset["miss_penalty_index"] >= 4, "sg_ott"]
-    if low.empty or high.empty or high.mean() == 0.0:
-        return None
-    return round(float(low.mean() / high.mean()), 4)
-
-
-def _hew(w: pd.DataFrame) -> Optional[float]:
-    """avg ball-striking (exposure < 0.4) − avg ball-striking (exposure ≥ 0.7)."""
-    subset = w[["sg_ott", "sg_app", "exposure_index"]].dropna()
-    if len(subset) < MIN_ROUNDS:
-        return None
-    bs       = subset["sg_ott"] + subset["sg_app"]
-    low_exp  = bs[subset["exposure_index"] <  0.4]
-    high_exp = bs[subset["exposure_index"] >= 0.7]
-    if low_exp.empty or high_exp.empty:
-        return None
-    return round(float(low_exp.mean() - high_exp.mean()), 4)
-
-
-def _brie(w: pd.DataFrame) -> Optional[float]:
-    """avg SG:APP (firm) − avg SG:APP (soft)."""
-    subset = w[["sg_app", "turf_firmness_tag"]].dropna()
-    if len(subset) < MIN_ROUNDS:
-        return None
-    firm = subset.loc[subset["turf_firmness_tag"] == "firm", "sg_app"]
-    soft = subset.loc[subset["turf_firmness_tag"] == "soft", "sg_app"]
-    if firm.empty or soft.empty:
-        return None
-    return round(float(firm.mean() - soft.mean()), 4)
-
-
-def _vfr(w: pd.DataFrame) -> Optional[float]:
-    """avg SG:ARG (severe greens) − avg SG:ARG (flat greens)."""
-    subset = w[["sg_arg", "green_contour_rating"]].dropna()
-    if len(subset) < MIN_ROUNDS:
-        return None
-    severe = subset.loc[subset["green_contour_rating"] == "severe", "sg_arg"]
-    flat   = subset.loc[subset["green_contour_rating"] == "flat",   "sg_arg"]
-    if severe.empty or flat.empty:
-        return None
-    return round(float(severe.mean() - flat.mean()), 4)
+    row = df_out.loc[player_name]
+    return {
+        "player_name": player_name,
+        **{k: (None if pd.isna(v) else round(float(v), 4)) for k, v in row.items()},
+    }
 
 
 # ── smoke test ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import json
-    import logging
-    import random
 
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
-    log = logging.getLogger(__name__)
+    ROOT      = Path(__file__).resolve().parent.parent
+    INPUT_DIR = ROOT / "events" / "2026_GenesisScottishOpen" / "input"
 
-    DUMMY_ID = "SMOKE_TEST_001"
+    print(f"Input directory: {INPUT_DIR}\n")
 
-    # Ensure schema exists (mirrors datagolf_client._create_tables)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.executescript("""
-            CREATE TABLE IF NOT EXISTS historical_round_logs (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                player_id       TEXT,
-                player_name     TEXT,
-                tour            TEXT,
-                event_name      TEXT,
-                course_name     TEXT,
-                season          INTEGER,
-                calendar_year   INTEGER,
-                round           INTEGER,
-                score           INTEGER,
-                sg_putt         REAL,
-                sg_arg          REAL,
-                sg_app          REAL,
-                sg_ott          REAL,
-                sg_t2g          REAL,
-                sg_total        REAL,
-                driving_dist    REAL,
-                driving_acc     REAL,
-                round_date      TEXT,
-                fetched_at      TEXT DEFAULT (datetime('now')),
-                UNIQUE(player_id, tour, event_name, season, round)
-            );
-            CREATE TABLE IF NOT EXISTS course_profiles (
-                course_key           TEXT PRIMARY KEY,
-                course_name          TEXT,
-                location             TEXT,
-                par                  INTEGER,
-                yardage              INTEGER,
-                tour                 TEXT,
-                miss_penalty_index   INTEGER,
-                turf_firmness_tag    TEXT,
-                green_contour_rating TEXT,
-                exposure_index       REAL,
-                notes                TEXT,
-                updated_at           TEXT DEFAULT (datetime('now'))
-            );
-        """)
-        # Migrate existing tables created before round_date was added
-        try:
-            conn.execute(
-                "ALTER TABLE historical_round_logs ADD COLUMN round_date TEXT"
-            )
-            conn.commit()
-        except sqlite3.OperationalError as exc:
-            if "duplicate column name" not in str(exc).lower():
-                raise
+    df_raw    = load_trait_inputs(INPUT_DIR)
+    df_traits = compute_traits(df_raw)
 
-        # Three synthetic courses covering all four trait splits
-        conn.executemany(
-            """
-            INSERT OR IGNORE INTO course_profiles
-                (course_key, course_name, miss_penalty_index,
-                 turf_firmness_tag, green_contour_rating, exposure_index)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            [
-                ("smoke_low",  "Smoke Low Course",  1, "firm",   "severe", 0.15),
-                ("smoke_high", "Smoke High Course", 5, "soft",   "flat",   0.80),
-                ("smoke_mid",  "Smoke Mid Course",  3, "firm",   "flat",   0.55),
-            ],
-        )
+    print(f"Trait scores — {len(df_traits)} players")
+    print(df_traits.head(10).to_string())
 
-        # 30 synthetic rounds across three date buckets so each lookback window
-        # (6 / 12 / 24 months from 2026-07-08) contains ≥ MIN_ROUNDS qualifying rows.
-        #   i  0-9  → 2024-08-15  (24-month window only)
-        #   i 10-19 → 2025-08-15  (12-month + 24-month windows)
-        #   i 20-29 → 2026-02-15  (all three windows)
-        _DATES  = ["2024-08-15", "2025-08-15", "2026-02-15"]
-        _YEARS  = [2024, 2025, 2026]
-        rng     = random.Random(42)
-        courses = ["Smoke Low Course", "Smoke High Course", "Smoke Mid Course"]
-        rows    = []
-        for i in range(30):
-            bucket = 0 if i < 10 else (1 if i < 20 else 2)
-            year   = _YEARS[bucket]
-            rdate  = _DATES[bucket]
-            rows.append((
-                DUMMY_ID, "Smoke Test Player", "pga",
-                f"Smoke-{year}-E{(i % 10) // 4}", courses[i % 3],
-                year, year, (i % 4) + 1, 70,
-                round(rng.uniform(-1.5, 1.5), 3),   # sg_putt
-                round(rng.uniform(-1.5, 1.5), 3),   # sg_arg
-                round(rng.uniform(-1.5, 1.5), 3),   # sg_app
-                round(rng.uniform(-1.5, 1.5), 3),   # sg_ott
-                round(rng.uniform(-1.5, 1.5), 3),   # sg_t2g
-                round(rng.uniform(-3.0, 3.0), 3),   # sg_total
-                275.0, 0.65, rdate,
-            ))
-        conn.executemany(
-            """
-            INSERT OR REPLACE INTO historical_round_logs
-                (player_id, player_name, tour, event_name, course_name,
-                 season, calendar_year, round, score,
-                 sg_putt, sg_arg, sg_app, sg_ott, sg_t2g, sg_total,
-                 driving_dist, driving_acc, round_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            rows,
-        )
-        log.info("Seeded %d synthetic rounds for %s", len(rows), DUMMY_ID)
-
-    result = compute_player_traits(DUMMY_ID, reference_date="2026-07-08")
+    # Single-player lookup
+    test_player = "McIlroy, Rory"
+    result = compute_player_traits(test_player, INPUT_DIR)
+    print(f"\n{test_player}:")
     print(json.dumps(result, indent=2))
 
-    # Verify None handling: request with a player that has no data
-    empty = compute_player_traits("NONEXISTENT_999", reference_date="2026-07-08")
-    assert all(v is None for k, v in empty.items() if k not in ("dg_id", "reference_date")), \
-        "Expected all traits None for unknown player"
-    log.info("Edge-case assertion passed — unknown player returns all None.")
-
-    # Clean up seed data
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("DELETE FROM historical_round_logs WHERE player_id = ?", (DUMMY_ID,))
-        conn.execute("DELETE FROM course_profiles WHERE course_key LIKE 'smoke_%'")
-    log.info("Smoke-test seed data removed.")
+    # Edge case: unknown player must return all None
+    unknown = compute_player_traits("Fictional, Player", INPUT_DIR)
+    assert all(v is None for k, v in unknown.items() if k != "player_name"), \
+        "Expected all None for unknown player"
+    print("\nEdge-case assertion passed — unknown player returns all None.")

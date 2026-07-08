@@ -1,8 +1,9 @@
 """
 DataGolf API client for PGA VenueDNA.
 
-Manages a local SQLite database (data/venuedna_master.db) and provides
-rate-limited access to the DataGolf feeds API.
+Manages a local SQLite database (data/venuedna_master.db) for venue
+metadata (course_profiles) and provides rate-limited access to the
+DataGolf feeds API for live field lists.
 """
 
 import os
@@ -35,7 +36,7 @@ if not API_KEY:
 # ── database ──────────────────────────────────────────────────────────────────
 
 def init_db() -> sqlite3.Connection:
-    """Open (or create) the master database and ensure both tables exist."""
+    """Open (or create) the master database and ensure the course_profiles table exists."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -46,30 +47,6 @@ def init_db() -> sqlite3.Connection:
 
 def _create_tables(conn: sqlite3.Connection) -> None:
     conn.executescript("""
-        CREATE TABLE IF NOT EXISTS historical_round_logs (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id       TEXT,
-            player_name     TEXT,
-            tour            TEXT,
-            event_name      TEXT,
-            course_name     TEXT,
-            season          INTEGER,
-            calendar_year   INTEGER,
-            round           INTEGER,
-            score           INTEGER,
-            sg_putt         REAL,
-            sg_arg          REAL,
-            sg_app          REAL,
-            sg_ott          REAL,
-            sg_t2g          REAL,
-            sg_total        REAL,
-            driving_dist    REAL,
-            driving_acc     REAL,
-            round_date      TEXT,
-            fetched_at      TEXT DEFAULT (datetime('now')),
-            UNIQUE(player_id, tour, event_name, season, round)
-        );
-
         CREATE TABLE IF NOT EXISTS course_profiles (
             course_key           TEXT PRIMARY KEY,
             course_name          TEXT,
@@ -86,16 +63,6 @@ def _create_tables(conn: sqlite3.Connection) -> None:
         );
     """)
     conn.commit()
-    # Migrate existing databases that predate the round_date column.
-    try:
-        conn.execute(
-            "ALTER TABLE historical_round_logs ADD COLUMN round_date TEXT"
-        )
-        conn.commit()
-        log.info("Migrated historical_round_logs: added round_date column.")
-    except sqlite3.OperationalError as exc:
-        if "duplicate column name" not in str(exc).lower():
-            raise
 
 
 # ── HTTP ──────────────────────────────────────────────────────────────────────
@@ -144,10 +111,6 @@ def fetch_weekly_field(tour: str = "pga") -> list[dict]:
 # ── CLI smoke-test ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    conn = init_db()
-
     players = fetch_weekly_field(tour="pga")
     for p in players[:5]:
         print(p)
-
-    conn.close()
