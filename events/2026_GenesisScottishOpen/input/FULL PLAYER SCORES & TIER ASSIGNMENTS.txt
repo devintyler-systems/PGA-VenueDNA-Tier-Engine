@@ -1,0 +1,63 @@
+### FULL PLAYER SCORES & TIER ASSIGNMENTS
+
+**TIER 1 — STRUCTURAL WINNERS (Top Venue-Skill Match)**
+
+| Player | VenueScore | NeutralSkill | FitDelta | HistDelta | Form | Notes |
+|--------|-----------|-------------|----------|-----------|------|-------|
+| Rory McIlroy | 8.92 | +2.15 (L12M) / +2.15 (2026) | +0.11 | +0.064 (CH adj 0.003 + exp 0.061; hist_sg 2.115; vs_exp 0.051) | +0.26 | 2023 winner; most DG points all-time here (26.9); elite long iron; elite fescue putter; +20.6 drive dist; 2025 T2; H15 Thistle won't faze him |
+| Matt Fitzpatrick | 8.61 | +2.07 (L12M) / +2.09 (2026) | +0.038 (CH adj 0.038 + exp 0.104) | +0.452 total hist | +0.06 | 2025 T4; 4 wins 2026; elite 150-200 iron (0.038/shot); 0.083 over 200yds; scrambler; slow-green putter; links pedigree |
+| Tommy Fleetwood | 8.38 | +2.02 (L12M) / +1.70 (2026) | +0.054+0.093 = +0.147 hist | CH hist 1.668; vs exp 0.632 | +0.16 | 2022 T4, 2023 T6; perennial top-10 threat; 0.024 at 150-200, 0.075 over 200; elite links player; slow-green expert |
+| Wyndham Clark | 8.28 | +1.32 (L12M) / +1.53 (2026) | +0.052+0.05 = +0.102 hist | CH hist 1.805; vs exp 0.905 | +2.23 (HOT: Byron Nelson W, Memorial 3, US Open W) | 2022 T16, 2023 T25, 2024 T10; distance weapon (+5.4 DD); approach 200+ 0.060; elite form; flag 150-200 only 0.029 (minor concern) |
+| Scottie Scheffler | 8.19 | +3.20 (L12M) / +2.96 (2026) | +0.0 (fit adj neutral at -0.016 hist) | CH hist 1.813; 2021 T12, 2023 T3, 2025 T8 | -0.26 | Best NeutralSkill in field; approach elite (0.055 150-200, 0.050 200+); putting mixed at slow greens (-0.36 in 2025 here); massive ceiling — slight putting risk vs Tier 1 peers |
+
+**TIER 2 — STRONG CONTENDERS**
+
+| Player | VenueScore | Key Traits | History | Form |
+|--------|-----------|------------|---------|------|
+| Ludvig Åberg | 7.94 | +1.81 L12M / +1.77 2026; App elite (0.062/shot 100-150, 0.055 150+); +12.4 dist | No history (debut) — experience adj -0.045 | -0.45 recent dip (PGA T4, Travelers T55) |
+| Tom Kim | 7.81 | L12M sg-total +N/A; CH hist 2.117 — HIGHEST in dataset; vs exp 1.736 (+0.099 adj); T3 2022, T6 2023, T15 2024, T17 2025 | Best course history delta in field | Check 2026 form data |
+| Jon Rahm | 7.78 | +2.16 L12M / +2.23 2026; 200+ yard iron elite (0.121/shot); links pedigree; LIV transition | No CH data — debut penalty -0.045 | +1.97 form; Virginia 2, PGA T8 |
+| Viktor Hovland | 7.62 | +1.42 L12M / +1.29 2026; 150-200 strong (0.051); 2023 T25, 2024 T46, 2025 T11 improving | CH adj -0.014 (slight underperformer vs baseline) | +1.53 HOT: Travelers WIN, Canadian T3 |
+| Justin Rose | 7.58 | +1.13 L12M; elite 150-200 (0.016), strong 50-100 (0.109); 2025 6th (-11); CH pending | Consistent finisher; slow-green putter | +1.54 form; Memorial T10, Canadian T12 |
+| Xander Schauffele | 7.55 | +1.92 L12M / +1.77 2026; 2022 WINNER; CH hist 2.008 | vs exp 0.338; experience adj +0.071; approach elite 200+ (0.060) | Modest recent form vs peak |
+| Collin Morikawa | 7.48 | +N/A L12M; 2026 total_true +1.98; elite long iron (0.040 at 150-200; 0.078 at 200+) | No CH data at Renaissance | +1.40 form; US Open 3rd |
+| Robert MacIntyre | 7.41 | 2024 WINNER; CH hist 1.32; vs exp 0.896; local knowledge Scotland; 2026 SG:App weak (-0.191) | Experience adj +0.093; strongest course advantage | SG:App slump is real risk |
+
+**TIER 3 — VIABLE DARK HORSES**
+
+| Player | VenueScore | Key Angle |
+|--------|-----------|-----------|
+| Chris Gotterup | 7.18 | Defending champion; +1.52 L12M; form 1.79 (JD Classic W); CH adj +0.12; BUT SG:App slight regression |
+| Aaron Rai | 7.12 | 2020 winner; 2024 T4; CH hist 0.764; L12M SG:App +0.76; 150-200 elite (0.044); 2026 PGA WIN; form +1.87 |
+| Nicolai Hojgaard | 7.08 | 2025 T4; CH hist 1.671; vs exp 1.313; +17.6 distance; 100-150 elite (0.038); 150-200 (0.019) decent |
+| Adam Scott | 7.05 | 2024 runner-up; CH hist 1.913; vs exp 1.176; 150-200 strong (0.039); 200+ (0.053) |
+| Tommy Kim (Si Woo) | 6.98 | 2026 strong app (SG:App +0.85); 150-200 elite (0.079/shot); 2024 T26; putting weakness (-0.25 L12M) |
+| Justin Thomas | 6.92 | +1.13 L12M; 50-100 (0.005) weak but 100-150 (0.039) solid; form hot (+2.22); CH adj negative |
+| Shane Lowry | 6.88 | +1.16 L12M; links native (Ireland); SG:App strong 2026 (0.954!); CH limited; putting modest |
+| Tyrrell Hatton | 6.85 | LIV; L12M +0.84; Andalucia W; CH hist 1.526; links elite; 2026 app +0.428; form +1.95 (HOT) |
+
+**TIER 4 — FIELD FILLERS / LONGSHOTS**
+
+| Player | VenueScore | Flag |
+|--------|-----------|------|
+| Patrick Cantlay | 6.65 | Elite neutral skill but no history; 0 wins at links; slow-green risk |
+| Grant Forrest | 6.58 | Local hero; CH vs exp 1.019 — genuine overperformer here; limited neutral skill |
+| Harris English | 6.52 | Strong putter (+0.72 L12M); weak app (-0.006) = core anti-pattern |
+| Rasmus Hojgaard | 6.48 | CH vs exp -0.438 (negative); underperforms baseline here consistently |
+| Min Woo Lee | 6.42 | 2021 winner; 0 top-10s since; CH vs exp -0.311; distance weapon (+13.9) |
+| Matt Wallace | 6.38 | CH hist 0.35; vs exp 0.015; puts but limited upside |
+| Wyndham Clark (if form regresses) | — | Already Tier 1; form window risk |
+| Cam Davis | 6.30 | Fit adj +0.20; some links ability; limited history |
+
+**TIER 5 — ANTI-PATTERN / FADE**
+
+| Player | Flag | Mechanism |
+|--------|------|-----------|
+| Brooks Koepka | Fade | No history (exp adj -0.045); 2026 approach mediocre (0.588); drive dist modest for links; putting negative at slow greens |
+| Rasmus Hojgaard | Fade | CH vs exp -0.438; consistent underperformer here |
+| Harris English | Fade | SG:App elite on paper but -0.006 in 2026 period; approach 150-200 = -0.023/shot (negative) |
+| Bernd Wiesberger | Fade | CH vs exp 0.131 only; L12M putting -0.63; approach declines |
+| Harry Hall | Fade | 2026 SG:App = 0.117 (below threshold); 150-200 negative (-0.023); OTT negative |
+| Andy Sullivan | Fade | L12M SG-total -0.24; CH both missed cuts; distance well below par for Renaissance |
+| Larrazabal Pablo | Hard Fade | CH hist -2.258; vs exp -1.546; CUT every year at Renaissance except one |
+| Padraig Harrington | Fade | Ceremonial; CH vs exp +0.507 but L12M skill -0.094; approach declines at 64 |
