@@ -154,7 +154,7 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 .player-table tbody td { padding: .5rem .75rem; vertical-align: middle; }
 .rank-cell { color: var(--muted); font-size: .75rem; width: 2.5rem; }
 .player-name { font-weight: 600; color: var(--text); }
-.player-driver { font-size: .7rem; color: var(--muted); }
+.player-driver { font-size: .7rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .15rem; overflow: hidden; max-height: 2.4rem; }
 
 /* Tier badge */
 .tier-badge { display: inline-block; font-size: .65rem; font-weight: 700; border-radius: 4px; padding: .15rem .45rem; text-transform: uppercase; white-space: nowrap; }

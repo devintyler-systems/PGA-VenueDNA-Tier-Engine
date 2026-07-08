@@ -59,6 +59,7 @@ const EXTRA_FILTER_DEFS = [
   { key: 'venue_fit_score', label: 'VFS — Venue Fit Score (0–100)' },
   { key: 'vts_final',       label: 'VTS — Final Score (0–100)' },
   { key: 'win_prob',        label: 'Win % (e.g. 5 = 5%)' },
+  { key: 'top5_prob',       label: 'Top 5 % (e.g. 10 = 10%)' },
   { key: 'top10_prob',      label: 'Top 10 % (e.g. 25 = 25%)' },
   { key: 'top20_prob',      label: 'Top 20 % (e.g. 45 = 45%)' },
   { key: 'make_cut_prob',   label: 'Make Cut % (0–100)' },
@@ -664,6 +665,39 @@ async function init() {
   /* ── Client-side badge enrichment (must run after allPlayers fully built) ── */
   allPlayers.forEach(p => enhanceBadges(p));
 
+  /* ── Tier purity + betting lane corrections ──
+     T3 players with no valid betting lane (Pass/No Edge) and WCS < 50 have no
+     meaningful dark-horse upside — reclassify to T4 display tier.
+     Lane thresholds:
+       "Winner"  = genuine outright candidate: win% ≥3.0% (≈top 6 of 166-player field)
+       "Top 5"   = strong contention profile: win% ≥1.8% (not ideal outright lane)
+       "Top 10"  = solid T2 contender, thinner winning path (engine default kept)
+     T1 note: engine sets all T1 no-flags win≥2.5% → "Winner"; all current T1
+     players have win≥3.10% so they stay. Guard added for future proofing. */
+  allPlayers.forEach(p => {
+    /* T3 Pass/No Edge → T4 reclassification */
+    if (p.tier === 3 && p.best_betting_lane === 'Pass / No Edge' && +p.win_ceiling_score < 50) {
+      p.tier = 4;
+      p.best_betting_lane = +p.make_cut_prob >= 35 ? 'Make Cut' : 'Miss Cut';
+    }
+    /* T1: correct any T1 player the engine mis-labeled if win < 3.0% */
+    if (p.tier === 1) {
+      if (+p.win_prob < 3.0) {
+        p.best_betting_lane = +p.win_prob >= 1.8 ? 'Top 5' : 'Top 10';
+      }
+      /* win >= 3.0% stays "Winner" — engine already set it */
+    }
+    /* T2 no-flags: override engine's blanket "Top 10" with sharper lanes */
+    if (p.tier === 2 && p.flag_count === 0) {
+      if (+p.win_prob >= 3.0) {
+        p.best_betting_lane = 'Winner';
+      } else if (+p.win_prob >= 1.8) {
+        p.best_betting_lane = 'Top 5';
+      }
+      /* win < 1.8%: keep engine's "Top 10" — no upgrade warranted */
+    }
+  });
+
   /* ── Missing-trait validation + imputation ── */
   DIAGNOSTICS = runImputationPass(allPlayers);
   logDiagnostics(DIAGNOSTICS);
@@ -949,6 +983,7 @@ function traitFilterPassGlobal(p, f) {
     'make_cut_prob':   p.make_cut_prob,
     'venue_history':   p.venue_history_normalized,
     'win_prob':        p.win_prob,
+    'top5_prob':       p.top5_prob,
     'form_score':      p.form_score,
     'top10_prob':      p.top10_prob,
     'top20_prob':      p.top20_prob,
@@ -1013,6 +1048,7 @@ function sortPlayers(players) {
     }
     else if (col === 'venue_fit_score'){ va = +a.venue_fit_score || 0; vb = +b.venue_fit_score || 0; }
     else if (col === 'win_pct')      { va = +a.win_pct  || 0; vb = +b.win_pct  || 0; }
+    else if (col === 'top5_pct')     { va = +a.top5_pct  || 0; vb = +b.top5_pct  || 0; }
     else if (col === 'top10_pct')    { va = +a.top10_pct || 0; vb = +b.top10_pct || 0; }
     else if (col === 'top20_pct')    { va = +a.top20_pct || 0; vb = +b.top20_pct || 0; }
     else if (col === 'make_cut_prob'){ va = +a.make_cut_prob || 0; vb = +b.make_cut_prob || 0; }
@@ -1073,6 +1109,7 @@ function renderTable(players) {
       <td class="vts-cell">${vtsDisplayHTML(p)}</td>
       <td class="vts-label col-vfd" style="text-align:center">${vfdFitHTML(p)}</td>
       <td class="prob-cell">${fmtPct(p.win_pct)}</td>
+      <td class="prob-cell">${fmtPct(p.top5_pct)}</td>
       <td class="prob-cell">${fmtPct(p.top10_pct)}</td>
       <td class="prob-cell">${fmtPct(p.top20_pct)}</td>
       <td>${cutCell}</td>
@@ -1142,6 +1179,7 @@ function renderTable(players) {
         <td>—</td>
         <td class="vts-cell" style="color:var(--muted)">—</td>
         <td class="vts-label col-vfd" style="text-align:center;color:var(--muted)">—</td>
+        <td class="prob-cell" style="color:var(--muted)">—</td>
         <td class="prob-cell" style="color:var(--muted)">—</td>
         <td class="prob-cell" style="color:var(--muted)">—</td>
         <td class="prob-cell" style="color:var(--muted)">—</td>
@@ -1355,6 +1393,7 @@ function openCompareModal() {
   const STAT_KEYS = [
     ['VTS',       p => (+p.vts_final).toFixed(1)],
     ['Win %',     p => fmtPct(p.win_pct)],
+    ['Top 5 %',   p => fmtPct(p.top5_pct)],
     ['Top 10 %',  p => fmtPct(p.top10_pct)],
     ['Top 20 %',  p => fmtPct(p.top20_pct)],
     ['Make Cut',  p => fmtPct(p.make_cut_prob)],
@@ -1659,6 +1698,25 @@ function cleanRawKeys(text) {
   });
 }
 
+/* Replace raw model notation in engine-generated summary strings for display */
+function cleanSummaryText(text) {
+  if (!text) return '';
+  return text
+    .replace(/\bNeutralSkill\b/g, 'Neutral Skill')
+    .replace(/\bVenueFit\b/g, 'Venue Fit')
+    .replace(/\bVenueHistory\b/g, 'Course History')
+    .replace(/\brenaissance-debut\b/gi, 'Renaissance Debut')
+    .replace(/\bweak-ARG\b/gi, 'Weak Short Game')
+    .replace(/\bweak-APP\/no-CH\b/gi, 'Weak Approach / No Course History')
+    .replace(/\bacc-neg\/app-neg\b/gi, 'Negative Accuracy + Approach')
+    .replace(/\bbomb-and-spray\b/gi, 'Bomb & Spray')
+    .replace(/\|ANTI-PATTERN\b/g, '')
+    .replace(/\bANTI-PATTERN\b/g, '')
+    .replace(/\|/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 function apTagsHTML(flagStr) {
   if (!flagStr || !flagStr.trim() || flagStr === 'none') return '';
   return flagStr.split(';').map(f => {
@@ -1838,6 +1896,23 @@ function sectionProbability(p) {
       <span class="stat-pill" title="Cut Survival Score — NSI dominant; calibrated to top-65 cut rule"><span class="sk">CSS:</span> <span class="sv" style="color:${cutColor}">${(+p.cut_survival_score).toFixed(1)}</span></span>
     </div>` : '';
 
+  const scoring = computeProjectedScoring(p);
+  const scoringRow = `
+    <div class="stat-row" style="margin-top:.4rem;opacity:.8">
+      <span class="stat-pill" title="Expected 4-round score vs par — model median outcome. Lower = better in golf.">
+        <span class="sk">Expected:</span> <span class="sv">${scoring.expected}</span>
+      </span>
+      <span class="stat-pill" title="Ceiling: best-case 4-round score — form spike + ideal conditions (5 shots better than expected)">
+        <span class="sk">Ceiling:</span> <span class="sv" style="color:#4ade80">${scoring.ceiling}</span>
+      </span>
+      <span class="stat-pill" title="Floor: worst-case 4-round score — approach regression or adverse conditions (7 shots worse than expected)">
+        <span class="sk">Floor:</span> <span class="sv" style="color:#f87171">${scoring.floor}</span>
+      </span>
+      <span class="stat-pill" title="Expected finish band based on probability distribution">
+        <span class="sk">Band:</span> <span class="sv" style="color:#94a3b8">${scoring.band}</span>
+      </span>
+    </div>`;
+
   return `<div class="modal-section">
     <h4>Probability &amp; Output</h4>
     <div class="stat-row">
@@ -1850,6 +1925,7 @@ function sectionProbability(p) {
       <span class="stat-pill"><span class="sk">Miss Cut:</span> <span class="sv" style="color:${cutColor === '#4ade80' ? '#f87171' : '#94a3b8'}">${fmtPct(p.miss_cut_prob)}</span></span>
     </div>
     ${latentRow}
+    ${scoringRow}
     ${laneChip ? `<div style="margin-top:.5rem">${laneChip}</div>` : ''}
     <div style="margin-top:.75rem">${buildBettingStrip(p)}</div>
   </div>`;
@@ -1905,7 +1981,7 @@ function sectionBriefSummaries(p, b) {
     ${sections.map(([label, text]) =>
       `<div style="margin-bottom:.65rem">
         <div style="font-size:.72rem;font-weight:600;color:var(--accent);margin-bottom:.15rem;text-transform:uppercase;letter-spacing:.04em">${label}</div>
-        <div style="font-size:.78rem;color:var(--muted);line-height:1.55">${text}</div>
+        <div style="font-size:.78rem;color:var(--muted);line-height:1.55">${cleanSummaryText(text)}</div>
       </div>`
     ).join('')}
   </div>`;
@@ -1975,7 +2051,7 @@ function sectionAntiPattern(p, b) {
   return `<div class="modal-section">
     <h4>Anti-Pattern Analysis</h4>
     ${flags && flags !== 'none' ? `<div style="margin-bottom:.4rem">${apTagsHTML(flags)}</div>` : ''}
-    ${summary ? `<p style="font-size:.78rem;color:var(--muted);line-height:1.55">${summary}</p>` : ''}
+    ${summary ? `<p style="font-size:.78rem;color:var(--muted);line-height:1.55">${cleanSummaryText(summary)}</p>` : ''}
   </div>`;
 }
 
@@ -2155,11 +2231,11 @@ function renderBriefs() {
 
     return `<div class="brief-card ${tc}" style="cursor:pointer" data-player-name="${p.player_name}">
       <div class="brief-name">${displayName} ${tierBadgeHTML(p.tier)} ${badgesHTML}</div>
-      <div class="brief-stats">VTS ${(+p.vts_final).toFixed(1)} · Win ${fmtPct(p.win_pct)} · Top10 ${fmtPct(p.top10_pct)} · Cut <span style="color:${cutColor}">${fmtPct(p.make_cut_prob)}</span></div>
+      <div class="brief-stats">VTS ${(+p.vts_final).toFixed(1)} · Win ${fmtPct(p.win_pct)} · T5 ${fmtPct(p.top5_pct)} · T10 ${fmtPct(p.top10_pct)} · Cut <span style="color:${cutColor}">${fmtPct(p.make_cut_prob)}</span></div>
       <div class="brief-label">Key Strengths (Links/Renaissance Fit)</div>
       <ul class="fit-list fit-compact">${topTraitsHTML}</ul>
       <div class="brief-label">Course History</div>
-      <div class="brief-val">${p.venue_history_summary || '—'}</div>
+      <div class="brief-val">${cleanSummaryText(p.venue_history_summary) || '—'}</div>
       <div class="brief-label">${p.structural_edge ? 'Structural Edge' : 'Conviction'}</div>
       <div class="brief-val">${p.structural_edge || p.conviction_statement || '—'}</div>
       ${(p.failure_mode || p.failure_condition) ? `<div class="brief-risk">${p.failure_mode ? cleanRawKeys(p.failure_mode.split('|')[0]?.trim()) : cleanRawKeys(p.failure_condition.split('|')[0]?.trim())}</div>` : ''}
@@ -2439,12 +2515,28 @@ function buildGlossaryHTML() {
       ['VTS', 'Venue Tier Score (0–100) — composite ranking: NSI 40% + VFS 30% + VHN 15% + Form 15%.'],
       ['VFS', 'Venue Fit Score (0–100 percentile) — course-specific trait alignment at The Renaissance Club.'],
       ['NSI', 'Neutral Skill Index — baseline tour-wide skill, independent of venue or form.'],
-      ['Win %', 'Model-estimated win probability for this event.'],
+      ['Win %', 'Model-estimated win probability for this event (all values shown to 1 decimal place).'],
+      ['Top 5 %', 'Model-estimated probability of a Top 5 finish.'],
       ['Top 10 %', 'Model-estimated probability of a Top 10 finish.'],
       ['Top 20 %', 'Model-estimated probability of a Top 20 finish.'],
       ['Make Cut %', 'Probability of making the 36-hole cut (Top 65 + ties).'],
       ['CH Rds', 'Course history rounds — prior starts at The Renaissance Club. "Debut" = first start.'],
       ['Flags', 'Count of anti-pattern risk flags assigned to this player.'],
+    ]),
+    section('Projected Scoring (modal)', [
+      ['Expected', '4-round projected score vs par — model median outcome. Lower score = better in golf.'],
+      ['Ceiling', 'Best-case 4-round score: form spike + ideal conditions (~5 shots better than Expected).'],
+      ['Floor', 'Worst-case 4-round score: approach regression or adverse conditions (~7 shots worse than Expected).'],
+      ['Band', 'Likely finish zone based on probability distribution (Win contender / Top 5 / Top 10 / etc.).'],
+    ]),
+    section('Best Betting Lane', [
+      ['Winner', 'Genuine outright candidate — win probability ≥3.0%. Top 5–6 players in a 166-player field.'],
+      ['Top 5', 'Strong contention profile, win% 1.8–2.9% — best lane is a top-5 finish, not outright.'],
+      ['Top 10', 'Solid contender with thinner winning path — T2 players with win% below 1.8%.'],
+      ['Top 20', 'Viable mid-field play — T3 players with meaningful top-20 probability.'],
+      ['Make Cut', 'Primary value is weekend status — cut probability is the key metric.'],
+      ['Miss Cut', 'Model suggests cut is unlikely — fade or avoid.'],
+      ['Pass / No Edge', 'No meaningful betting edge identified from this player\'s current profile.'],
     ]),
     section('Tiers', [
       ['T1', 'Elite course fits — highest VTS. Primary contender zone.'],
@@ -2528,7 +2620,44 @@ function fmtPct(v) {
   if (v == null || v === 'N/A' || v === 'not_applicable') return '—';
   const n = parseFloat(v);
   if (isNaN(n)) return v;
-  return (n < 2 ? n.toFixed(1) : Math.round(n)) + '%';
+  return n.toFixed(1) + '%';
+}
+
+/* Derive projected 4-round scoring outputs from latent model scores.
+   Par 71 × 4 rounds = 284 total. Calibrated to Renaissance Club scoring history.
+   Golf convention: lower score = better performance.
+     Ceiling = most-negative possible (best performance, deepest under par)
+     Floor   = least-negative possible (worst likely performance, closest to par / over par) */
+function computeProjectedScoring(p) {
+  const wcs = +p.win_ceiling_score || 50;
+  const mc  = +p.make_cut_prob || 50;
+  const wp  = +p.win_prob || 0;
+  const t5  = +p.top5_prob || 0;
+  const t10 = +p.top10_prob || 0;
+  const t20 = +p.top20_prob || 0;
+
+  const expected_vs_par = Math.round(-22 + (100 - wcs) * 0.22);
+  /* Ceiling = 5 more under par than expected (upside scenario) */
+  const ceiling_vs_par  = expected_vs_par - 5;
+  /* Floor   = 7 more over par than expected (downside scenario) */
+  const floor_vs_par    = expected_vs_par + 7;
+  const fmtVsPar = n => n === 0 ? 'E' : n > 0 ? `+${n}` : `${n}`;
+
+  let band;
+  if (wp >= 3.0) band = 'Win contender';
+  else if (wp >= 1.8 || t5 >= 10.0) band = 'Top 5 contender';
+  else if (t10 >= 15.0) band = 'Top 10 expected';
+  else if (t20 >= 25.0) band = 'Top 20 likely';
+  else if (mc >= 72.0) band = 'Solid cut maker';
+  else if (mc >= 52.0) band = 'Make cut play';
+  else band = 'Cut risk';
+
+  return {
+    expected: fmtVsPar(expected_vs_par),
+    ceiling:  fmtVsPar(ceiling_vs_par),
+    floor:    fmtVsPar(floor_vs_par),
+    band,
+  };
 }
 
 function fmtSigned(v) {
