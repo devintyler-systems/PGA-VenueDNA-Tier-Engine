@@ -561,6 +561,8 @@ async function init() {
 
       /* Venue history rounds (from brief if available) */
       vh_rounds: p.starts_at_renaissance || brief.starts_at_renaissance || 0,
+      renaissance_start_count: +(p.renaissance_start_count || brief.renaissance_start_count || 0),
+      best_finish_renaissance: p.best_finish_renaissance ?? brief.best_finish_renaissance ?? null,
 
       /* VFD for display (venue_fit_score as a 0-100 percentile) */
       venue_fit_delta: +(vts.venue_fit_score || p.venue_fit_score || 0),
@@ -2291,8 +2293,8 @@ function sectionWinCase(p) {
   const wp      = +p.win_prob  || +p.win_pct  || 0;
   const t5      = +p.top5_prob || +p.top5_pct  || 0;
   const t10     = +p.top10_prob || +p.top10_pct || 0;
-  const starts  = +p.starts_at_renaissance || 0;
-  const bf      = p.best_finish_renaissance;
+  const starts  = +p.renaissance_start_count || 0;
+  const bf      = p.best_finish_renaissance ?? null;
   const conv    = p.conviction_level || 'MEDIUM';
   const traits  = p.top_traits  || [];
   const drags   = p.drag_traits || [];
