@@ -48,12 +48,12 @@
   "model_version": "VenueDNA v2",
   "generated_date": "2026-07-07",
   "tier_counts": {
-    "1": 5,
-    "2": 24,
-    "3": 77,
-    "4": 28,
-    "5": 32
+    "1": 3,
+    "2": 26,
+    "3": 71,
+    "4": 43,
+    "5": 23
   },
-  "anti_pattern_count": 9,
+  "anti_pattern_count": 24,
   "debut_count": 39
 }

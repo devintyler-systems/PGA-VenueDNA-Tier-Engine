@@ -150,11 +150,22 @@ sg_db["sg_ott_12m"]   = sg_db["tvl_score"]    # SG:OTT (12m off-the-tee consiste
 sg_db["sg_t2g_12m"]   = sg_db["hew_score"]    # Ball Striking (6m OTT+APP composite)
 sg_db["sg_app_12m"]   = sg_db["brie_score"]   # SG:APP (24m approach precision)
 sg_db["sg_arg_12m"]   = sg_db["vfr_score"]    # SG:ARG (6m around-green adaptability)
-# No DB equivalent for putting or driving stats
-sg_db["sg_putt_12m"]  = 0.0   # neutral (field average); prevents NaN propagation in NSI
+# Pull putting (putt_mean) and driving accuracy (acc_mean) from dg_true_sg_12m.csv
+# acc_mean is SG per round; divide by 0.015 to convert to pp-scale so that
+# drive_acc_12m * 0.015 recovers the original SG signal in the VFS formula,
+# and narrative thresholds (-3.0pp, -5.0pp) remain valid.
+_sg12m_raw = pd.read_csv(INPUT / "dg_true_sg_12m.csv", encoding="cp1252")
+_sg12m_raw.columns = [c.strip() for c in _sg12m_raw.columns]
+_sg12m_raw["key"] = _sg12m_raw["player_name"].apply(lambda n: field_name_to_key(str(n))[2])
+_sg12m_raw["sg_putt_12m_csv"]  = pd.to_numeric(_sg12m_raw["putt_mean"], errors="coerce")
+_sg12m_raw["drive_acc_12m_csv"] = pd.to_numeric(_sg12m_raw["acc_mean"], errors="coerce") / 0.015
+_sg12m_lookup = _sg12m_raw.drop_duplicates(subset=["key"]).set_index("key")
+sg_db["sg_putt_12m"] = sg_db["key"].map(_sg12m_lookup["sg_putt_12m_csv"]).fillna(0.0)
+sg_db["drive_acc_12m"] = sg_db["key"].map(_sg12m_lookup["drive_acc_12m_csv"]).fillna(0.0)
+print(f"  True SG 12m CSV: putting loaded for {sg_db['sg_putt_12m'].ne(0.0).sum()} players, "
+      f"DA for {sg_db['drive_acc_12m'].ne(0.0).sum()} players.")
 sg_db["sg_total_12m"] = np.nan
 sg_db["drive_dist_adj"] = np.nan
-sg_db["drive_acc_12m"]  = 0.0  # neutral; no driving accuracy penalty signal from DB
 # Data depth: players with at least tvl/brie/vfr scored met the MIN_ROUNDS=10 gate at ingestion
 sg_db["rounds_12m"] = sg_db[["tvl_score", "brie_score", "vfr_score"]].notna().all(axis=1).map(
     {True: 20.0, False: np.nan}
@@ -1189,8 +1200,7 @@ def generate_neutral_skill_summary(row):
 
 
 def generate_venue_fit_summary(row):
-    vfs = float(row.get("venue_fit_score", 50) or 50)
-    total_adj = row.get("venue_fit_total_adj")
+    vfs = round(float(row.get("venue_fit_score", 50) or 50), 2)
     app_val = row.get("app_150_200_value")
     ap = row.get("anti_pattern_flags", "none")
     drive_acc = float(row.get("drive_acc_12m") or 0)  # canonical SG-source accuracy
@@ -1418,7 +1428,7 @@ def generate_conviction_statement(row):
     first = str(row.get("first", "")).upper()
     vts = float(row.get("vts_final", 50))
     nsi = float(row.get("neutral_skill_index", 50) or 50)
-    vfs = float(row.get("venue_fit_score", 50) or 50)
+    vfs = round(float(row.get("venue_fit_score", 50) or 50), 2)
     sg_app = float(row.get("sg_app_12m") or 0)
     sg_ott = float(row.get("sg_ott_12m") or 0)
     vsb = row.get("true_sg_vs_baseline")
@@ -1538,6 +1548,11 @@ def generate_risk_vector(row):
     debut = bool(row.get("debut_flag", False))
     vsb = row.get("true_sg_vs_baseline")
     vsb_val = float(vsb) if not pd.isna(vsb) else 0.0
+    sg_putt = float(row.get("sg_putt_12m") or 0)
+    sg_arg  = float(row.get("sg_arg_12m")  or 0)
+    drive_acc = float(row.get("drive_acc_12m") or 0)
+    vhn_rounds = int(row.get("vhn_rounds", 0) or 0)
+    vhn_score  = float(row.get("vhn_score", 0) or 0)
     risks = []
     if ap >= 2:
         risks.append(f"multi-flag anti-pattern ({ap} flags) — structural concerns compound at Renaissance")
@@ -1550,6 +1565,14 @@ def generate_risk_vector(row):
         risks.append(f"form drag ({fc}) — below-baseline scoring rate heading into a benign-forecast week")
     if debut:
         risks.append("Renaissance debut — links-course learning curve; no hole-knowledge calibration for tee corridors or rerouted closing stretch (new Hole 15)")
+    if sg_putt < -0.2:
+        risks.append(f"flat putter (SG:PUTT {sg_putt:+.2f}) — slow fescue greens (~10ft Stimp) amplify stroke loss vs. parkland Tour baseline")
+    if sg_arg < -0.2:
+        risks.append(f"weak short game (SG:ARG {sg_arg:+.2f}) — links pot bunkers and tight rough demand elite around-green precision")
+    if drive_acc < -3.0:
+        risks.append(f"below-avg driving accuracy ({drive_acc:+.1f}pp vs field) — Renaissance's tight tee corridors compound rough-approach difficulty")
+    if not debut and vhn_rounds > 0 and vhn_score < -0.05:
+        risks.append(f"negative course history vs expected (score {vhn_score:+.3f}) — Renaissance setup historically neutralises this player's structural strengths")
     if not risks and fc == "HOT" and vsb_val > 1.5:
         risks.append(f"regression risk from peak form ({vsb_val:+.2f} vs baseline) — HOT form at this level historically mean-reverts by R3-R4 at HIGH variance venues")
     if not risks:
@@ -1559,11 +1582,15 @@ def generate_risk_vector(row):
 
 def generate_failure_condition(row):
     tier = int(row.get("tier", 5))
-    sg_app = float(row.get("sg_app_12m") or 0)
+    sg_app  = float(row.get("sg_app_12m")  or 0)
     sg_putt = float(row.get("sg_putt_12m") or 0)
-    drive_acc = float(row.get("drive_acc_12m") or 0)  # canonical SG-source accuracy (pp vs field avg)
+    sg_ott  = float(row.get("sg_ott_12m")  or 0)
+    sg_arg  = float(row.get("sg_arg_12m")  or 0)
+    drive_acc = float(row.get("drive_acc_12m") or 0)
     debut = bool(row.get("debut_flag", False))
     ap = int(row.get("ap_total_flags", 0))
+    vhn_rounds = int(row.get("vhn_rounds", 0) or 0)
+    vhn_score  = float(row.get("vhn_score", 0) or 0)
     if sg_app < 0 and drive_acc < -3.0:
         return (
             "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play "
@@ -1588,6 +1615,30 @@ def generate_failure_condition(row):
             "approach demands leave no margin for weak-link category underperformance in a field "
             "with multiple elite ball-strikers."
         )
+    elif sg_arg < -0.2:
+        return (
+            f"Weak short game (SG:ARG {sg_arg:+.2f}) creates a recurring score leak at Renaissance — "
+            "links rough, pot bunkers, and tight run-off areas demand around-green precision that "
+            "this profile cannot consistently deliver."
+        )
+    elif not debut and vhn_rounds > 0 and vhn_score < -0.05:
+        return (
+            f"Below-expected course history at Renaissance (score {vhn_score:+.3f} vs field baseline) — "
+            "this venue historically neutralises the player's structural strengths, suggesting a "
+            "course-setup mismatch the model cannot fully price in."
+        )
+    elif drive_acc < -2.0:
+        return (
+            f"Driving variance ({drive_acc:+.1f}pp below field average fairway rate) is the primary "
+            "scorecard risk — Renaissance's tight links corridors punish missed fairways with approach "
+            "angles that eliminate birdie opportunities from uneven rough lies."
+        )
+    elif sg_ott < -0.1:
+        return (
+            f"Below-average off-the-tee ball-striking (SG:OTT {sg_ott:+.2f}) limits the birdie-making "
+            "pace required to contend at Renaissance — course architecture is angle-dependent from "
+            "the tee and this profile offers limited margin for further OTT regression."
+        )
     elif tier >= 4:
         return (
             "SG ceiling (NSI sub-65) too low to sustain contention at a venue where elite approach "
@@ -1595,15 +1646,15 @@ def generate_failure_condition(row):
             "spike across multiple rounds."
         )
     return (
-        "Form fade or approach regression below zero would eliminate the scoring edge — "
-        "no structural moat to absorb a -0.5 SG:APP week at Renaissance where proximity "
-        "from 175-200yds directly determines birdie conversion rate."
+        f"No single structural weakness dominates — fade risk is distributed across SG categories "
+        f"(APP {sg_app:+.2f}, PUTT {sg_putt:+.2f}, ARG {sg_arg:+.2f}). A simultaneous multi-category "
+        f"regression below field average in calm conditions would erode the scoring edge."
     )
 
 
 def generate_trace_notes(row):
     nsi = float(row.get("neutral_skill_index", 50) or 50)
-    vfs = float(row.get("venue_fit_score", 50) or 50)
+    vfs = round(float(row.get("venue_fit_score", 50) or 50), 2)
     vhn = float(row.get("venue_history_normalized", 50) or 50)
     fs = float(row.get("form_score", 50) or 50)
     pen = float(row.get("total_penalties_vts", 0) or 0)

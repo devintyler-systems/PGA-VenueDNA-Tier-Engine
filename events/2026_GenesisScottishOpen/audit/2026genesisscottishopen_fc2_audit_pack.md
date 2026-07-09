@@ -18,48 +18,48 @@ FC-2 engine repair — four structural bugs corrected:
 
 | # | Player | Branch fired | Notes |
 |---|---|---|---|
-| Scottie Scheffler | 82.1 | 93.8 | +11.7 | 94.8 | 100.0 | 53.6 | 80.3 | 55.4 | 50.0 |
-| Rory Mcilroy | 83.5 | 83.2 | -0.3 | 80.7 | 82.0 | 66.0 | 73.7 | 68.5 | 55.6 |
-| Tommy Fleetwood | 77.0 | 82.8 | +5.8 | 76.9 | 82.3 | 52.3 | 70.1 | 77.7 | 60.5 |
-| Kurt Kitayama | 78.2 | 77.8 | -0.4 | 73.9 | 73.2 | 62.3 | 70.4 | 71.0 | 61.0 |
-| Matt Fitzpatrick | 80.4 | 76.9 | -3.5 | 78.5 | 73.6 | 54.2 | 69.2 | 86.1 | 59.6 |
-| Tyrrell Hatton | 80.9 | 76.7 | -4.2 | 74.3 | 68.9 | 61.9 | 65.5 | 62.6 | 57.5 |
-| Viktor Hovland | 68.2 | 74.9 | +6.7 | 70.7 | 75.5 | 55.6 | 68.5 | 52.1 | 48.9 |
-| Chris Gotterup | 77.5 | 72.9 | -4.6 | 70.8 | 65.7 | 66.2 | 65.9 | 67.6 | 67.0 |
-| Nicolai Hojgaard | 76.8 | 72.7 | -4.1 | 65.5 | 67.9 | 68.9 | 66.2 | 84.7 | 70.8 |
-| Wyndham Clark | 91.5 | 72.1 | -19.4 | 83.6 | 57.9 | 62.2 | 61.2 | 74.3 | 63.5 |
-| Alex Fitzpatrick | 70.5 | 62.3 | -8.1 | 71.5 | 53.3 | 55.0 | 63.2 | 39.7 | 38.4 |
-| Rasmus Hojgaard | 53.4 | 55.2 | +1.8 | 44.2 | 56.3 | 70.6 | 60.1 | 47.3 | 46.2 |
+| Scottie Scheffler | 82.1 | 92.0 | +9.9 | 94.8 | 100.0 | 53.6 | 77.5 | 55.4 | 50.0 |
+| Tommy Fleetwood | 77.0 | 83.5 | +6.5 | 76.9 | 85.3 | 52.3 | 68.9 | 77.7 | 60.5 |
+| Rory Mcilroy | 83.5 | 83.5 | +0.1 | 80.7 | 84.8 | 66.0 | 71.8 | 68.5 | 55.6 |
+| Matt Fitzpatrick | 80.4 | 77.0 | -3.4 | 78.5 | 75.1 | 54.2 | 68.0 | 86.1 | 59.6 |
+| Kurt Kitayama | 78.2 | 76.0 | -2.2 | 73.9 | 71.5 | 62.3 | 69.0 | 71.0 | 61.0 |
+| Tyrrell Hatton | 80.9 | 75.2 | -5.7 | 74.3 | 67.2 | 61.9 | 64.7 | 62.6 | 57.5 |
+| Viktor Hovland | 68.2 | 74.5 | +6.3 | 70.7 | 75.9 | 55.6 | 67.5 | 52.1 | 48.9 |
+| Chris Gotterup | 77.5 | 74.4 | -3.1 | 70.8 | 69.2 | 66.2 | 65.1 | 67.6 | 67.0 |
+| Wyndham Clark | 91.5 | 74.2 | -17.4 | 83.6 | 61.8 | 62.2 | 61.1 | 74.3 | 63.5 |
+| Nicolai Hojgaard | 76.8 | 72.1 | -4.7 | 65.5 | 67.7 | 68.9 | 65.4 | 84.7 | 70.8 |
+| Alex Fitzpatrick | 70.5 | 62.5 | -7.9 | 71.5 | 53.6 | 55.0 | 63.0 | 39.7 | 38.4 |
+| Rasmus Hojgaard | 53.4 | 58.0 | +4.6 | 44.2 | 60.8 | 70.6 | 60.1 | 47.3 | 46.2 |
 
 ## Top-20 Rank Movers (Pre vs Post)
 
 | Pre-Rank | Post-Rank | Δ | Player | Pre-VTS | Post-VTS |
 |---------|---------|---|--------|---------|---------|
-| 3 | 1 | +2 | Scottie Scheffler | 82.1 | 93.8 |
-| 2 | 2 | = | Rory Mcilroy | 83.5 | 83.2 |
-| 8 | 3 | +5 | Tommy Fleetwood | 77.0 | 82.8 |
-| 16 | 4 | +12 | Xander Schauffele | 72.0 | 79.5 |
-| 22 | 5 | +17 | J.J. Spaun | 70.3 | 78.9 |
-| 14 | 6 | +8 | Jon Rahm | 72.9 | 78.6 |
-| 26 | 7 | +19 | Si Woo Kim | 68.5 | 77.8 |
-| 6 | 8 | -2 | Kurt Kitayama | 78.2 | 77.8 |
-| 24 | 9 | +15 | Patrick Cantlay | 69.4 | 77.5 |
-| 5 | 10 | -5 | Matt Fitzpatrick | 80.4 | 76.9 |
-| 4 | 11 | -7 | Tyrrell Hatton | 80.9 | 76.7 |
-| 11 | 12 | -1 | Ludvig Aberg | 75.1 | 76.7 |
-| 28 | 13 | +15 | Shane Lowry | 67.3 | 76.1 |
-| 10 | 14 | -4 | Aaron Rai | 75.4 | 75.1 |
-| 27 | 15 | +12 | Viktor Hovland | 68.2 | 74.9 |
-| 34 | 16 | +18 | Doug Ghim | 63.4 | 74.3 |
-| 13 | 17 | -4 | Justin Thomas | 74.4 | 74.0 |
-| 7 | 18 | -11 | Chris Gotterup | 77.5 | 72.9 |
-| 9 | 19 | -10 | Nicolai Hojgaard | 76.8 | 72.7 |
-| 19 | 20 | -1 | Adam Scott | 71.0 | 72.6 |
-| 1 | 21 | -20 | Wyndham Clark | 91.5 | 72.1 |
-| 15 | 22 | -7 | Bud Cauley | 72.8 | 71.3 |
-| 12 | 23 | -11 | Tom Kim | 74.5 | 68.5 |
-| 17 | 24 | -7 | Kristoffer Reitan | 71.6 | 67.3 |
-| 45 | 25 | +20 | Corey Conners | 60.9 | 67.0 |
+| 3 | 1 | +2 | Scottie Scheffler | 82.1 | 92.0 |
+| 8 | 2 | +6 | Tommy Fleetwood | 77.0 | 83.5 |
+| 2 | 3 | -1 | Rory Mcilroy | 83.5 | 83.5 |
+| 16 | 4 | +12 | Xander Schauffele | 72.0 | 78.5 |
+| 14 | 5 | +9 | Jon Rahm | 72.9 | 78.1 |
+| 5 | 6 | -1 | Matt Fitzpatrick | 80.4 | 77.0 |
+| 11 | 7 | +4 | Ludvig Aberg | 75.1 | 76.8 |
+| 24 | 8 | +16 | Patrick Cantlay | 69.4 | 76.2 |
+| 6 | 9 | -3 | Kurt Kitayama | 78.2 | 76.0 |
+| 22 | 10 | +12 | J.J. Spaun | 70.3 | 75.8 |
+| 28 | 11 | +17 | Shane Lowry | 67.3 | 75.3 |
+| 4 | 12 | -8 | Tyrrell Hatton | 80.9 | 75.2 |
+| 26 | 13 | +13 | Si Woo Kim | 68.5 | 74.6 |
+| 27 | 14 | +13 | Viktor Hovland | 68.2 | 74.5 |
+| 7 | 15 | -8 | Chris Gotterup | 77.5 | 74.4 |
+| 1 | 16 | -15 | Wyndham Clark | 91.5 | 74.2 |
+| 13 | 17 | -4 | Justin Thomas | 74.4 | 73.5 |
+| 10 | 18 | -8 | Aaron Rai | 75.4 | 72.8 |
+| 9 | 19 | -10 | Nicolai Hojgaard | 76.8 | 72.1 |
+| 34 | 20 | +14 | Doug Ghim | 63.4 | 71.3 |
+| 19 | 21 | -2 | Adam Scott | 71.0 | 70.5 |
+| 15 | 22 | -7 | Bud Cauley | 72.8 | 69.8 |
+| 41 | 23 | +18 | Robert Macintyre | 62.3 | 69.3 |
+| 17 | 24 | -7 | Kristoffer Reitan | 71.6 | 68.7 |
+| 12 | 25 | -13 | Tom Kim | 74.5 | 68.0 |
 
 ## Tier Changes
 
@@ -68,57 +68,62 @@ FC-2 engine repair — four structural bugs corrected:
 | Tommy Fleetwood | T2 | T1 |
 | Matt Fitzpatrick | T1 | T2 |
 | Tyrrell Hatton | T1 | T2 |
-| Doug Ghim | T3 | T2 |
 | Wyndham Clark | T1 | T2 |
-| Corey Conners | T3 | T2 |
+| Doug Ghim | T3 | T2 |
 | Robert Macintyre | T3 | T2 |
+| Jake Knapp | T3 | T2 |
 | Nick Taylor | T3 | T2 |
+| Corey Conners | T3 | T2 |
 | Ryan Fox | T2 | T3 |
-| Harris English | T2 | T3 |
 | Victor Perez | T2 | T3 |
 | Alex Fitzpatrick | T2 | T3 |
-| John Parry | T4 | T3 |
-| Matt Wallace | T2 | T3 |
 | Eric Cole | T2 | T3 |
+| Matt Wallace | T2 | T3 |
+| John Parry | T4 | T3 |
 | Kevin Yu | T4 | T3 |
 | Michael Thorbjornsen | T4 | T3 |
-| Hennie Du Plessis | T4 | T3 |
-| Tom Mckibbin | T4 | T3 |
-| Martin Couvra | T4 | T3 |
-| Dan Bradbury | T4 | T3 |
 | Kota Kaneko | T4 | T3 |
+| Tom Mckibbin | T4 | T3 |
+| Hennie Du Plessis | T4 | T3 |
 | Sungjae Im | T4 | T3 |
-| Padraig Harrington | T2 | T3 |
-| Matteo Manassero | T4 | T3 |
 | Eugenio Chacarra | T4 | T3 |
-| Thriston Lawrence | T4 | T3 |
+| Martin Couvra | T4 | T3 |
 | Baekjun Kim | T4 | T3 |
-| Jimmy Stanger | T3 | T4 |
-| Grant Forrest | T3 | T4 |
-| Chandler Phillips | T3 | T4 |
-| Sam Stevens | T3 | T4 |
+| Dan Bradbury | T4 | T3 |
+| Padraig Harrington | T2 | T3 |
+| Erik Van Rooyen | T3 | T4 |
 | Alejandro Del Rey | T3 | T4 |
-| Niklas Norgaard | T3 | T4 |
-| Yurav Premlall | T3 | T4 |
-| Mark Hubbard | T3 | T4 |
+| Sam Stevens | T3 | T4 |
+| Francesco Molinari | T3 | T4 |
 | Pierceson Coody | T3 | T4 |
 | Brandt Snedeker | T3 | T4 |
-| Joost Luiten | T5 | T4 |
+| Seungbin Choi | T3 | T4 |
+| Grant Forrest | T3 | T4 |
 | Keita Nakajima | T3 | T4 |
-| Marcel Siem | T5 | T4 |
-| David Ravetto | T5 | T4 |
-| Jordan Gumberg | T5 | T4 |
+| Yurav Premlall | T3 | T4 |
+| Joost Luiten | T5 | T4 |
+| Mark Hubbard | T3 | T4 |
+| Aldrich Potgieter | T3 | T4 |
+| Niklas Norgaard | T3 | T4 |
 | Matthieu Pavon | T5 | T4 |
-| Adrien Saddier | T5 | T4 |
+| Marcel Siem | T5 | T4 |
 | Julien Guerrier | T5 | T4 |
-| Charley Hoffman | T5 | T4 |
+| David Ravetto | T5 | T4 |
+| Adrien Saddier | T5 | T4 |
+| Jordan Gumberg | T5 | T4 |
+| Darius Van Driel | T5 | T4 |
+| Jayden Schaper | T5 | T4 |
+| Karl Vilips | T5 | T4 |
+| Kevin Roy | T5 | T4 |
+| Ashun Wu | T5 | T4 |
+| Rikuya Hoshino | T5 | T4 |
+| Adrian Otaegui | T5 | T4 |
+| Joakim Lagergren | T4 | T5 |
+| Taylor Moore | T4 | T5 |
 | Johannes Veerman | T4 | T5 |
-| Guido Migliozzi | T4 | T5 |
-| Nicolai Von Dellingshausen | T4 | T5 |
-| Calum Hill | T4 | T5 |
-| Dylan Frittelli | T4 | T5 |
 | Mikael Lindberg | T4 | T5 |
-| Shaun Norris | T4 | T5 |
+| Guido Migliozzi | T4 | T5 |
+| Dylan Frittelli | T4 | T5 |
 | Adrian Meronk | T4 | T5 |
 | Davis Riley | T4 | T5 |
 
