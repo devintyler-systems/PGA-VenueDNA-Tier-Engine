@@ -152,10 +152,24 @@ def normalize_player_key(raw: str) -> str:
     if "," in s:
         last, first = s.split(",", 1)
     else:
+        # Strict first-name lookahead split: rsplit on whitespace so the rightmost
+        # token becomes last name and everything before becomes first name.  Two-token
+        # names ("Rasmus Hojgaard") and multi-token names ("Si Woo Kim") both resolve
+        # correctly, keeping each twin's key independent of the other.
         tokens = s.rsplit(None, 1)
         first, last = (tokens[0], tokens[1]) if len(tokens) == 2 else ("", tokens[0])
 
-    raw_key = f"{last.strip()}_{first.strip()}".lower()
+    first_clean = first.strip()
+    last_clean  = last.strip()
+
+    if not first_clean:
+        log.warning(
+            "normalize_player_key: no first name resolved for %r — key may collide "
+            "with same-surname players (twins / initials ambiguity); supply full name",
+            raw,
+        )
+
+    raw_key = f"{last_clean}_{first_clean}".lower()
     raw_key = _WHITESPACE.sub("", raw_key)
     raw_key = _NONALNUM_RE.sub("", raw_key)
     return raw_key
@@ -360,6 +374,16 @@ def fetch_player_decompositions(api_key: str, tour: str) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     df["player_key"] = df["player_name"].map(normalize_player_key)
     df["tour"]       = tour
+
+    dupe_mask = df["player_key"].duplicated(keep=False)
+    if dupe_mask.any():
+        dupe_report = df.loc[dupe_mask, ["player_name", "player_key"]]
+        log.error(
+            "TWIN/SURNAME COLLISION in player-decompositions — %d records share a "
+            "normalised key; the later SQLite upsert will silently overwrite earlier rows:\n%s",
+            len(dupe_report), dupe_report.to_string(index=False),
+        )
+
     return df
 
 
@@ -484,6 +508,106 @@ def _to_records(df: pd.DataFrame, cols: list[str], defaults: dict) -> list[dict]
         records.append(rec)
     return records
 
+# ── twin-player seed guard ────────────────────────────────────────────────────
+# Rasmus Højgaard and Nicolai Højgaard share a surname.  If the DataGolf feed
+# omits Rasmus (abbreviated or missing), the SQLite upsert gap means downstream
+# joins return NULL rows for him — breaking build_round_analysis.py lookups.
+# This guard inserts a minimally-complete seed row using the 'Tier 2 Approach
+# Elite' class-mean for prox_150_200 (+0.45) and marks all imputed columns.
+
+_SEED_RASMUS = {
+    "player_key":              "hojgaard_rasmus",
+    "player_name":             "Hojgaard, Rasmus",
+    "dg_id":                   None,
+    "tour":                    "euro",
+    "sg_putt":                 None,
+    "sg_arg":                  None,
+    "sg_app":                  None,
+    "sg_ott":                  None,
+    "sg_t2g":                  None,
+    "sg_total":                None,
+    "driving_dist":            None,
+    "driving_acc":             None,
+    "prox_100_150":            None,
+    "prox_150_200":            0.45,   # Tier-2 Approach Elite class mean
+    "prox_150_200_imputed":    1,
+    "prox_200_250":            None,
+    "prox_250_plus":           None,
+    "prox_250_plus_imputed":   1,
+    "avoid_rough_pct":         None,
+    "avoid_rough_pct_imputed": 1,
+    "avoid_bunker_pct":        None,
+    "avoid_bunker_pct_imputed":1,
+    "gir":                     None,
+    "scrambling":              None,
+    "data_depth_flag":         "mean_regressed",
+}
+
+_SEED_SQL = """
+INSERT OR IGNORE INTO local_player_granular_traits (
+    player_key, player_name, dg_id, tour,
+    sg_putt, sg_arg, sg_app, sg_ott, sg_t2g, sg_total,
+    driving_dist, driving_acc, prox_100_150,
+    prox_150_200, prox_150_200_imputed,
+    prox_200_250,
+    prox_250_plus, prox_250_plus_imputed,
+    avoid_rough_pct, avoid_rough_pct_imputed,
+    avoid_bunker_pct, avoid_bunker_pct_imputed,
+    gir, scrambling, data_depth_flag, fetched_at
+) VALUES (
+    :player_key, :player_name, :dg_id, :tour,
+    :sg_putt, :sg_arg, :sg_app, :sg_ott, :sg_t2g, :sg_total,
+    :driving_dist, :driving_acc, :prox_100_150,
+    :prox_150_200, :prox_150_200_imputed,
+    :prox_200_250,
+    :prox_250_plus, :prox_250_plus_imputed,
+    :avoid_rough_pct, :avoid_rough_pct_imputed,
+    :avoid_bunker_pct, :avoid_bunker_pct_imputed,
+    :gir, :scrambling, :data_depth_flag, datetime('now')
+);
+"""
+
+_SEED_UPDATE_SQL = """
+UPDATE local_player_granular_traits
+SET    prox_150_200          = :prox_150_200,
+       prox_150_200_imputed  = 1,
+       avoid_rough_pct       = COALESCE(avoid_rough_pct, :avoid_rough_pct),
+       avoid_rough_pct_imputed = CASE WHEN avoid_rough_pct IS NULL THEN 1 ELSE avoid_rough_pct_imputed END,
+       data_depth_flag       = 'mean_regressed',
+       fetched_at            = datetime('now')
+WHERE  player_key = 'hojgaard_rasmus'
+  AND  (prox_150_200 IS NULL OR prox_150_200 = 0.0);
+"""
+
+
+def _seed_rasmus_hojgaard(conn: sqlite3.Connection, dry_run: bool = False) -> None:
+    """Ensure Rasmus Hojgaard has a valid row with imputed approach metrics.
+
+    Uses INSERT OR IGNORE so an API-sourced row (if present) is never overwritten.
+    Then conditionally patches prox_150_200 if the existing row has NULL / 0.0.
+    """
+    if dry_run:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT player_key, prox_150_200, data_depth_flag "
+            "FROM local_player_granular_traits WHERE player_key = 'hojgaard_rasmus'",
+        )
+        row = cur.fetchone()
+        if row:
+            log.info("[DRY-RUN] hojgaard_rasmus exists: prox_150_200=%s flag=%s",
+                     row["prox_150_200"], row["data_depth_flag"])
+        else:
+            log.info("[DRY-RUN] hojgaard_rasmus absent — seed row would be inserted "
+                     "(prox_150_200=0.45, data_depth_flag=mean_regressed)")
+        return
+
+    conn.execute(_SEED_SQL, _SEED_RASMUS)
+    conn.execute(_SEED_UPDATE_SQL, {"prox_150_200": 0.45, "avoid_rough_pct": None})
+    conn.commit()
+    log.info("Twin seed: hojgaard_rasmus row ensured in local_player_granular_traits "
+             "(prox_150_200=0.45 class-mean imputed where absent)")
+
+
 # ── orchestrator ──────────────────────────────────────────────────────────────
 
 
@@ -540,6 +664,7 @@ def run(api_key: str, tour: str, dry_run: bool) -> None:
             print(df_decomp.loc[imputed_mask, ["player_key", "player_name"] + imputed_cols]
                   .head(10).to_string(index=False))
 
+        _seed_rasmus_hojgaard(conn, dry_run=True)
         conn.close()
         return
 
@@ -554,6 +679,9 @@ def run(api_key: str, tour: str, dry_run: bool) -> None:
     conn.executemany(_UPSERT_COURSE_FIT, fit_recs)
     conn.commit()
     log.info("Upserted %d rows → local_dg_course_fit", len(fit_recs))
+
+    # ── 7. Twin seed: Rasmus Hojgaard disambiguation guard ───────────────────
+    _seed_rasmus_hojgaard(conn)
 
     conn.close()
 

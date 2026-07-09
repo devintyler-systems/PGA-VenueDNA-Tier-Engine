@@ -1,4 +1,4 @@
-/* PGA VenueDNA — 2026 Genesis Scottish Open — Interactive Dashboard */
+﻿/* PGA VenueDNA — 2026 Genesis Scottish Open — Interactive Dashboard */
 
 /* ══════════════════════════════════════════════════════
    MODEL CONFIGURATION
@@ -187,7 +187,8 @@ function _normKeyJS(name) {
   // Strip generational suffixes (jr/sr/ii/iii/iv/v) before any other transform
   s = s.replace(/\b(jr|sr|ii|iii|iv|v)\.?(?=[\s,]|$)/gi, '').trim().replace(/,\s*$/, '').trim();
   // NFD decompose → strip combining diacritics (covers é, ö, ñ, etc.)
-  s = s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Explicit Unicode range u+0300–u+036f avoids literal-char encoding drift.
+  s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   // Explicit substitutions for chars that survive NFD stripping
   const EXPLICIT = [
     ['Ø','O'],['ø','O'],['Æ','AE'],['æ','AE'],['Å','A'],['å','A'],
@@ -211,8 +212,9 @@ function _normKeyJS(name) {
     }
   }
   let key = `${last.trim()}_${first.trim()}`.toLowerCase();
-  key = key.replace(/\s+/g, '');         // collapse any interior whitespace
-  key = key.replace(/[^a-z0-9_]/g, ''); // strip non-alphanumeric except underscore
+  key = key.replace(/[-]/g, '');        // strip hyphens (Byeong-Hun → ByeongHun) before underscore pass
+  key = key.replace(/\s+/g, '_');       // spaces → underscores: 'si woo' → 'si_woo', matching lkey_to_norm_name
+  key = key.replace(/[^a-z0-9_]/g, ''); // strip remaining punctuation; preserves underscores
   return key;
 }
 
@@ -775,7 +777,25 @@ async function init() {
         if (!r.ok) return null;
         return r.json();
       });
-      if (data) console.info(`[VenueDNA] ${label} loaded`);
+      if (data) {
+        console.info(`[VenueDNA] ${label} loaded`);
+        const fp = data?.metadata?.cache_fingerprint;
+        if (fp) {
+          const fpKey    = `vd_fp_${file}`;
+          const storedFp = sessionStorage.getItem(fpKey);
+          if (storedFp && storedFp !== fp) {
+            // Fingerprint changed — a new build was posted.  Update only this
+            // file's sessionStorage key and let the caller re-render with the
+            // freshly-fetched payload.  Do NOT call window.location.reload():
+            // sessionStorage survives hard reloads, so the mismatch would
+            // re-fire on every subsequent load, creating an infinite loop.
+            console.warn(
+              `[VenueDNA] cache_fingerprint updated for ${file} (${storedFp} → ${fp}) — refreshing payload in place`
+            );
+          }
+          sessionStorage.setItem(fpKey, fp);  // idempotent: always advance to current fingerprint
+        }
+      }
       return data;
     } catch (e) {
       console.warn(`[VenueDNA] ${label} not loaded (${e.message})`);
@@ -2258,64 +2278,61 @@ function sectionDbMetrics(p) {
 function sectionBrieZPanel(p) {
   const roundData = r1Data || r2Data || r3Data || r4Data;
 
-  // ── Dual-path canonical key resolution ──────────────────────────────────────
-  // Path 1: pre-computed norm_name already on the player object
-  // Path 2: reconstruct from player_name or r1_name using the exact regex fold
-  //         that matches engine/latent_model.py _norm_key()
-  const normKey = p.norm_name
-    || _normKeyJS(p.player_name || p.r1_name || '');
+  // ── Direct snapshot lookup ───────────────────────────────────────────────────
+  // Resolve the player's live snapshot entry from leaderboard_snapshot using
+  // norm_name for an O(1)-style find — no iteration over the global trait_audit
+  // object.  Falls back to _normKeyJS reconstruction when norm_name is absent.
+  const pNormKey = p.norm_name || _normKeyJS(p.player_name || '');
+  const snap = roundData?.leaderboard_snapshot?.find(s =>
+    (s.norm_name && s.norm_name === pNormKey) ||
+    (!s.norm_name && _normKeyJS(s.r1_name || '') === pNormKey)
+  ) ?? null;
 
-  // ── Tier 1 — round data trait_audit lookup ───────────────────────────────────
-  // Try direct dg_id key first (fastest), then scan by norm_key, then by player_name.
-  let bz = null;
-  if (roundData?.player_round_data) {
-    const prdMap = roundData.player_round_data;
-    const idKey  = p.player_id != null ? String(p.player_id) : null;
-    const prd    = (idKey && prdMap[idKey])
-      || (normKey && Object.values(prdMap).find(d => _normKeyJS(d.player_name || d.r1_name || '') === normKey))
-      || Object.values(prdMap).find(d => d.player_name === p.player_name);
-    bz = prd?.trait_audit?.app_150_200?.brie_z ?? null;
-  }
+  // ── Direct property reads from player object / snapshot ─────────────────────
+  // Priority: live snapshot fields first, then pre-tournament p properties.
+  const bzScore  = snap?.brie_z_score != null ? +snap.brie_z_score
+    : (p.brie_z_score != null ? +p.brie_z_score : null);
 
-  // ── Tier 2 — direct player object properties ─────────────────────────────────
-  const bzScoreDirect = p.brie_z_score != null ? +p.brie_z_score : null;
-  const waveBonusDirect = p.wave_bonus != null ? +p.wave_bonus : null;
+  // app_150_200_fw_sg: read directly from p if hydrated; snapshot sg_app is the
+  // live proxy (SG:APP from 150-200yd fairway zone confirms the pre-tournament projection).
+  const fwSg = p.app_150_200_fw_sg != null ? +p.app_150_200_fw_sg
+    : (snap?.sg_app != null ? +snap.sg_app : null);
 
-  // ── Tier 3 — historical aggregate baseline sentinel ──────────────────────────
-  // If neither Tier 1 nor Tier 2 has a Z-score, synthesise a 0.0 baseline object
-  // so the panel always renders with a clear mode label rather than going dark.
-  const bzScore     = bzScoreDirect ?? (bz != null ? bzScoreDirect : 0.0);
-  const isBaseline  = bzScoreDirect == null && bz == null;
-  const waveBonus   = waveBonusDirect ?? bz?.wave_bonus ?? null;
+  // app_150_200_poor_shot_avoidance: read directly from p if present.
+  const psa = p.app_150_200_poor_shot_avoidance != null
+    ? +p.app_150_200_poor_shot_avoidance : null;
 
-  // ── Field extraction (Tier 1 breakdown if available) ────────────────────────
-  const fwSg      = bz?.fw_sg              ?? null;
-  const psa       = bz?.psa               ?? null;
-  const penalty   = bz?.course_rough_penalty ?? null;
-  const composite = bz?.composite          ?? null;
+  const waveBonus = p.wave_bonus != null ? +p.wave_bonus : null;
 
-  // ── Formatters ───────────────────────────────────────────────────────────────
-  const fmt   = (v, dec = 3) => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(dec);
-  const fmtZ  = v => (v == null || isBaseline) ? (isBaseline ? '0.0' : '—') : (+v).toFixed(1);
+  // ── isBaseline: false when brie_z_score is present, numeric, and non-zero ───
+  const isBaseline = !(bzScore != null && !isNaN(bzScore) && bzScore !== 0.0);
+
+  // ── Formatters — all numeric values displayed to 2 decimal places ────────────
+  const fmt   = v => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(2);
+  const fmtZ  = v => (v == null || isBaseline) ? (isBaseline ? '0.00' : '—') : (+v).toFixed(2);
   const color = v => v == null ? 'var(--muted)' : +v >= 0 ? '#4ade80' : '#f87171';
 
+  // Thresholds on Z-score scale (σ-units, not 0-100):
+  //   ≥ +0.50 σ → above average (green)
+  //   ≥ −0.50 σ → around average (amber)
+  //   < −0.50 σ → below average (red)
   const scoreColor = isBaseline
     ? 'var(--muted)'
-    : (+bzScore >= 60 ? '#4ade80' : +bzScore >= 45 ? '#fcd34d' : '#f87171');
+    : (+bzScore >= 0.50 ? '#4ade80' : +bzScore >= -0.50 ? '#fcd34d' : '#f87171');
 
   // ── Row assembly ─────────────────────────────────────────────────────────────
   const rows = [
     isBaseline
       ? `<div class="bz-row bz-baseline-notice">
-           <span class="bz-label" style="color:#fcd34d" title="traits_calculator.py has not yet written BRIE-Z data for this player">
+           <span class="bz-label" style="color:#fcd34d" title="No live BRIE-Z data for this player — pre-tournament baseline only">
              Historical Aggregate Baseline Mode
            </span>
-           <span class="bz-val" style="color:var(--muted)">0.000</span>
+           <span class="bz-val" style="color:var(--muted)">0.00</span>
          </div>`
       : '',
     fwSg != null
       ? `<div class="bz-row">
-           <span class="bz-label" title="SG per shot from 150-200yd fairway lies (Last 12m)">FW-SG 150-200</span>
+           <span class="bz-label" title="Live R1 SG:APP (150-200yd fairway approach proxy) — confirms pre-tournament fw_sg projection">FW-SG 150-200</span>
            <span class="bz-val" style="color:${color(fwSg)}">${fmt(fwSg)}</span>
          </div>`
       : '',
@@ -2323,18 +2340,6 @@ function sectionBrieZPanel(p) {
       ? `<div class="bz-row">
            <span class="bz-label" title="Avoid-rough rate centered at field mean — positive = better than average">Poor Shot Avoid (PSA)</span>
            <span class="bz-val" style="color:${color(psa)}">${fmt(psa)}</span>
-         </div>`
-      : '',
-    penalty != null
-      ? `<div class="bz-row">
-           <span class="bz-label" title="Fescue rough penalty vs fairway baseline (course_profiles)">Course Penalty</span>
-           <span class="bz-val" style="color:${+penalty > 0 ? '#f87171' : 'var(--muted)'}">−${Math.abs(+penalty).toFixed(3)}</span>
-         </div>`
-      : '',
-    composite != null
-      ? `<div class="bz-row" style="border-top:1px solid var(--border);margin-top:.3rem;padding-top:.3rem">
-           <span class="bz-label"><b>Raw BRIE-Z</b></span>
-           <span class="bz-val" style="color:${color(composite)};font-weight:600">${fmt(composite)}</span>
          </div>`
       : '',
     waveBonus != null && +waveBonus > 0
@@ -2347,7 +2352,7 @@ function sectionBrieZPanel(p) {
 
   return `<div class="modal-section">
     <h4>BRIE-Z Sub-Driver <span style="font-size:.72rem;color:var(--muted);font-weight:400">150-200yd Approach · Schema v1.1</span>
-      <span class="bz-zscore" style="color:${scoreColor}" title="Z-scored BRIE-Z composite (0-100 field-relative)">${fmtZ(bzScore)}</span>
+      <span class="bz-zscore" style="color:${scoreColor}" title="Z-scored BRIE-Z composite (field-relative σ)">${fmtZ(bzScore)}</span>
     </h4>
     <div class="bz-grid">${rows}</div>
   </div>`;
@@ -3085,7 +3090,7 @@ function renderFooter(payload) {
 function normalizeLastName(s) {
   return (s || '').toLowerCase()
     .replace(/[øØ]/g, 'o').replace(/[åÅ]/g, 'a').replace(/[æÆ]/g, 'ae')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 function fmtPct(v) {

@@ -69,6 +69,22 @@ def key_payload(p: dict) -> str:
     return f"{normalize(p.get('last_name', ''))}|{normalize(p.get('first_name', ''))}"
 
 
+def lkey_to_norm_name(lkey: str) -> str:
+    """Convert pipe-delimited join key to strict lowercase snake_case norm_name.
+
+    Spaces in both last and first parts become underscores so the output is
+    always pure snake_case with no embedded whitespace:
+
+      'HOJGAARD|RASMUS'    → 'hojgaard_rasmus'
+      'KIM|SI WOO'         → 'kim_si_woo'
+      'VAN ROOYEN|ERIK'    → 'van_rooyen_erik'
+    """
+    parts = lkey.split("|", 1)
+    last  = parts[0].lower().replace(" ", "_")
+    first = parts[1].lower().replace(" ", "_") if len(parts) > 1 and parts[1] else ""
+    return f"{last}_{first}" if first else last
+
+
 # ─────────────────────────────────────────────
 # SAFE PARSERS
 # ─────────────────────────────────────────────
@@ -245,6 +261,7 @@ def build(round_num: int, event_slug: str) -> dict:
 
         snap_entries.append({
             "name":       name,
+            "lkey":       lkey,
             "pos_str":    row["POS"],
             "score":      score_to_int(row["R1"]),
             "baseline":   baseline,
@@ -269,6 +286,7 @@ def build(round_num: int, event_slug: str) -> dict:
             "r1_pos":       pos_to_int(se["pos_str"]),
             "r1_pos_str":   se["pos_str"],
             "r1_name":      se["name"],
+            "norm_name":    lkey_to_norm_name(se["lkey"]),
             "r1_score":     se["score"],
             "pt_rank":      se["pt_rank"],
             "pt_tier":      se["pt_tier"],
@@ -309,11 +327,13 @@ def build(round_num: int, event_slug: str) -> dict:
     unmatched = [se["name"] for se in snap_entries if not se["in_payload"]]
     match_summary = {"matched": matched, "total_r1": len(lb_rows), "unmatched": unmatched}
 
+    _build_ts = int(datetime.now().timestamp())
     metadata = {
-        "round_label": f"Round {round_num}",
-        "course_name": "The Renaissance Club",
-        "par":         71,
-        "is_final":    False,
+        "round_label":       f"Round {round_num}",
+        "course_name":       "The Renaissance Club",
+        "par":               71,
+        "is_final":          False,
+        "cache_fingerprint": f"{_build_ts}_{round_num}",
     }
 
     # ── Course stats ──────────────────────────────────────────────
