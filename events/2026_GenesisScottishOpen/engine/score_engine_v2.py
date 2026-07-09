@@ -8,6 +8,7 @@ import numpy as np
 import json
 import re
 import os
+import sqlite3
 import unicodedata
 from pathlib import Path
 
@@ -18,6 +19,7 @@ BASE = Path(r"C:\PGA_VenueDNA\events\2026_GenesisScottishOpen")
 INPUT = BASE / "input"
 OUTPUT = BASE / "output"
 OUTPUT.mkdir(exist_ok=True)
+DB_FILE = Path(r"C:\PGA_VenueDNA\data\venuedna_master.db")
 
 # ─────────────────────────────────────────────
 # PRE-RUN SNAPSHOT (for FC-1 audit diff)
@@ -128,34 +130,38 @@ for _, row in field_raw.iterrows():
 field_df = pd.DataFrame(field_players)
 print(f"  Field: {len(field_df)} players")
 
-# 2. SG data (12-month)
-sg_raw = pd.read_csv(INPUT / "field_player_Last12month_TrueSG_Data.csv",
-                      encoding="cp1252")
-sg_raw.columns = [c.strip() for c in sg_raw.columns]
-# Normalize SG column names to lowercase for consistent downstream access
-sg_raw.columns = [c.lower() if c.upper().startswith("SG-") else c for c in sg_raw.columns]
-# Rename alternate column headers to canonical names
-_sg_renames = {
-    "events": "Events Last 12 Months",
-    "sg-ott.1": None,       # duplicate OTT column — drop
-    "ev-text 7": None,
-    "shotlink-rounds": None,
-    "wins": None,
-}
-sg_raw = sg_raw.drop(columns=[c for c in sg_raw.columns if _sg_renames.get(c.lower()) is None and c.lower() in _sg_renames], errors="ignore")
-if "Events" in sg_raw.columns and "Events Last 12 Months" not in sg_raw.columns:
-    sg_raw.rename(columns={"Events": "Events Last 12 Months"}, inplace=True)
-# Compute sg-total if missing
-if "sg-total" not in sg_raw.columns and all(c in sg_raw.columns for c in ["sg-app", "sg-ott", "sg-putt", "sg-arg"]):
-    sg_raw["sg-total"] = sg_raw[["sg-app", "sg-ott", "sg-putt", "sg-arg"]].sum(axis=1, min_count=1)
-sg_raw["key"] = sg_raw.apply(
-    lambda r: make_key(str(r.get("Last Name", "")), str(r.get("First Name", ""))), axis=1)
-sg_raw["Driving-Accuracy"] = sg_raw["Driving-Accuracy"].apply(parse_pct)
-# Column name varies between data pulls ("Win %" vs "WIN%") — normalize
-if "Win %" not in sg_raw.columns and "WIN%" in sg_raw.columns:
-    sg_raw.rename(columns={"WIN%": "Win %"}, inplace=True)
-if "Win %" in sg_raw.columns:
-    sg_raw["Win %"] = sg_raw["Win %"].apply(parse_pct)
+# 2. SG trait scores — load from venuedna_master.db (replaces True SG CSV exports)
+# tvl_score = SG:OTT (12m), hew_score = Ball Striking/T2G (6m),
+# brie_score = SG:APP (24m), vfr_score = SG:ARG (6m)
+print("  Loading trait scores from venuedna_master.db …")
+_db_conn = sqlite3.connect(DB_FILE)
+_db_rows = _db_conn.execute(
+    "SELECT dg_id, player_name, tvl_score, hew_score, brie_score, vfr_score "
+    "FROM active_field_projections WHERE event_dir = ?",
+    (str(INPUT),),
+).fetchall()
+_db_conn.close()
+
+sg_db = pd.DataFrame(_db_rows, columns=["dg_id", "player_name", "tvl_score", "hew_score", "brie_score", "vfr_score"])
+sg_db["key"] = sg_db["player_name"].apply(lambda n: field_name_to_key(str(n))[2])
+
+# Map DB trait scores to engine internal SG column names
+sg_db["sg_ott_12m"]   = sg_db["tvl_score"]    # SG:OTT (12m off-the-tee consistency)
+sg_db["sg_t2g_12m"]   = sg_db["hew_score"]    # Ball Striking (6m OTT+APP composite)
+sg_db["sg_app_12m"]   = sg_db["brie_score"]   # SG:APP (24m approach precision)
+sg_db["sg_arg_12m"]   = sg_db["vfr_score"]    # SG:ARG (6m around-green adaptability)
+# No DB equivalent for putting or driving stats
+sg_db["sg_putt_12m"]  = 0.0   # neutral (field average); prevents NaN propagation in NSI
+sg_db["sg_total_12m"] = np.nan
+sg_db["drive_dist_adj"] = np.nan
+sg_db["drive_acc_12m"]  = 0.0  # neutral; no driving accuracy penalty signal from DB
+# Data depth: players with at least tvl/brie/vfr scored met the MIN_ROUNDS=10 gate at ingestion
+sg_db["rounds_12m"] = sg_db[["tvl_score", "brie_score", "vfr_score"]].notna().all(axis=1).map(
+    {True: 20.0, False: np.nan}
+)
+sg_db["events_12m"] = sg_db["rounds_12m"].apply(lambda r: 5.0 if not pd.isna(r) else np.nan)
+print(f"  DB: {len(sg_db)} players with trait scores "
+      f"({sg_db['rounds_12m'].notna().sum()} fully scored).")
 
 # 3. Approach skill
 app_raw = pd.read_csv(INPUT / "approach_skill_Last12mon.csv", encoding="cp1252")
@@ -203,13 +209,12 @@ df = field_df.copy()
 # Assign player_id
 df["player_id"] = [f"P{i+1:03d}" for i in range(len(df))]
 
-# Merge SG data
-sg_cols = ["key", "Events Last 12 Months", "Rounds", "sg-putt", "sg-arg",
-           "sg-app", "sg-ott", "sg-t2g", "sg-total", "Driving-Distance", "Driving-Accuracy"]
-sg_sub = sg_raw[sg_cols].copy()
-sg_sub.columns = ["key", "events_12m", "rounds_12m", "sg_putt_12m", "sg_arg_12m",
-                   "sg_app_12m", "sg_ott_12m", "sg_t2g_12m", "sg_total_12m",
-                   "drive_dist_adj", "drive_acc_12m"]
+# Merge SG trait scores from DB
+_sg_merge_cols = ["key", "dg_id", "events_12m", "rounds_12m",
+                  "sg_putt_12m", "sg_arg_12m", "sg_app_12m", "sg_ott_12m",
+                  "sg_t2g_12m", "sg_total_12m", "drive_dist_adj", "drive_acc_12m",
+                  "tvl_score", "hew_score", "brie_score", "vfr_score"]
+sg_sub = sg_db[[c for c in _sg_merge_cols if c in sg_db.columns]].copy()
 df = df.merge(sg_sub, on="key", how="left")
 
 # Merge approach data
@@ -1025,7 +1030,7 @@ df["tour_affiliation"] = df["key"].apply(lambda k: form_tour_map.get(k, "DP Worl
 
 # ── FILE 1: field_input ──
 file1 = df[[
-    "player_id", "last", "first", "tour_affiliation", "data_depth_class",
+    "player_id", "dg_id", "last", "first", "tour_affiliation", "data_depth_class",
     "debut_flag", "neutral_skill_sg", "sg_ott_12m", "sg_app_12m",
     "sg_arg_12m", "sg_putt_12m", "sg_t2g_12m", "true_sg_last5",
     "true_sg_vs_baseline", "form_class", "venue_history_depth",
@@ -1033,7 +1038,7 @@ file1 = df[[
     "app_150_200_value", "fit_drive_acc"
 ]].copy()
 file1.columns = [
-    "player_id", "last_name", "first_name", "tour_affiliation", "data_depth_class",
+    "player_id", "dg_id", "last_name", "first_name", "tour_affiliation", "data_depth_class",
     "debut_flag", "neutral_skill_sg", "sg_ott_12m", "sg_app_12m",
     "sg_arg_12m", "sg_putt_12m", "sg_t2g_12m", "true_sg_last5",
     "true_sg_vs_baseline", "form_class", "venue_history_depth",
@@ -1056,13 +1061,15 @@ file2 = df[[
     "player_id", "last", "first", "app_150_200_value", "fit_approach",
     "fit_drive_acc", "corridor_discipline", "sg_putt_regressed",
     "sg_arg_12m_r", "par3_performance", "true_sg_vs_baseline",
-    "form_class", "anti_pattern_flags", "debut_flag", "confidence_band"
+    "form_class", "anti_pattern_flags", "debut_flag", "confidence_band",
+    "tvl_score", "hew_score", "brie_score", "vfr_score"
 ]].copy()
 file2.columns = [
     "player_id", "last_name", "first_name", "approach_150_200_score",
     "approach_overall_score", "driving_accuracy_score", "corridor_discipline",
     "sg_putt_regressed", "sg_arg_score", "par3_performance", "form_trend",
-    "form_class", "anti_pattern_flags", "debut_discount_applied", "confidence_band"
+    "form_class", "anti_pattern_flags", "debut_discount_applied", "confidence_band",
+    "tvl_score", "hew_score", "brie_score", "vfr_score"
 ]
 file2.to_csv(OUTPUT / "2026_genesis_scottish_open_trait_form_matrix.csv", index=False)
 print(f"  File 2 written: {len(file2)} rows")
@@ -2056,6 +2063,12 @@ for pb in player_briefs:
         "driving_accuracy_baseline": float(row.get("drive_acc_12m")) if not pd.isna(row.get("drive_acc_12m", None)) else None,
         "driving_distance_fit_adj": float(row.get("fit_drive_dist")) if not pd.isna(row.get("fit_drive_dist", None)) else None,
         "driving_accuracy_fit_adj": float(row.get("fit_drive_acc")) if not pd.isna(row.get("fit_drive_acc", None)) else None,
+        # DB-sourced trait scores from active_field_projections
+        "dg_id":       str(row.get("dg_id", "")) if pd.notna(row.get("dg_id")) else None,
+        "tvl_score":   float(row.get("tvl_score"))   if pd.notna(row.get("tvl_score"))   else None,
+        "hew_score":   float(row.get("hew_score"))   if pd.notna(row.get("hew_score"))   else None,
+        "brie_score":  float(row.get("brie_score"))  if pd.notna(row.get("brie_score"))  else None,
+        "vfr_score":   float(row.get("vfr_score"))   if pd.notna(row.get("vfr_score"))   else None,
     })
 
 event_payload = {
@@ -2080,7 +2093,7 @@ links = {
     "venue_url": "https://www.therenclub.co.uk",
     "betting_partner": None,
     "field_source": "Official DP World Tour / PGA Tour field",
-    "sg_data_source": "DataGolf SG split data — 12-month rolling",
+    "sg_data_source": "VenueDNA master DB — active_field_projections (tvl/hew/brie/vfr trait scores)",
     "course_history_source": "VenueDNA internal CH database — The Renaissance Club 2021-2025",
     "deploy_date": "2026-07-06",
     "vts_csv": "data/2026_genesis_scottish_open_vts_full.csv",
