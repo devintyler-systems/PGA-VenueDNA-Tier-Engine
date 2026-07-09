@@ -2129,6 +2129,8 @@ for pb in player_briefs:
         # VHN raw fields from dg_course_history_renaissance.csv
         "vhn_score":   round(float(row.get("vhn_score")),  2) if pd.notna(row.get("vhn_score"))  else None,
         "vhn_rounds":  int(row.get("vhn_rounds", 0))           if pd.notna(row.get("vhn_rounds")) else 0,
+        # Live pairings — populated to "TBD" at build time; overwritten by update_live_pairings.py
+        "tee_time": "TBD",
     })
 
 event_payload = {

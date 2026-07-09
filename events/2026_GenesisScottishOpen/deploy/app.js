@@ -63,11 +63,20 @@ const EXTRA_FILTER_DEFS = [
   { key: 'top10_prob',      label: 'Top 10 % (e.g. 25 = 25%)' },
   { key: 'top20_prob',      label: 'Top 20 % (e.g. 45 = 45%)' },
   { key: 'make_cut_prob',   label: 'Make Cut % (0–100)' },
-  { key: 'tvl_score',  label: 'TVL — SG:OTT 12m (Off-Tee Consistency)' },
-  { key: 'hew_score',  label: 'HEW — Ball Striking 6m (Tee-to-Green)' },
-  { key: 'brie_score', label: 'BRIE — SG:APP 24m (Approach Precision)' },
-  { key: 'vfr_score',  label: 'VFR — SG:ARG 6m (Around-Green)' },
+  { key: 'tvl_score',  label: 'TVL (OTT)' },
+  { key: 'hew_score',  label: 'HEW (BallStr)' },
+  { key: 'brie_score', label: 'BRIE (APP)' },
+  { key: 'vfr_score',  label: 'VFR (ARG)' },
 ];
+
+/* ── Filter input bounds by metric key ── */
+const FILTER_METRIC_CONFIG = {
+  tvl_score:  { min: -3.0, max: 3.0, step: 0.1, hint: '(−3.0 to 3.0)' },
+  hew_score:  { min: -3.0, max: 3.0, step: 0.1, hint: '(−3.0 to 3.0)' },
+  brie_score: { min: -3.0, max: 3.0, step: 0.1, hint: '(−3.0 to 3.0)' },
+  vfr_score:  { min: -3.0, max: 3.0, step: 0.1, hint: '(−3.0 to 3.0)' },
+};
+const FILTER_METRIC_DEFAULT = { min: 0, max: 100, step: 5, hint: '(0–100)' };
 
 /* ── Tier semantic labels ── */
 const TIER_LABELS = {
@@ -922,14 +931,22 @@ function renderTierAlert() {
   const el = document.querySelector('.tee-alert');
   if (!el) return;
   if (r1Data || r2Data || r3Data || r4Data) { el.style.display = 'none'; return; }
-  const counts = {};
-  for (let t = 1; t <= 5; t++) {
-    counts[t] = allPlayers.filter(p => +p.tier === t).length;
-  }
   const total = allPlayers.length;
-  el.textContent =
-    `Tee times TBD — ${total} players scored. ` +
-    `Distribution — T1:${counts[1]}  T2:${counts[2]}  T3:${counts[3]}  T4:${counts[4]}  T5:${counts[5]}`;
+  const hasLiveTeeTime = allPlayers.some(p => p.tee_time && p.tee_time !== 'TBD' && p.tee_time !== '');
+  el.classList.remove('banner-live', 'banner-tbd');
+  if (hasLiveTeeTime) {
+    el.classList.add('banner-live');
+    el.textContent = `Round 1 Tee Times Live — ${total} players profiled.`;
+  } else {
+    const counts = {};
+    for (let t = 1; t <= 5; t++) {
+      counts[t] = allPlayers.filter(p => +p.tier === t).length;
+    }
+    el.classList.add('banner-tbd');
+    el.textContent =
+      `Tee times TBD — ${total} players scored. ` +
+      `Distribution — T1:${counts[1]}  T2:${counts[2]}  T3:${counts[3]}  T4:${counts[4]}  T5:${counts[5]}`;
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1486,6 +1503,16 @@ function wireFilterPanel() {
   });
 }
 
+function applyMetricConfig(input, hintEl, trait) {
+  const cfg = FILTER_METRIC_CONFIG[trait] || FILTER_METRIC_DEFAULT;
+  input.min  = cfg.min;
+  input.max  = cfg.max;
+  input.step = cfg.step;
+  hintEl.textContent = cfg.hint;
+  const cur = parseFloat(input.value);
+  if (!isNaN(cur)) input.value = Math.min(cfg.max, Math.max(cfg.min, cur));
+}
+
 function addFilterRule(trait='app_150_200', op='>=', value=55) {
   const id = ++filterRuleCounter;
   activeFilters.push({ id, trait, op, value });
@@ -1523,6 +1550,7 @@ function syncFilterRulesUI() {
       ),
     ].join('');
 
+    const _initCfg = FILTER_METRIC_CONFIG[f.trait] || FILTER_METRIC_DEFAULT;
     row.innerHTML = `
       <select class="fp-select fp-trait-sel">
         ${traitOpts}
@@ -1532,11 +1560,18 @@ function syncFilterRulesUI() {
         <option value="<=" ${f.op === '<=' ? 'selected' : ''}>≤</option>
         <option value="="  ${f.op === '='  ? 'selected' : ''}>=</option>
       </select>
-      <input type="number" class="fp-input fp-val" value="${f.value}" min="0" max="100" step="5" />
-      <span style="font-size:.7rem;color:var(--muted)">(0–100)</span>
+      <input type="number" class="fp-input fp-val" value="${f.value}" min="${_initCfg.min}" max="${_initCfg.max}" step="${_initCfg.step}" />
+      <span class="fp-range-hint" style="font-size:.7rem;color:var(--muted)">${_initCfg.hint}</span>
       <button class="fp-remove-rule" title="Remove rule">✕</button>`;
 
-    row.querySelector('.fp-trait-sel').addEventListener('change', e => { f.trait = e.target.value; applyAndRender(); });
+    row.querySelector('.fp-trait-sel').addEventListener('change', e => {
+      f.trait = e.target.value;
+      const inp  = row.querySelector('.fp-val');
+      const hint = row.querySelector('.fp-range-hint');
+      applyMetricConfig(inp, hint, f.trait);
+      f.value = parseFloat(inp.value) || 0;
+      applyAndRender();
+    });
     row.querySelector('.fp-op-sel').addEventListener('change', e => { f.op = e.target.value; applyAndRender(); });
     row.querySelector('.fp-val').addEventListener('input', e => { f.value = parseFloat(e.target.value) || 0; applyAndRender(); });
     row.querySelector('.fp-remove-rule').addEventListener('click', () => {
@@ -1831,7 +1866,9 @@ function openModal(p, brief) {
   body.innerHTML = [
     sectionProbability(p),
     sectionPlayerBadges(p),
+    sectionWinCase(p),
     sectionDarkHorseThesis(p),
+    sectionFragilePathAnalysis(p),
     sectionBriefSummaries(p, b),
     sectionTraitBars(p.trait_scores),
     sectionTopDragTraits(p, b),
@@ -1923,8 +1960,8 @@ function sectionProbability(p) {
       <span class="stat-pill" title="Floor: worst-case 4-round score — approach regression or adverse conditions (7 shots worse than expected)">
         <span class="sk">Floor:</span> <span class="sv" style="color:#f87171">${scoring.floor}</span>
       </span>
-      <span class="stat-pill" title="Expected finish band based on probability distribution">
-        <span class="sk">Band:</span> <span class="sv" style="color:#94a3b8">${scoring.band}</span>
+      <span class="stat-pill" title="Expected finish band based on probability distribution and tier">
+        <span class="sk">Band:</span> <span class="sv" style="color:${scoring.bandColor}">${scoring.band}</span>
       </span>
     </div>`;
 
@@ -2086,6 +2123,14 @@ function sectionConviction(p, b) {
   const bb = (b && typeof b === 'object') ? b : {};
   const fallback = pp.conviction_statement || bb.conviction_statement || '';
   const hasNew = pp.structural_edge || pp.win_path || pp.failure_mode || pp.betting_use;
+  const tier = +pp.tier || 5;
+
+  /* Tier-contextual section title */
+  const sectionTitle = tier === 1 ? 'Analyst Intelligence — Full Brief'
+    : tier === 2 ? 'Analyst Brief'
+    : tier === 3 ? 'Model Conviction'
+    : 'Model Note';
+
   if (hasNew) {
     const level = pp.conviction_level || '';
     const levelSlug = level.toLowerCase().replace(/[^a-z]/g, '-');
@@ -2101,10 +2146,19 @@ function sectionConviction(p, b) {
     ].filter(([, v]) => v)
      .map(([k, v]) => `<div class="conv-row"><span class="conv-key">${k}</span><span class="conv-body">${v}</span></div>`)
      .join('');
-    return `<div class="modal-section"><h4>Intelligence${levelBadge}</h4><div class="conv-grid">${rows}</div></div>`;
+    return `<div class="modal-section"><h4>${sectionTitle}${levelBadge}</h4><div class="conv-grid">${rows}</div></div>`;
   }
   if (!fallback) return '';
-  return `<div class="modal-section"><h4>Conviction</h4><p>${fallback}</p></div>`;
+  /* Conviction level badge alongside section title */
+  const level = pp.conviction_level || '';
+  const levelSlug = level.toLowerCase().replace(/[^a-z]/g, '-');
+  const levelBadge = level
+    ? ` &nbsp;<span class="conv-level conv-level-${levelSlug}">${level}</span>`
+    : '';
+  return `<div class="modal-section">
+    <h4>${sectionTitle}${levelBadge}</h4>
+    <p style="font-size:.78rem;color:var(--muted);line-height:1.55">${cleanSummaryText(fallback)}</p>
+  </div>`;
 }
 
 function sectionDecomposition(p) {
@@ -2132,10 +2186,10 @@ function sectionDecomposition(p) {
 
 function sectionDbMetrics(p) {
   const metrics = [
-    { key: 'tvl_score',  label: 'TVL (OTT 12m)',    tip: 'SG:OTT 12-month — off-tee consistency; drives fairway finding on tight links corridors' },
-    { key: 'hew_score',  label: 'HEW (BallStr 6m)', tip: 'Ball Striking composite 6-month — tee-to-green quality indicator from DataGolf DB' },
-    { key: 'brie_score', label: 'BRIE (APP 24m)',   tip: 'SG:APP 24-month — approach precision; primary Renaissance scoring driver from DB' },
-    { key: 'vfr_score',  label: 'VFR (ARG 6m)',     tip: 'SG:ARG 6-month — around-green adaptability; links rough recovery from DB' },
+    { key: 'tvl_score',  label: 'TVL (OTT)',    tip: 'SG:OTT 12-month — off-tee consistency; drives fairway finding on tight links corridors' },
+    { key: 'hew_score',  label: 'HEW (BallStr)', tip: 'Ball Striking composite 6-month — tee-to-green quality indicator from DataGolf DB' },
+    { key: 'brie_score', label: 'BRIE (APP)',   tip: 'SG:APP 24-month — approach precision; primary Renaissance scoring driver from DB' },
+    { key: 'vfr_score',  label: 'VFR (ARG)',     tip: 'SG:ARG 6-month — around-green adaptability; links rough recovery from DB' },
   ];
   const hasAny = metrics.some(m => p[m.key] != null && !isNaN(p[m.key]));
   if (!hasAny) return '';
@@ -2174,6 +2228,154 @@ function sectionPlayerBadges(p) {
   return `<div class="modal-section"><h4>Badges</h4><div class="badge-groups">${html}</div></div>`;
 }
 
+/* Fragile Path / Fade Analysis — Tier 4 and Tier 5 cards */
+function sectionFragilePathAnalysis(p) {
+  if (p.tier !== 4 && p.tier !== 5) return '';
+  const isFade = p.tier === 5;
+  const mc    = +p.make_cut_prob || 0;
+  const nsi   = +p.neutral_skill_index || 0;
+  const vfs   = +p.venue_fit_score || 0;
+  const riskVec = String(p.risk_vector || '').toLowerCase();
+
+  /* Q1: Primary structural constraint */
+  let q1;
+  if (riskVec.includes('debut')) {
+    q1 = 'Renaissance debut — no hole-knowledge calibration for tee corridors or rerouted closing stretch (new Hole 15); links learning curve priced in at full debut discount';
+  } else if (riskVec.includes('anti-pattern') || (p.ap_total_flags || 0) >= 2) {
+    q1 = `${p.ap_total_flags || 'Multiple'} anti-pattern flag(s) create compounding structural risk — Renaissance's exacting approach demands amplify each profile mismatch`;
+  } else if (vfs < 45) {
+    q1 = `Low venue fit score (VFS ${vfs.toFixed(1)}/100) — approach profile is not matched to the Renaissance 150–200 yd primary scoring zone; cannot benefit from the layout's birdie windows`;
+  } else if (nsi < 50) {
+    q1 = `Below-median neutral skill (NSI ${nsi.toFixed(1)}/100) — insufficient base quality to absorb course-specific variance; skill gap widens under links wind conditions`;
+  } else {
+    q1 = `VTS too low for contention consideration — profile meets a floor but lacks the multi-trait fire combination required for weekend relevance at Renaissance`;
+  }
+
+  /* Q2: Tournament path */
+  let q2;
+  if (mc >= 55) {
+    q2 = `Make-cut probability ${mc.toFixed(1)}% — cut survival is the realistic ceiling; no structural path to weekend contention exists from this profile position`;
+  } else if (mc >= 30) {
+    q2 = `Borderline cut profile (${mc.toFixed(1)}% make-cut) — will need above-baseline execution across both front-nine scoring zones just to survive the 36-hole threshold`;
+  } else {
+    q2 = `High miss-cut probability (${(100 - mc).toFixed(1)}% projected miss-cut) — structural profile does not clear the Renaissance standard; 36-hole exit is the base case`;
+  }
+
+  /* Q3: Actionable betting verdict */
+  const bet = isFade
+    ? 'Fade or pass in all markets — structural mismatches and low ceiling make risk/reward unattractive in every betting format including cut-line futures'
+    : 'Pass in win/place/top-10 markets — only viable as a speculative make-cut play if market pricing overestimates miss-cut risk at current odds';
+
+  const accentColor = isFade ? '#f87171' : '#fcd34d';
+  const borderColor = isFade ? '#dc2626' : '#d97706';
+  const bgColor     = isFade ? '#450a0a22' : '#431a0322';
+  const title       = isFade ? 'Fade Analysis — Structural Miss' : 'Fragile Path Analysis';
+
+  return `<div class="modal-section" style="border:1px solid ${borderColor};border-radius:.5rem;padding:.75rem 1rem;background:${bgColor}">
+    <h4 style="color:${accentColor};margin-bottom:.55rem">${title}</h4>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;gap:.5rem">
+      <div><span style="font-weight:600;color:${accentColor}">Primary constraint: </span>${q1}</div>
+      <div><span style="font-weight:600;color:${accentColor}">Tournament path: </span>${q2}</div>
+      <div><span style="font-weight:600;color:${accentColor}">Betting verdict: </span>${bet}</div>
+    </div>
+  </div>`;
+}
+
+/* Win Case / Contention Case — Tier 1 and Tier 2 structured analyst brief */
+function sectionWinCase(p) {
+  if (p.tier !== 1 && p.tier !== 2) return '';
+  const isT1    = p.tier === 1;
+  const nsi     = +p.neutral_skill_index || 0;
+  const vfs     = +p.venue_fit_score || 0;
+  const wcs     = +p.win_ceiling_score || 0;
+  const wp      = +p.win_prob  || +p.win_pct  || 0;
+  const t5      = +p.top5_prob || +p.top5_pct  || 0;
+  const t10     = +p.top10_prob || +p.top10_pct || 0;
+  const starts  = +p.starts_at_renaissance || 0;
+  const bf      = p.best_finish_renaissance;
+  const conv    = p.conviction_level || 'MEDIUM';
+  const traits  = p.top_traits  || [];
+  const drags   = p.drag_traits || [];
+  const apFlags = String(p.anti_pattern_flags || '').trim();
+  const apActive = apFlags && apFlags !== 'none' && apFlags !== 'None' && apFlags !== 'null';
+  const formSum = p.form_summary || '';
+  const sgApp   = +p.sg_app_12m || 0;
+  const sgOtt   = +p.sg_ott_12m || 0;
+  const firstName = p.first_name || '';
+
+  /* Q1 — Win / contention mechanism: specific structural driver for Renaissance */
+  const rawTrait = traits[0] || `Venue Fit Score ${vfs.toFixed(1)}/100 — approach pattern matched to Renaissance 150–200 yd scoring zone`;
+  let q1;
+  if (sgApp >= 1.0) {
+    q1 = `${rawTrait} — SG:APP elite (+${sgApp.toFixed(2)}) is the primary structural weapon in a layout where the 150–200 yd approach corridor is the dominant scoring mechanism every round`;
+  } else if (sgOtt >= 0.8 && sgOtt > sgApp + 0.3) {
+    q1 = `${rawTrait} — SG:OTT (+${sgOtt.toFixed(2)}) creates distance separation on par-5s and opens wedge angles that compress the scoring window for average-distance players at this layout`;
+  } else {
+    q1 = rawTrait;
+  }
+
+  /* Q2 — Course calibration: history depth and VHN context */
+  let q2;
+  if (bf === 1) {
+    q2 = `Renaissance Club winner in ${starts} start${starts !== 1 ? 's' : ''} — maximum venue calibration; hole routing, tee-shot corridors, and approach angles are fully internalised; VHN win bonus applied in model`;
+  } else if (bf && bf <= 5) {
+    q2 = `Top-${bf} finish at Renaissance (${starts} start${starts !== 1 ? 's' : ''}) — strong venue calibration; VHN delta above neutral baseline; demonstrated scoring ability at this exact layout and setup`;
+  } else if (starts >= 10) {
+    q2 = `${starts} Renaissance starts (best: ${bf ? `T${bf}` : 'TBD'}) — deep course familiarity; full statistical weight in VHN model; consistent tolerance for North Berwick links conditions`;
+  } else if (starts >= 4) {
+    q2 = `${starts} Renaissance starts — partial history at reduced VHN weight; fit model carries primary load; directional course signal included`;
+  } else if (starts >= 1) {
+    q2 = `${starts} Renaissance start${starts !== 1 ? 's' : ''} — limited history; model weights venue fit (VFS ${vfs.toFixed(1)}) and NSI (${nsi.toFixed(1)}) heavily; historical signal is qualitative at this sample`;
+  } else {
+    q2 = `Renaissance debut — debut discount applied; elite NSI (${nsi.toFixed(1)}) and VFS (${vfs.toFixed(1)}) carry the projection weight; structural profile intact despite zero venue history`;
+  }
+
+  /* Q3 — Key risk: the single constraint that could derail the outcome */
+  let q3;
+  if (apActive) {
+    q3 = `Anti-pattern flag active (${apFlags.replace(/_/g, ' ')}) — structural concern even from this tier position; model penalty applied but flag risk can compound through 72 holes; monitor R1–R2 approach stats`;
+  } else if (drags.length > 0 && drags[0]) {
+    q3 = `${drags[0]} — watch in-round execution; this is the one structural limiter on a fully elite outcome at Renaissance`;
+  } else if (/form.*(cool|cold)/i.test(formSum)) {
+    q3 = `Below-baseline recent form entering the week — structural profile unchanged but scoring pace must stabilise in R1; a cold form carry compounds into the cut line if approach regresses simultaneously`;
+  } else if (isT1 && vfs < 65) {
+    q3 = `Venue fit below T1 median (VFS ${vfs.toFixed(1)}) — elite NSI creates the floor, but Renaissance's approach-specificity is the one constraint on a fully dominant outcome; course-specific execution is the variable`;
+  } else if (!isT1 && t5 < 8.0) {
+    q3 = `Top-5 probability (${t5.toFixed(1)}%) sits below T2 median — ceiling exists but requires multi-trait convergence in a 156-player field; primary risk is baseline regression in approach or putting across rounds 3–4`;
+  } else {
+    q3 = `No structural risk flags identified — primary tournament risk is variance on slow fescue greens (~10ft Stimp) where even elite putters absorb stroke-loss vs. parkland Tour baseline; putting must stay above −0.3 for the week`;
+  }
+
+  /* Q4 — Model read: probability context + conviction level */
+  const convText = {
+    'HIGH':        'HIGH — multiple data signals confirm projection; tight confidence band',
+    'MEDIUM':      'MEDIUM — solid data depth with one uncertain component; moderate confidence band',
+    'LOW':         'LOW — limited data depth or signal conflict; wider confidence band applies',
+    'SPECULATIVE': 'SPECULATIVE — thin data; projection is directional only',
+  }[conv] || conv;
+  const probStr = isT1
+    ? `Win ${wp.toFixed(2)}% · Top-5 ${t5.toFixed(1)}% · Top-10 ${t10.toFixed(1)}%`
+    : `Win ${wp.toFixed(2)}% · Top-10 ${t10.toFixed(1)}%`;
+  const q4 = `${probStr} — Conviction: ${convText}`;
+
+  const accentColor = isT1 ? '#fbbf24' : '#a78bfa';
+  const borderColor = isT1 ? '#78350f'  : '#4c1d95';
+  const bgColor     = isT1 ? '#1c0a0011' : '#1a0a3511';
+  const title       = isT1
+    ? '★  Win Case — Tier 1 Structural Winner'
+    : '◆  Contention Case — Tier 2 Primary Contender';
+
+  return `<div class="modal-section" style="border:1px solid ${borderColor};border-radius:.5rem;padding:.8rem 1rem;background:${bgColor}">
+    <h4 style="color:${accentColor};margin-bottom:.6rem;letter-spacing:.01em">${title}</h4>
+    <div style="font-size:.77rem;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;gap:.55rem">
+      <div><span style="font-weight:600;color:${accentColor}">Win mechanism: </span>${q1}</div>
+      <div><span style="font-weight:600;color:${accentColor}">Course calibration: </span>${q2}</div>
+      <div><span style="font-weight:600;color:${accentColor}">Key risk to monitor: </span>${q3}</div>
+      <div><span style="font-weight:600;color:${accentColor}">Model read: </span>${q4}</div>
+    </div>
+  </div>`;
+}
+
 /* Dark Horse Thesis — Tier 3 only: answers the 4 structural questions for casual and sharp users */
 function sectionDarkHorseThesis(p) {
   if (p.tier !== 3) return '';
@@ -2181,9 +2383,12 @@ function sectionDarkHorseThesis(p) {
   const vfs = +p.venue_fit_score || 0;
   const wcs = +p.win_ceiling_score || 0;
 
-  /* Q1: Why can he win here */
-  const q1 = (p.top_traits || [])[0]
+  /* Q1: Why can he win here — trait-backed reason specific to Renaissance */
+  const rawT1 = (p.top_traits || [])[0]
     || `Venue fit score ${vfs.toFixed(1)}/100 — approach profile matches the Renaissance 150-200yd scoring zone`;
+  const q1 = (wcs >= 72 || nsi >= 70)
+    ? `${rawT1.split('—')[0].trim()} — the structural driver; backed by WCS ${wcs.toFixed(1)} and NSI ${nsi.toFixed(1)}, this creates a legitimate win ceiling from T3 tier position`
+    : rawT1;
 
   /* Q2: Structural ceiling mechanism */
   let q2;
@@ -2193,17 +2398,17 @@ function sectionDarkHorseThesis(p) {
   else if (vfs >= 62) q2 = `Venue Fit Score ${vfs.toFixed(1)} — approach pattern structurally matched to Renaissance 150-200yd zone; fit can compensate for limited history sample`;
   else                q2 = `Win Ceiling Score ${wcs.toFixed(1)} — ceiling constrained; requires simultaneous multi-trait fire; high-variance outcome range`;
 
-  /* Q3: What must spike */
+  /* Q3: What must spike (or must NOT activate) for ceiling to open */
   const drag = (p.drag_traits || [])[0];
   let q3;
   if (drag) {
-    q3 = drag; /* Specific structural weakness is the most accurate answer */
+    q3 = `${drag} — if this activates across 2+ rounds the contention ceiling collapses; watch for early-round pattern before committing deeper`;
   } else if (p.flag_count > 0) {
-    q3 = `Anti-pattern flag(s) must not activate — ${p.anti_pattern_flags || 'course-specific structural weakness present'}`;
+    q3 = `Anti-pattern flag(s) must stay dormant — ${p.anti_pattern_flags || 'course-specific structural weakness'} is the latent ceiling limiter; monitor through R1 approach and tee-shot execution`;
   } else if (/form (cool|cold)/i.test(p.form_summary || '')) {
-    q3 = 'Form must recover to baseline — current below-average pace must mean-revert for ceiling to open';
+    q3 = `Form must recover to seasonal baseline in R1 — below-average pace entering the week is the primary gate; approach from 150–200 yd must hold above +0.3 SG to keep ceiling open`;
   } else {
-    q3 = 'Approach game from 150-200yds must hold above +0.3 SG for the week — this is the dominant scoring zone at Renaissance';
+    q3 = `Approach game from 150–200 yd must hold above +0.3 SG for the week — this is the dominant scoring zone at Renaissance; every 0.1 SG gain in this zone translates to ~0.4 strokes over the field across 72 holes`;
   }
 
   /* Q4: Why market may underrate */
@@ -2264,16 +2469,23 @@ function renderBriefs() {
     const cutColor = +p.make_cut_prob >= 75 ? '#4ade80' : +p.make_cut_prob >= 55 ? '#fcd34d' : '#f87171';
 
     const badgesHTML = renderPlayerBadges(p.badges);
+    const scoring    = computeProjectedScoring(p);
+    const convLevel  = p.conviction_level || '';
+    const convColors = { HIGH: '#4ade80', MEDIUM: '#fcd34d', LOW: '#94a3b8', SPECULATIVE: '#f87171' };
+    const convBadge  = convLevel
+      ? `<span style="background:${convColors[convLevel] || '#94a3b8'}22;border:1px solid ${convColors[convLevel] || '#94a3b8'};color:${convColors[convLevel] || '#94a3b8'};border-radius:999px;padding:.1rem .55rem;font-size:.65rem;font-weight:700;margin-left:.35rem">${convLevel}</span>`
+      : '';
 
     return `<div class="brief-card ${tc}" style="cursor:pointer" data-player-name="${p.player_name}">
-      <div class="brief-name">${displayName} ${tierBadgeHTML(p.tier)} ${badgesHTML}</div>
+      <div class="brief-name">${displayName} ${tierBadgeHTML(p.tier)} ${badgesHTML}${convBadge}</div>
       <div class="brief-stats">VTS ${(+p.vts_final).toFixed(1)} · Win ${fmtPct(p.win_pct)} · T5 ${fmtPct(p.top5_pct)} · T10 ${fmtPct(p.top10_pct)} · Cut <span style="color:${cutColor}">${fmtPct(p.make_cut_prob)}</span></div>
+      <div class="brief-stats" style="margin-top:.2rem;font-size:.72rem;opacity:.8"><span style="color:${scoring.bandColor}">${scoring.band}</span> &nbsp;·&nbsp; Expected: ${scoring.expected} &nbsp;·&nbsp; Ceiling: <span style="color:#4ade80">${scoring.ceiling}</span></div>
       <div class="brief-label">Key Strengths (Links/Renaissance Fit)</div>
       <ul class="fit-list fit-compact">${topTraitsHTML}</ul>
       <div class="brief-label">Course History</div>
       <div class="brief-val">${cleanSummaryText(p.venue_history_summary) || '—'}</div>
-      <div class="brief-label">${p.structural_edge ? 'Structural Edge' : 'Conviction'}</div>
-      <div class="brief-val">${p.structural_edge || p.conviction_statement || '—'}</div>
+      <div class="brief-label">${p.structural_edge ? 'Structural Edge' : 'Analyst Brief'}</div>
+      <div class="brief-val">${cleanSummaryText(p.structural_edge || p.conviction_statement || '—')}</div>
       ${(p.failure_mode || p.failure_condition) ? `<div class="brief-risk">${p.failure_mode ? cleanRawKeys(p.failure_mode.split('|')[0]?.trim()) : cleanRawKeys(p.failure_condition.split('|')[0]?.trim())}</div>` : ''}
     </div>`;
   }).join('');
@@ -2669,34 +2881,73 @@ function fmtPct(v) {
      Ceiling = most-negative possible (best performance, deepest under par)
      Floor   = least-negative possible (worst likely performance, closest to par / over par) */
 function computeProjectedScoring(p) {
-  const wcs = +p.win_ceiling_score || 50;
-  const mc  = +p.make_cut_prob || 50;
-  const wp  = +p.win_prob || 0;
-  const t5  = +p.top5_prob || 0;
-  const t10 = +p.top10_prob || 0;
-  const t20 = +p.top20_prob || 0;
+  const wcs  = +p.win_ceiling_score || 50;
+  const mc   = +p.make_cut_prob || 50;
+  const wp   = +p.win_prob  || +p.win_pct  || 0;
+  const t5   = +p.top5_prob || +p.top5_pct || 0;
+  const t10  = +p.top10_prob || +p.top10_pct || 0;
+  const t20  = +p.top20_prob || +p.top20_pct || 0;
+  const tier = +p.tier  || 5;
+  const vts  = +p.vts_final || 0;
 
   const expected_vs_par = Math.round(-22 + (100 - wcs) * 0.22);
-  /* Ceiling = 5 more under par than expected (upside scenario) */
   const ceiling_vs_par  = expected_vs_par - 5;
-  /* Floor   = 7 more over par than expected (downside scenario) */
   const floor_vs_par    = expected_vs_par + 7;
   const fmtVsPar = n => n === 0 ? 'E' : n > 0 ? `+${n}` : `${n}`;
 
-  let band;
-  if (wp >= 3.0) band = 'Win contender';
-  else if (wp >= 1.8 || t5 >= 10.0) band = 'Top 5 contender';
-  else if (t10 >= 15.0) band = 'Top 10 expected';
-  else if (t20 >= 25.0) band = 'Top 20 likely';
-  else if (mc >= 72.0) band = 'Solid cut maker';
-  else if (mc >= 52.0) band = 'Make cut play';
-  else band = 'Cut risk';
+  /* Derive lead-trait driver from top_traits[0] text for T1 archetype labels */
+  const topTrait0 = Array.isArray(p.top_traits) && p.top_traits.length > 0
+    ? String(p.top_traits[0]).toLowerCase() : '';
+
+  let band, bandColor;
+
+  /* ── Strict hierarchical overrides ─────────────────────────────────────── */
+  if (tier === 1 || vts >= 85.0) {
+    /* T1 / VTS ≥ 85: elite archetype — never a floor label */
+    if (topTrait0.includes('approach')) {
+      band = 'Elite Contention Vector: Approach Driven';
+    } else if (topTrait0.includes('off-tee') || topTrait0.includes('ott')) {
+      band = 'Elite Contention Vector: Ball Striking Juggernaut';
+    } else {
+      band = 'Tier 1 Absolute Champion Profile';
+    }
+    bandColor = '#fbbf24'; /* gold */
+
+  } else if (tier === 2 || vts >= 70.0) {
+    /* T2 / VTS ≥ 70: high-equity labels — never a floor/cut label */
+    if (wp >= 2.0 || t5 >= 10.0) {
+      band = 'High-Equity Podium Threat';
+    } else if (t10 >= 12.0 || wp >= 1.5) {
+      band = 'Premium Contention / Top-10 Baseline';
+    } else {
+      band = 'Premium Top-20 / Contention Baseline';
+    }
+    bandColor = '#a78bfa'; /* violet */
+
+  /* ── Standard probability-based bands (T3 and below) ────────────────── */
+  } else if (wp >= 3.0) {
+    band = 'Win contender';      bandColor = '#4ade80';
+  } else if (wp >= 1.8 || t5 >= 10.0) {
+    band = 'Top 5 contender';    bandColor = '#4ade80';
+  } else if (t10 >= 15.0) {
+    band = 'Top 10 expected';    bandColor = '#86efac';
+  } else if (t20 >= 25.0) {
+    band = 'Top 20 likely';      bandColor = '#fcd34d';
+  } else if (mc >= 65.0 && wp < 1.5) {
+    /* "Solid cut maker" gate: T3 only, mc ≥ 65% and win < 1.5% */
+    band = 'Solid cut maker';    bandColor = '#94a3b8';
+  } else if (mc >= 52.0) {
+    band = 'Make cut play';      bandColor = '#94a3b8';
+  } else {
+    band = 'Cut risk';           bandColor = '#f87171';
+  }
 
   return {
     expected: fmtVsPar(expected_vs_par),
     ceiling:  fmtVsPar(ceiling_vs_par),
     floor:    fmtVsPar(floor_vs_par),
     band,
+    bandColor,
   };
 }
 

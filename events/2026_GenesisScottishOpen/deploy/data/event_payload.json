@@ -141,7 +141,8 @@
       "brie_score": 1.292,
       "vfr_score": 0.565,
       "vhn_score": -0.31,
-      "vhn_rounds": 14
+      "vhn_rounds": 14,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P030",
@@ -227,7 +228,8 @@
       "brie_score": 0.759,
       "vfr_score": 0.438,
       "vhn_score": 0.63,
-      "vhn_rounds": 24
+      "vhn_rounds": 24,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P088",
@@ -313,7 +315,8 @@
       "brie_score": 0.514,
       "vfr_score": 0.263,
       "vhn_score": 0.05,
-      "vhn_rounds": 18
+      "vhn_rounds": 18,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P124",
@@ -398,7 +401,8 @@
       "brie_score": 0.773,
       "vfr_score": 0.113,
       "vhn_score": 0.34,
-      "vhn_rounds": 20
+      "vhn_rounds": 20,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P113",
@@ -482,7 +486,8 @@
       "brie_score": 0.605,
       "vfr_score": 0.364,
       "vhn_score": -0.91,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P029",
@@ -568,7 +573,8 @@
       "brie_score": 0.467,
       "vfr_score": 0.7,
       "vhn_score": 0.41,
-      "vhn_rounds": 26
+      "vhn_rounds": 26,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P001",
@@ -654,7 +660,8 @@
       "brie_score": 0.538,
       "vfr_score": 0.221,
       "vhn_score": 0.72,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P009",
@@ -737,7 +744,8 @@
       "brie_score": 0.738,
       "vfr_score": 0.394,
       "vhn_score": -0.09,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P068",
@@ -823,7 +831,8 @@
       "brie_score": 0.72,
       "vfr_score": -0.177,
       "vhn_score": 0.68,
-      "vhn_rounds": 19
+      "vhn_rounds": 19,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P134",
@@ -909,7 +918,8 @@
       "brie_score": 0.849,
       "vfr_score": 0.203,
       "vhn_score": -0.6,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P081",
@@ -990,7 +1000,8 @@
       "brie_score": 0.891,
       "vfr_score": 0.001,
       "vhn_score": 0.79,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P043",
@@ -1076,7 +1087,8 @@
       "brie_score": 0.626,
       "vfr_score": 0.248,
       "vhn_score": 0.47,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P065",
@@ -1162,7 +1174,8 @@
       "brie_score": 0.65,
       "vfr_score": 0.269,
       "vhn_score": -0.26,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P054",
@@ -1246,7 +1259,8 @@
       "brie_score": 0.879,
       "vfr_score": 0.272,
       "vhn_score": -0.27,
-      "vhn_rounds": 14
+      "vhn_rounds": 14,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P036",
@@ -1329,7 +1343,8 @@
       "brie_score": 0.101,
       "vfr_score": 0.099,
       "vhn_score": 0.91,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P014",
@@ -1416,7 +1431,8 @@
       "brie_score": 0.122,
       "vfr_score": 0.491,
       "vhn_score": 0.91,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P144",
@@ -1500,7 +1516,8 @@
       "brie_score": 0.547,
       "vfr_score": 0.606,
       "vhn_score": -0.69,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P114",
@@ -1588,7 +1605,8 @@
       "brie_score": 0.612,
       "vfr_score": 0.237,
       "vhn_score": 0.47,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P049",
@@ -1673,7 +1691,8 @@
       "brie_score": 0.468,
       "vfr_score": 0.124,
       "vhn_score": 1.31,
-      "vhn_rounds": 14
+      "vhn_rounds": 14,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P035",
@@ -1758,7 +1777,8 @@
       "brie_score": 0.426,
       "vfr_score": 0.258,
       "vhn_score": -0.01,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P128",
@@ -1844,7 +1864,8 @@
       "brie_score": 0.565,
       "vfr_score": 0.043,
       "vhn_score": 1.18,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P011",
@@ -1930,7 +1951,8 @@
       "brie_score": 0.359,
       "vfr_score": 0.385,
       "vhn_score": -0.4,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P083",
@@ -2016,7 +2038,8 @@
       "brie_score": 0.218,
       "vfr_score": 0.133,
       "vhn_score": 0.9,
-      "vhn_rounds": 24
+      "vhn_rounds": 24,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P117",
@@ -2098,7 +2121,8 @@
       "brie_score": -0.012,
       "vfr_score": -0.015,
       "vhn_score": 0.48,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P066",
@@ -2185,7 +2209,8 @@
       "brie_score": 0.423,
       "vfr_score": 0.232,
       "vhn_score": 1.74,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P025",
@@ -2271,7 +2296,8 @@
       "brie_score": 0.07,
       "vfr_score": 0.12,
       "vhn_score": 0.75,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P069",
@@ -2354,7 +2380,8 @@
       "brie_score": 0.037,
       "vfr_score": 0.037,
       "vhn_score": 0.71,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P142",
@@ -2439,7 +2466,8 @@
       "brie_score": 0.45,
       "vfr_score": 0.359,
       "vhn_score": 0.69,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P016",
@@ -2524,7 +2552,8 @@
       "brie_score": 0.611,
       "vfr_score": 0.05,
       "vhn_score": -0.14,
-      "vhn_rounds": 18
+      "vhn_rounds": 18,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P098",
@@ -2611,7 +2640,8 @@
       "brie_score": 0.345,
       "vfr_score": 0.134,
       "vhn_score": 0.25,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P116",
@@ -2700,7 +2730,8 @@
       "brie_score": 0.415,
       "vfr_score": 0.458,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P032",
@@ -2785,7 +2816,8 @@
       "brie_score": 0.29,
       "vfr_score": 0.1,
       "vhn_score": -0.25,
-      "vhn_rounds": 24
+      "vhn_rounds": 24,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P108",
@@ -2871,7 +2903,8 @@
       "brie_score": 0.175,
       "vfr_score": -0.074,
       "vhn_score": 0.65,
-      "vhn_rounds": 26
+      "vhn_rounds": 26,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P137",
@@ -2957,7 +2990,8 @@
       "brie_score": 0.734,
       "vfr_score": -0.118,
       "vhn_score": 0.47,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P130",
@@ -3043,7 +3077,8 @@
       "brie_score": 0.198,
       "vfr_score": 0.031,
       "vhn_score": 0.4,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P143",
@@ -3127,7 +3162,8 @@
       "brie_score": 0.138,
       "vfr_score": 0.432,
       "vhn_score": 0.52,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P028",
@@ -3212,7 +3248,8 @@
       "brie_score": 0.081,
       "vfr_score": 0.068,
       "vhn_score": -1.06,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P034",
@@ -3295,7 +3332,8 @@
       "brie_score": 0.572,
       "vfr_score": -0.165,
       "vhn_score": -1.61,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P041",
@@ -3378,7 +3416,8 @@
       "brie_score": 0.309,
       "vfr_score": 0.167,
       "vhn_score": -0.06,
-      "vhn_rounds": 14
+      "vhn_rounds": 14,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P080",
@@ -3467,7 +3506,8 @@
       "brie_score": 0.724,
       "vfr_score": 0.121,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P132",
@@ -3558,7 +3598,8 @@
       "brie_score": 0.7,
       "vfr_score": -0.445,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P015",
@@ -3645,7 +3686,8 @@
       "brie_score": 0.337,
       "vfr_score": 0.439,
       "vhn_score": -0.12,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P150",
@@ -3732,7 +3774,8 @@
       "brie_score": 0.212,
       "vfr_score": 0.122,
       "vhn_score": 0.01,
-      "vhn_rounds": 24
+      "vhn_rounds": 24,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P077",
@@ -3820,7 +3863,8 @@
       "brie_score": -0.135,
       "vfr_score": 0.299,
       "vhn_score": -0.31,
-      "vhn_rounds": 18
+      "vhn_rounds": 18,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P155",
@@ -3909,7 +3953,8 @@
       "brie_score": 0.136,
       "vfr_score": -0.039,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P064",
@@ -3997,7 +4042,8 @@
       "brie_score": 0.384,
       "vfr_score": 0.138,
       "vhn_score": 0.21,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P070",
@@ -4086,7 +4132,8 @@
       "brie_score": 0.32,
       "vfr_score": 0.076,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P131",
@@ -4175,7 +4222,8 @@
       "brie_score": 0.24,
       "vfr_score": -0.102,
       "vhn_score": 0.03,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P090",
@@ -4264,7 +4312,8 @@
       "brie_score": 0.333,
       "vfr_score": 0.207,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P047",
@@ -4353,7 +4402,8 @@
       "brie_score": 0.19,
       "vfr_score": -0.443,
       "vhn_score": 0.62,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P005",
@@ -4444,7 +4494,8 @@
       "brie_score": 0.083,
       "vfr_score": -0.431,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P062",
@@ -4536,7 +4587,8 @@
       "brie_score": 0.362,
       "vfr_score": -0.436,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P097",
@@ -4622,7 +4674,8 @@
       "brie_score": 0.3,
       "vfr_score": -0.278,
       "vhn_score": -0.84,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P101",
@@ -4707,7 +4760,8 @@
       "brie_score": 0.23,
       "vfr_score": 0.193,
       "vhn_score": -0.49,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P002",
@@ -4796,7 +4850,8 @@
       "brie_score": 0.134,
       "vfr_score": 0.034,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P105",
@@ -4884,7 +4939,8 @@
       "brie_score": 0.365,
       "vfr_score": 0.176,
       "vhn_score": 0.63,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P003",
@@ -4972,7 +5028,8 @@
       "brie_score": 0.408,
       "vfr_score": 0.165,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P087",
@@ -5060,7 +5117,8 @@
       "brie_score": 0.23,
       "vfr_score": 0.128,
       "vhn_score": -0.55,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P112",
@@ -5149,7 +5207,8 @@
       "brie_score": 0.412,
       "vfr_score": 0.437,
       "vhn_score": 0.56,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P026",
@@ -5236,7 +5295,8 @@
       "brie_score": 0.066,
       "vfr_score": -0.208,
       "vhn_score": 0.68,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P121",
@@ -5323,7 +5383,8 @@
       "brie_score": 0.42,
       "vfr_score": -0.021,
       "vhn_score": -0.05,
-      "vhn_rounds": 18
+      "vhn_rounds": 18,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P086",
@@ -5408,7 +5469,8 @@
       "brie_score": 0.105,
       "vfr_score": -0.154,
       "vhn_score": 1.42,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P040",
@@ -5498,7 +5560,8 @@
       "brie_score": 0.154,
       "vfr_score": 0.373,
       "vhn_score": 0.55,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P078",
@@ -5587,7 +5650,8 @@
       "brie_score": 0.345,
       "vfr_score": -0.344,
       "vhn_score": 0.33,
-      "vhn_rounds": 20
+      "vhn_rounds": 20,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P156",
@@ -5673,7 +5737,8 @@
       "brie_score": 0.127,
       "vfr_score": 0.02,
       "vhn_score": -1.0,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P050",
@@ -5760,7 +5825,8 @@
       "brie_score": 0.277,
       "vfr_score": -0.217,
       "vhn_score": -0.44,
-      "vhn_rounds": 18
+      "vhn_rounds": 18,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P103",
@@ -5847,7 +5913,8 @@
       "brie_score": 0.154,
       "vfr_score": 0.054,
       "vhn_score": 0.35,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P022",
@@ -5932,7 +5999,8 @@
       "brie_score": 0.113,
       "vfr_score": -0.191,
       "vhn_score": 0.57,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P145",
@@ -6023,7 +6091,8 @@
       "brie_score": 0.061,
       "vfr_score": 0.272,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P152",
@@ -6111,7 +6180,8 @@
       "brie_score": 0.146,
       "vfr_score": 0.045,
       "vhn_score": 0.13,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P060",
@@ -6201,7 +6271,8 @@
       "brie_score": 0.224,
       "vfr_score": -0.021,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P085",
@@ -6291,7 +6362,8 @@
       "brie_score": -0.273,
       "vfr_score": null,
       "vhn_score": 1.07,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P157",
@@ -6380,7 +6452,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P051",
@@ -6468,7 +6541,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P089",
@@ -6556,7 +6630,8 @@
       "brie_score": -0.287,
       "vfr_score": 0.147,
       "vhn_score": 0.59,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P021",
@@ -6646,7 +6721,8 @@
       "brie_score": 0.296,
       "vfr_score": -0.093,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P140",
@@ -6735,7 +6811,8 @@
       "brie_score": -0.298,
       "vfr_score": -0.159,
       "vhn_score": 0.7,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P023",
@@ -6823,7 +6900,8 @@
       "brie_score": 0.305,
       "vfr_score": -0.315,
       "vhn_score": -0.48,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P067",
@@ -6910,7 +6988,8 @@
       "brie_score": 0.361,
       "vfr_score": 0.081,
       "vhn_score": -2.0,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P027",
@@ -6998,7 +7077,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P052",
@@ -7085,7 +7165,8 @@
       "brie_score": 0.269,
       "vfr_score": -0.197,
       "vhn_score": -0.52,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P165",
@@ -7173,7 +7254,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P056",
@@ -7261,7 +7343,8 @@
       "brie_score": -0.413,
       "vfr_score": 0.424,
       "vhn_score": -0.5,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P160",
@@ -7349,7 +7432,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P151",
@@ -7436,7 +7520,8 @@
       "brie_score": 0.162,
       "vfr_score": -0.218,
       "vhn_score": -1.01,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P161",
@@ -7524,7 +7609,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P006",
@@ -7612,7 +7698,8 @@
       "brie_score": 0.076,
       "vfr_score": -0.334,
       "vhn_score": 0.53,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P107",
@@ -7701,7 +7788,8 @@
       "brie_score": -0.145,
       "vfr_score": -0.273,
       "vhn_score": 2.89,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P012",
@@ -7789,7 +7877,8 @@
       "brie_score": -0.128,
       "vfr_score": -0.073,
       "vhn_score": -1.19,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P119",
@@ -7877,7 +7966,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P044",
@@ -7965,7 +8055,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P024",
@@ -8053,7 +8144,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P163",
@@ -8141,7 +8233,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P126",
@@ -8228,7 +8321,8 @@
       "brie_score": -0.122,
       "vfr_score": -0.036,
       "vhn_score": 0.44,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P018",
@@ -8315,7 +8409,8 @@
       "brie_score": 0.025,
       "vfr_score": 0.014,
       "vhn_score": -0.69,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P063",
@@ -8404,7 +8499,8 @@
       "brie_score": 0.083,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P158",
@@ -8492,7 +8588,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P037",
@@ -8579,7 +8676,8 @@
       "brie_score": 0.027,
       "vfr_score": 0.034,
       "vhn_score": 0.44,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P004",
@@ -8667,7 +8765,8 @@
       "brie_score": 0.216,
       "vfr_score": -0.277,
       "vhn_score": -1.89,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P042",
@@ -8760,7 +8859,8 @@
       "brie_score": 0.2,
       "vfr_score": 0.443,
       "vhn_score": 0.51,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P147",
@@ -8847,7 +8947,8 @@
       "brie_score": -0.234,
       "vfr_score": -0.09,
       "vhn_score": 0.28,
-      "vhn_rounds": 20
+      "vhn_rounds": 20,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P020",
@@ -8934,7 +9035,8 @@
       "brie_score": -0.555,
       "vfr_score": -0.141,
       "vhn_score": 1.17,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P136",
@@ -9018,7 +9120,8 @@
       "brie_score": -0.005,
       "vfr_score": -0.017,
       "vhn_score": -1.23,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P058",
@@ -9106,7 +9209,8 @@
       "brie_score": 0.11,
       "vfr_score": -0.383,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P159",
@@ -9193,7 +9297,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P093",
@@ -9279,7 +9384,8 @@
       "brie_score": 0.065,
       "vfr_score": 0.041,
       "vhn_score": -0.51,
-      "vhn_rounds": 13
+      "vhn_rounds": 13,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P075",
@@ -9367,7 +9473,8 @@
       "brie_score": 0.01,
       "vfr_score": -0.192,
       "vhn_score": 0.45,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P084",
@@ -9454,7 +9561,8 @@
       "brie_score": 0.333,
       "vfr_score": 0.199,
       "vhn_score": 0.88,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P162",
@@ -9541,7 +9649,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P166",
@@ -9628,7 +9737,8 @@
       "brie_score": null,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P017",
@@ -9717,7 +9827,8 @@
       "brie_score": -0.006,
       "vfr_score": -0.308,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P133",
@@ -9803,7 +9914,8 @@
       "brie_score": -0.006,
       "vfr_score": 0.376,
       "vhn_score": -0.91,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P013",
@@ -9892,7 +10004,8 @@
       "brie_score": 0.075,
       "vfr_score": null,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P031",
@@ -9979,7 +10092,8 @@
       "brie_score": -0.203,
       "vfr_score": -0.041,
       "vhn_score": 1.02,
-      "vhn_rounds": 26
+      "vhn_rounds": 26,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P096",
@@ -10065,7 +10179,8 @@
       "brie_score": -0.03,
       "vfr_score": -0.342,
       "vhn_score": -0.48,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P008",
@@ -10152,7 +10267,8 @@
       "brie_score": -0.054,
       "vfr_score": -0.415,
       "vhn_score": -0.92,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P110",
@@ -10242,7 +10358,8 @@
       "brie_score": 0.222,
       "vfr_score": -0.194,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P135",
@@ -10326,7 +10443,8 @@
       "brie_score": 0.057,
       "vfr_score": -0.108,
       "vhn_score": -1.24,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P082",
@@ -10410,7 +10528,8 @@
       "brie_score": -0.044,
       "vfr_score": 0.004,
       "vhn_score": -0.09,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P055",
@@ -10497,7 +10616,8 @@
       "brie_score": 0.118,
       "vfr_score": 0.022,
       "vhn_score": -2.47,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P139",
@@ -10585,7 +10705,8 @@
       "brie_score": -0.128,
       "vfr_score": -0.238,
       "vhn_score": 0.67,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P072",
@@ -10671,7 +10792,8 @@
       "brie_score": 0.001,
       "vfr_score": -0.183,
       "vhn_score": -2.42,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P010",
@@ -10759,7 +10881,8 @@
       "brie_score": -0.036,
       "vfr_score": 0.151,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P109",
@@ -10846,7 +10969,8 @@
       "brie_score": -0.033,
       "vfr_score": -0.273,
       "vhn_score": -1.63,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P099",
@@ -10934,7 +11058,8 @@
       "brie_score": -0.31,
       "vfr_score": -0.621,
       "vhn_score": 0.7,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P106",
@@ -11020,7 +11145,8 @@
       "brie_score": -0.415,
       "vfr_score": 0.053,
       "vhn_score": -0.17,
-      "vhn_rounds": 20
+      "vhn_rounds": 20,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P111",
@@ -11110,7 +11236,8 @@
       "brie_score": -0.205,
       "vfr_score": 0.09,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P129",
@@ -11199,7 +11326,8 @@
       "brie_score": -0.497,
       "vfr_score": -0.049,
       "vhn_score": 1.01,
-      "vhn_rounds": 12
+      "vhn_rounds": 12,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P038",
@@ -11285,7 +11413,8 @@
       "brie_score": -0.382,
       "vfr_score": 0.151,
       "vhn_score": -1.07,
-      "vhn_rounds": 13
+      "vhn_rounds": 13,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P046",
@@ -11372,7 +11501,8 @@
       "brie_score": -0.443,
       "vfr_score": -0.092,
       "vhn_score": -0.05,
-      "vhn_rounds": 19
+      "vhn_rounds": 19,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P115",
@@ -11459,7 +11589,8 @@
       "brie_score": -0.572,
       "vfr_score": -0.185,
       "vhn_score": 0.33,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P141",
@@ -11548,7 +11679,8 @@
       "brie_score": -0.058,
       "vfr_score": -0.359,
       "vhn_score": 0.37,
-      "vhn_rounds": 24
+      "vhn_rounds": 24,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P122",
@@ -11632,7 +11764,8 @@
       "brie_score": -0.019,
       "vfr_score": -0.166,
       "vhn_score": -2.54,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P039",
@@ -11719,7 +11852,8 @@
       "brie_score": -0.635,
       "vfr_score": -0.228,
       "vhn_score": 0.96,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P146",
@@ -11807,7 +11941,8 @@
       "brie_score": -0.374,
       "vfr_score": 0.004,
       "vhn_score": -0.32,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P123",
@@ -11896,7 +12031,8 @@
       "brie_score": -0.227,
       "vfr_score": -0.061,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P164",
@@ -11982,7 +12118,8 @@
       "brie_score": -0.005,
       "vfr_score": -0.069,
       "vhn_score": -2.29,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P120",
@@ -12071,7 +12208,8 @@
       "brie_score": -0.28,
       "vfr_score": 0.164,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P154",
@@ -12159,7 +12297,8 @@
       "brie_score": -0.564,
       "vfr_score": 0.134,
       "vhn_score": 0.31,
-      "vhn_rounds": 20
+      "vhn_rounds": 20,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P100",
@@ -12247,7 +12386,8 @@
       "brie_score": -0.507,
       "vfr_score": -0.208,
       "vhn_score": -1.53,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P053",
@@ -12334,7 +12474,8 @@
       "brie_score": -0.421,
       "vfr_score": -0.199,
       "vhn_score": -0.12,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P149",
@@ -12422,7 +12563,8 @@
       "brie_score": -0.548,
       "vfr_score": -0.041,
       "vhn_score": -0.51,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P104",
@@ -12509,7 +12651,8 @@
       "brie_score": -0.081,
       "vfr_score": 0.202,
       "vhn_score": -0.05,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P073",
@@ -12597,7 +12740,8 @@
       "brie_score": -0.237,
       "vfr_score": -0.157,
       "vhn_score": 0.27,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P094",
@@ -12685,7 +12829,8 @@
       "brie_score": -0.302,
       "vfr_score": 0.242,
       "vhn_score": -2.92,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P148",
@@ -12774,7 +12919,8 @@
       "brie_score": -0.171,
       "vfr_score": -0.409,
       "vhn_score": 0.29,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P057",
@@ -12863,7 +13009,8 @@
       "brie_score": -0.77,
       "vfr_score": 0.085,
       "vhn_score": 0.13,
-      "vhn_rounds": 14
+      "vhn_rounds": 14,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P079",
@@ -12952,7 +13099,8 @@
       "brie_score": -0.674,
       "vfr_score": -0.039,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P071",
@@ -13039,7 +13187,8 @@
       "brie_score": -0.489,
       "vfr_score": -0.163,
       "vhn_score": 0.03,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P019",
@@ -13126,7 +13275,8 @@
       "brie_score": -0.318,
       "vfr_score": -0.115,
       "vhn_score": 0.08,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P007",
@@ -13213,7 +13363,8 @@
       "brie_score": -0.125,
       "vfr_score": -0.07,
       "vhn_score": -1.99,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P092",
@@ -13302,7 +13453,8 @@
       "brie_score": -0.367,
       "vfr_score": 0.025,
       "vhn_score": 0.03,
-      "vhn_rounds": 22
+      "vhn_rounds": 22,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P048",
@@ -13391,7 +13543,8 @@
       "brie_score": -0.005,
       "vfr_score": -0.451,
       "vhn_score": -0.22,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P076",
@@ -13478,7 +13631,8 @@
       "brie_score": -0.807,
       "vfr_score": -0.23,
       "vhn_score": -0.18,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P127",
@@ -13568,7 +13722,8 @@
       "brie_score": -0.528,
       "vfr_score": -0.137,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P033",
@@ -13657,7 +13812,8 @@
       "brie_score": -0.528,
       "vfr_score": 0.44,
       "vhn_score": -0.87,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P061",
@@ -13745,7 +13901,8 @@
       "brie_score": -0.547,
       "vfr_score": -0.23,
       "vhn_score": -4.03,
-      "vhn_rounds": 4
+      "vhn_rounds": 4,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P091",
@@ -13833,7 +13990,8 @@
       "brie_score": -0.501,
       "vfr_score": -0.148,
       "vhn_score": -1.0,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P095",
@@ -13921,7 +14079,8 @@
       "brie_score": -1.008,
       "vfr_score": -0.014,
       "vhn_score": -1.53,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P102",
@@ -14011,7 +14170,8 @@
       "brie_score": -0.743,
       "vfr_score": 0.553,
       "vhn_score": 0.0,
-      "vhn_rounds": 0
+      "vhn_rounds": 0,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P045",
@@ -14100,7 +14260,8 @@
       "brie_score": -0.173,
       "vfr_score": -0.133,
       "vhn_score": -3.57,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P118",
@@ -14189,7 +14350,8 @@
       "brie_score": -0.551,
       "vfr_score": -0.195,
       "vhn_score": -0.35,
-      "vhn_rounds": 8
+      "vhn_rounds": 8,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P074",
@@ -14278,7 +14440,8 @@
       "brie_score": -0.578,
       "vfr_score": -0.233,
       "vhn_score": -1.55,
-      "vhn_rounds": 16
+      "vhn_rounds": 16,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P153",
@@ -14366,7 +14529,8 @@
       "brie_score": -0.76,
       "vfr_score": -0.041,
       "vhn_score": -2.87,
-      "vhn_rounds": 10
+      "vhn_rounds": 10,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P059",
@@ -14455,7 +14619,8 @@
       "brie_score": -0.929,
       "vfr_score": -0.328,
       "vhn_score": -1.61,
-      "vhn_rounds": 2
+      "vhn_rounds": 2,
+      "tee_time": "TBD"
     },
     {
       "player_id": "P138",
@@ -14544,7 +14709,8 @@
       "brie_score": -1.455,
       "vfr_score": -0.332,
       "vhn_score": -0.78,
-      "vhn_rounds": 6
+      "vhn_rounds": 6,
+      "tee_time": "TBD"
     }
   ],
   "generated_date": "2026-07-07",

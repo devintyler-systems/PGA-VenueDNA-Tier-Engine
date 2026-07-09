@@ -54,6 +54,8 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 
 /* ── Tee-time alert ── */
 .tee-alert { background: #431407; border: 1px solid #c2410c; border-radius: .75rem; padding: .65rem 1rem; margin-bottom: 1.25rem; font-size: .8rem; color: #fdba74; }
+.tee-alert.banner-tbd  { background: #431407; border-color: #c2410c; color: #fdba74; }
+.tee-alert.banner-live { background: #052e16; border-color: #16a34a; color: #86efac; }
 
 /* ══════════════════════════════════════════════════════
    STICKY CONTROLS BAR

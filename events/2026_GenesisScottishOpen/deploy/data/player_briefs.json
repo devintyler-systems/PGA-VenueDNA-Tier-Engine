@@ -42,7 +42,8 @@
       "trace_notes": "NSI=100.0(w=0.40) + VFS=77.5(w=0.30) + VHN=50.0(w=0.15) + FORM=48.7(w=0.15) - PEN=0.0 = VTS=92.0. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P030",
@@ -89,7 +90,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P088",
@@ -136,7 +138,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P124",
@@ -182,7 +185,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P113",
@@ -227,7 +231,8 @@
       "trace_notes": "NSI=83.7(w=0.40) + VFS=71.8(w=0.30) + VHN=40.3(w=0.15) + FORM=46.8(w=0.15) - PEN=0.0 = VTS=78.1. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P029",
@@ -274,7 +279,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P001",
@@ -321,7 +327,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P009",
@@ -365,7 +372,8 @@
       "trace_notes": "NSI=77.3(w=0.40) + VFS=69.0(w=0.30) + VHN=51.6(w=0.15) + FORM=48.8(w=0.15) - PEN=0.0 = VTS=76.2. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P068",
@@ -412,7 +420,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P134",
@@ -459,7 +468,8 @@
       "trace_notes": "NSI=75.3(w=0.40) + VFS=70.1(w=0.30) + VHN=44.2(w=0.15) + FORM=57.3(w=0.15) - PEN=0.0 = VTS=75.8. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P081",
@@ -501,7 +511,8 @@
       "trace_notes": "NSI=71.3(w=0.40) + VFS=67.5(w=0.30) + VHN=61.4(w=0.15) + FORM=54.1(w=0.15) - PEN=0.0 = VTS=75.4. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P043",
@@ -548,7 +559,8 @@
       "Course Horse",
       "Form Spike"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P065",
@@ -595,7 +607,8 @@
       "trace_notes": "NSI=74.2(w=0.40) + VFS=70.2(w=0.30) + VHN=48.4(w=0.15) + FORM=50.2(w=0.15) - PEN=0.0 = VTS=74.6. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P054",
@@ -640,7 +653,8 @@
       "trace_notes": "NSI=75.9(w=0.40) + VFS=67.5(w=0.30) + VHN=48.9(w=0.15) + FORM=50.5(w=0.15) - PEN=0.0 = VTS=74.5. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P036",
@@ -684,7 +698,8 @@
       "trace_notes": "NSI=69.2(w=0.40) + VFS=65.1(w=0.30) + VHN=66.9(w=0.15) + FORM=54.3(w=0.15) - PEN=0.0 = VTS=74.4. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P014",
@@ -732,7 +747,8 @@
       "Course Horse",
       "Form Spike"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P144",
@@ -777,7 +793,8 @@
     "badges": [
       "Form Spike"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P114",
@@ -826,7 +843,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P049",
@@ -872,7 +890,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P035",
@@ -918,7 +937,8 @@
       "trace_notes": "NSI=65.9(w=0.40) + VFS=64.1(w=0.30) + VHN=51.5(w=0.15) + FORM=65.6(w=0.15) - PEN=0.0 = VTS=71.3. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P128",
@@ -965,7 +985,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P011",
@@ -1012,7 +1033,8 @@
     "badges": [
       "Form Spike"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P083",
@@ -1059,7 +1081,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P117",
@@ -1102,7 +1125,8 @@
       "trace_notes": "NSI=63.1(w=0.40) + VFS=61.5(w=0.30) + VHN=58.2(w=0.15) + FORM=59.5(w=0.15) - PEN=0.0 = VTS=68.7. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P066",
@@ -1150,7 +1174,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P025",
@@ -1197,7 +1222,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P069",
@@ -1241,7 +1267,8 @@
       "trace_notes": "NSI=67.0(w=0.40) + VFS=62.1(w=0.30) + VHN=60.5(w=0.15) + FORM=34.9(w=0.15) - PEN=0.0 = VTS=66.5. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P142",
@@ -1287,7 +1314,8 @@
     "badges": [
       "Course Horse"
     ],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P016",
@@ -1333,7 +1361,8 @@
       "trace_notes": "NSI=63.6(w=0.40) + VFS=64.5(w=0.30) + VHN=49.3(w=0.15) + FORM=43.5(w=0.15) - PEN=0.0 = VTS=65.0. Data regression: 0% toward field mean."
     },
     "badges": [],
-    "brief_depth": "rich"
+    "brief_depth": "rich",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P098",
@@ -1381,7 +1410,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Top-tier putting (SG:PUTT +0.83) on slow fescue greens — if approach play reaches the minimum GIR threshold Renaissance demands, elite putting converts marginal proximity into birdies that comparable ball-strikers leave as pars.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P116",
@@ -1431,7 +1461,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.41 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P032",
@@ -1477,7 +1508,8 @@
     "badges": [],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Ryan's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P108",
@@ -1524,7 +1556,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Victor has a positive course-history adjustment at Renaissance (+0.060) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P137",
@@ -1571,7 +1604,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.73 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P130",
@@ -1618,7 +1652,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Alex's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P143",
@@ -1663,7 +1698,8 @@
     "badges": [],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong short-game (SG:ARG +0.43) provides a structural recovery edge in links rough and from pot-bunker escapes — a category where Renaissance's penal layout creates significant variance between the field's best and worst operators.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P028",
@@ -1709,7 +1745,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Alex's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold hot form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold hot form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P034",
@@ -1753,7 +1790,8 @@
     "badges": [],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.57 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P041",
@@ -1797,7 +1835,8 @@
     "badges": [],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Brian's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P080",
@@ -1847,7 +1886,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.72 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P132",
@@ -1899,7 +1939,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.70 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P015",
@@ -1947,7 +1988,8 @@
     "badges": [],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.024 places Eric in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold hot form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold hot form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P150",
@@ -1995,7 +2037,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.027 places Matt in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P077",
@@ -2044,7 +2087,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong OTT (+0.54) with positive positional accuracy — creates wedge approaches from tight Renaissance corridors that compress scoring variance vs. the field average.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P155",
@@ -2094,7 +2138,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong OTT (+0.46) with positive positional accuracy — creates wedge approaches from tight Renaissance corridors that compress scoring variance vs. the field average.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P064",
@@ -2143,7 +2188,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Michael's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P070",
@@ -2193,7 +2239,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Brooks's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P131",
@@ -2243,7 +2290,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Jordan's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P090",
@@ -2293,7 +2341,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.024 places Mac in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P047",
@@ -2343,7 +2392,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Daniel has a positive course-history adjustment at Renaissance (+0.022) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P005",
@@ -2395,7 +2445,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong OTT (+0.91) with positive positional accuracy — creates wedge approaches from tight Renaissance corridors that compress scoring variance vs. the field average.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P062",
@@ -2448,7 +2499,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.031 places Johnny in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P097",
@@ -2495,7 +2547,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.024 places Rasmus in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P101",
@@ -2541,7 +2594,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Andrew's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P002",
@@ -2591,7 +2645,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Angel's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P105",
@@ -2640,7 +2695,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.043 places John in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P003",
@@ -2689,7 +2745,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.41 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P087",
@@ -2738,7 +2795,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Max's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P112",
@@ -2788,7 +2846,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Andrew has a positive course-history adjustment at Renaissance (+0.024) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P026",
@@ -2836,7 +2895,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Ewen has a positive course-history adjustment at Renaissance (+0.039) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P121",
@@ -2884,7 +2944,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "SG:APP +0.42 is above the minimum scoring threshold — can sustain the GIR% and proximity needed for first-page contention when the calm forecast removes wind-management as a scoring differentiator.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P086",
@@ -2930,7 +2991,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Matt's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P040",
@@ -2981,7 +3043,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Top-tier putting (SG:PUTT +0.63) on slow fescue greens — if approach play reaches the minimum GIR threshold Renaissance demands, elite putting converts marginal proximity into birdies that comparable ball-strikers leave as pars.",
-    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P078",
@@ -3031,7 +3094,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Haotong has a positive course-history adjustment at Renaissance (+0.023) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P156",
@@ -3078,7 +3142,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.021 places Kevin in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P050",
@@ -3126,7 +3191,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Top-tier putting (SG:PUTT +0.51) on slow fescue greens — if approach play reaches the minimum GIR threshold Renaissance demands, elite putting converts marginal proximity into birdies that comparable ball-strikers leave as pars.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P103",
@@ -3174,7 +3240,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Thorbjorn has a positive course-history adjustment at Renaissance (+0.028) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P022",
@@ -3220,7 +3287,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Nico's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P145",
@@ -3272,7 +3340,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong OTT (+0.46) with positive positional accuracy — creates wedge approaches from tight Renaissance corridors that compress scoring variance vs. the field average.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P152",
@@ -3321,7 +3390,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Bernd's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold hot form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold hot form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P060",
@@ -3372,7 +3442,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Top-tier putting (SG:PUTT +0.52) on slow fescue greens — if approach play reaches the minimum GIR threshold Renaissance demands, elite putting converts marginal proximity into birdies that comparable ball-strikers leave as pars.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P085",
@@ -3423,7 +3494,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Richard has a positive course-history adjustment at Renaissance (+0.038) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P157",
@@ -3473,7 +3545,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Brice's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold hot form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold hot form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P051",
@@ -3522,7 +3595,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Michael's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P089",
@@ -3571,7 +3645,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong OTT (+0.45) with positive positional accuracy — creates wedge approaches from tight Renaissance corridors that compress scoring variance vs. the field average.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P021",
@@ -3622,7 +3697,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Hennie's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P140",
@@ -3672,7 +3748,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Jesper's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P023",
@@ -3721,7 +3798,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.057 places Austin in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P067",
@@ -3769,7 +3847,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Chris's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P027",
@@ -3818,7 +3897,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Tony's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P052",
@@ -3866,7 +3946,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.028 places Billy in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P165",
@@ -3915,7 +3996,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.022 places Lee in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P056",
@@ -3964,7 +4046,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong short-game (SG:ARG +0.42) provides a structural recovery edge in links rough and from pot-bunker escapes — a category where Renaissance's penal layout creates significant variance between the field's best and worst operators.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P160",
@@ -4013,7 +4096,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Beau's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P151",
@@ -4061,7 +4145,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Paul's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P161",
@@ -4110,7 +4195,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "APP 150-200 value +0.030 places Zecheng in the productive range for Renaissance's dominant scoring zone — benign forecast conditions (sub-10mph R1/R2) amplify this iron-distance fit as pin positions become accessible with mid-iron precision.",
-    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P006",
@@ -4159,7 +4245,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Dan's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P107",
@@ -4209,7 +4296,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Marco has a positive course-history adjustment at Renaissance (+0.041) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P012",
@@ -4258,7 +4346,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Eugenio's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold hot form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold hot form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P119",
@@ -4307,7 +4396,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Daniel's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P044",
@@ -4356,7 +4446,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Angel's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P024",
@@ -4405,7 +4496,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Nacho's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P163",
@@ -4454,7 +4546,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Jimmy's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P126",
@@ -4502,7 +4595,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Matti's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P018",
@@ -4550,7 +4644,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Martin's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P063",
@@ -4600,7 +4695,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Strong OTT (+0.67) with positive positional accuracy — creates wedge approaches from tight Renaissance corridors that compress scoring variance vs. the field average.",
-    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cold form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P158",
@@ -4649,7 +4745,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Chandler's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold neutral form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P037",
@@ -4697,7 +4794,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Max's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold warm form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P004",
@@ -4746,7 +4844,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Multiple marginal skill edges across categories — contention path requires above-average performance in at least two of Dan's identified trait overlaps with Renaissance demands to stack enough birdie-making pace for a first-page Sunday position.",
-    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike iron play + hold cool form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P042",
@@ -4800,7 +4899,8 @@
     ],
     "brief_depth": "medium",
     "dark_horse_mechanism": "Padraig has a positive course-history adjustment at Renaissance (+0.040) — demonstrated scoring ability here is the ceiling unlock, particularly in calm R1/R2 forecast conditions where tee-corridor familiarity converts directly into birdie-making pace.",
-    "path_to_contention": "Path: spike APP 150-200 + hold hot form through W/E = first-page ceiling realistic."
+    "path_to_contention": "Path: spike APP 150-200 + hold hot form through W/E = first-page ceiling realistic.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P147",
@@ -4848,7 +4948,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P020",
@@ -4896,7 +4997,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P136",
@@ -4941,7 +5043,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P058",
@@ -4990,7 +5093,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P159",
@@ -5038,7 +5142,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P093",
@@ -5085,7 +5190,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P075",
@@ -5134,7 +5240,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P084",
@@ -5182,7 +5289,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P162",
@@ -5230,7 +5338,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P166",
@@ -5278,7 +5387,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P017",
@@ -5328,7 +5438,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P133",
@@ -5375,7 +5486,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P013",
@@ -5425,7 +5537,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P031",
@@ -5473,7 +5586,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P096",
@@ -5520,7 +5634,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P008",
@@ -5568,7 +5683,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P110",
@@ -5619,7 +5735,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P135",
@@ -5664,7 +5781,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P082",
@@ -5709,7 +5827,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P055",
@@ -5757,7 +5876,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P139",
@@ -5806,7 +5926,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P072",
@@ -5853,7 +5974,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P010",
@@ -5902,7 +6024,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P109",
@@ -5950,7 +6073,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P099",
@@ -5999,7 +6123,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P106",
@@ -6046,7 +6171,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P111",
@@ -6097,7 +6223,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P129",
@@ -6147,7 +6274,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P038",
@@ -6194,7 +6322,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P046",
@@ -6242,7 +6371,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P115",
@@ -6290,7 +6420,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P141",
@@ -6340,7 +6471,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P122",
@@ -6385,7 +6517,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P039",
@@ -6433,7 +6566,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P146",
@@ -6482,7 +6616,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P123",
@@ -6532,7 +6667,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P164",
@@ -6579,7 +6715,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P120",
@@ -6629,7 +6766,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 2 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P154",
@@ -6678,7 +6816,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P100",
@@ -6727,7 +6866,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P053",
@@ -6775,7 +6915,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P149",
@@ -6824,7 +6965,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P104",
@@ -6872,7 +7014,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise."
+    "ceiling_note": "Ceiling limited by structural weak links — needs 1 category overperformance to make noise.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P073",
@@ -6921,7 +7064,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P094",
@@ -6970,7 +7114,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers."
+    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P148",
@@ -7020,7 +7165,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P057",
@@ -7070,7 +7216,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Flat putter (SG:PUTT -0.41) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated."
+    "fade_reason": "Flat putter (SG:PUTT -0.41) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P079",
@@ -7120,7 +7267,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "fade_reason": "No Renaissance read on tee-shot corridors or green approach angles — debut discount plus specific hole knowledge gap on the rerouted closing stretch (new Hole 15 pressure). Even elite ball-strikers typically need one prior start to calibrate links-specific scoring."
+    "fade_reason": "No Renaissance read on tee-shot corridors or green approach angles — debut discount plus specific hole knowledge gap on the rerouted closing stretch (new Hole 15 pressure). Even elite ball-strikers typically need one prior start to calibrate links-specific scoring.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P071",
@@ -7168,7 +7316,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Below-average off-the-tee ball-striking (SG:OTT -0.50) limits the birdie-making pace required to contend at Renaissance — course architecture is angle-dependent from the tee and this profile offers limited margin for further OTT regression."
+    "fade_reason": "Below-average off-the-tee ball-striking (SG:OTT -0.50) limits the birdie-making pace required to contend at Renaissance — course architecture is angle-dependent from the tee and this profile offers limited margin for further OTT regression.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P019",
@@ -7216,7 +7365,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P007",
@@ -7264,7 +7414,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Below-expected course history at Renaissance (score -1.989 vs field baseline) — this venue historically neutralises the player's structural strengths, suggesting a course-setup mismatch the model cannot fully price in."
+    "fade_reason": "Below-expected course history at Renaissance (score -1.989 vs field baseline) — this venue historically neutralises the player's structural strengths, suggesting a course-setup mismatch the model cannot fully price in.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P092",
@@ -7314,7 +7465,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers."
+    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P048",
@@ -7364,7 +7516,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P076",
@@ -7412,7 +7565,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Weak short game (SG:ARG -0.23) creates a recurring score leak at Renaissance — links rough, pot bunkers, and tight run-off areas demand around-green precision that this profile cannot consistently deliver."
+    "fade_reason": "Weak short game (SG:ARG -0.23) creates a recurring score leak at Renaissance — links rough, pot bunkers, and tight run-off areas demand around-green precision that this profile cannot consistently deliver.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P127",
@@ -7463,7 +7617,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P033",
@@ -7513,7 +7668,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P061",
@@ -7562,7 +7718,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Flat putter (SG:PUTT -0.41) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated."
+    "fade_reason": "Flat putter (SG:PUTT -0.41) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P091",
@@ -7611,7 +7768,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P095",
@@ -7660,7 +7818,8 @@
       "Cut Sweat"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Flat putter (SG:PUTT -0.44) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated."
+    "fade_reason": "Flat putter (SG:PUTT -0.44) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P102",
@@ -7711,7 +7870,8 @@
       "Debut Watch"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Flat putter (SG:PUTT -0.53) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated."
+    "fade_reason": "Flat putter (SG:PUTT -0.53) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P045",
@@ -7761,7 +7921,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Flat putter (SG:PUTT -0.60) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated."
+    "fade_reason": "Flat putter (SG:PUTT -0.60) on slow fescue greens (~10ft Stimp) — can't convert enough long-iron proximity into birdies. Links greens amplify putting weakness vs. parkland Tour baseline where the SG metric was accumulated.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P118",
@@ -7811,7 +7972,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P074",
@@ -7861,7 +8023,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers."
+    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P153",
@@ -7910,7 +8073,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers."
+    "fade_reason": "2 anti-pattern flags create compounding structural risk — Renaissance's exacting approach demands leave no margin for weak-link category underperformance in a field with multiple elite ball-strikers.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P059",
@@ -7960,7 +8124,8 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   },
   {
     "player_id": "P138",
@@ -8010,6 +8175,7 @@
       "Anti-Pattern"
     ],
     "brief_depth": "compact",
-    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions."
+    "fade_reason": "Approach from links rough + driving accuracy penalty compounds — misses cut if iron play doesn't spike. Renaissance's deep pot bunkers punish recovery shots and eliminate birdie opportunities from off-fairway positions.",
+    "tee_time": "TBD"
   }
 ]
