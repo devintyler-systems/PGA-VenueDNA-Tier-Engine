@@ -1,0 +1,16 @@
+{
+  "db_path": "data/venue_dna.db",
+  "dg_base_url": "https://feeds.datagolf.com",
+  "rate_limit_rpm": 40,
+  "sparse_columns": [
+    "prox_150_200",
+    "prox_250_plus",
+    "avoid_rough_pct",
+    "avoid_bunker_pct"
+  ],
+  "tours": {
+    "pga": "pga",
+    "euro": "euro",
+    "kft": "kft"
+  }
+}
