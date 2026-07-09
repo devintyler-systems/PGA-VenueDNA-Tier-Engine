@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.1",
+  "event_slug": "2026_genesis_scottish_open",
+  "created_at": "2026-07-09",
+  "per_round": {
+    "1": {
+      "round": 1,
+      "generated_at": "2026-07-09",
+      "spearman_rho": 0.013,
+      "trait_signals": {
+        "app_150_200": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.223,
+          "enrichment_signal": "not_available"
+        },
+        "ott_positional": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 0.773,
+          "enrichment_signal": "not_available"
+        },
+        "app_overall": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.223,
+          "enrichment_signal": "not_available"
+        },
+        "driving_accuracy": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 0.773,
+          "enrichment_signal": "not_available"
+        },
+        "sg_putt": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.12,
+          "enrichment_signal": null
+        },
+        "sg_arg": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.144,
+          "enrichment_signal": "not_available"
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 3,
+        "pt_top10_in_top20": 5,
+        "tier1_2_in_top20": 9
+      },
+      "risers": [
+        "Kevin Roy",
+        "Calum Hill",
+        "Joost Luiten",
+        "Keita Nakajima"
+      ],
+      "slippage": [
+        "Michael Thorbjornsen",
+        "Matt McCarty",
+        "Zach Bauchou"
+      ],
+      "wave_annotation_n": 0
+    }
+  },
+  "cumulative_signals": {
+    "app_150_200": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "ott_positional": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "app_overall": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "driving_accuracy": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "sg_putt": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    },
+    "sg_arg": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "neutral"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "neutral",
+      "consensus_confidence": "weak-proxy"
+    }
+  },
+  "last_updated": "2026-07-09",
+  "updated_at": "2026-07-09T15:46:22",
+  "rounds_completed": 1,
+  "rounds_present": [
+    1
+  ]
+}

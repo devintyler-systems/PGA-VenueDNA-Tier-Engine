@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import re
 import sqlite3
 import sys
@@ -390,6 +391,20 @@ if sg:
         for r in sg:
             r["Player"] = r.pop("PLAYER")
         sg_col_set = set(sg[0].keys())
+    # Normalize lowercase DK/DataGolf export format
+    if "sg-total" in sg_col_set:
+        _LC_MAP = {
+            "sg-ott":          "SG-Off the Tee",
+            "sg-app to green": "SG-Approach to Green",
+            "sg-around green": "SG- Around the Green",
+            "sg-putting":      "SG-Putting",
+            "sg-total":        "SG-Total",
+        }
+        for r in sg:
+            for src, dst in _LC_MAP.items():
+                if src in r:
+                    r[dst] = r.pop(src)
+        sg_col_set = set(sg[0].keys())
     SG_ARG_COL = (
         "SG- Around the Green" if "SG- Around the Green" in sg_col_set
         else "SG-Around the Green" if "SG-Around the Green" in sg_col_set
@@ -403,8 +418,12 @@ for tier in range(1, 6):
         pretournament[ascii_fold(p.get("player_name", "")).lower()] = p
 # Also handle flat players array
 for p in payload.get("players", []):
-    pname = f"{p.get('last_name','')} {p.get('first_name','')}".strip() or p.get("player_name","")
+    last, first = p.get("last_name",""), p.get("first_name","")
+    pname = f"{last} {first}".strip() or p.get("player_name","")
     pretournament[ascii_fold(pname).lower()] = p
+    # Also key "Last, First" to match fl_to_lf(leaderboard_name) lookups
+    if last and first:
+        pretournament[ascii_fold(f"{last}, {first}").lower()] = p
 
 # Trait form matrix
 trait_by_nk: dict[str, dict] = {}
@@ -465,7 +484,7 @@ duplicates: list[str] = []
 for row in lb:
     if not any(row.values()):
         continue
-    r_name = row.get("PLAYER","").strip()
+    r_name = (row.get("PLAYER") or row.get("Player") or "").strip()
     if not r_name:
         continue
     folded = ascii_fold(r_name)
@@ -479,7 +498,7 @@ for row in lb:
 
     pos_str = row.get("POS","")
     pos_num = parse_pos(pos_str)
-    score   = parse_float(row.get("TOTAL")) or 0
+    score   = parse_float(row.get("TOTAL") or row.get(f"R{ROUND}") or row.get("SCORE")) or 0
 
     sg_arg_val = parse_float(sg_row.get(SG_ARG_COL)) if (sg_row and SG_ARG_COL) else None
 
@@ -1013,6 +1032,122 @@ sg_dimension_leaders = {
     for dim in ("sg_app","sg_putt","sg_ott","sg_arg")
 }
 
+# ── Historical cumulative SG aggregation (rounds 2-4) ────────────────────────
+def _load_hist_sg_tot(rnd: int) -> dict[str, float]:
+    for cand in [OUT / f"round{rnd}", OUT / f"round{rnd} player & course stats"]:
+        if cand.exists():
+            p = cand / f"round{rnd}_player_strokes_gained.csv"
+            if p.exists():
+                result: dict[str, float] = {}
+                for row in load_csv(p):
+                    name = (row.get("Player") or row.get("PLAYER", "")).strip()
+                    if not name:
+                        continue
+                    lf = fl_to_lf(ascii_fold(name)).lower()
+                    v = parse_float(row.get("SG-Total") or row.get("sg-total"))
+                    if v is not None:
+                        result[lf] = v
+                return result
+    return {}
+
+# pop_registry : full Round 1 population — stable denominator, never shrinks
+# cumulative_sg_by_norm : active players only — used in V_p(t) and softmax
+cumulative_sg_by_norm: dict[str, float] = {}
+pop_registry:          dict[str, float] = {}
+
+if ROUND == 1:
+    for _r in joined:
+        _nk = _r["norm_name"].lower()
+        _v  = _r.get("sg_tot") or 0.0
+        cumulative_sg_by_norm[_nk] = _v
+        pop_registry[_nk]          = _v
+else:
+    # _hist_totals[0] = R1 SG map — serves double duty as population anchor
+    _hist_totals = [_load_hist_sg_tot(r) for r in range(1, ROUND)]
+    _r1_sg_map   = _hist_totals[0] if _hist_totals else {}
+    _pop_keys    = set(_r1_sg_map.keys())
+    _active_nks  = {_r["norm_name"].lower() for _r in joined}
+
+    # Active players: sum all prior rounds + current round
+    for _r in joined:
+        _nk = _r["norm_name"].lower()
+        cumulative_sg_by_norm[_nk] = (_r.get("sg_tot") or 0.0) + sum(
+            h.get(_nk, 0.0) for h in _hist_totals
+        )
+
+    # Full population: active entries + frozen cut/WD/DQ vectors
+    for _nk in _pop_keys:
+        if _nk in _active_nks:
+            pop_registry[_nk] = cumulative_sg_by_norm[_nk]
+        else:
+            # Eliminated: freeze at terminal sum from all completed prior rounds
+            pop_registry[_nk] = sum(h.get(_nk, 0.0) for h in _hist_totals)
+
+# ── Live in-round probability modulation ─────────────────────────────────────
+_vts_vals = [r["pt_vts"] for r in joined if r.get("pt_vts") is not None]
+field_vts_mean = sum(_vts_vals) / len(_vts_vals) if _vts_vals else 50.0
+
+# Baseline anchored to full R1 population — not just surviving active field
+_pop_vals = list(pop_registry.values())
+_field_avg_cum_sg = sum(_pop_vals) / len(_pop_vals) if _pop_vals else 0.0
+
+_gamma = 0.35 * ROUND
+
+_ordered_nks = [r["norm_name"].lower() for r in joined]
+_vpt = [
+    (r["pt_vts"] if r.get("pt_vts") is not None else field_vts_mean)
+    + _gamma * (cumulative_sg_by_norm.get(r["norm_name"].lower(), 0.0) - _field_avg_cum_sg)
+    for r in joined
+]
+
+_mu    = sum(_vpt) / len(_vpt) if _vpt else 0.0
+_sigma = max((sum((v - _mu) ** 2 for v in _vpt) / len(_vpt)) ** 0.5 if _vpt else 1.0, 1e-9)
+_zs    = [(v - _mu) / _sigma for v in _vpt]
+
+_LIVE_TEMPS = {"win": 0.30, "top5": 0.55, "top10": 0.75, "top20": 1.10}
+
+def _softmax_t(z_arr: list[float], temp: float) -> list[float]:
+    scaled = [z / temp for z in z_arr]
+    max_s  = max(scaled)
+    exps   = [math.exp(s - max_s) for s in scaled]
+    total  = sum(exps)
+    return [e / total for e in exps]
+
+if not _zs:
+    raise SystemExit("ERROR: No field data — leaderboard join produced zero players.")
+
+_win   = _softmax_t(_zs, _LIVE_TEMPS["win"])
+_top5  = _softmax_t(_zs, _LIVE_TEMPS["top5"])
+_top10 = _softmax_t(_zs, _LIVE_TEMPS["top10"])
+_top20 = _softmax_t(_zs, _LIVE_TEMPS["top20"])
+
+for _i in range(len(_ordered_nks)):
+    _top5[_i]  = max(_top5[_i],  _win[_i])
+    _top10[_i] = max(_top10[_i], _top5[_i])
+    _top20[_i] = max(_top20[_i], _top10[_i])
+
+live_probs_by_norm: dict[str, dict] = {
+    _ordered_nks[i]: {
+        "win_pct":           round(_win[i]   * 100, 2),
+        "top5_pct":          round(_top5[i]  * 100, 2),
+        "top10_pct":         round(_top10[i] * 100, 2),
+        "top20_pct":         round(_top20[i] * 100, 2),
+        "v_p_t":             round(_vpt[i], 4),
+        "cumulative_sg_tot": round(cumulative_sg_by_norm.get(_ordered_nks[i], 0.0), 4),
+    }
+    for i in range(len(_ordered_nks))
+}
+
+for _i, rec in enumerate(lb_snapshot):
+    _nk = joined[_i]["norm_name"].lower()
+    _lp = live_probs_by_norm.get(_nk, {})
+    rec["live_win_pct"]      = _lp.get("win_pct")
+    rec["live_top5_pct"]     = _lp.get("top5_pct")
+    rec["live_top10_pct"]    = _lp.get("top10_pct")
+    rec["live_top20_pct"]    = _lp.get("top20_pct")
+    rec["v_p_t"]             = _lp.get("v_p_t")
+    rec["cumulative_sg_tot"] = _lp.get("cumulative_sg_tot")
+
 holes_data: list[dict] = []
 if cs_loaded:
     for row in cs:
@@ -1103,6 +1238,17 @@ output = {
     "slippage_risk":        slippage_risk,
     "leaderboard_snapshot": lb_snapshot,
     "dimension_leaders":    sg_dimension_leaders,
+    "live_probability_engine": {
+        "round":                  ROUND,
+        "gamma":                  _gamma,
+        "field_vts_mean":         round(field_vts_mean, 4),
+        "field_avg_cum_sg":       round(_field_avg_cum_sg, 4),
+        "temperatures":           _LIVE_TEMPS,
+        "prior_rounds_used":      list(range(1, ROUND)),
+        "population_anchor_size": len(pop_registry),
+        "active_field_size":      len(cumulative_sg_by_norm),
+        "eliminated_frozen_count": len(pop_registry) - len(cumulative_sg_by_norm),
+    },
     "course_stats":         holes_data,
     "easiest_holes":        easiest,
     "hardest_holes":        hardest,
