@@ -1,6 +1,19 @@
 {
   "event_slug": "2026_genesis_scottish_open",
   "rounds_completed": 1,
+  "cumulative_signals": {
+    "app_150_200": {
+      "consensus": "validated",
+      "last_signal": "validated",
+      "rounds_seen": 1,
+      "rounds_observed": [
+        {
+          "round": 1,
+          "signal": "validated"
+        }
+      ]
+    }
+  },
   "round_summaries": [
     {
       "round": 1,
