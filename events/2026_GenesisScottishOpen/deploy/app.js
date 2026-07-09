@@ -178,6 +178,44 @@ function toNameKey(name) {
   return (name || '').trim().toUpperCase().replace(/\s+/g,'_');
 }
 
+/* JS mirror of Python engine/latent_model.py _norm_key().
+   Produces the canonical {last}_{first} lowercase key used by the harvester
+   and wave-map lookup. Must be kept in sync with the Python implementation. */
+function _normKeyJS(name) {
+  if (!name) return '';
+  let s = String(name).trim();
+  // Strip generational suffixes (jr/sr/ii/iii/iv/v) before any other transform
+  s = s.replace(/\b(jr|sr|ii|iii|iv|v)\.?(?=[\s,]|$)/gi, '').trim().replace(/,\s*$/, '').trim();
+  // NFD decompose → strip combining diacritics (covers é, ö, ñ, etc.)
+  s = s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Explicit substitutions for chars that survive NFD stripping
+  const EXPLICIT = [
+    ['Ø','O'],['ø','O'],['Æ','AE'],['æ','AE'],['Å','A'],['å','A'],
+    ['Ö','O'],['ö','O'],['Ü','U'],['ü','U'],['Ñ','N'],['ñ','N'],['ß','SS'],
+  ];
+  for (const [src, dst] of EXPLICIT) s = s.split(src).join(dst);
+  // Split into last/first respecting "Last, First" and "First Last" layouts
+  let last, first;
+  if (s.includes(',')) {
+    const idx = s.indexOf(',');
+    last  = s.slice(0, idx);
+    first = s.slice(idx + 1);
+  } else {
+    const tokens = s.trim().split(/\s+/);
+    if (tokens.length >= 2) {
+      last  = tokens[tokens.length - 1];
+      first = tokens.slice(0, -1).join(' ');
+    } else {
+      last  = tokens[0] || '';
+      first = '';
+    }
+  }
+  let key = `${last.trim()}_${first.trim()}`.toLowerCase();
+  key = key.replace(/\s+/g, '');         // collapse any interior whitespace
+  key = key.replace(/[^a-z0-9_]/g, ''); // strip non-alphanumeric except underscore
+  return key;
+}
+
 /* ══════════════════════════════════════════════════════
    MISSING-TRAIT POLICY
 ══════════════════════════════════════════════════════ */
@@ -749,6 +787,8 @@ async function init() {
   r3Data         = await tryLoadRound('r3_analysis.json',         'Round 3');
   r4Data         = await tryLoadRound('r4_analysis.json',         'Final');
   cumulativeData = await tryLoadRound('cumulative_learning.json', 'Cumulative learning');
+
+  renderWaveRiskAnnotation(r1Data || r2Data || r3Data || r4Data);
 
   if (r4Data?.match_summary?.unmatched) {
     unmatchedR4FullNames = r4Data.match_summary.unmatched;
@@ -1879,6 +1919,7 @@ function openModal(p, brief) {
     sectionConviction(p, b),
     sectionDecomposition(p),
     sectionDbMetrics(p),
+    sectionBrieZPanel(p),
   ].join('');
 
   overlay.classList.add('open');
@@ -2205,6 +2246,165 @@ function sectionDbMetrics(p) {
     <h4>DB Metric Signals</h4>
     <div class="stat-row">${pills}</div>
   </div>`;
+}
+
+/* BRIE-Z sub-driver panel — 150-200yd approach spatial breakdown (schema v1.1)
+   Three-tier value resolution:
+     Tier 1 — trait_audit.app_150_200.brie_z from the active round data structure
+     Tier 2 — p.brie_z_score / p.wave_bonus direct properties on the player object
+     Tier 3 — flat 0.0 sentinel with "Historical Aggregate Baseline Mode" label
+   Lookup uses a dual-path key: p.norm_name if present, otherwise _normKeyJS() applied
+   to p.player_name or p.r1_name to reconstruct the harvester-canonical key format. */
+function sectionBrieZPanel(p) {
+  const roundData = r1Data || r2Data || r3Data || r4Data;
+
+  // ── Dual-path canonical key resolution ──────────────────────────────────────
+  // Path 1: pre-computed norm_name already on the player object
+  // Path 2: reconstruct from player_name or r1_name using the exact regex fold
+  //         that matches engine/latent_model.py _norm_key()
+  const normKey = p.norm_name
+    || _normKeyJS(p.player_name || p.r1_name || '');
+
+  // ── Tier 1 — round data trait_audit lookup ───────────────────────────────────
+  // Try direct dg_id key first (fastest), then scan by norm_key, then by player_name.
+  let bz = null;
+  if (roundData?.player_round_data) {
+    const prdMap = roundData.player_round_data;
+    const idKey  = p.player_id != null ? String(p.player_id) : null;
+    const prd    = (idKey && prdMap[idKey])
+      || (normKey && Object.values(prdMap).find(d => _normKeyJS(d.player_name || d.r1_name || '') === normKey))
+      || Object.values(prdMap).find(d => d.player_name === p.player_name);
+    bz = prd?.trait_audit?.app_150_200?.brie_z ?? null;
+  }
+
+  // ── Tier 2 — direct player object properties ─────────────────────────────────
+  const bzScoreDirect = p.brie_z_score != null ? +p.brie_z_score : null;
+  const waveBonusDirect = p.wave_bonus != null ? +p.wave_bonus : null;
+
+  // ── Tier 3 — historical aggregate baseline sentinel ──────────────────────────
+  // If neither Tier 1 nor Tier 2 has a Z-score, synthesise a 0.0 baseline object
+  // so the panel always renders with a clear mode label rather than going dark.
+  const bzScore     = bzScoreDirect ?? (bz != null ? bzScoreDirect : 0.0);
+  const isBaseline  = bzScoreDirect == null && bz == null;
+  const waveBonus   = waveBonusDirect ?? bz?.wave_bonus ?? null;
+
+  // ── Field extraction (Tier 1 breakdown if available) ────────────────────────
+  const fwSg      = bz?.fw_sg              ?? null;
+  const psa       = bz?.psa               ?? null;
+  const penalty   = bz?.course_rough_penalty ?? null;
+  const composite = bz?.composite          ?? null;
+
+  // ── Formatters ───────────────────────────────────────────────────────────────
+  const fmt   = (v, dec = 3) => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(dec);
+  const fmtZ  = v => (v == null || isBaseline) ? (isBaseline ? '0.0' : '—') : (+v).toFixed(1);
+  const color = v => v == null ? 'var(--muted)' : +v >= 0 ? '#4ade80' : '#f87171';
+
+  const scoreColor = isBaseline
+    ? 'var(--muted)'
+    : (+bzScore >= 60 ? '#4ade80' : +bzScore >= 45 ? '#fcd34d' : '#f87171');
+
+  // ── Row assembly ─────────────────────────────────────────────────────────────
+  const rows = [
+    isBaseline
+      ? `<div class="bz-row bz-baseline-notice">
+           <span class="bz-label" style="color:#fcd34d" title="traits_calculator.py has not yet written BRIE-Z data for this player">
+             Historical Aggregate Baseline Mode
+           </span>
+           <span class="bz-val" style="color:var(--muted)">0.000</span>
+         </div>`
+      : '',
+    fwSg != null
+      ? `<div class="bz-row">
+           <span class="bz-label" title="SG per shot from 150-200yd fairway lies (Last 12m)">FW-SG 150-200</span>
+           <span class="bz-val" style="color:${color(fwSg)}">${fmt(fwSg)}</span>
+         </div>`
+      : '',
+    psa != null
+      ? `<div class="bz-row">
+           <span class="bz-label" title="Avoid-rough rate centered at field mean — positive = better than average">Poor Shot Avoid (PSA)</span>
+           <span class="bz-val" style="color:${color(psa)}">${fmt(psa)}</span>
+         </div>`
+      : '',
+    penalty != null
+      ? `<div class="bz-row">
+           <span class="bz-label" title="Fescue rough penalty vs fairway baseline (course_profiles)">Course Penalty</span>
+           <span class="bz-val" style="color:${+penalty > 0 ? '#f87171' : 'var(--muted)'}">−${Math.abs(+penalty).toFixed(3)}</span>
+         </div>`
+      : '',
+    composite != null
+      ? `<div class="bz-row" style="border-top:1px solid var(--border);margin-top:.3rem;padding-top:.3rem">
+           <span class="bz-label"><b>Raw BRIE-Z</b></span>
+           <span class="bz-val" style="color:${color(composite)};font-weight:600">${fmt(composite)}</span>
+         </div>`
+      : '',
+    waveBonus != null && +waveBonus > 0
+      ? `<div class="bz-row">
+           <span class="bz-label" title="+0.15 SG bonus for players in the favored wave draw">Wave Bonus</span>
+           <span class="bz-val" style="color:#4ade80">+${(+waveBonus).toFixed(2)} ★</span>
+         </div>`
+      : '',
+  ].filter(Boolean).join('');
+
+  return `<div class="modal-section">
+    <h4>BRIE-Z Sub-Driver <span style="font-size:.72rem;color:var(--muted);font-weight:400">150-200yd Approach · Schema v1.1</span>
+      <span class="bz-zscore" style="color:${scoreColor}" title="Z-scored BRIE-Z composite (0-100 field-relative)">${fmtZ(bzScore)}</span>
+    </h4>
+    <div class="bz-grid">${rows}</div>
+  </div>`;
+}
+
+/* Wave risk annotation banner — populated by build_round_analysis.py when
+   |early_late_avg − late_early_avg| > 0.25 strokes.
+   Suppression rules (force display:none without rendering):
+     • wave_risk_annotation array is absent, null, or has zero items
+     • wave_scoring_averages.differential is exactly 0.0 (no real draw variance) */
+function renderWaveRiskAnnotation(liveData) {
+  const el = document.getElementById('wave-risk-alert');
+  if (!el) return;
+
+  // ── Strict suppression gate ──────────────────────────────────────────────────
+  const notes = liveData?.live_lean_notes;
+  const items = Array.isArray(notes?.wave_risk_annotation) ? notes.wave_risk_annotation : [];
+  if (items.length === 0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  const avgs = notes.wave_scoring_averages || {};
+  const rawDiff = avgs.differential;
+  // Suppress on exact 0.0 — catches pre-draw state where split averages are equal
+  if (rawDiff != null && +rawDiff === 0.0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  // ── Safe field extraction ────────────────────────────────────────────────────
+  const elAvg  = avgs.early_late_avg != null ? (+avgs.early_late_avg).toFixed(2)        : '—';
+  const leAvg  = avgs.late_early_avg  != null ? (+avgs.late_early_avg).toFixed(2)        : '—';
+  const diff   = rawDiff              != null ? Math.abs(+rawDiff).toFixed(2)            : '—';
+  const favored = avgs.favored_wave === 'late_early'
+    ? 'Late-Early (PM Thu / AM Fri)'
+    : avgs.favored_wave === 'early_late'
+      ? 'Early-Late (AM Thu / PM Fri)'
+      : '—';
+
+  const bullets = items.map(s => `<li>${String(s)}</li>`).join('');
+
+  // ── Render ───────────────────────────────────────────────────────────────────
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="wave-risk-inner">
+      <span class="wave-risk-icon">⚑</span>
+      <div class="wave-risk-body">
+        <b>Wave Draw Risk Signal</b>
+        <span class="wave-risk-diff">Δ ${diff} strokes · Favored: ${favored}</span>
+        <ul class="wave-risk-list">${bullets}</ul>
+        <div class="wave-risk-avgs">
+          <span>Early-Late avg: <b>${elAvg}</b></span>
+          <span>Late-Early avg: <b>${leAvg}</b></span>
+        </div>
+      </div>
+    </div>`;
 }
 
 /* Modal badges — grouped by type (fit / ceiling / risk), all badges shown, clickable to filter */

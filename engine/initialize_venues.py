@@ -146,10 +146,14 @@ VENUES: list[dict] = [
 # ── schema migration ──────────────────────────────────────────────────────────
 
 _NEW_COLUMNS = [
-    ("miss_penalty_index",   "INTEGER"),
-    ("turf_firmness_tag",    "TEXT"),
-    ("green_contour_rating", "TEXT"),
-    ("exposure_index",       "REAL"),
+    ("miss_penalty_index",       "INTEGER"),
+    ("turf_firmness_tag",        "TEXT"),
+    ("green_contour_rating",     "TEXT"),
+    ("exposure_index",           "REAL"),
+    # BRIE-Z course difficulty re-anchoring (added for latent_model.py integration)
+    ("difficulty_ott_rough_vs_fw", "REAL DEFAULT 0.0"),
+    ("difficulty_app_rough_vs_fw", "REAL DEFAULT 0.0"),
+    ("difficulty_putt_fescue",     "REAL DEFAULT 0.0"),
 ]
 
 

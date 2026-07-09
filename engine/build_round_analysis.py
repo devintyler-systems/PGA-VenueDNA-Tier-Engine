@@ -1,0 +1,1158 @@
+"""
+VenueDNA Generic Round Analysis Builder — engine/build_round_analysis.py
+Schema version 1.1
+
+Accepts an --event_slug argument and resolves all paths, trait configs, and
+venue weights dynamically. Replaces event-specific copies with a single
+authoritative module.
+
+Usage:
+    python engine/build_round_analysis.py --event_slug 2026_genesis_scottish_open --round 1
+    python engine/build_round_analysis.py --event_slug 2026_genesis_scottish_open --round 2
+    python engine/build_round_analysis.py --event_slug 2026_genesis_scottish_open --final
+    python engine/build_round_analysis.py --event_slug 2026_genesis_scottish_open --round 1 --check
+
+Round N input files (place in event output/roundN/ before running):
+    roundN_leaderboard.csv              [REQUIRED]
+    roundN_player_strokes_gained.csv    [REQUIRED]
+    roundN_course_stats.csv             [optional]
+    roundN_course_insights.csv          [optional]
+
+Pre-tournament files (already present from pipeline build):
+    deploy/data/event_payload.json      [REQUIRED]
+    output/{slug}_trait_form_matrix.csv [REQUIRED]
+
+Outputs:
+    output/{slug}_rN_analysis.json
+    deploy/data/rN_analysis.json
+    output/{slug}_cumulative_learning.json
+    deploy/data/cumulative_learning.json
+
+New in schema 1.1:
+    - trait_audit.app_150_200.brie_z  sub-driver breakdown (BRIE-Z metrics)
+    - live_lean_notes.wave_risk_annotation  (players in disadvantaged wave split)
+    - live_lean_notes.wave_scoring_averages  (avg score per wave)
+    - Unique-narrative enforcement for per-player thesis notes
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import re
+import sqlite3
+import sys
+import unicodedata
+from datetime import date, datetime
+from pathlib import Path
+from statistics import mean
+from typing import Any
+
+_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_ROOT))
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+
+parser = argparse.ArgumentParser(description="VenueDNA generic round analysis builder")
+parser.add_argument("--event_slug", required=True, help="e.g. 2026_genesis_scottish_open")
+grp = parser.add_mutually_exclusive_group(required=True)
+grp.add_argument("--round", type=int, choices=[1, 2, 3, 4])
+grp.add_argument("--final", action="store_true")
+parser.add_argument("--check", action="store_true", help="Validate inputs only — no build")
+args = parser.parse_args()
+
+EVENT_SLUG  = args.event_slug
+FINAL_BUILD = args.final
+ROUND       = 4 if FINAL_BUILD else args.round
+IS_FINAL    = FINAL_BUILD or (ROUND == 4)
+CHECK_ONLY  = args.check
+TODAY       = date.today().isoformat()
+BUILD_TS    = datetime.now().replace(microsecond=0).isoformat()
+
+# ── Event configs ─────────────────────────────────────────────────────────────
+
+_EVENT_CONFIGS: dict[str, dict] = {
+    "2026_genesis_scottish_open": {
+        "event_name":   "2026 Genesis Scottish Open",
+        "course_name":  "The Renaissance Club",
+        "par":          71,
+        "event_dir_glob": "events/*GenesisScottish*",
+        "course_key":   "renaissance_club",
+        "favored_wave": "late_early",
+        "trait_cols": {
+            "app_150_200":     "trait_app_150_200",
+            "ott_positional":  "trait_ott_positional",
+            "app_overall":     "trait_app_overall",
+            "driving_accuracy":"trait_driving_accuracy",
+            "sg_putt":         "trait_sg_putt",
+            "sg_arg":          "trait_sg_arg",
+        },
+        "venue_weights": {
+            "app_150_200":      0.30,
+            "ott_positional":   0.20,
+            "app_overall":      0.15,
+            "driving_accuracy": 0.12,
+            "sg_putt":          0.13,
+            "sg_arg":           0.10,
+        },
+        "sg_proxy": {
+            "app_150_200":      "sg_app",
+            "ott_positional":   "sg_ott",
+            "app_overall":      "sg_app",
+            "driving_accuracy": "sg_ott",
+            "sg_putt":          "sg_putt",
+            "sg_arg":           "sg_arg",
+        },
+        "ci_trait_map": {
+            "app_150_200":      {"primary": "gir",         "direction": "higher_better", "secondary": "fairway_prox"},
+            "ott_positional":   {"primary": "d_accuracy",  "direction": "higher_better", "secondary": None},
+            "app_overall":      {"primary": "fairway_prox","direction": "lower_better",  "secondary": "gir"},
+            "driving_accuracy": {"primary": "d_accuracy",  "direction": "higher_better", "secondary": None},
+            "sg_putt":          {"primary": None,           "direction": None,            "secondary": None},
+            "sg_arg":           {"primary": "scrambling",  "direction": "higher_better", "secondary": "rough_prox"},
+        },
+    },
+    "2026_travelers_championship": {
+        "event_name":   "2026 Travelers Championship",
+        "course_name":  "TPC River Highlands",
+        "par":          70,
+        "event_dir_glob": "events/*Travelers*",
+        "course_key":   "tpc_river_highlights",
+        "favored_wave": "early_late",
+        "trait_cols": {
+            "app_wedge":       "trait_app_wedge",
+            "app_100_150":     "trait_app_100_150",
+            "app_150_200":     "trait_app_150_200",
+            "ott_accuracy":    "trait_ott_accuracy",
+            "ott_distance":    "trait_ott_distance",
+            "putt_short_conv": "trait_putt_short_conv",
+            "putt_lag":        "trait_putt_lag",
+            "arg_rough":       "trait_arg_rough",
+            "arg_bunker":      "trait_arg_bunker",
+            "par5_scoring":    "trait_par5_scoring",
+        },
+        "venue_weights": {
+            "app_wedge": 0.22, "app_100_150": 0.12, "app_150_200": 0.06,
+            "ott_accuracy": 0.14, "ott_distance": 0.05, "putt_short_conv": 0.16,
+            "putt_lag": 0.10, "arg_rough": 0.07, "arg_bunker": 0.05, "par5_scoring": 0.03,
+        },
+        "sg_proxy": {
+            "app_wedge": "sg_app", "app_100_150": "sg_app", "app_150_200": "sg_app",
+            "ott_accuracy": "sg_ott", "ott_distance": "sg_ott",
+            "putt_short_conv": "sg_putt", "putt_lag": "sg_putt",
+            "arg_rough": "sg_arg", "arg_bunker": "sg_arg", "par5_scoring": "sg_app",
+        },
+        "ci_trait_map": {
+            "app_wedge":       {"primary": "fairway_prox",  "direction": "lower_better",  "secondary": "gir"},
+            "app_100_150":     {"primary": "fairway_prox",  "direction": "lower_better",  "secondary": "gir"},
+            "app_150_200":     {"primary": "gir",           "direction": "higher_better", "secondary": "fairway_prox"},
+            "ott_accuracy":    {"primary": "d_accuracy",    "direction": "higher_better", "secondary": None},
+            "ott_distance":    {"primary": "d_distance",    "direction": "higher_better", "secondary": None},
+            "putt_short_conv": {"primary": None,            "direction": None,            "secondary": None},
+            "putt_lag":        {"primary": None,            "direction": None,            "secondary": None},
+            "arg_rough":       {"primary": "scrambling",    "direction": "higher_better", "secondary": "rough_prox"},
+            "arg_bunker":      {"primary": "scrambling",    "direction": "higher_better", "secondary": None},
+            "par5_scoring":    {"primary": "gir",           "direction": "higher_better", "secondary": "d_distance"},
+        },
+    },
+}
+
+cfg = _EVENT_CONFIGS.get(EVENT_SLUG)
+if cfg is None:
+    print(f"ERROR: Unknown event_slug '{EVENT_SLUG}'.")
+    print(f"  Known slugs: {sorted(_EVENT_CONFIGS.keys())}")
+    raise SystemExit(1)
+
+EVENT_NAME  = cfg["event_name"]
+COURSE_NAME = cfg["course_name"]
+PAR         = cfg["par"]
+TRAIT_COLS  = cfg["trait_cols"]
+VENUE_WEIGHTS = cfg["venue_weights"]
+SG_PROXY    = cfg["sg_proxy"]
+CI_TRAIT_MAP = cfg["ci_trait_map"]
+COURSE_KEY  = cfg.get("course_key", "")
+FAVORED_WAVE = cfg.get("favored_wave", "late_early")
+
+# Locate event directory
+event_glob = cfg.get("event_dir_glob", f"events/*{EVENT_SLUG}*")
+_event_candidates = sorted(_ROOT.glob(event_glob))
+if not _event_candidates:
+    print(f"ERROR: Cannot find event directory for '{EVENT_SLUG}'. Searched: {_ROOT / event_glob}")
+    raise SystemExit(1)
+EVENT_DIR = _event_candidates[0]
+OUT = EVENT_DIR / "output"
+DEP = EVENT_DIR / "deploy" / "data"
+
+# ── Enrichment thresholds (conservative universal defaults) ───────────────────
+TRAIT_SIGNAL_THRESHOLDS = {"strong": 6, "lean": 2, "neutral": -3}
+CI_SIG = {"fairway_prox": 20, "rough_prox": 50, "gir": 3.0, "d_accuracy": 3.0,
+           "scrambling": 10.0, "d_distance": 3.0}
+CI_STR = {"fairway_prox": 36, "rough_prox": 100, "gir": 5.0, "d_accuracy": 5.0,
+           "scrambling": 15.0, "d_distance": 6.0}
+DIRECT_ENRICHMENT = {"ott_accuracy": "d_accuracy", "arg_rough": "scrambling",
+                     "arg_bunker": "scrambling", "ott_positional": "d_accuracy"}
+UPGRADE_MAP = {"weak": "neutral", "not_testable": "neutral",
+               "neutral": "mixed",  "mixed": "validated"}
+
+# ── Path resolution ───────────────────────────────────────────────────────────
+if FINAL_BUILD:
+    for candidate in [OUT / "final_tournament", OUT / "round4 player & course stats"]:
+        if candidate.exists():
+            ROUND_DIR = candidate
+            break
+    else:
+        print("ERROR: Final tournament data directory not found.")
+        raise SystemExit(1)
+    LB_PATH = ROUND_DIR / "final_leaderboard.csv"
+    SG_PATH = ROUND_DIR / "final_tournament_player_strokes_gained.csv"
+    CS_PATH = ROUND_DIR / "final_tournament_course_stats.csv"
+    CI_PATH = ROUND_DIR / "final_tournament_course_insights.csv"
+else:
+    for candidate in [OUT / f"round{ROUND}", OUT / f"round{ROUND} player & course stats"]:
+        if candidate.exists():
+            ROUND_DIR = candidate
+            break
+    else:
+        print(f"ERROR: Round {ROUND} data directory not found.")
+        print(f"  Create {OUT / f'round{ROUND}'} and place round{ROUND}_*.csv files inside.")
+        raise SystemExit(1)
+    LB_PATH = ROUND_DIR / f"round{ROUND}_leaderboard.csv"
+    SG_PATH = ROUND_DIR / f"round{ROUND}_player_strokes_gained.csv"
+    CS_PATH = ROUND_DIR / f"round{ROUND}_course_stats.csv"
+    CI_PATH = ROUND_DIR / f"round{ROUND}_course_insights.csv"
+
+TFM_PATH = OUT / f"{EVENT_SLUG}_trait_form_matrix.csv"
+PAY_PATH = DEP / "event_payload.json"
+PAIRINGS  = EVENT_DIR / "input" / "r1_pairings.csv"
+
+# ── Helper functions ──────────────────────────────────────────────────────────
+
+def load_csv(p: Path) -> list[dict]:
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            with open(p, newline="", encoding=enc) as f:
+                rows = list(csv.DictReader(f))
+            if rows:
+                return rows
+        except (UnicodeDecodeError, Exception):
+            continue
+    with open(p, newline="", encoding="utf-8", errors="replace") as f:
+        return list(csv.DictReader(f))
+
+
+def csv_columns(p: Path) -> list[str]:
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            with open(p, newline="", encoding=enc) as f:
+                return next(csv.reader(f), [])
+        except Exception:
+            continue
+    return []
+
+
+def ascii_fold(s: str) -> str:
+    return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
+
+
+def fl_to_lf(name: str) -> str:
+    parts = name.strip().split()
+    return parts[-1] + ", " + " ".join(parts[:-1]) if len(parts) >= 2 else name
+
+
+def avg(lst: list) -> float | None:
+    vals = [x for x in lst if x is not None]
+    return round(mean(vals), 3) if vals else None
+
+
+def parse_float(v: Any) -> float | None:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_prox(s: Any) -> int | None:
+    s = (str(s).strip()
+         .replace("’", "'").replace("‘", "'")
+         .replace("”", '"').replace("“", '"'))
+    m = re.match(r"(\d+)'\s*(\d+)\"", s)
+    if m:
+        return int(m.group(1)) * 12 + int(m.group(2))
+    m2 = re.match(r"(\d+)'", s)
+    return int(m2.group(1)) * 12 if m2 else None
+
+
+def parse_pct(s: Any) -> float | None:
+    try:
+        return float(str(s).rstrip("%").strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_pos(pos_str: str) -> int:
+    s = str(pos_str).strip().lstrip("T")
+    return int(s) if s.isdigit() else 72
+
+
+def classify_wave(tee_time_str: str, am_cutoff: int = 12) -> str:
+    if not tee_time_str:
+        return "unknown"
+    raw = str(tee_time_str).strip().upper()
+    if raw in ("TBD", "N/A", ""):
+        return "unknown"
+    is_pm = "PM" in raw
+    is_am = "AM" in raw
+    cleaned = raw.replace("AM", "").replace("PM", "").strip()
+    parts = cleaned.replace(":", " ").split()
+    try:
+        hour = int(parts[0])
+    except (IndexError, ValueError):
+        return "unknown"
+    if is_pm and hour != 12:
+        hour += 12
+    elif is_am and hour == 12:
+        hour = 0
+    return "early_late" if hour < am_cutoff else "late_early"
+
+
+# ── File validation ───────────────────────────────────────────────────────────
+MISSING_REQUIRED = False
+for path, label in [
+    (LB_PATH,  f"round{ROUND}_leaderboard.csv"),
+    (SG_PATH,  f"round{ROUND}_player_strokes_gained.csv"),
+    (TFM_PATH, f"{EVENT_SLUG}_trait_form_matrix.csv"),
+    (PAY_PATH, "event_payload.json"),
+]:
+    if not path.exists():
+        print(f"ERROR: Required file missing — {label}")
+        print(f"  Expected: {path}")
+        MISSING_REQUIRED = True
+
+if MISSING_REQUIRED:
+    raise SystemExit(1)
+
+cs_loaded = CS_PATH.exists()
+ci_loaded = CI_PATH.exists()
+if not cs_loaded:
+    print(f"[info] round{ROUND}_course_stats.csv not found — hole analysis skipped")
+if not ci_loaded:
+    print(f"[info] round{ROUND}_course_insights.csv not found — enrichment skipped")
+
+if CHECK_ONLY:
+    print(f"\n=== CHECK MODE — {EVENT_NAME} Round {ROUND} ===")
+    print(f"Event dir : {EVENT_DIR}")
+    print(f"Round dir : {ROUND_DIR}")
+    print(f"Build ts  : {BUILD_TS}")
+
+    def _check_file(p, label, required):
+        if not p.exists():
+            print(f"  [{'MISS' if required else ' -- '}] {label}")
+            return False
+        rows = load_csv(p)
+        print(f"  [ OK]  {label}  ({len(rows)} rows)")
+        return True
+
+    _check_file(LB_PATH,  f"round{ROUND}_leaderboard.csv",           True)
+    _check_file(SG_PATH,  f"round{ROUND}_player_strokes_gained.csv", True)
+    _check_file(TFM_PATH, f"{EVENT_SLUG}_trait_form_matrix.csv",     True)
+    _check_file(PAY_PATH, "event_payload.json",                       True)
+    _check_file(CS_PATH,  f"round{ROUND}_course_stats.csv",          False)
+    _check_file(CI_PATH,  f"round{ROUND}_course_insights.csv",       False)
+    print("\nPASS — all required files present." if not MISSING_REQUIRED else "\nFAIL — fix issues above.")
+    raise SystemExit(0)
+
+# ── Load files ────────────────────────────────────────────────────────────────
+lb      = load_csv(LB_PATH)
+sg      = load_csv(SG_PATH)
+tfm     = load_csv(TFM_PATH)
+cs      = load_csv(CS_PATH) if cs_loaded else []
+ci_rows = load_csv(CI_PATH) if ci_loaded else []
+with open(PAY_PATH, encoding="utf-8") as f:
+    payload = json.load(f)
+
+print(f"Loaded: {len(lb)} leaderboard / {len(sg)} SG / {len(tfm)} trait rows")
+
+# Normalise SG columns
+SG_ARG_COL = None
+if sg:
+    sg_col_set = set(sg[0].keys())
+    if FINAL_BUILD and "SG-OTT" in sg_col_set:
+        sg = [
+            {"Player": f"{r.get('First Name','')} {r.get('Last Name','')}".strip(),
+             "SG-Off the Tee": r.get("SG-OTT"), "SG-Approach to Green": r.get("SG-APP"),
+             "SG- Around the Green": r.get("SG-ARG"), "SG-Putting": r.get("SG-Putt"),
+             "SG-Total": r.get("SG-Total")}
+            for r in sg
+        ]
+        sg_col_set = set(sg[0].keys())
+    if "Player" not in sg_col_set and "PLAYER" in sg_col_set:
+        for r in sg:
+            r["Player"] = r.pop("PLAYER")
+        sg_col_set = set(sg[0].keys())
+    SG_ARG_COL = (
+        "SG- Around the Green" if "SG- Around the Green" in sg_col_set
+        else "SG-Around the Green" if "SG-Around the Green" in sg_col_set
+        else None
+    )
+
+# ── Pre-tournament model lookup ───────────────────────────────────────────────
+pretournament: dict[str, dict] = {}
+for tier in range(1, 6):
+    for p in payload.get("tiers", {}).get(f"tier_{tier}", []):
+        pretournament[ascii_fold(p.get("player_name", "")).lower()] = p
+# Also handle flat players array
+for p in payload.get("players", []):
+    pname = f"{p.get('last_name','')} {p.get('first_name','')}".strip() or p.get("player_name","")
+    pretournament[ascii_fold(pname).lower()] = p
+
+# Trait form matrix
+trait_by_nk: dict[str, dict] = {}
+name_to_nk:  dict[str, str]  = {}
+for row in tfm:
+    nk = row.get("name_key", "")
+    traits = {}
+    for tk, col in TRAIT_COLS.items():
+        try:
+            v = float(row.get(col, 0))
+            traits[tk] = round(v, 1) if v > 0 else None
+        except (TypeError, ValueError):
+            traits[tk] = None
+    trait_by_nk[nk] = traits
+    if "player_display" in row:
+        name_to_nk[ascii_fold(row["player_display"]).lower()] = nk
+
+def lookup_traits(name_lf: str) -> dict | None:
+    nk = name_to_nk.get(ascii_fold(name_lf).lower())
+    return trait_by_nk.get(nk) if nk else None
+
+sg_by_folded = {ascii_fold(r["Player"].strip()): r for r in sg if r.get("Player")}
+
+# Course insights
+ci_by_norm: dict[str, dict] = {}
+if ci_loaded:
+    for row in ci_rows:
+        full = (row.get("First Name","") + " " + row.get("Last Name","")).strip()
+        nk   = fl_to_lf(ascii_fold(full)).lower()
+        ci_by_norm[nk] = {
+            "d_distance":   parse_float(row.get("D. Distance")),
+            "d_accuracy":   parse_pct(row.get("D. Accuracy")),
+            "gir":          parse_pct(row.get("GIR")),
+            "fairway_prox": parse_prox(row.get("Fairway Prox","")),
+            "rough_prox":   parse_prox(row.get("Rough Prox","")),
+            "scrambling":   parse_pct(row.get("Scrambling")),
+        }
+
+# ── Wave assignments from pairings ────────────────────────────────────────────
+wave_assign: dict[str, str] = {}
+if PAIRINGS.exists():
+    for row in load_csv(PAIRINGS):
+        pname = (row.get("player_name") or
+                 f"{row.get('last_name','')}, {row.get('first_name','')}".strip(", "))
+        if not pname:
+            continue
+        wave = str(row.get("wave","")).strip().lower()
+        if wave not in ("late_early","early_late"):
+            wave = classify_wave(str(row.get("tee_time","")))
+        wave_assign[ascii_fold(pname).strip().lower()] = wave
+
+# ── Join leaderboard to model ─────────────────────────────────────────────────
+joined: list[dict] = []
+unmatched: list[str] = []
+seen: set[str] = set()
+duplicates: list[str] = []
+
+for row in lb:
+    if not any(row.values()):
+        continue
+    r_name = row.get("PLAYER","").strip()
+    if not r_name:
+        continue
+    folded = ascii_fold(r_name)
+    if folded in seen:
+        duplicates.append(r_name)
+        continue
+    seen.add(folded)
+    norm    = fl_to_lf(folded)
+    pt      = pretournament.get(norm.lower())
+    sg_row  = sg_by_folded.get(folded)
+
+    pos_str = row.get("POS","")
+    pos_num = parse_pos(pos_str)
+    score   = parse_float(row.get("TOTAL")) or 0
+
+    sg_arg_val = parse_float(sg_row.get(SG_ARG_COL)) if (sg_row and SG_ARG_COL) else None
+
+    wave_key  = folded.lower()
+    wave_alt  = fl_to_lf(folded).lower()
+    wave_val  = wave_assign.get(wave_key) or wave_assign.get(wave_alt) or "unknown"
+
+    record = {
+        "r1_name":    r_name,
+        "norm_name":  norm,
+        "r1_pos":     pos_num,
+        "r1_pos_str": pos_str,
+        "r1_score":   score,
+        "wave":       wave_val,
+        "matched":    pt is not None,
+        "pt_rank":    pt["rank"]              if pt else None,
+        "pt_tier":    pt["tier"]              if pt else None,
+        "pt_vts":     parse_float(pt.get("vts_final")) if pt else None,
+        "pt_win_pct": parse_float(pt.get("win_pct") or pt.get("win_prob")) if pt else None,
+        "pt_top10":   parse_float(pt.get("top10_pct") or pt.get("top10_prob")) if pt else None,
+        "pt_top20":   parse_float(pt.get("top20_pct") or pt.get("top20_prob")) if pt else None,
+        "pt_flags":   (pt.get("anti_pattern_flags") or "") if pt else "",
+        "pt_driver":  pt.get("primary_driver","") if pt else "",
+        "sg_ott":  parse_float(sg_row.get("SG-Off the Tee"))       if sg_row else None,
+        "sg_app":  parse_float(sg_row.get("SG-Approach to Green")) if sg_row else None,
+        "sg_arg":  sg_arg_val,
+        "sg_putt": parse_float(sg_row.get("SG-Putting"))           if sg_row else None,
+        "sg_tot":  parse_float(sg_row.get("SG-Total"))             if sg_row else None,
+        "traits":     lookup_traits(norm),
+        "rank_delta": (pt["rank"] - pos_num) if pt else 0,
+    }
+    record["ci"] = ci_by_norm.get(record["norm_name"].lower())
+    joined.append(record)
+    if not pt:
+        unmatched.append(r_name)
+
+matched = [r for r in joined if r["matched"]]
+print(f"Matched {len(matched)}/{len(joined)} players | unmatched: {len(unmatched)}")
+
+# ── Wave risk analysis ─────────────────────────────────────────────────────────
+wave_scores: dict[str, list[float]] = {"early_late": [], "late_early": []}
+for r in joined:
+    w = r.get("wave","")
+    if w in wave_scores:
+        wave_scores[w].append(r["r1_score"])
+
+wave_avgs: dict[str, float | None] = {
+    w: (round(sum(s)/len(s), 3) if s else None)
+    for w, s in wave_scores.items()
+}
+
+wave_risk_annotation: list[dict] = []
+el_avg = wave_avgs.get("early_late")
+le_avg = wave_avgs.get("late_early")
+if el_avg is not None and le_avg is not None and abs(el_avg - le_avg) > 0.25:
+    disadvantaged = "early_late" if el_avg > le_avg else "late_early"
+    favoured      = "late_early" if disadvantaged == "early_late" else "early_late"
+    diff          = round(abs(el_avg - le_avg), 3)
+    desc_dis = "AM Thu/PM Fri" if disadvantaged == "early_late" else "PM Thu/AM Fri"
+    for r in joined:
+        if r.get("wave") == disadvantaged:
+            wave_risk_annotation.append({
+                "player":           r["r1_name"],
+                "norm_name":        r.get("norm_name",""),
+                "pt_rank":          r.get("pt_rank"),
+                "r1_pos":           r.get("r1_pos"),
+                "wave":             disadvantaged,
+                "scoring_avg_diff": diff,
+                "note": (
+                    f"Disadvantaged wave ({disadvantaged}: {desc_dis}) — "
+                    f"field scoring avg {diff:.2f} SG behind {favoured} group through R{ROUND}"
+                ),
+            })
+    wave_risk_annotation.sort(key=lambda x: (x.get("pt_rank") or 999, x.get("r1_pos") or 999))
+    print(f"Wave risk: {len(wave_risk_annotation)} players flagged "
+          f"(disadvantaged={disadvantaged}, diff={diff:.3f})")
+
+# ── Model performance ─────────────────────────────────────────────────────────
+def group_stats(grp: list[dict]) -> dict:
+    return {
+        "n":           len(grp),
+        "avg_r1_pos":  avg([r["r1_pos"]   for r in grp]),
+        "avg_r1_score":avg([r["r1_score"] for r in grp]),
+        "in_r1_top10": sum(1 for r in grp if r["r1_pos"] <= 10),
+        "in_r1_top20": sum(1 for r in grp if r["r1_pos"] <= 20),
+    }
+
+model_perf = {
+    "pt_top10":  group_stats([r for r in matched if r.get("pt_rank") and r["pt_rank"] <= 10]),
+    "pt_top20":  group_stats([r for r in matched if r.get("pt_rank") and r["pt_rank"] <= 20]),
+    "tier1":     group_stats([r for r in matched if r.get("pt_tier") == 1]),
+    "tier2":     group_stats([r for r in matched if r.get("pt_tier") == 2]),
+    "tier1_2":   group_stats([r for r in matched if r.get("pt_tier") in (1, 2)]),
+    "all_field": group_stats(joined),
+}
+
+pairs = [(r["pt_rank"], r["r1_pos"]) for r in matched if r.get("pt_rank")]
+n  = len(pairs)
+d2 = sum((a - b)**2 for a, b in pairs)
+spearman_rho = round(1 - 6 * d2 / (n * (n**2 - 1)), 3) if n > 2 else 0.0
+
+# ── Trait audit ───────────────────────────────────────────────────────────────
+top10_group = [r for r in joined if r["r1_pos"] <= 10]
+all_with_traits = [r for r in matched if r.get("traits")]
+top10_with_traits = [r for r in top10_group if r.get("matched") and r.get("traits")]
+
+def sg_summary(grp: list[dict]) -> dict:
+    return {k: avg([r[k] for r in grp]) for k in ("sg_ott","sg_app","sg_arg","sg_putt","sg_tot")}
+
+sg_leaders_top10 = sg_summary(top10_group)
+sg_leaders_top18 = sg_summary([r for r in joined if r["r1_pos"] <= 18])
+
+trait_audit: dict[str, dict] = {}
+for tk in TRAIT_COLS:
+    w    = VENUE_WEIGHTS[tk]
+    t10v = [r["traits"][tk] for r in top10_with_traits if r["traits"].get(tk) is not None]
+    fv   = [r["traits"][tk] for r in all_with_traits   if r["traits"].get(tk) is not None]
+    t10a = avg(t10v)
+    fa   = avg(fv)
+    delta = round(t10a - fa, 1) if t10a is not None and fa is not None else None
+
+    sg_key  = SG_PROXY.get(tk)
+    sg_t10  = avg([r[sg_key] for r in top10_group if r.get(sg_key) is not None]) if sg_key else None
+    sg_all  = avg([r[sg_key] for r in joined      if r.get(sg_key) is not None]) if sg_key else None
+    sg_delta = round(sg_t10 - sg_all, 3) if sg_t10 is not None and sg_all is not None else None
+
+    if delta is None and sg_delta is None:
+        signal = "not_testable"
+    else:
+        d = delta if delta is not None else 0
+        if   d >= TRAIT_SIGNAL_THRESHOLDS["strong"]:  signal = "validated"
+        elif d >= TRAIT_SIGNAL_THRESHOLDS["lean"]:    signal = "mixed"
+        elif d >= TRAIT_SIGNAL_THRESHOLDS["neutral"]: signal = "neutral"
+        else:                                          signal = "weak"
+
+    trait_audit[tk] = {
+        "venue_weight":    w,
+        "top10_trait_avg": t10a,
+        "field_trait_avg": fa,
+        "trait_delta":     delta,
+        "sg_proxy":        sg_key,
+        "sg_top10":        sg_t10,
+        "sg_field":        0.0 if sg_all == 0 else sg_all,
+        "sg_delta":        sg_delta,
+        "signal":          signal,
+        "sample_n_top10":  len(t10v),
+        "sample_n_field":  len(fv),
+    }
+
+# ── BRIE-Z sub-driver augmentation for app_150_200 (schema v1.1) ─────────────
+def _brie_z_augment() -> dict:
+    try:
+        cfg_p = _ROOT / "config" / "db_config.json"
+        if cfg_p.exists():
+            with open(cfg_p) as fh:
+                db_path = _ROOT / json.load(fh)["db_path"]
+        else:
+            db_path = _ROOT / "data" / "venuedna_master.db"
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+
+        bz_rows = conn.execute(
+            "SELECT brie_z_score, wave_bonus "
+            "FROM active_field_projections WHERE brie_z_score IS NOT NULL"
+        ).fetchall()
+        bz_vals = [float(r["brie_z_score"]) for r in bz_rows]
+        wb_vals = [float(r["wave_bonus"] or 0) for r in bz_rows]
+
+        g_rows = conn.execute(
+            "SELECT app_150_200_fw_sg, app_150_200_poor_shot_avoidance "
+            "FROM local_player_granular_traits "
+            "WHERE app_150_200_fw_sg IS NOT NULL"
+        ).fetchall()
+        fw_vals  = [float(r["app_150_200_fw_sg"]) for r in g_rows]
+        psa_vals = [float(r["app_150_200_poor_shot_avoidance"]) for r in g_rows
+                    if r["app_150_200_poor_shot_avoidance"] is not None]
+
+        # Course rough penalty
+        c_row = conn.execute(
+            "SELECT difficulty_app_rough_vs_fw FROM course_profiles WHERE course_key = ?",
+            (COURSE_KEY,),
+        ).fetchone()
+        penalty = float(c_row[0]) if (c_row and c_row[0] is not None) else 0.0
+        conn.close()
+
+        return {
+            "schema_version":       "1.1",
+            "available":            len(bz_vals) > 0,
+            "n_players":            len(bz_vals),
+            "field_avg_brie_z":     avg(bz_vals),
+            "field_avg_fw_sg":      avg(fw_vals),
+            "field_avg_psa":        avg(psa_vals),
+            "course_rough_penalty": penalty,
+            "wave_bonus_applied_n": sum(1 for v in wb_vals if v > 0),
+            "note": (
+                "BRIE-Z = 0.6×fw_sg + 0.4×psa − course_rough_penalty. "
+                "Wave bonus (+0.15) applied before Z-scoring."
+            ),
+        }
+    except Exception as exc:
+        return {"available": False, "schema_version": "1.1", "error": str(exc)}
+
+if "app_150_200" in trait_audit:
+    trait_audit["app_150_200"]["brie_z"] = _brie_z_augment()
+
+# ── Course insights enrichment ────────────────────────────────────────────────
+top10_ci = [r for r in top10_group if r.get("ci")]
+all_ci   = [r for r in joined      if r.get("ci")]
+
+def ci_avg_field(field, grp):
+    vals = [r["ci"][field] for r in grp if r.get("ci") and r["ci"].get(field) is not None]
+    return avg(vals)
+
+def enr_delta(field, direction, t10v, fv):
+    if t10v is None or fv is None:
+        return None
+    return round(fv - t10v, 2) if direction == "lower_better" else round(t10v - fv, 2)
+
+def enr_signal(field, delta, base_sig):
+    if delta is None:
+        return "not_available"
+    if delta < 0:
+        return "contradicted"
+    if delta < CI_SIG.get(field, 3.0):
+        return "neutral"
+    if delta >= CI_STR.get(field, 5.0) and base_sig in ("mixed","neutral","weak","not_testable"):
+        return "upgraded"
+    return "confirmed"
+
+if ci_loaded:
+    for tk, mapping in CI_TRAIT_MAP.items():
+        primary   = mapping["primary"]
+        direction = mapping["direction"]
+        secondary = mapping["secondary"]
+        if primary is None:
+            trait_audit[tk]["enrichment"] = {"available": False, "reason": "no_direct_proxy"}
+            continue
+        t10_pri = ci_avg_field(primary, top10_ci)
+        f_pri   = ci_avg_field(primary, all_ci)
+        delta_p = enr_delta(primary, direction, t10_pri, f_pri)
+        base_sig = trait_audit[tk]["signal"]
+        e_sig    = enr_signal(primary, delta_p, base_sig)
+        sec_dir  = "lower_better" if secondary in ("fairway_prox","rough_prox") else "higher_better"
+        t10_sec  = ci_avg_field(secondary, top10_ci) if secondary else None
+        f_sec    = ci_avg_field(secondary, all_ci)   if secondary else None
+        sec_d    = enr_delta(secondary, sec_dir, t10_sec, f_sec) if secondary else None
+        upg_sig  = UPGRADE_MAP.get(base_sig, base_sig) if e_sig == "upgraded" else base_sig
+        trait_audit[tk]["enrichment"] = {
+            "available":          True,
+            "source":             f"round{ROUND}_course_insights.csv",
+            "primary_field":      primary,
+            "direction":          direction,
+            "top10_primary":      t10_pri,
+            "field_primary":      f_pri,
+            "delta_primary":      delta_p,
+            "top10_secondary":    t10_sec,
+            "field_secondary":    f_sec,
+            "delta_secondary":    sec_d,
+            "enrichment_signal":  e_sig,
+            "upgraded_signal":    upg_sig,
+        }
+        if e_sig == "upgraded":
+            trait_audit[tk]["signal"] = upg_sig
+            trait_audit[tk]["signal_upgraded_by_enrichment"] = True
+else:
+    for tk in TRAIT_COLS:
+        trait_audit[tk]["enrichment"] = {
+            "available": False,
+            "reason": f"round{ROUND}_course_insights.csv not present",
+        }
+
+def compute_source_confidence(tk, signal, enrichment):
+    enr = enrichment if isinstance(enrichment, dict) else {}
+    if not enr.get("available"):
+        if signal == "validated":          return "proxy-confirmed"
+        if signal in ("mixed","neutral"):  return "weak-proxy"
+        return "not-testable"
+    e_sig = enr.get("enrichment_signal","")
+    pf    = enr.get("primary_field","")
+    if tk in DIRECT_ENRICHMENT and DIRECT_ENRICHMENT[tk] == pf and e_sig in ("confirmed","upgraded"):
+        return "direct"
+    if signal == "validated" and e_sig in ("confirmed","upgraded"):
+        return "proxy-confirmed"
+    if signal in ("mixed","neutral") or e_sig == "neutral":
+        return "weak-proxy"
+    return "not-testable"
+
+for tk in trait_audit:
+    trait_audit[tk]["source_confidence"] = compute_source_confidence(
+        tk, trait_audit[tk]["signal"], trait_audit[tk].get("enrichment")
+    )
+
+# ── Rank deltas ───────────────────────────────────────────────────────────────
+by_delta = sorted([r for r in matched if r.get("pt_rank")], key=lambda x: -x["rank_delta"])
+
+def player_summary(r: dict) -> dict:
+    return {
+        k: r[k] for k in (
+            "r1_name","norm_name","r1_pos","r1_pos_str","r1_score",
+            "pt_rank","pt_tier","pt_vts","pt_flags","pt_driver",
+            "rank_delta","sg_ott","sg_app","sg_arg","sg_putt","sg_tot","wave",
+        ) if k in r
+    }
+
+# ── Slippage risk ─────────────────────────────────────────────────────────────
+slippage_risk: list[dict] = []
+for r in matched:
+    if r["r1_pos"] > 20:
+        continue
+    risks = []
+    sg_putt = r.get("sg_putt") or 0
+    sg_app  = r.get("sg_app")  or 0
+    pt_rank = r.get("pt_rank") or 99
+    if sg_putt > 2.0 and sg_app < 0.3:
+        risks.append(f"putting-driven ({sg_putt:+.2f} putt vs {sg_app:+.2f} APP) — regression likely")
+    if pt_rank > 55 and r["r1_pos"] <= 12 and sg_app < 0.5:
+        risks.append(f"no pre-tournament basis (model rank {pt_rank}), heat-check round")
+    if risks:
+        rec = player_summary(r)
+        rec["risk_flags"] = risks
+        slippage_risk.append(rec)
+slippage_risk.sort(key=lambda x: x.get("r1_pos", 99))
+
+# ── Risers ────────────────────────────────────────────────────────────────────
+def riser_thesis_score(r: dict) -> int:
+    score = 0
+    if r.get("sg_app")  and r["sg_app"]  > 0.5: score += 2
+    if r.get("sg_arg")  and r["sg_arg"]  > 0.3: score += 1
+    if r.get("sg_putt") and r["sg_putt"] > 0.3: score += 1
+    return score
+
+_seen_notes: set[str] = set()
+
+def _make_thesis_note(r: dict) -> str:
+    notes = []
+    if r.get("sg_app") and r["sg_app"] > 0.8:   notes.append(f"approach elite ({r['sg_app']:+.2f})")
+    elif r.get("sg_app") and r["sg_app"] > 0.4:  notes.append(f"approach solid ({r['sg_app']:+.2f})")
+    if r.get("sg_arg") and r["sg_arg"] > 0.5:    notes.append(f"scrambling strong ({r['sg_arg']:+.2f})")
+    if r.get("sg_putt") and r["sg_putt"] > 0.8:  notes.append(f"putting hot ({r['sg_putt']:+.2f})")
+    if r.get("pt_driver"):                         notes.append(f"pre-event driver: {r['pt_driver']}")
+    if not notes:
+        notes.append(f"score above expectation (R{ROUND} score {r.get('r1_score',0):+d})")
+
+    # Unique-narrative enforcement: if this note text has been used, disambiguate
+    # with player-specific SG total so no two cards share identical content.
+    base = " | ".join(notes)
+    if base in _seen_notes:
+        base += f" | R{ROUND} SG total: {r.get('sg_tot', 0):+.2f}"
+    _seen_notes.add(base)
+    return base
+
+weekend_risers: list[dict] = []
+for r in by_delta[:20]:
+    ts = riser_thesis_score(r)
+    if ts >= 2 and r.get("r1_score", 0) <= -3:
+        rec = player_summary(r)
+        rec["thesis_score"] = ts
+        rec["thesis_note"]  = _make_thesis_note(r)
+        weekend_risers.append(rec)
+
+risers   = [player_summary(r) for r in by_delta[:12]]
+slippage = [player_summary(r) for r in sorted(
+    [r for r in matched if r.get("pt_rank") and r["pt_rank"] <= 35],
+    key=lambda x: x["rank_delta"]
+)[:10]]
+
+# ── Live lean notes ───────────────────────────────────────────────────────────
+slippage_names = {r["r1_name"] for r in slippage_risk}
+sustainable_leaders = [
+    r for r in joined
+    if r["r1_pos"] <= 6
+    and r["r1_name"] not in slippage_names
+    and (r.get("sg_app") or 0) > 0.5
+]
+
+watch_next: list[dict] = [
+    {
+        "player":    r["r1_name"],
+        "pos_str":   r.get("r1_pos_str",""),
+        "score":     r.get("r1_score", 0),
+        "sg_putt":   r.get("sg_putt"),
+        "sg_app":    r.get("sg_app"),
+        "note":      " | ".join(r.get("risk_flags",[])),
+        "flag_type": "slippage",
+    }
+    for r in slippage_risk[:5]
+] + [
+    {
+        "player":    r["r1_name"],
+        "pos_str":   r.get("r1_pos_str",""),
+        "score":     r.get("r1_score", 0),
+        "sg_putt":   r.get("sg_putt"),
+        "sg_app":    r.get("sg_app"),
+        "note":      f"approach-backed leader (APP {(r.get('sg_app') or 0):+.2f}) — sustainable position",
+        "flag_type": "sustainable",
+    }
+    for r in sustainable_leaders[:2]
+]
+
+putt_outliers = sorted(
+    [r for r in slippage_risk if (r.get("sg_putt") or 0) > 2.0],
+    key=lambda x: -(x.get("sg_putt") or 0)
+)
+
+lean_up   = [{"trait": tk, "delta": trait_audit[tk].get("trait_delta"),
+               "confidence": trait_audit[tk].get("source_confidence","proxy-confirmed"),
+               "enr_signal": (trait_audit[tk].get("enrichment") or {}).get("enrichment_signal")}
+             for tk in TRAIT_COLS if trait_audit[tk]["signal"] == "validated"]
+lean_down = [{"trait": tk, "delta": trait_audit[tk].get("trait_delta")}
+             for tk in TRAIT_COLS if trait_audit[tk]["signal"] in ("weak","not_testable")]
+
+rho_note = (
+    f"R{ROUND} rho={spearman_rho} — tournament complete." if IS_FINAL
+    else f"R{ROUND} rho={spearman_rho} — separation expected to sharpen by R{ROUND+1}."
+)
+
+live_lean_notes: dict = {
+    "round":                  ROUND,
+    "next_round":             ROUND + 1 if not IS_FINAL else None,
+    "lean_up_traits":         lean_up,
+    "lean_down_traits":       lean_down,
+    "putt_caution":           len(putt_outliers) > 0,
+    "putt_outliers":          [
+        {"player": r["r1_name"], "sg_putt": r.get("sg_putt"), "sg_app": r.get("sg_app")}
+        for r in putt_outliers[:3]
+    ],
+    "watch_next_round":       watch_next,
+    "wave_risk_annotation":   wave_risk_annotation,
+    "wave_scoring_averages":  wave_avgs,
+    "rho_note":               rho_note,
+}
+
+# ── Cumulative learning ───────────────────────────────────────────────────────
+CUM_OUT = OUT / f"{EVENT_SLUG}_cumulative_learning.json"
+CUM_DEP = DEP / "cumulative_learning.json"
+
+this_round_entry = {
+    "round":        ROUND,
+    "generated_at": TODAY,
+    "spearman_rho": spearman_rho,
+    "trait_signals": {
+        tk: {
+            "signal":            v["signal"],
+            "source_confidence": v.get("source_confidence","not-testable"),
+            "trait_delta":       v.get("trait_delta"),
+            "sg_delta":          v.get("sg_delta"),
+            "enrichment_signal": (v.get("enrichment") or {}).get("enrichment_signal"),
+        }
+        for tk, v in trait_audit.items()
+    },
+    "model_hits": {
+        "pt_top10_in_top10": model_perf["pt_top10"]["in_r1_top10"],
+        "pt_top10_in_top20": model_perf["pt_top10"]["in_r1_top20"],
+        "tier1_2_in_top20":  model_perf["tier1_2"]["in_r1_top20"],
+    },
+    "risers":           [r["r1_name"] for r in weekend_risers],
+    "slippage":         [r["r1_name"] for r in slippage_risk],
+    "wave_annotation_n": len(wave_risk_annotation),
+}
+
+if CUM_OUT.exists():
+    with open(CUM_OUT, encoding="utf-8") as f:
+        cumulative_learning = json.load(f)
+else:
+    cumulative_learning = {
+        "schema_version":    "1.1",
+        "event_slug":        EVENT_SLUG,
+        "created_at":        TODAY,
+        "per_round":         {},
+        "cumulative_signals": {
+            tk: {
+                "rounds_observed":    [],
+                "signal_history":     [],
+                "confidence_history": [],
+                "delta_history":      [],
+                "consensus":          None,
+                "consensus_confidence": None,
+            }
+            for tk in TRAIT_COLS
+        },
+    }
+
+cumulative_learning["last_updated"]     = TODAY
+cumulative_learning["updated_at"]       = BUILD_TS
+cumulative_learning["rounds_completed"] = ROUND
+cumulative_learning["per_round"][str(ROUND)] = this_round_entry
+
+rounds_present = sorted(set(cumulative_learning.get("rounds_present",[]) + [ROUND]))
+cumulative_learning["rounds_present"] = rounds_present
+
+for tk, v in trait_audit.items():
+    cs_entry = cumulative_learning["cumulative_signals"].setdefault(tk, {
+        "rounds_observed":[], "signal_history":[], "confidence_history":[],
+        "delta_history":[], "consensus":None, "consensus_confidence":None,
+    })
+    observed = cs_entry.get("rounds_observed",[])
+    if ROUND not in observed:
+        cs_entry.setdefault("rounds_observed",    []).append(ROUND)
+        cs_entry.setdefault("signal_history",     []).append(v["signal"])
+        cs_entry.setdefault("confidence_history", []).append(v.get("source_confidence","not-testable"))
+        cs_entry.setdefault("delta_history",      []).append(v.get("trait_delta"))
+    else:
+        idx = observed.index(ROUND)
+        cs_entry["signal_history"][idx]     = v["signal"]
+        cs_entry["confidence_history"][idx] = v.get("source_confidence","not-testable")
+        cs_entry["delta_history"][idx]      = v.get("trait_delta")
+    cs_entry["consensus"]            = cs_entry["signal_history"][-1]
+    cs_entry["consensus_confidence"] = cs_entry["confidence_history"][-1]
+
+# ── Leaderboard snapshot ──────────────────────────────────────────────────────
+lb_snapshot = [
+    {k: r[k] for k in ("r1_name","r1_pos","r1_pos_str","r1_score","pt_rank",
+                         "pt_tier","pt_vts","sg_app","sg_putt","sg_ott","sg_arg","sg_tot","wave")
+     if k in r}
+    for r in joined
+]
+
+def _sg_field(key):
+    vals = [p.get(key) for p in lb_snapshot if p.get(key) is not None]
+    if not vals: return None
+    v = round(sum(vals)/len(vals), 3)
+    return 0.0 if v == 0 else v
+
+sg_field_all = {k: _sg_field(k) for k in ("sg_ott","sg_app","sg_arg","sg_putt","sg_tot")}
+
+sg_dimension_leaders = {
+    dim: [
+        {"r1_name": r["r1_name"], "r1_pos": r.get("r1_pos_str"), "value": r[dim], "r1_score": r["r1_score"]}
+        for r in sorted([x for x in joined if x.get(dim) is not None], key=lambda x: -x[dim])[:5]
+    ]
+    for dim in ("sg_app","sg_putt","sg_ott","sg_arg")
+}
+
+holes_data: list[dict] = []
+if cs_loaded:
+    for row in cs:
+        try:
+            holes_data.append({
+                "hole":       int(row["Hole"]),
+                "par":        int(row["Par"]),
+                "yards":      int(row["Yards"]),
+                "avg":        parse_float(row["Avg"]),
+                "rank":       int(row["Rank"]),
+                "plus_minus": parse_float(row["Plus - Minus"]),
+                "birdies":    int(row["Birdies"]),
+                "pars":       int(row["Pars"]),
+                "bogeys":     int(row["Bogeys"]),
+                "dbl":        int(row["DBL+"]),
+            })
+        except (ValueError, KeyError) as e:
+            print(f"[warn] Skipping course stats row: {e}")
+
+easiest = sorted(holes_data, key=lambda x: -x["birdies"])[:5]    if holes_data else []
+hardest = sorted(holes_data, key=lambda x: -(x["bogeys"]+x["dbl"]))[:3] if holes_data else []
+
+# ── Build enrichment summary ──────────────────────────────────────────────────
+if ci_loaded and all_ci:
+    upgraded_traits  = [tk for tk in trait_audit if trait_audit[tk].get("signal_upgraded_by_enrichment")]
+    confirmed_traits = [tk for tk in trait_audit
+                        if (trait_audit[tk].get("enrichment") or {}).get("enrichment_signal") == "confirmed"]
+    enrichment_summary = {
+        "source":           f"round{ROUND}_course_insights.csv",
+        "player_match_n":   len(all_ci),
+        "player_total":     len(joined),
+        "traits_upgraded":  upgraded_traits,
+        "traits_confirmed": confirmed_traits,
+    }
+else:
+    enrichment_summary = None
+
+# ── Assemble output ───────────────────────────────────────────────────────────
+round_label = "Final Tournament" if FINAL_BUILD else ("Final Round" if IS_FINAL else f"Round {ROUND}")
+if FINAL_BUILD:
+    round_sources = ["final_leaderboard.csv","final_tournament_player_strokes_gained.csv",
+                     f"{EVENT_SLUG}_trait_form_matrix.csv","deploy/data/event_payload.json"]
+else:
+    round_sources = [f"round{ROUND}_leaderboard.csv", f"round{ROUND}_player_strokes_gained.csv",
+                     f"{EVENT_SLUG}_trait_form_matrix.csv", "deploy/data/event_payload.json"]
+if cs_loaded: round_sources.append(f"round{ROUND}_course_stats.csv")
+if ci_loaded: round_sources.append(f"round{ROUND}_course_insights.csv")
+
+output = {
+    "schema_version":         "1.1",
+    "generated_at":           TODAY,
+    "build_timestamp":        BUILD_TS,
+    "round":                  ROUND,
+    "event_slug":             EVENT_SLUG,
+    "enrichment_used":        ci_loaded,
+    "metadata": {
+        "event_name":         EVENT_NAME,
+        "course_name":        COURSE_NAME,
+        "par":                PAR,
+        "round_label":        round_label,
+        "is_final":           IS_FINAL,
+        "is_full_tournament": FINAL_BUILD,
+        "favored_wave":       FAVORED_WAVE,
+    },
+    "round_sources":          round_sources,
+    "course_insights_loaded": ci_loaded,
+    "enrichment_summary":     enrichment_summary,
+    "live_lean_notes":        live_lean_notes,
+    "match_summary": {
+        "matched":        len(matched),
+        "total":          len(joined),
+        "unmatched":      unmatched,
+        "match_rate_pct": round(len(matched)/len(joined)*100, 1) if joined else 0,
+    },
+    "model_performance": {
+        "spearman_rho": spearman_rho,
+        "groups":       model_perf,
+    },
+    "sg_leader_averages": {
+        "top10":      sg_leaders_top10,
+        "top18":      sg_leaders_top18,
+        "full_field": sg_field_all,
+    },
+    "trait_audit":          trait_audit,
+    "risers":               risers,
+    "slippage":             slippage,
+    "weekend_risers":       weekend_risers,
+    "slippage_risk":        slippage_risk,
+    "leaderboard_snapshot": lb_snapshot,
+    "dimension_leaders":    sg_dimension_leaders,
+    "course_stats":         holes_data,
+    "easiest_holes":        easiest,
+    "hardest_holes":        hardest,
+}
+
+# ── Write ─────────────────────────────────────────────────────────────────────
+if FINAL_BUILD:
+    out_path = OUT / f"{EVENT_SLUG}_final_analysis.json"
+    dep_path = DEP / "final_analysis.json"
+else:
+    out_path = OUT / f"{EVENT_SLUG}_r{ROUND}_analysis.json"
+    dep_path = DEP / f"r{ROUND}_analysis.json"
+
+for path in [out_path, dep_path]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2)
+    print(f"Wrote: {path}")
+
+if not FINAL_BUILD:
+    for path in [CUM_OUT, CUM_DEP]:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(cumulative_learning, f, indent=2)
+        print(f"Wrote: {path}")
+
+# ── Summary ───────────────────────────────────────────────────────────────────
+print()
+print("=" * 62)
+print(f"  {EVENT_NAME} — {round_label} ANALYSIS COMPLETE")
+print(f"  Built: {BUILD_TS}")
+print("=" * 62)
+print(f"  Players matched  : {len(matched)}/{len(joined)} ({output['match_summary']['match_rate_pct']}%)")
+print(f"  Spearman rho     : {spearman_rho}")
+print(f"  Wave flagged     : {len(wave_risk_annotation)} players  |  avgs: {wave_avgs}")
+print(f"  Enrichment       : {'ON (' + str(enrichment_summary['player_match_n']) + ' players)' if ci_loaded and enrichment_summary else 'OFF'}")
+print()
+print("  Trait audit (signal / source_confidence):")
+for tk, v in trait_audit.items():
+    upg = " [UPGRADED]" if v.get("signal_upgraded_by_enrichment") else ""
+    bz  = " [BRIE-Z]" if v.get("brie_z",{}).get("available") else ""
+    print(f"    {tk:<22} delta={str(v['trait_delta']):>6}  "
+          f"sg_d={str(v['sg_delta']):>7}  => {v['signal']}{upg}{bz}")
+print()
+print(f"  Weekend risers   : {[r['r1_name'] for r in weekend_risers] or 'none'}")
+print(f"  Slippage risk    : {[r['r1_name'] for r in slippage_risk] or 'none'}")
+print()
+out_stem = "final_analysis" if FINAL_BUILD else f"r{ROUND}_analysis"
+print(f"  Files written:")
+print(f"    output/{EVENT_SLUG}_{out_stem}.json")
+print(f"    deploy/data/{out_stem}.json")
+if not FINAL_BUILD:
+    print(f"    deploy/data/cumulative_learning.json  (rounds: {rounds_present})")

@@ -807,3 +807,23 @@ footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 2r
 .bet-lane-label { font-size:.6rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2rem; }
 .bet-lane-val { font-size:.78rem;font-weight:700;margin-bottom:.1rem; }
 .bet-lane-status { font-weight:600;letter-spacing:.03em; }
+
+/* ── BRIE-Z Sub-Driver Panel ── */
+.bz-grid { display:flex;flex-direction:column;gap:.15rem; }
+.bz-row { display:flex;justify-content:space-between;align-items:center;font-size:.76rem;padding:.15rem 0;border-bottom:1px solid var(--border); }
+.bz-row:last-child { border-bottom:none; }
+.bz-label { color:var(--muted); }
+.bz-val { font-weight:600;font-variant-numeric:tabular-nums; }
+.bz-zscore { float:right;font-size:.85rem;font-weight:700;margin-left:.5rem; }
+.bz-baseline-notice .bz-label { font-style:italic;font-size:.72rem; }
+
+/* ── Wave Risk Annotation Banner ── */
+#wave-risk-alert { background:#1c1917;border:1px solid #d97706;border-radius:.75rem;padding:.7rem 1rem;margin-bottom:1.25rem;font-size:.8rem;color:#fde68a; }
+.wave-risk-inner { display:flex;align-items:flex-start;gap:.65rem; }
+.wave-risk-icon { font-size:1.1rem;flex-shrink:0;color:#f59e0b; }
+.wave-risk-body { flex:1;min-width:0; }
+.wave-risk-body b { display:block;font-size:.82rem;margin-bottom:.2rem; }
+.wave-risk-diff { font-size:.74rem;color:#fbbf24;display:block;margin-bottom:.35rem; }
+.wave-risk-list { margin:.2rem 0 .4rem 1rem;padding:0;font-size:.76rem;color:#fde68a;line-height:1.6; }
+.wave-risk-avgs { display:flex;gap:1rem;font-size:.73rem;color:var(--muted); }
+.wave-risk-avgs b { color:#fde68a; }
