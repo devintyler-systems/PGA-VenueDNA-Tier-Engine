@@ -162,12 +162,12 @@ The Renaissance Club champion is typically an iron-first player who keeps the ba
 | Category | Count |
 |----------|-------|
 | Field Size | 166 |
-| Tier 1 | 5 |
+| Tier 1 | 3 |
 | Tier 2 | 24 |
 | Tier 3 | 77 |
-| Tier 4 | 28 |
-| Tier 5 | 32 |
-| Anti-Pattern Players (2+ flags) | 9 |
+| Tier 4 | 32 |
+| Tier 5 | 30 |
+| Anti-Pattern Players (2+ flags) | 8 |
 | Renaissance Debuts | 39 |
 | HOT form players | 17 |
 | COLD/COOL form players | 50 |

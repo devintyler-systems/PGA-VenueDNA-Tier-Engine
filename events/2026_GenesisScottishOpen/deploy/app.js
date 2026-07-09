@@ -63,6 +63,10 @@ const EXTRA_FILTER_DEFS = [
   { key: 'top10_prob',      label: 'Top 10 % (e.g. 25 = 25%)' },
   { key: 'top20_prob',      label: 'Top 20 % (e.g. 45 = 45%)' },
   { key: 'make_cut_prob',   label: 'Make Cut % (0–100)' },
+  { key: 'tvl_score',  label: 'TVL — SG:OTT 12m (Off-Tee Consistency)' },
+  { key: 'hew_score',  label: 'HEW — Ball Striking 6m (Tee-to-Green)' },
+  { key: 'brie_score', label: 'BRIE — SG:APP 24m (Approach Precision)' },
+  { key: 'vfr_score',  label: 'VFR — SG:ARG 6m (Around-Green)' },
 ];
 
 /* ── Tier semantic labels ── */
@@ -583,6 +587,12 @@ async function init() {
       debut_flag:    p.debut_flag ?? brief.debut_flag ?? false,
       form_class:    p.form_class  || brief.form_class  || '',
 
+      /* DB-sourced trait scores (from active_field_projections via engine) */
+      tvl_score:   (p.tvl_score  != null) ? +p.tvl_score  : (brief.tvl_score  != null ? +brief.tvl_score  : null),
+      hew_score:   (p.hew_score  != null) ? +p.hew_score  : (brief.hew_score  != null ? +brief.hew_score  : null),
+      brie_score:  (p.brie_score != null) ? +p.brie_score : (brief.brie_score != null ? +brief.brie_score : null),
+      vfr_score:   (p.vfr_score  != null) ? +p.vfr_score  : (brief.vfr_score  != null ? +brief.vfr_score  : null),
+
       /* Trait scores — built from TRAIT_DEFS + SG fields in payload */
       trait_scores: [],
     };
@@ -989,6 +999,10 @@ function traitFilterPassGlobal(p, f) {
     'top20_prob':      p.top20_prob,
     'venue_fit_score': p.venue_fit_score,
     'vts_final':       +p.vts_final,
+    'tvl_score':    p.tvl_score,
+    'hew_score':    p.hew_score,
+    'brie_score':   p.brie_score,
+    'vfr_score':    p.vfr_score,
   };
   const score = directMap[f.trait];
   if (score == null) return false;
@@ -1825,6 +1839,7 @@ function openModal(p, brief) {
     sectionRiskFailure(p),
     sectionConviction(p, b),
     sectionDecomposition(p),
+    sectionDbMetrics(p),
   ].join('');
 
   overlay.classList.add('open');
@@ -2112,6 +2127,27 @@ function sectionDecomposition(p) {
       <div class="stat-row">${pills}</div>
       ${d.trace_notes ? `<div class="trace-box">${d.trace_notes}</div>` : ''}
     </div>
+  </div>`;
+}
+
+function sectionDbMetrics(p) {
+  const metrics = [
+    { key: 'tvl_score',  label: 'TVL (OTT 12m)',    tip: 'SG:OTT 12-month — off-tee consistency; drives fairway finding on tight links corridors' },
+    { key: 'hew_score',  label: 'HEW (BallStr 6m)', tip: 'Ball Striking composite 6-month — tee-to-green quality indicator from DataGolf DB' },
+    { key: 'brie_score', label: 'BRIE (APP 24m)',   tip: 'SG:APP 24-month — approach precision; primary Renaissance scoring driver from DB' },
+    { key: 'vfr_score',  label: 'VFR (ARG 6m)',     tip: 'SG:ARG 6-month — around-green adaptability; links rough recovery from DB' },
+  ];
+  const hasAny = metrics.some(m => p[m.key] != null && !isNaN(p[m.key]));
+  if (!hasAny) return '';
+  const pills = metrics.map(({ key, label, tip }) => {
+    const v = p[key];
+    const fmt = (v != null && !isNaN(+v)) ? (+v >= 0 ? '+' : '') + (+v).toFixed(2) : '—';
+    const color = (v != null && !isNaN(+v)) ? (+v >= 0.2 ? '#4ade80' : +v >= 0 ? '#fcd34d' : '#f87171') : '#94a3b8';
+    return `<span class="stat-pill small" title="${tip}"><span class="sk">${label}:</span> <span class="sv" style="color:${color}">${fmt}</span></span>`;
+  }).join('');
+  return `<div class="modal-section">
+    <h4>DB Metric Signals</h4>
+    <div class="stat-row">${pills}</div>
   </div>`;
 }
 
@@ -2552,6 +2588,10 @@ function buildGlossaryHTML() {
       ['DA', 'Driving Accuracy — % of fairways hit, expressed as adj. vs. field avg (12%).'],
       ['SG:PUTT', 'Strokes gained: putting, regressed for links surfaces (13%).'],
       ['SG:ARG', 'Strokes gained: around-the-green / short game (10%).'],
+      ['TVL', 'SG:OTT (12-month) — off-tee consistency from DataGolf DB. Contributes to VFS: fairway finding on tight Renaissance corridors.'],
+      ['HEW', 'Ball Striking composite (6-month) — OTT+APP combined from DataGolf DB. Measures tee-to-green quality entering the event.'],
+      ['BRIE', 'SG:APP (24-month) — approach precision from DataGolf DB. Primary Renaissance scoring driver; correlates with 150-200yd zone performance.'],
+      ['VFR', 'SG:ARG (6-month) — around-green adaptability from DataGolf DB. Links rough recovery and short-game resilience at Renaissance.'],
     ]),
     section('Tier Definitions', [
       ['T1 · Structural Winner', 'Full-profile match: elite NSI + strong venue fit + course history. Win probability ≥3%.'],

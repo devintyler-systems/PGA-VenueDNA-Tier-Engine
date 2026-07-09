@@ -132,18 +132,18 @@
     <table class="player-table" id="player-table">
       <thead>
         <tr>
-          <th class="th-sort" data-col="rank"># <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="player_name">Player <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="tier">Tier <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="vts_final">VTS <span class="sort-ind"></span></th>
-          <th class="th-sort col-vfd" data-col="venue_fit_score" title="Venue Fit Score (0-100 percentile): course-specific fit at The Renaissance Club. Higher = better fit.">VFS <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="win_pct">Win % <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="top5_pct">Top 5 % <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="top10_pct">Top 10 % <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="top20_pct">Top 20 % <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="make_cut_prob">Cut % <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="flag_count">Flags <span class="sort-ind"></span></th>
-          <th class="th-sort" data-col="vh_rounds">CH Rds <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="rank" title="Tournament rank by VTS"># <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="player_name" title="Player name">Player <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="tier" title="VTS Tier (T1=Structural Winner through T5=Fade/Cut Risk)">Tier <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="vts_final" title="Venue Tier Score (0–100): NSI 40% + VFS 30% + VHN 15% + Form 15%">VTS <span class="sort-ind"></span></th>
+          <th class="th-sort col-vfd" data-col="venue_fit_score" title="Venue Fit Score (0–100): course-specific trait alignment at The Renaissance Club. Incorporates DB metrics TVL/HEW/BRIE/VFR.">VFS <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="win_pct" title="Model-estimated win probability (%)">Win % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="top5_pct" title="Model-estimated Top 5 finish probability (%)">Top 5 % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="top10_pct" title="Model-estimated Top 10 finish probability (%)">Top 10 % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="top20_pct" title="Model-estimated Top 20 finish probability (%)">Top 20 % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="make_cut_prob" title="Probability of making the 36-hole cut (Top 65 + ties)">Cut % <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="flag_count" title="Count of anti-pattern risk flags (structural course-profile mismatches)">Flags <span class="sort-ind"></span></th>
+          <th class="th-sort" data-col="vh_rounds" title="Course history rounds at The Renaissance Club. Debut = first start. Source: dg_course_history_renaissance.csv">CH Rds <span class="sort-ind"></span></th>
           <th class="th-fav" title="Favorite">★</th>
           <th class="th-cmp" title="Compare">⊕</th>
         </tr>

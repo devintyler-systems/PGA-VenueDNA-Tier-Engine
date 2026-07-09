@@ -176,7 +176,7 @@ form_raw["key"] = form_raw.apply(
     lambda r: make_key(str(r.get("Last Name", "")), str(r.get("First Name", ""))), axis=1)
 
 # 5. Course history (player_name in "Last, First" format)
-ch_raw = pd.read_csv(INPUT / "the_renaissance_club_CH.csv", encoding="cp1252")
+ch_raw = pd.read_csv(INPUT / "dg_course_history_renaissance.csv", encoding="cp1252")
 ch_raw.columns = [c.strip() for c in ch_raw.columns]
 def ch_key(pname):
     _, _, k = field_name_to_key(str(pname))
@@ -273,9 +273,9 @@ ch_cols = ["key", "ch_adjustment", "experience_adjustment", "rounds_played",
            "2025 (Genesis Scottish Open)"]
 ch_sub = ch_raw[[c for c in ch_cols if c in ch_raw.columns]].copy()
 ch_rename = {
-    "rounds_played": "starts_at_renaissance",  # actually rounds
+    "rounds_played": "vhn_rounds",
     "historical_true_sg": "ch_hist_true_sg",
-    "versus_expected": "ch_vs_expected",
+    "versus_expected": "vhn_score",
     "2021 (abrdn Scottish Open)": "res_2021",
     "2022 (Genesis Scottish Open)": "res_2022",
     "2023 (Genesis Scottish Open)": "res_2023",
@@ -284,6 +284,9 @@ ch_rename = {
 }
 ch_sub = ch_sub.rename(columns={k: v for k, v in ch_rename.items() if k in ch_sub.columns})
 df = df.merge(ch_sub, on="key", how="left")
+df["vhn_rounds"]            = pd.to_numeric(df["vhn_rounds"],  errors="coerce").fillna(0).astype(int)
+df["vhn_score"]             = pd.to_numeric(df["vhn_score"],   errors="coerce").fillna(0.0)
+df["starts_at_renaissance"] = df["vhn_rounds"]  # backward-compat alias for narratives
 
 # Merge venue fit
 fit_cols = ["key", "short game", "approach", "driving-distance", "driving-accuracy",
@@ -514,9 +517,13 @@ df["drive_acc_sg_signal"] = (df["drive_acc_12m"].fillna(0.0) * 0.015).clip(-0.15
 df["approach_composite_value_scaled"] = df["approach_composite_value"] * 3.0
 
 df["venue_fit_raw"] = (
-    df["venue_fit_total_adj_ex_da"] * 0.45         # DA removed; weight reduced from 0.55
-    + df["approach_composite_value_scaled"] * 0.40  # approach ×3.0 Phase-3 scale; primary Renaissance trait
-    + df["drive_acc_sg_signal"] * 0.15              # SG-CSV accuracy; correct sign, non-redundant
+    df["approach_composite_value_scaled"] * 0.25    # approach zone proximity (Phase-3 ×3.0)
+    + df["brie_score"].fillna(0.0) * 0.20            # SG:APP (24m) — approach precision from DB
+    + df["tvl_score"].fillna(0.0) * 0.15             # SG:OTT (12m) — off-tee consistency from DB
+    + df["venue_fit_total_adj_ex_da"] * 0.15         # venue-specific fit adj (DA component excluded)
+    + df["hew_score"].fillna(0.0) * 0.10             # Ball Striking composite (6m) from DB
+    + df["vfr_score"].fillna(0.0) * 0.10             # SG:ARG (6m) — around-green from DB
+    + df["drive_acc_sg_signal"] * 0.05               # canonical driving accuracy signal
 )
 
 # ─── ANTI-PATTERN FLAGS ───
@@ -546,7 +553,7 @@ ott_threshold = df["sg_ott_12m_r"].quantile(0.90)
 df["ap_flag4"] = (df["sg_ott_12m_r"].fillna(0.0) >= ott_threshold) & (df["sg_app_12m"].fillna(0.0) < -0.10)
 
 # Flag 5: debut at Renaissance (no course history) AND not established European player
-df["has_ch"] = df["ch_adjustment"].notna()
+df["has_ch"] = df["vhn_rounds"] > 0
 df["ap_flag5"] = ~df["has_ch"]
 
 # Flag 6: sg_arg < -0.5
@@ -627,8 +634,7 @@ df["podium_bonus_vhn"] = df.apply(
 df["win_bonus_vhn"] = df["has_venue_win"].astype(float) * 0.12
 
 df["venue_history_raw"] = (
-    df["ch_adjustment_f"] * 3.0            # reduced from 4.0 — less dominance of baseline-vs-expected
-    + df["experience_adjustment_f"] * 1.5   # reduced from 2.0
+    df["vhn_score"]              # versus-expectation baseline — direct from dg_course_history_renaissance.csv
     + df["bonus_2025"]
     + df["podium_bonus_vhn"]
     + df["win_bonus_vhn"]
@@ -639,13 +645,13 @@ df.loc[df["debut_flag"], "venue_history_raw"] = 0.0
 
 # Venue history depth classification
 def vh_depth(row):
-    starts = float(row.get("starts_at_renaissance", 0) or 0)
-    ch_adj = float(row.get("ch_adjustment_f", 0))
-    if starts == 0 or pd.isna(starts):
+    rounds = float(row.get("vhn_rounds", 0) or 0)
+    vhn_sc = float(row.get("vhn_score", 0) or 0)
+    if rounds == 0 or pd.isna(rounds):
         return "NONE"
-    elif starts >= 4 * 4 and ch_adj > 0:  # ≥16 rounds = 4 starts ≈ STRONG
+    elif rounds >= 16 and vhn_sc > 0:
         return "STRONG"
-    elif starts >= 4 * 2:  # ≥8 rounds = 2 starts
+    elif rounds >= 8:
         return "MODERATE"
     else:
         return "THIN"
@@ -2069,6 +2075,9 @@ for pb in player_briefs:
         "hew_score":   float(row.get("hew_score"))   if pd.notna(row.get("hew_score"))   else None,
         "brie_score":  float(row.get("brie_score"))  if pd.notna(row.get("brie_score"))  else None,
         "vfr_score":   float(row.get("vfr_score"))   if pd.notna(row.get("vfr_score"))   else None,
+        # VHN raw fields from dg_course_history_renaissance.csv
+        "vhn_score":   round(float(row.get("vhn_score")),  2) if pd.notna(row.get("vhn_score"))  else None,
+        "vhn_rounds":  int(row.get("vhn_rounds", 0))           if pd.notna(row.get("vhn_rounds")) else 0,
     })
 
 event_payload = {
