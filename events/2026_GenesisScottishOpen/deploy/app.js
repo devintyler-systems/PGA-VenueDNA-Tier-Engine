@@ -2377,6 +2377,11 @@ function renderWaveRiskAnnotation(liveData) {
     el.style.display = 'none';
     return;
   }
+  // Suppress micro-differentials ≤0.15 strokes — system noise, not actionable signal
+  if (rawDiff != null && Math.abs(+rawDiff) <= 0.15) {
+    el.style.display = 'none';
+    return;
+  }
 
   // ── Safe field extraction ────────────────────────────────────────────────────
   const elAvg  = avgs.early_late_avg != null ? (+avgs.early_late_avg).toFixed(2)        : '—';
@@ -2884,7 +2889,20 @@ function renderRoundPanel(body, rData, roundNum) {
   const rho = mp.spearman_rho;
   const rhoColor = rho > 0.35 ? '#4ade80' : rho > 0.18 ? '#fcd34d' : '#f87171';
 
-  const lbTop = (d.leaderboard_snapshot || []).slice(0, 15);
+  const lbTop = (d.leaderboard_snapshot || [])
+    .sort((a, b) => {
+      const posA = (a.r1_pos != null && !isNaN(+a.r1_pos)) ? +a.r1_pos : Number.POSITIVE_INFINITY;
+      const posB = (b.r1_pos != null && !isNaN(+b.r1_pos)) ? +b.r1_pos : Number.POSITIVE_INFINITY;
+      if (posA !== posB) return posA < posB ? -1 : 1;
+      const bzA = (a.brie_z_score != null && !isNaN(+a.brie_z_score)) ? +a.brie_z_score : 0;
+      const bzB = (b.brie_z_score != null && !isNaN(+b.brie_z_score)) ? +b.brie_z_score : 0;
+      if (bzA !== bzB) return bzA > bzB ? -1 : 1;
+      const vtsA = (a.pt_vts != null && !isNaN(+a.pt_vts)) ? +a.pt_vts : 0;
+      const vtsB = (b.pt_vts != null && !isNaN(+b.pt_vts)) ? +b.pt_vts : 0;
+      if (vtsA !== vtsB) return vtsA > vtsB ? -1 : 1;
+      return 0;
+    })
+    .slice(0, 15);
   const lbRows = lbTop.map(r => `<tr>
     <td>${r.r1_pos_str || r.r1_pos}</td>
     <td style="font-weight:600">${r.r1_name}</td>

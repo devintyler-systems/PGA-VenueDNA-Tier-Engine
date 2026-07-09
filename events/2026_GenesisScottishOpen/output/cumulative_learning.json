@@ -1,0 +1,16 @@
+{
+  "event_slug": "2026_genesis_scottish_open",
+  "rounds_completed": 1,
+  "round_summaries": [
+    {
+      "round": 1,
+      "generated_date": "2026-07-09",
+      "field_size": 156,
+      "avg_live_sg_app_r1": -0.028,
+      "status_distribution": {
+        "OUTPERFORMING": 22,
+        "TRACKING": 134
+      }
+    }
+  ]
+}

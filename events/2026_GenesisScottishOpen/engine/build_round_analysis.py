@@ -12,7 +12,9 @@ Usage:
 import argparse
 import csv
 import json
+import os
 import unicodedata
+import latent_model
 from datetime import date
 from pathlib import Path
 
@@ -166,6 +168,59 @@ def build(round_num: int, event_slug: str) -> dict:
             "live_distance":       round(to_float(ci.get("distance")), 1),
             "live_accuracy":       round(to_float(ci.get("accuracy")), 4),
             "live_gir":            round(to_float(ci.get("gir")), 4),
+        })
+
+    # ── Live latent modulation → leaderboard_snapshot ────────────────────────
+    # gamma scales with rounds completed: 0.35 per round (performance capitalisation).
+    gamma = 0.35 * round_num
+
+    snap_entries = []
+    for row in lb_rows:
+        name = row["Player"]
+        lkey = key_first_last(name)
+        pp   = pp_by_key.get(lkey, {})
+        sg   = sg_by_key.get(lkey, {})
+        ci   = ci_by_key.get(lkey, {})
+        snap_entries.append({
+            "name":    name,
+            "pos_str": row["POS"],
+            "score":   score_to_int(row["R1"]),
+            "baseline": to_float(pp.get("vts_final")) if pp else 0.0,
+            "sg_tot":   to_float(sg.get("sg-total") or ci.get("sg_total")),
+            "pp": pp, "sg": sg, "ci": ci,
+        })
+
+    # Replace missing baselines with the field-average VTS so every player
+    # enters the Z-score normalisation with a numeric anchor.
+    valid_bases = [e["baseline"] for e in snap_entries if e["baseline"] > 0.0]
+    field_vts_mean = sum(valid_bases) / len(valid_bases) if valid_bases else 50.0
+    baselines = [e["baseline"] if e["baseline"] > 0.0 else field_vts_mean
+                 for e in snap_entries]
+    sg_tots   = [e["sg_tot"] for e in snap_entries]
+
+    _modulated, z_scores, prob_dicts = latent_model.live_modulate(baselines, sg_tots, gamma)
+
+    leaderboard_snapshot = []
+    for i, se in enumerate(snap_entries):
+        probs = latent_model.enforce_monotonicity(prob_dicts[i])
+        pp = se["pp"]; sg = se["sg"]; ci = se["ci"]
+        leaderboard_snapshot.append({
+            "r1_pos":       pos_to_int(se["pos_str"]),
+            "r1_pos_str":   se["pos_str"],
+            "r1_name":      se["name"],
+            "r1_score":     se["score"],
+            "pt_rank":      int(pp["rank"])  if pp.get("rank")  is not None else None,
+            "pt_tier":      int(pp["tier"])  if pp.get("tier")  is not None else None,
+            "pt_vts":       round(to_float(pp.get("vts_final")), 2) if pp else None,
+            "brie_z_score": round(z_scores[i], 4),
+            "win_pct":      probs["win_pct"],
+            "top5_pct":     probs["top5_pct"],
+            "top10_pct":    probs["top10_pct"],
+            "top20_pct":    probs["top20_pct"],
+            "sg_app":  round(to_float(sg.get("sg-app to green") or ci.get("sg_app")),  3),
+            "sg_putt": round(to_float(sg.get("sg-putting")      or ci.get("sg_putt")), 3),
+            "sg_arg":  round(to_float(ci.get("sg_arg")),  3),
+            "sg_ott":  round(to_float(sg.get("sg-ott")   or ci.get("sg_ott")),  3),
         })
 
     # ── Course stats ──────────────────────────────────────────────
@@ -360,10 +415,11 @@ def build(round_num: int, event_slug: str) -> dict:
         "round":          round_num,
         "generated_date": date.today().isoformat(),
         "field_size":     len(lb_rows),
-        "leaderboard":    leaderboard,
-        "course_stats":   course_stats,
-        "trait_audit":    trait_audit,
-        "live_lean_notes": live_lean_notes,
+        "leaderboard":          leaderboard,
+        "leaderboard_snapshot": leaderboard_snapshot,
+        "course_stats":         course_stats,
+        "trait_audit":          trait_audit,
+        "live_lean_notes":      live_lean_notes,
     }
 
 
@@ -401,6 +457,33 @@ def validate(doc: dict) -> list[str]:
 
 
 # ─────────────────────────────────────────────
+# ATOMIC TRANSACTION
+# ─────────────────────────────────────────────
+
+class CriticalTransactionFailure(Exception):
+    pass
+
+
+def build_cumulative(existing: dict, doc: dict, round_num: int) -> dict:
+    """Merge this round's summary into the cumulative learning record."""
+    app = doc["trait_audit"]["app_150_200"]["field_summary"]
+    prior = [s for s in existing.get("round_summaries", []) if s.get("round") != round_num]
+    prior.append({
+        "round":               round_num,
+        "generated_date":      doc["generated_date"],
+        "field_size":          doc["field_size"],
+        "avg_live_sg_app_r1":  app["avg_live_sg_app_r1"],
+        "status_distribution": app["status_distribution"],
+    })
+    prior.sort(key=lambda s: s["round"])
+    return {
+        "event_slug":       doc["event_slug"],
+        "rounds_completed": round_num,
+        "round_summaries":  prior,
+    }
+
+
+# ─────────────────────────────────────────────
 # ENTRY POINT
 # ─────────────────────────────────────────────
 
@@ -414,12 +497,6 @@ def main():
 
     doc = build(args.round, args.event_slug)
 
-    out_path = ROOT / "output" / f"round{args.round}" / f"r{args.round}_analysis.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(doc, f, indent=2, ensure_ascii=False)
-
-    print(f"Written: {out_path}")
-
     errors = validate(doc)
     if errors:
         print("\nVALIDATION FAILURES:")
@@ -427,15 +504,88 @@ def main():
             print(f"  ✗ {e}")
         raise SystemExit(1)
 
+    # ── Paths ──────────────────────────────────────────────────────────────────
+    round_dir   = ROOT / "output" / f"round{args.round}"
+    final_round = round_dir / f"r{args.round}_analysis.json"
+    final_cumul = ROOT / "output" / "cumulative_learning.json"
+    tmp_round   = round_dir / f"r{args.round}_analysis.json.tmp"
+    tmp_cumul   = ROOT / "output" / "cumulative_learning.json.tmp"
+
+    # ── Load any existing cumulative record ────────────────────────────────────
+    existing_cumul: dict = {}
+    if final_cumul.exists():
+        with open(final_cumul, encoding="utf-8") as f:
+            existing_cumul = json.load(f)
+
+    cumulative = build_cumulative(existing_cumul, doc, args.round)
+
+    # ── Step 1 & 2: Write both payloads to staging files ──────────────────────
+    tmp_round.write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp_cumul.write_text(json.dumps(cumulative, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    # ── Step 3: Atomic verification gate ──────────────────────────────────────
+    try:
+        staged_round = json.loads(tmp_round.read_text(encoding="utf-8"))
+        staged_cumul = json.loads(tmp_cumul.read_text(encoding="utf-8"))
+        if staged_cumul.get("rounds_completed") != args.round:
+            raise CriticalTransactionFailure(
+                f"rounds_completed desync: staged={staged_cumul.get('rounds_completed')!r}, "
+                f"expected={args.round}"
+            )
+        if staged_round.get("round") != args.round:
+            raise CriticalTransactionFailure(
+                f"round field desync in r{args.round}_analysis.json.tmp: "
+                f"got={staged_round.get('round')!r}"
+            )
+    except CriticalTransactionFailure:
+        tmp_round.unlink(missing_ok=True)
+        tmp_cumul.unlink(missing_ok=True)
+        raise
+    except (json.JSONDecodeError, OSError) as exc:
+        tmp_round.unlink(missing_ok=True)
+        tmp_cumul.unlink(missing_ok=True)
+        raise CriticalTransactionFailure(f"Staging file parse failed: {exc}") from exc
+
+    # ── Step 4: Atomic commit with rollback recovery ──────────────────────────
+    # Snapshot the live cumulative file before touching it so a mid-chain crash
+    # can restore the filesystem to a consistent pre-commit state.
+    prod_cumulative_backup: str | None = (
+        final_cumul.read_text(encoding="utf-8") if final_cumul.exists() else None
+    )
+
+    try:
+        try:
+            os.replace(tmp_round, final_round)
+            os.replace(tmp_cumul, final_cumul)
+        except OSError as exc:
+            # Restore the cumulative file if it was left in a partial or missing state.
+            if prod_cumulative_backup is not None and not final_cumul.exists():
+                final_cumul.write_text(prod_cumulative_backup, encoding="utf-8")
+            raise CriticalTransactionFailure(
+                "Sequential commit desync intercepted; filesystem state rolled back."
+            ) from exc
+    finally:
+        # Unconditional staging purge — fires on both success and failure paths.
+        # Each unlink is individually guarded so a permission error on one file
+        # cannot mask the primary CriticalTransactionFailure being propagated.
+        for _tmp in (tmp_round, tmp_cumul):
+            try:
+                _tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
+
     print(f"\nVALIDATION PASSED")
-    print(f"  schema_version : {doc['schema_version']}")
-    print(f"  field_size     : {doc['field_size']}")
-    print(f"  leaderboard    : {len(doc['leaderboard'])} entries")
-    print(f"  live_lean_notes: {len(doc['live_lean_notes'])} entries (0 nulls)")
+    print(f"  schema_version   : {doc['schema_version']}")
+    print(f"  field_size       : {doc['field_size']}")
+    print(f"  leaderboard      : {len(doc['leaderboard'])} entries")
+    print(f"  live_lean_notes  : {len(doc['live_lean_notes'])} entries (0 nulls)")
     app = doc['trait_audit']['app_150_200']
-    print(f"  app_150_200    : {app['field_summary']['total_players_audited']} audited, "
+    print(f"  app_150_200      : {app['field_summary']['total_players_audited']} audited, "
           f"{app['field_summary']['players_with_pre_data']} with pre-data")
-    print(f"  status dist    : {app['field_summary']['status_distribution']}")
+    print(f"  status dist      : {app['field_summary']['status_distribution']}")
+    print(f"  rounds_completed : {cumulative['rounds_completed']} (cumulative synced)")
+    print(f"\n  [COMMITTED] {final_round.name}")
+    print(f"  [COMMITTED] {final_cumul.name}")
 
 
 if __name__ == "__main__":
