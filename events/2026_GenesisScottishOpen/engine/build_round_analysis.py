@@ -166,10 +166,50 @@ def _spearman_rho(x: list[float], y: list[float]) -> float:
 
 
 # ─────────────────────────────────────────────
+# CUMULATIVE SG ACCUMULATION
+# ─────────────────────────────────────────────
+
+_SG_DIMS = ("sg_app", "sg_ott", "sg_arg", "sg_putt")
+
+
+def accumulate_sg_by_round(round_num: int) -> dict[str, dict[str, float]]:
+    """Sum per-player SG per dimension across rounds 1..round_num, keyed by lkey.
+
+    Reads both player_strokes_gained.csv (SG column headers) and
+    course_insights.csv (sg_* column headers) for each round and unions
+    the player sets, so late entrants and partial-data rounds are included.
+    """
+    cumulative: dict[str, dict[str, float]] = {}
+    for r in range(1, round_num + 1):
+        r_dir   = ROOT / "output" / f"round{r}"
+        sg_path = r_dir / f"round{r}_player_strokes_gained.csv"
+        ci_path = r_dir / f"round{r}_course_insights.csv"
+        sg_by_key: dict[str, dict] = {}
+        ci_by_key: dict[str, dict] = {}
+        if sg_path.exists():
+            with open(sg_path, encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    sg_by_key[key_first_last(row["Player"])] = row
+        if ci_path.exists():
+            with open(ci_path, encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    ci_by_key[key_last_first(row["player_name"])] = row
+        for lkey in set(sg_by_key) | set(ci_by_key):
+            sg  = sg_by_key.get(lkey, {})
+            ci  = ci_by_key.get(lkey, {})
+            ent = cumulative.setdefault(lkey, {d: 0.0 for d in _SG_DIMS})
+            ent["sg_app"]  += to_float(sg.get("sg-app to green") or ci.get("sg_app"))
+            ent["sg_ott"]  += to_float(sg.get("sg-ott")          or ci.get("sg_ott"))
+            ent["sg_arg"]  += to_float(ci.get("sg_arg"))
+            ent["sg_putt"] += to_float(sg.get("sg-putting")      or ci.get("sg_putt"))
+    return cumulative
+
+
+# ─────────────────────────────────────────────
 # CORE BUILD
 # ─────────────────────────────────────────────
 
-def build(round_num: int, event_slug: str) -> dict:
+def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dict:
     round_key = f"round{round_num}"
     r_dir = ROOT / "output" / f"round{round_num}"
 
@@ -239,10 +279,7 @@ def build(round_num: int, event_slug: str) -> dict:
                 if to_float(p.get("vts_final")) > 0.0]
     active_field_mean_vts = sum(vts_vals) / len(vts_vals) if vts_vals else 50.0
 
-    # ── Live latent modulation → leaderboard_snapshot ────────────────────────
-    # gamma scales with rounds completed: 0.35 per round (performance capitalisation).
-    gamma = 0.35 * round_num
-
+    # ── Snap entries — current-round data skeleton ────────────────────────────
     snap_entries = []
     for row in lb_rows:
         name = row["Player"]
@@ -273,29 +310,56 @@ def build(round_num: int, event_slug: str) -> dict:
             "pp": pp, "sg": sg, "ci": ci,
         })
 
-    baselines = [se["baseline"] for se in snap_entries]
-    sg_tots   = [se["sg_tot"]   for se in snap_entries]
+    # ── Multi-dimension cumulative SG accumulation ────────────────────────────
+    # Sum each SG dimension across rounds 1..round_num for every player.
+    # Field averages anchor to the active leaderboard field only.
+    cum_sg_all = accumulate_sg_by_round(round_num)
+    cum_sg_per_player = [
+        cum_sg_all.get(se["lkey"], {d: 0.0 for d in _SG_DIMS})
+        for se in snap_entries
+    ]
+    field_avg_sg: dict[str, float] = {
+        dim: (sum(c[dim] for c in cum_sg_per_player) / len(cum_sg_per_player)
+              if cum_sg_per_player else 0.0)
+        for dim in _SG_DIMS
+    }
 
-    _modulated, z_scores, prob_dicts = latent_model.live_modulate(baselines, sg_tots, gamma)
+    # ── Dimension-specific V_p(t) modulation ─────────────────────────────────
+    # V_p(t) = V_p_baseline + Σ_s (0.35 * round * w_s) * (cumulative_sg_proxy_{p,s} - field_avg_sg_proxy_s)
+    modulated, z_scores, prob_dicts = latent_model.dimension_modulate(
+        baselines    = [se["baseline"] for se in snap_entries],
+        cum_sg       = cum_sg_per_player,
+        field_avg_sg = field_avg_sg,
+        adj_weights  = adj_weights,
+        proxy_map    = traits_calculator.SG_PROXY_MAP,
+        round_num    = round_num,
+    )
 
     leaderboard_snapshot = []
     for i, se in enumerate(snap_entries):
-        probs = latent_model.enforce_monotonicity(prob_dicts[i])
-        sg = se["sg"]; ci = se["ci"]
+        probs  = latent_model.enforce_monotonicity(prob_dicts[i])
+        sg     = se["sg"]; ci = se["ci"]
+        cum_sg = cum_sg_per_player[i]
         leaderboard_snapshot.append({
-            "r1_pos":       pos_to_int(se["pos_str"]),
-            "r1_pos_str":   se["pos_str"],
-            "r1_name":      se["name"],
-            "norm_name":    lkey_to_norm_name(se["lkey"]),
-            "r1_score":     se["score"],
-            "pt_rank":      se["pt_rank"],
-            "pt_tier":      se["pt_tier"],
-            "pt_vts":       se["pt_vts"],
-            "brie_z_score": round(z_scores[i], 4),
-            "win_pct":      probs["win_pct"],
-            "top5_pct":     probs["top5_pct"],
-            "top10_pct":    probs["top10_pct"],
-            "top20_pct":    probs["top20_pct"],
+            "r1_pos":             pos_to_int(se["pos_str"]),
+            "r1_pos_str":         se["pos_str"],
+            "r1_name":            se["name"],
+            "norm_name":          lkey_to_norm_name(se["lkey"]),
+            "r1_score":           se["score"],
+            "pt_rank":            se["pt_rank"],
+            "pt_tier":            se["pt_tier"],
+            "pt_vts":             se["pt_vts"],
+            "brie_z_score":       round(float(z_scores[i]), 4),
+            "v_p_t":              round(float(modulated[i]), 4),
+            "cumulative_sg_app":  round(cum_sg["sg_app"],  3),
+            "cumulative_sg_ott":  round(cum_sg["sg_ott"],  3),
+            "cumulative_sg_arg":  round(cum_sg["sg_arg"],  3),
+            "cumulative_sg_putt": round(cum_sg["sg_putt"], 3),
+            "win_pct":      float(probs["win_pct"]),
+            "top5_pct":     float(probs["top5_pct"]),
+            "top10_pct":    float(probs["top10_pct"]),
+            "top20_pct":    float(probs["top20_pct"]),
+            "live_win_pct": round(float(probs["win_pct"]) / 100.0, 6),
             "sg_app":  round(to_float(sg.get("sg-app to green") or ci.get("sg_app")),  3),
             "sg_putt": round(to_float(sg.get("sg-putting")      or ci.get("sg_putt")), 3),
             "sg_arg":  round(to_float(ci.get("sg_arg")),  3),
@@ -487,7 +551,7 @@ def build(round_num: int, event_slug: str) -> dict:
 
     # ── Live Lean Notes ───────────────────────────────────────────
     # One note per leaderboard player — no null entries.
-    live_lean_notes = []
+    _notes_list = []
 
     for lb in lb_rows:
         name = lb["Player"]
@@ -543,7 +607,7 @@ def build(round_num: int, event_slug: str) -> dict:
             note = (f"Struggling toward cut line — SG:TOTAL {live_sg_total:+.2f} ({score_r1:+d}); "
                     f"R2 must improve SG:APP ({live_sg_app:+.2f}) to survive")
 
-        live_lean_notes.append({
+        _notes_list.append({
             "player":        name,
             "position":      pos,
             "score_r1":      score_r1,
@@ -556,6 +620,38 @@ def build(round_num: int, event_slug: str) -> dict:
             "live_sg_putt":  round(live_sg_putt, 3),
             "note":          note,
         })
+
+    # ── watch_next_round: latent-delta trajectory flags ──────────────────────
+    # ΔV_p = V_p(t) − V_p_baseline.
+    # 'slippage'   — Top 15 AND ΔV_p < −3.0: rank floated on un-modeled noise.
+    # 'sustainable' — Top 15 AND ΔV_p ≥ +2.5: position is course-fit backed.
+    watch_next_round = []
+    for i, se in enumerate(snap_entries):
+        pos_num = pos_to_int(se["pos_str"])
+        if pos_num > 15:
+            continue
+        delta_vp = modulated[i] - se["baseline"]
+        if delta_vp < -3.0:
+            watch_next_round.append({
+                "player":    se["name"],
+                "position":  se["pos_str"],
+                "delta_v_p": round(delta_vp, 4),
+                "flag_type": "slippage",
+            })
+        elif delta_vp >= 2.5:
+            watch_next_round.append({
+                "player":    se["name"],
+                "position":  se["pos_str"],
+                "delta_v_p": round(delta_vp, 4),
+                "flag_type": "sustainable",
+            })
+
+    live_lean_notes = {
+        "notes":                 _notes_list,
+        "watch_next_round":      watch_next_round,
+        "wave_risk_annotation":  [],
+        "wave_scoring_averages": {},
+    }
 
     # ── Assemble output ───────────────────────────────────────────
     return {
@@ -597,16 +693,19 @@ def validate(doc: dict) -> list[str]:
         if not app_node.get("field_summary"):
             errors.append("trait_audit.app_150_200.field_summary missing")
 
-    notes = doc.get("live_lean_notes", [])
-    if not notes:
-        errors.append("live_lean_notes is empty")
+    lean_container = doc.get("live_lean_notes", {})
+    notes_list = lean_container.get("notes", []) if isinstance(lean_container, dict) else lean_container
+    if not notes_list:
+        errors.append("live_lean_notes.notes is empty")
     else:
-        null_notes = [i for i, n in enumerate(notes) if n is None]
+        null_notes = [i for i, n in enumerate(notes_list) if n is None]
         if null_notes:
-            errors.append(f"live_lean_notes has null entries at indices: {null_notes}")
-        blank_notes = [n.get("player", "?") for n in notes if n and not n.get("note")]
+            errors.append(f"live_lean_notes.notes has null entries at indices: {null_notes}")
+        blank_notes = [n.get("player", "?") for n in notes_list if n and not n.get("note")]
         if blank_notes:
-            errors.append(f"live_lean_notes entries missing note field: {blank_notes[:5]}")
+            errors.append(f"live_lean_notes.notes entries missing note field: {blank_notes[:5]}")
+    if "watch_next_round" not in lean_container:
+        errors.append("live_lean_notes.watch_next_round key missing")
 
     return errors
 
@@ -631,6 +730,20 @@ def build_cumulative(existing: dict, doc: dict, round_num: int) -> dict:
         "status_distribution": app["status_distribution"],
     })
     prior.sort(key=lambda s: s["round"])
+
+    # ── per_round: object-keyed navigation index (string round → entry) ──────
+    # Keyed by str(round_num) so JS can do per_round['1'], per_round['2'], etc.
+    # Idempotent: assignment overwrites any existing key for this round cleanly.
+    per_round: dict = {k: dict(v) for k, v in existing.get("per_round", {}).items()}
+    per_round[str(round_num)] = {
+        "round":               round_num,
+        "generated_at":        doc["build_timestamp"],
+        "generated_date":      doc["generated_date"],
+        "field_size":          doc["field_size"],
+        "spearman_rho":        doc["model_performance"]["spearman_rho"],
+        "avg_live_sg_app_r1":  app["avg_live_sg_app_r1"],
+        "status_distribution": app["status_distribution"],
+    }
 
     # Merge trait signals from this round into the running cumulative_signals ledger.
     signals: dict = {k: dict(v) for k, v in existing.get("cumulative_signals", {}).items()}
@@ -659,6 +772,7 @@ def build_cumulative(existing: dict, doc: dict, round_num: int) -> dict:
         "rounds_completed":   round_num,
         "cumulative_signals": signals,
         "round_summaries":    prior,
+        "per_round":          per_round,
     }
 
 
@@ -679,7 +793,7 @@ def main():
     print(f"  weights          : {traits_calculator.describe_adjustment(adj_weights)}")
 
     try:
-        doc = build(args.round, args.event_slug)
+        doc = build(args.round, args.event_slug, adj_weights)
     except FileNotFoundError as exc:
         print(f"\n  No round data found for R{args.round}: {exc.filename}")
         print("  Bayesian prior recalibration module loaded and verified.")

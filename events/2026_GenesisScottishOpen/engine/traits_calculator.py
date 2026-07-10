@@ -45,6 +45,21 @@ BASE_WEIGHTS: dict[str, float] = {
     "sg_arg_short_game": 0.10,
 }
 
+# Maps each BASE_WEIGHTS trait to its measurable SG dimension proxy.
+# Used by the dimension-specific V_p(t) modulation formula.
+# Traits sharing a proxy (approach_150_200 + sg_app_overall → sg_app) are
+# already covariance partners and will not double-count in the sum because
+# the orthogonal isolation step in load_adjusted_weights() pins sg_app_overall
+# at baseline whenever approach_150_200 is validated.
+SG_PROXY_MAP: dict[str, str] = {
+    "approach_150_200":  "sg_app",
+    "sg_app_overall":    "sg_app",
+    "sg_ott_positional": "sg_ott",
+    "driving_accuracy":  "sg_ott",
+    "sg_putt":           "sg_putt",
+    "sg_arg_short_game": "sg_arg",
+}
+
 # Maps cumulative_signals keys (trait_audit naming) → BASE_WEIGHTS keys.
 _AUDIT_KEY_ALIAS: dict[str, str] = {
     "app_150_200": "approach_150_200",

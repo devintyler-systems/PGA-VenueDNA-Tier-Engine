@@ -1140,10 +1140,10 @@ function sortPlayers(players) {
       vb = useAdj ? (b.vts_conf_adj ?? b.vts_raw ?? 0) : (+b.vts_final || 0);
     }
     else if (col === 'venue_fit_score'){ va = +a.venue_fit_score || 0; vb = +b.venue_fit_score || 0; }
-    else if (col === 'win_pct')      { va = +a.win_pct  || 0; vb = +b.win_pct  || 0; }
-    else if (col === 'top5_pct')     { va = +a.top5_pct  || 0; vb = +b.top5_pct  || 0; }
-    else if (col === 'top10_pct')    { va = +a.top10_pct || 0; vb = +b.top10_pct || 0; }
-    else if (col === 'top20_pct')    { va = +a.top20_pct || 0; vb = +b.top20_pct || 0; }
+    else if (col === 'win_pct')      { va = parseFloat(a.win_pct)   || 0; vb = parseFloat(b.win_pct)   || 0; }
+    else if (col === 'top5_pct')     { va = parseFloat(a.top5_pct)  || 0; vb = parseFloat(b.top5_pct)  || 0; }
+    else if (col === 'top10_pct')    { va = parseFloat(a.top10_pct) || 0; vb = parseFloat(b.top10_pct) || 0; }
+    else if (col === 'top20_pct')    { va = parseFloat(a.top20_pct) || 0; vb = parseFloat(b.top20_pct) || 0; }
     else if (col === 'make_cut_prob'){ va = +a.make_cut_prob || 0; vb = +b.make_cut_prob || 0; }
     else if (col === 'vh_rounds')    { va = +a.vh_rounds || 0; vb = +b.vh_rounds || 0; }
     else { va = a.rank ?? 999; vb = b.rank ?? 999; }
@@ -2290,22 +2290,21 @@ function sectionBrieZPanel(p) {
 
   // ── Direct property reads from player object / snapshot ─────────────────────
   // Priority: live snapshot fields first, then pre-tournament p properties.
-  const bzScore  = snap?.brie_z_score != null ? +snap.brie_z_score
-    : (p.brie_z_score != null ? +p.brie_z_score : null);
+  const bzScore = parseFloat(snap?.brie_z_score ?? p.brie_z_score);
 
   // app_150_200_fw_sg: read directly from p if hydrated; snapshot sg_app is the
   // live proxy (SG:APP from 150-200yd fairway zone confirms the pre-tournament projection).
-  const fwSg = p.app_150_200_fw_sg != null ? +p.app_150_200_fw_sg
-    : (snap?.sg_app != null ? +snap.sg_app : null);
+  const fwSg = p.app_150_200_fw_sg != null ? parseFloat(p.app_150_200_fw_sg)
+    : (snap?.sg_app != null ? parseFloat(snap.sg_app) : null);
 
   // app_150_200_poor_shot_avoidance: read directly from p if present.
   const psa = p.app_150_200_poor_shot_avoidance != null
-    ? +p.app_150_200_poor_shot_avoidance : null;
+    ? parseFloat(p.app_150_200_poor_shot_avoidance) : null;
 
   const waveBonus = p.wave_bonus != null ? +p.wave_bonus : null;
 
-  // ── isBaseline: false when brie_z_score is present, numeric, and non-zero ───
-  const isBaseline = !(bzScore != null && !isNaN(bzScore) && bzScore !== 0.0);
+  // ── isBaseline: true when brie_z_score is absent, non-finite, or exactly zero ─
+  const isBaseline = isNaN(bzScore) || bzScore === 0.0 || bzScore === null;
 
   // ── Formatters — all numeric values displayed to 2 decimal places ────────────
   const fmt   = v => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(2);

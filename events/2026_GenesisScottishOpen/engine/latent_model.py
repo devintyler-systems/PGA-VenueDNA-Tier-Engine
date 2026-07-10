@@ -121,3 +121,54 @@ def live_modulate(
     z_scores = zscore_normalize(modulated)
     prob_dicts = tempered_softmax_probs(z_scores)
     return modulated, z_scores, prob_dicts
+
+
+def dimension_modulate(
+    baselines:    list[float],
+    cum_sg:       list[dict[str, float]],
+    field_avg_sg: dict[str, float],
+    adj_weights:  dict[str, float],
+    proxy_map:    dict[str, str],
+    round_num:    int,
+) -> tuple[list[float], list[float], list[dict]]:
+    """
+    Dimension-specific modulation pipeline.
+
+    V_p(t) = V_p_baseline
+             + Σ_{s ∈ traits} (0.35 * round_num * w_s)
+               × (cumulative_sg_proxy_{p,s} − field_avg_sg_proxy_s)
+
+    Each validated trait contributes independently via its own SG dimension
+    proxy, preventing flat SG:TOTAL variance from overriding venue-fit signals.
+    The z-score normalisation and four-tier tempered softmax run unchanged on
+    the resulting modulated vector.
+
+    Args:
+        baselines:    Pre-tournament BRIE baseline per player.
+        cum_sg:       Cumulative per-dimension SG across completed rounds
+                      (list of dicts, one per player, keyed by SG dimension).
+        field_avg_sg: Field-average cumulative SG per dimension, anchored to
+                      the active leaderboard field.
+        adj_weights:  Bayesian-adjusted trait weight matrix from traits_calculator.
+        proxy_map:    Maps each trait weight key → SG dimension string.
+        round_num:    Number of completed rounds (capitalisation scale factor).
+
+    Returns:
+        (modulated_values, z_scores, prob_dicts)
+    """
+    if not baselines:
+        return [], [], []
+
+    modulated: list[float] = []
+    for i, baseline in enumerate(baselines):
+        delta = sum(
+            (0.35 * round_num * w_s)
+            * (cum_sg[i].get(proxy_map[t], 0.0) - field_avg_sg.get(proxy_map[t], 0.0))
+            for t, w_s in adj_weights.items()
+            if t in proxy_map
+        )
+        modulated.append(baseline + delta)
+
+    z_scores   = zscore_normalize(modulated)
+    prob_dicts = tempered_softmax_probs(z_scores)
+    return modulated, z_scores, prob_dicts
