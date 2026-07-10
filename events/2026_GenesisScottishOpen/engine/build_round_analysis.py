@@ -205,7 +205,7 @@ def accumulate_sg_by_round(round_num: int) -> dict[str, dict[str, float]]:
     """
     cumulative: dict[str, dict[str, float]] = {}
     for r in range(1, round_num + 1):
-        r_dir   = ROOT / "output" / f"round{r}"
+        r_dir   = ROOT / "input" / f"round{r}"
         sg_path = r_dir / f"round{r}_player_strokes_gained.csv"
         ci_path = r_dir / f"round{r}_course_insights.csv"
         sg_by_key: dict[str, dict] = {}
@@ -233,7 +233,7 @@ def accumulate_sg_by_round(round_num: int) -> dict[str, dict[str, float]]:
 
 def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dict:
     round_key = f"round{round_num}"
-    r_dir = ROOT / "output" / f"round{round_num}"
+    r_dir = ROOT / "input" / f"round{round_num}"
 
     # ── context_sync.json verification ───────────────────────────
     ctx_path = ROOT / "context_sync.json"

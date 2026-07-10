@@ -3,8 +3,8 @@
   "rounds_completed": 2,
   "cumulative_signals": {
     "app_150_200": {
-      "consensus": "mixed",
-      "last_signal": "mixed",
+      "consensus": "validated",
+      "last_signal": "validated",
       "rounds_seen": 2,
       "rounds_observed": [
         {
@@ -13,7 +13,7 @@
         },
         {
           "round": 2,
-          "signal": "mixed"
+          "signal": "validated"
         }
       ]
     }
@@ -32,18 +32,18 @@
     {
       "round": 2,
       "generated_date": "2026-07-09",
-      "field_size": 72,
-      "avg_live_sg_app_r1": -0.001,
+      "field_size": 71,
+      "avg_live_sg_app_r1": 0.559,
       "status_distribution": {
-        "TRACKING": 69,
-        "OUTPERFORMING": 3
+        "OUTPERFORMING": 8,
+        "TRACKING": 63
       }
     }
   ],
   "per_round": {
     "1": {
       "round": 1,
-      "generated_at": "2026-07-09T17:29:42",
+      "generated_at": "2026-07-09T20:14:46",
       "generated_date": "2026-07-09",
       "field_size": 156,
       "spearman_rho": 0.2888,
@@ -55,14 +55,14 @@
     },
     "2": {
       "round": 2,
-      "generated_at": "2026-07-09T18:16:22",
+      "generated_at": "2026-07-09T20:14:50",
       "generated_date": "2026-07-09",
-      "field_size": 72,
-      "spearman_rho": 0.4268,
-      "avg_live_sg_app_r1": -0.001,
+      "field_size": 71,
+      "spearman_rho": 0.51,
+      "avg_live_sg_app_r1": 0.559,
       "status_distribution": {
-        "TRACKING": 69,
-        "OUTPERFORMING": 3
+        "OUTPERFORMING": 8,
+        "TRACKING": 63
       }
     }
   }
