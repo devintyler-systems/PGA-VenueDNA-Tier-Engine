@@ -21,7 +21,7 @@
   "round_summaries": [
     {
       "round": 1,
-      "generated_date": "2026-07-09",
+      "generated_date": "2026-07-10",
       "field_size": 156,
       "avg_live_sg_app_r1": -0.028,
       "status_distribution": {
@@ -31,7 +31,7 @@
     },
     {
       "round": 2,
-      "generated_date": "2026-07-09",
+      "generated_date": "2026-07-10",
       "field_size": 71,
       "avg_live_sg_app_r1": 0.559,
       "status_distribution": {
@@ -43,8 +43,8 @@
   "per_round": {
     "1": {
       "round": 1,
-      "generated_at": "2026-07-09T20:14:46",
-      "generated_date": "2026-07-09",
+      "generated_at": "2026-07-10T00:19:54",
+      "generated_date": "2026-07-10",
       "field_size": 156,
       "spearman_rho": 0.2888,
       "avg_live_sg_app_r1": -0.028,
@@ -55,8 +55,8 @@
     },
     "2": {
       "round": 2,
-      "generated_at": "2026-07-09T20:14:50",
-      "generated_date": "2026-07-09",
+      "generated_at": "2026-07-10T00:19:54",
+      "generated_date": "2026-07-10",
       "field_size": 71,
       "spearman_rho": 0.51,
       "avg_live_sg_app_r1": 0.559,

@@ -2742,11 +2742,13 @@ function renderRoundInsights(payload) {
   showRoundPanel('pre', body);
 
   const LIVE_BADGE    = ' <span class="rs-live">LIVE</span>';
+  const FINAL_BADGE   = ' <span class="rs-final">FINAL</span>';
   const PENDING_BADGE = ' <span class="rs-pending">—</span>';
   [['r1', r1Data, 'Round 1'], ['r2', r2Data, 'Round 2'], ['r3', r3Data, 'Round 3'], ['final', r4Data, 'Final']].forEach(([key, data, label]) => {
     const tab = document.querySelector(`.ri-tab[data-round="${key}"]`);
     if (!tab) return;
-    tab.innerHTML = label + (data ? LIVE_BADGE : PENDING_BADGE);
+    const badge = !data ? PENDING_BADGE : (data.metadata?.is_final ? FINAL_BADGE : LIVE_BADGE);
+    tab.innerHTML = label + badge;
   });
 
   document.querySelectorAll('.ri-tab').forEach(tab => {
@@ -2875,7 +2877,6 @@ function showRoundPanel(round, body) {
   }
 }
 
-/* Stub renderRoundPanel — populated when round analysis files are loaded */
 function renderRoundPanel(body, rData, roundNum) {
   const d = rData;
   if (!d || !d.model_performance) {
@@ -2886,46 +2887,133 @@ function renderRoundPanel(body, rData, roundNum) {
     return;
   }
 
-  const mp = d.model_performance;
-  const sgFmt   = v => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2);
-  const scoreFmt = v => v == null ? '—' : v === 0 ? 'E' : (v > 0 ? '+' : '') + v.toFixed(0);
-  const rho = mp.spearman_rho;
+  const mp       = d.model_performance;
+  const sgFmt    = v => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(2);
+  const scoreFmt = v => v == null ? '—' : v === 0 ? 'E' : (v > 0 ? '+' : '') + (+v).toFixed(0);
+  const deltaFmt = v => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(2);
+  const rho      = mp.spearman_rho;
   const rhoColor = rho > 0.35 ? '#4ade80' : rho > 0.18 ? '#fcd34d' : '#f87171';
+  const rhoNote  = rho > 0.35 ? 'Strong pre-tournament rank correlation'
+                 : rho > 0.18 ? 'Moderate — field still compressing'
+                 : 'Weak — separation still developing';
 
+  // ── Leaderboard snapshot table (top 15) ──────────────────────
   const lbTop = (d.leaderboard_snapshot || [])
-    .sort((a, b) => {
-      const posA = (a.r1_pos != null && !isNaN(+a.r1_pos)) ? +a.r1_pos : Number.POSITIVE_INFINITY;
-      const posB = (b.r1_pos != null && !isNaN(+b.r1_pos)) ? +b.r1_pos : Number.POSITIVE_INFINITY;
-      if (posA !== posB) return posA < posB ? -1 : 1;
-      const bzA = (a.brie_z_score != null && !isNaN(+a.brie_z_score)) ? +a.brie_z_score : 0;
-      const bzB = (b.brie_z_score != null && !isNaN(+b.brie_z_score)) ? +b.brie_z_score : 0;
-      if (bzA !== bzB) return bzA > bzB ? -1 : 1;
-      const vtsA = (a.pt_vts != null && !isNaN(+a.pt_vts)) ? +a.pt_vts : 0;
-      const vtsB = (b.pt_vts != null && !isNaN(+b.pt_vts)) ? +b.pt_vts : 0;
-      if (vtsA !== vtsB) return vtsA > vtsB ? -1 : 1;
-      return 0;
+    .slice().sort((a, b) => {
+      const posA = (a.r1_pos != null && !isNaN(+a.r1_pos)) ? +a.r1_pos : 9999;
+      const posB = (b.r1_pos != null && !isNaN(+b.r1_pos)) ? +b.r1_pos : 9999;
+      if (posA !== posB) return posA - posB;
+      return (+b.brie_z_score || 0) - (+a.brie_z_score || 0);
     })
     .slice(0, 15);
   const lbRows = lbTop.map(r => `<tr>
     <td>${r.r1_pos_str || r.r1_pos}</td>
-    <td style="font-weight:600">${r.r1_name}${r.data_depth_class ? `<span class="depth-badge ${r.data_depth_class.toLowerCase()}">${r.data_depth_class}</span>` : ''}</td>
+    <td style="font-weight:600">${r.r1_name}${r.data_depth_class==='DEBUT'?'<span class="depth-badge debut">DEBUT</span>':''}</td>
     <td style="color:#4ade80">${scoreFmt(r.r1_score)}</td>
     <td style="color:var(--muted)">${r.pt_rank || '—'}</td>
     <td>${r.pt_tier ? `T${r.pt_tier}` : '—'}</td>
-    <td>${r.pt_vts ? r.pt_vts.toFixed(1) : '—'}</td>
-    <td style="color:${(r.sg_app||0)>1.0?'#4ade80':'var(--muted)'}">${sgFmt(r.sg_app)}</td>
-    <td style="color:${(r.sg_putt||0)>2.0?'#fcd34d':'var(--muted)'}">${sgFmt(r.sg_putt)}</td>
+    <td>${r.pt_vts ? (+r.pt_vts).toFixed(1) : '—'}</td>
+    <td style="color:${(+r.sg_app||0)>1.0?'#4ade80':'var(--muted)'}">${sgFmt(r.sg_app)}</td>
+    <td style="color:${(+r.sg_putt||0)>2.0?'#fcd34d':'var(--muted)'}">${sgFmt(r.sg_putt)}</td>
     <td>${sgFmt(r.sg_arg)}</td>
     <td>${sgFmt(r.sg_ott)}</td>
   </tr>`).join('');
 
+  // ── Trait Winners — app_150_200 audit ─────────────────────────
+  const ta   = d.trait_audit?.app_150_200;
+  const sigColor = { validated:'#4ade80', mixed:'#fcd34d', neutral:'#94a3b8', weak:'#f87171' };
+  const traitHTML = ta ? (() => {
+    const sig  = ta.signal || 'neutral';
+    const top5 = (ta.top5_live_sg_app || []).slice(0, 5);
+    const fs   = ta.field_summary || {};
+    const sd   = fs.status_distribution || {};
+    return `
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap">
+        <span style="color:var(--muted);font-size:.7rem">Approach 150-200yd</span>
+        <span style="font-weight:700;color:${sigColor[sig]||'#94a3b8'};font-size:.8rem;text-transform:uppercase">${sig}</span>
+        <span style="font-size:.68rem;color:var(--muted)">δ ${(ta.trait_delta||0)>=0?'+':''}${(ta.trait_delta||0).toFixed(3)}</span>
+      </div>
+      <div style="display:flex;gap:.6rem;font-size:.7rem;margin-bottom:.55rem;flex-wrap:wrap">
+        ${sd.CONFIRMING    ? `<span style="color:#4ade80">✓ ${sd.CONFIRMING} confirming</span>`    : ''}
+        ${sd.OUTPERFORMING ? `<span style="color:#fcd34d">↑ ${sd.OUTPERFORMING} outperforming</span>` : ''}
+        ${sd.DIVERGING     ? `<span style="color:#f87171">✗ ${sd.DIVERGING} diverging</span>`      : ''}
+        ${sd.TRACKING      ? `<span style="color:var(--muted)">~ ${sd.TRACKING} tracking</span>`   : ''}
+      </div>
+      ${top5.map(p => `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
+        <span>${p.player} <span style="color:var(--muted);font-size:.65rem">${p.position}</span></span>
+        <span style="color:#4ade80">APP ${(+p.live_sg_app)>=0?'+':''}${(+p.live_sg_app).toFixed(2)}
+          <span style="color:var(--muted);font-size:.65rem">${p.status}</span></span>
+      </div>`).join('')}
+      <div style="font-size:.67rem;color:var(--muted);margin-top:.4rem">
+        Top-10 BRIE-Z avg: <b style="color:var(--fg)">${(ta.top10_trait_avg||0).toFixed(3)}</b>
+        vs field: <b style="color:var(--fg)">${(ta.field_trait_avg||0).toFixed(3)}</b>
+      </div>`;
+  })() : '<p class="ri-placeholder">No trait audit data.</p>';
+
+  // ── Model vs Realized — tier groups + rho ─────────────────────
+  const groupRows = Object.entries(mp.groups || {}).map(([k, g]) => {
+    if (!g) return '';
+    const hitRate  = g.n > 0 ? Math.round((g.in_r1_top10 / g.n) * 100) : 0;
+    const hitColor = hitRate >= 40 ? '#4ade80' : hitRate >= 20 ? '#fcd34d' : '#f87171';
+    const label    = k.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
+      <span style="color:var(--muted);min-width:4.5rem">${label}</span>
+      <span>${g.in_r1_top10 ?? 0}/${g.n ?? 0} top-10</span>
+      <span style="color:${hitColor};font-weight:700">${hitRate}%</span>
+      <span style="color:var(--muted);font-size:.67rem">avg pos ${g.avg_r1_pos?.toFixed(0) ?? '—'}</span>
+    </div>`;
+  }).join('');
+  const modelHTML = `
+    <div style="display:flex;align-items:baseline;gap:.4rem;margin-bottom:.55rem;flex-wrap:wrap">
+      <span style="color:var(--muted);font-size:.7rem">Spearman ρ</span>
+      <span style="color:${rhoColor};font-weight:700;font-size:.88rem">${rho>=0?'+':''}${rho.toFixed(3)}</span>
+      <span style="color:var(--muted);font-size:.67rem">${rhoNote}</span>
+    </div>
+    ${groupRows}`;
+
+  // ── Watch Next Round / Risers & Slippage ──────────────────────
+  const watchList     = d.live_lean_notes?.watch_next_round || [];
+  const sustainable   = watchList.filter(w => w.flag_type === 'sustainable');
+  const slippage      = watchList.filter(w => w.flag_type === 'slippage');
+  const nextRoundLbl  = `R${roundNum + 1}`;
+
+  const riserRows = sustainable.length
+    ? sustainable.map(w => `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
+        <span style="font-weight:600">${w.player} <span style="color:var(--muted)">${w.position}</span></span>
+        <span style="color:#4ade80">ΔV ${deltaFmt(w.delta_v_p)} — approach-backed</span>
+      </div>`).join('')
+    : '<p class="ri-placeholder">No approach-backed top-15 flags.</p>';
+
+  const slippageRows = slippage.length
+    ? slippage.map(w => `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
+        <span style="font-weight:600">${w.player} <span style="color:var(--muted)">${w.position}</span></span>
+        <span style="color:#f87171">ΔV ${deltaFmt(w.delta_v_p)} — regression risk</span>
+      </div>`).join('')
+    : '<p class="ri-placeholder">No slippage-risk flags in current top 15.</p>';
+
+  // ── Favorites Tracker ─────────────────────────────────────────
+  const snap    = d.leaderboard_snapshot || [];
+  const favHTML = favorites.size > 0
+    ? [...favorites].map(n => {
+        const p = allPlayers.find(x => x.player_name === n);
+        const fullN = p ? `${p.first_name||''} ${p.last_name||''}`.trim() : n;
+        const s = snap.find(x => x.r1_name === fullN || x.r1_name === n);
+        if (!s) return `<div style="font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border);color:var(--muted)">${fullN} — not in R${roundNum} field</div>`;
+        return `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
+          <span style="font-weight:600">${fullN}</span>
+          <span>Pos <b>${s.r1_pos_str||s.r1_pos}</b> · ${scoreFmt(s.r1_score)} · APP ${sgFmt(s.sg_app)} · PUTT ${sgFmt(s.sg_putt)}</span>
+        </div>`;
+      }).join('')
+    : '<p class="ri-placeholder">Star players in the field table to track them here.</p>';
+
+  // ── Assemble ──────────────────────────────────────────────────
   const ms = d.match_summary || {};
   body.innerHTML = `
     <div class="ri-r1-layout">
       <div class="ri-r1-header">
         <span class="ri-r1-label">${d.metadata?.round_label || `Round ${roundNum}`}${d.metadata?.is_final ? ' — Final' : ' Complete'}</span>
         <span class="ri-r1-sub">${d.metadata?.course_name || 'The Renaissance Club'} · Par ${d.metadata?.par || 71}</span>
-        <span class="ri-r1-meta">Built ${(d.build_timestamp || d.generated_at || '—').replace('T',' ')} · ${ms.matched ?? '?'}/${ms.total_r1 ?? '?'} matched</span>
+        <span class="ri-r1-meta">Built ${(d.build_timestamp||d.generated_at||'—').replace('T',' ')} · ${ms.matched??'?'}/${ms.total_r1??'?'} matched</span>
       </div>
       <div class="ri-r1-grid">
         <div class="ri-card ri-card-wide">
@@ -2938,20 +3026,24 @@ function renderRoundPanel(body, rData, roundNum) {
           </div>
         </div>
         <div class="ri-card">
-          <h4>Model Performance</h4>
-          <div style="font-size:.78rem">
-            <div style="padding:.25rem 0;border-bottom:1px solid var(--border)">
-              <span style="color:var(--muted)">Spearman ρ:</span>
-              <span style="color:${rhoColor};font-weight:700;margin-left:.4rem">${rho > 0 ? '+' : ''}${rho.toFixed(3)}</span>
-            </div>
-            ${Object.entries(mp.groups || {}).map(([k,g]) =>
-              g ? `<div style="padding:.2rem 0;border-bottom:1px solid var(--border)">
-                <span style="color:var(--muted);font-size:.72rem">${k.replace(/_/g,' ')}:</span>
-                <span style="margin-left:.25rem">${g.in_r1_top10 ?? 0}/${g.n ?? 0} top10</span>
-                <span style="color:var(--muted);font-size:.7rem;margin-left:.25rem">avg pos ${g.avg_r1_pos?.toFixed(0) ?? '—'}</span>
-              </div>` : ''
-            ).join('')}
-          </div>
+          <h4>Trait Winners</h4>
+          <div style="font-size:.78rem">${traitHTML}</div>
+        </div>
+        <div class="ri-card">
+          <h4>Model vs Realized</h4>
+          <div style="font-size:.78rem">${modelHTML}</div>
+        </div>
+        <div class="ri-card">
+          <h4>${nextRoundLbl} Watch — Risers</h4>
+          <div style="font-size:.78rem">${riserRows}</div>
+        </div>
+        <div class="ri-card">
+          <h4>Slippage Risk</h4>
+          <div style="font-size:.78rem">${slippageRows}</div>
+        </div>
+        <div class="ri-card">
+          <h4>Favorites Tracker</h4>
+          <div style="font-size:.78rem">${favHTML}</div>
         </div>
       </div>
     </div>`;

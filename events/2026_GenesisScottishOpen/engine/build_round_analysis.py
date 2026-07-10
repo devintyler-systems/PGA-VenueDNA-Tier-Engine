@@ -472,12 +472,16 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
     match_summary = {"matched": matched, "total_r1": len(lb_rows), "unmatched": unmatched}
 
     _build_ts = int(datetime.now().timestamp())
+    # Round is final when every player in the leaderboard has finished (THRU == "F" or "F*").
+    _all_finished = all(
+        row.get("THRU", "").strip().upper().startswith("F") for row in lb_rows
+    )
     metadata = {
         "round":             round_num,
         "round_label":       f"Round {round_num}",
         "course_name":       "The Renaissance Club",
         "par":               71,
-        "is_final":          False,
+        "is_final":          _all_finished,
         "cache_fingerprint": f"{_build_ts}_{round_num}",
     }
 
@@ -957,6 +961,14 @@ def main():
             except OSError:
                 pass
 
+    # ── Step 5: Auto-deploy — sync final payload to deploy/data/ ─────────────
+    # Ensures deploy/data/r{N}_analysis.json always reflects the committed output.
+    # Path is event-scoped (ROOT / "deploy" / "data") so no cross-event pollution.
+    deploy_data_dir = ROOT / "deploy" / "data"
+    deploy_data_dir.mkdir(parents=True, exist_ok=True)
+    deploy_target = deploy_data_dir / f"r{args.round}_analysis.json"
+    deploy_target.write_text(json.dumps(doc, indent=2, ensure_ascii=False), encoding="utf-8")
+
     print(f"\nVALIDATION PASSED")
     print(f"  schema_version   : {doc['schema_version']}")
     print(f"  field_size       : {doc['field_size']}")
@@ -969,6 +981,7 @@ def main():
     print(f"  rounds_completed : {cumulative['rounds_completed']} (cumulative synced)")
     print(f"\n  [COMMITTED] {final_round.name}")
     print(f"  [COMMITTED] {final_cumul.name}")
+    print(f"  [DEPLOYED]  deploy/data/r{args.round}_analysis.json")
 
 
 if __name__ == "__main__":
