@@ -31,10 +31,16 @@ DB_PATH = ROOT.parents[1] / "data" / "venuedna_master.db"
 
 def _strip_accents(name: str) -> str:
     nfd = unicodedata.normalize("NFD", name)
-    out = "".join(c for c in nfd if not unicodedata.combining(c))
-    for k, v in {"Ø": "O", "ø": "O", "Æ": "AE", "æ": "AE",
-                  "Å": "A", "å": "A", "Ö": "O", "ö": "O",
-                  "Ü": "U", "ü": "U", "Ñ": "N", "ñ": "N", "ß": "SS"}.items():
+    # Strip combining marks and the Unicode replacement character (U+FFFD) that
+    # appears when a non-UTF-8 byte is decoded with errors='replace'.
+    out = "".join(c for c in nfd if not unicodedata.combining(c) and c != "�")
+    for k, v in {
+        "Ø": "O",  "ø": "O",  "Æ": "AE", "æ": "AE",
+        "Å": "A",  "å": "A",  "Ö": "O",  "ö": "O",
+        "Ü": "U",  "ü": "U",  "Ñ": "N",  "ñ": "N",  "ß": "SS",
+        "Œ": "OE", "œ": "OE", "Ð": "D",  "ð": "D",
+        "Þ": "TH", "þ": "TH", "Ł": "L",  "ł": "L",
+    }.items():
         out = out.replace(k, v)
     return out.upper()
 
@@ -45,6 +51,24 @@ def _alpha_only(s: str) -> str:
 
 def normalize(s: str) -> str:
     return _alpha_only(_strip_accents(str(s)))
+
+
+def _read_csv(path: Path) -> list[dict]:
+    """Open a CSV trying UTF-8-sig first, then CP1252.
+
+    Covers both Unix-style UTF-8 exports and Windows Excel saves where bytes
+    like 0xF8 (ø) are Latin-1/Windows-1252 single-byte values, not UTF-8.
+    Falls back to UTF-8 with replacement so the pipeline never hard-crashes
+    on an encoding error.
+    """
+    for enc in ("utf-8-sig", "cp1252"):
+        try:
+            with open(path, encoding=enc) as f:
+                return list(csv.DictReader(f))
+        except (UnicodeDecodeError, UnicodeError):
+            continue
+    with open(path, encoding="utf-8", errors="replace") as f:
+        return list(csv.DictReader(f))
 
 
 def key_first_last(full_name: str) -> str:
@@ -187,13 +211,11 @@ def accumulate_sg_by_round(round_num: int) -> dict[str, dict[str, float]]:
         sg_by_key: dict[str, dict] = {}
         ci_by_key: dict[str, dict] = {}
         if sg_path.exists():
-            with open(sg_path, encoding="utf-8") as f:
-                for row in csv.DictReader(f):
-                    sg_by_key[key_first_last(row["Player"])] = row
+            for row in _read_csv(sg_path):
+                sg_by_key[key_first_last(row["Player"])] = row
         if ci_path.exists():
-            with open(ci_path, encoding="utf-8") as f:
-                for row in csv.DictReader(f):
-                    ci_by_key[key_last_first(row["player_name"])] = row
+            for row in _read_csv(ci_path):
+                ci_by_key[key_last_first(row["player_name"])] = row
         for lkey in set(sg_by_key) | set(ci_by_key):
             sg  = sg_by_key.get(lkey, {})
             ci  = ci_by_key.get(lkey, {})
@@ -213,6 +235,25 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
     round_key = f"round{round_num}"
     r_dir = ROOT / "output" / f"round{round_num}"
 
+    # ── context_sync.json verification ───────────────────────────
+    ctx_path = ROOT / "context_sync.json"
+    if not ctx_path.exists():
+        ctx_path.write_text(
+            json.dumps({"schema_version": "1.1", "event_slug": "2026_genesis_scottish_open"}, indent=2),
+            encoding="utf-8",
+        )
+    with open(ctx_path, encoding="utf-8") as f:
+        _ctx = json.load(f)
+    if _ctx.get("schema_version") != "1.1":
+        raise ValueError(
+            f"context_sync.json schema_version must be '1.1', got {_ctx.get('schema_version')!r}"
+        )
+    if _ctx.get("event_slug") != "2026_genesis_scottish_open":
+        raise ValueError(
+            f"context_sync.json event_slug must be '2026_genesis_scottish_open', "
+            f"got {_ctx.get('event_slug')!r}"
+        )
+
     # ── Pre-tournament payload ────────────────────────────────────
     with open(DEPLOY_PAYLOAD, encoding="utf-8") as f:
         payload = json.load(f)
@@ -220,19 +261,12 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
     pp_by_key = {key_payload(p): p for p in payload["players"]}
 
     # ── Live CSVs ─────────────────────────────────────────────────
-    with open(r_dir / f"{round_key}_leaderboard.csv", encoding="utf-8") as f:
-        lb_rows = list(csv.DictReader(f))
-
-    with open(r_dir / f"{round_key}_player_strokes_gained.csv", encoding="utf-8") as f:
-        sg_rows = list(csv.DictReader(f))
+    lb_rows = _read_csv(r_dir / f"{round_key}_leaderboard.csv")
+    sg_rows  = _read_csv(r_dir / f"{round_key}_player_strokes_gained.csv")
     sg_by_key = {key_first_last(r["Player"]): r for r in sg_rows}
-
-    with open(r_dir / f"{round_key}_course_insights.csv", encoding="utf-8") as f:
-        ci_rows = list(csv.DictReader(f))
+    ci_rows  = _read_csv(r_dir / f"{round_key}_course_insights.csv")
     ci_by_key = {key_last_first(r["player_name"]): r for r in ci_rows}
-
-    with open(r_dir / f"{round_key}_course_stats.csv", encoding="utf-8") as f:
-        cs_rows = list(csv.DictReader(f))
+    cs_rows  = _read_csv(r_dir / f"{round_key}_course_stats.csv")
 
     # ── Leaderboard ───────────────────────────────────────────────
     leaderboard = []
@@ -310,6 +344,15 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
             "pp": pp, "sg": sg, "ci": ci,
         })
 
+    # ── DEBUT field-mean imputation anchors ──────────────────────────────────
+    # Compute mean tier and rank from payload-matched players to use as
+    # regressed baselines for live entrants absent from the pre-tournament field.
+    _matched_se = [se for se in snap_entries if se["in_payload"]]
+    _valid_tiers = [se["pt_tier"] for se in _matched_se if se["pt_tier"] is not None]
+    _valid_ranks = [se["pt_rank"] for se in _matched_se if se["pt_rank"] is not None]
+    field_mean_tier = int(round(sum(_valid_tiers) / len(_valid_tiers))) if _valid_tiers else 3
+    field_mean_rank = int(round(sum(_valid_ranks) / len(_valid_ranks))) if _valid_ranks else 50
+
     # ── Multi-dimension cumulative SG accumulation ────────────────────────────
     # Sum each SG dimension across rounds 1..round_num for every player.
     # Field averages anchor to the active leaderboard field only.
@@ -338,10 +381,25 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
     leaderboard_snapshot = []
     for i, se in enumerate(snap_entries):
         probs  = latent_model.enforce_monotonicity(prob_dicts[i])
+        # Post-enforcement monotonicity invariant: top20 >= top10 >= top5 >= win.
+        # enforce_monotonicity should guarantee this; a ValueError here signals a
+        # logic bug in the softmax/enforcement layer, not a data quality issue.
+        if not (probs["top20_pct"] >= probs["top10_pct"] >= probs["top5_pct"] >= probs["win_pct"]):
+            raise ValueError(
+                f"Softmax monotonicity invariant violated after enforcement for "
+                f"{se['name']!r}: top20={probs['top20_pct']}, top10={probs['top10_pct']}, "
+                f"top5={probs['top5_pct']}, win={probs['win_pct']}"
+            )
+
         pp     = se["pp"]; sg = se["sg"]; ci = se["ci"]
         cum_sg = cum_sg_per_player[i]
 
         live_sg_app = to_float(sg.get("sg-app to green") or ci.get("sg_app"))
+
+        is_debut = not se["in_payload"]
+        # Impute pt_rank and pt_tier for DEBUT players using matched-field means.
+        _pt_rank = se["pt_rank"] if se["pt_rank"] is not None else field_mean_rank
+        _pt_tier = se["pt_tier"] if se["pt_tier"] is not None else field_mean_tier
 
         # app_150_200_fw_sg: pre-tournament 150-200yd fairway SG projection from payload.
         # Debut / late-entry players missing from payload fall back to the round's sg_app.
@@ -365,9 +423,10 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
             "r1_name":            se["name"],
             "norm_name":          lkey_to_norm_name(se["lkey"]),
             "r1_score":           se["score"],
-            "pt_rank":            se["pt_rank"],
-            "pt_tier":            se["pt_tier"],
+            "pt_rank":            _pt_rank,
+            "pt_tier":            _pt_tier,
             "pt_vts":             se["pt_vts"],
+            "data_depth_class":   "DEBUT" if is_debut else "FULL",
             "brie_z_score":       round(float(z_scores[i]), 4),
             "v_p_t":              round(float(modulated[i]), 4),
             "cumulative_sg_app":  round(cum_sg["sg_app"],  3),
