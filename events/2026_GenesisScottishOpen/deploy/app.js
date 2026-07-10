@@ -2953,14 +2953,18 @@ function renderRoundPanel(body, rData, roundNum) {
   // ── Model vs Realized — tier groups + rho ─────────────────────
   const groupRows = Object.entries(mp.groups || {}).map(([k, g]) => {
     if (!g) return '';
-    const hitRate  = g.n > 0 ? Math.round((g.in_r1_top10 / g.n) * 100) : 0;
-    const hitColor = hitRate >= 40 ? '#4ade80' : hitRate >= 20 ? '#fcd34d' : '#f87171';
     const label    = k.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const actPos   = g.avg_r1_pos;
+    const expRank  = g.avg_pt_rank;
+    const ratio    = (expRank && actPos) ? actPos / expRank : null;
+    const posColor = ratio == null ? 'var(--muted)' : ratio <= 1.5 ? '#4ade80' : ratio <= 3.0 ? '#fcd34d' : '#f87171';
+    const beatPct  = (g.n > 0 && g.beat_exp_count != null)
+      ? Math.round((g.beat_exp_count / g.n) * 100) : null;
     return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
       <span style="color:var(--muted);min-width:4.5rem">${label}</span>
-      <span>${g.in_r1_top10 ?? 0}/${g.n ?? 0} top-10</span>
-      <span style="color:${hitColor};font-weight:700">${hitRate}%</span>
-      <span style="color:var(--muted);font-size:.67rem">avg pos ${g.avg_r1_pos?.toFixed(0) ?? '—'}</span>
+      <span>pos <b>${actPos?.toFixed(0) ?? '—'}</b></span>
+      <span style="color:${posColor};font-weight:700">exp ${expRank?.toFixed(0) ?? '—'}</span>
+      <span style="color:var(--muted);font-size:.67rem">${beatPct != null ? beatPct + '% beat' : '—'}</span>
     </div>`;
   }).join('');
   const modelHTML = `

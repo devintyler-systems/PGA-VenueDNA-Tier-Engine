@@ -459,10 +459,17 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
         members = [se for se in snap_entries if se["pt_tier"] in tier_nums]
         if members:
             positions = [pos_to_int(se["pos_str"]) for se in members]
+            pt_ranks  = [se["pt_rank"] for se in members if se["pt_rank"] is not None]
+            beat_exp  = sum(
+                1 for se in members
+                if se["pt_rank"] is not None and pos_to_int(se["pos_str"]) <= se["pt_rank"]
+            )
             groups[gkey] = {
-                "n":          len(members),
-                "in_r1_top10": sum(1 for pos in positions if pos <= 10),
-                "avg_r1_pos":  round(sum(positions) / len(positions), 1),
+                "n":              len(members),
+                "in_r1_top10":    sum(1 for pos in positions if pos <= 10),
+                "avg_r1_pos":     round(sum(positions) / len(positions), 1),
+                "avg_pt_rank":    round(sum(pt_ranks) / len(pt_ranks), 1) if pt_ranks else None,
+                "beat_exp_count": beat_exp,
             }
 
     model_performance = {"spearman_rho": spearman_rho, "groups": groups}

@@ -3,7 +3,7 @@
   "event_slug": "2026_genesis_scottish_open",
   "round": 1,
   "generated_date": "2026-07-10",
-  "build_timestamp": "2026-07-10T00:38:40",
+  "build_timestamp": "2026-07-10T00:58:43",
   "field_size": 156,
   "population_anchor_size": 156,
   "active_field_size": 156,
@@ -13,7 +13,7 @@
     "course_name": "The Renaissance Club",
     "par": 71,
     "is_final": true,
-    "cache_fingerprint": "1783669120_1"
+    "cache_fingerprint": "1783670323_1"
   },
   "model_performance": {
     "spearman_rho": 0.2888,
@@ -21,22 +21,30 @@
       "tier_1": {
         "n": 3,
         "in_r1_top10": 1,
-        "avg_r1_pos": 13.7
+        "avg_r1_pos": 13.7,
+        "avg_pt_rank": 2.0,
+        "beat_exp_count": 1
       },
       "tier_2": {
         "n": 26,
         "in_r1_top10": 3,
-        "avg_r1_pos": 56.3
+        "avg_r1_pos": 56.3,
+        "avg_pt_rank": 16.5,
+        "beat_exp_count": 6
       },
       "tier_3": {
         "n": 62,
         "in_r1_top10": 8,
-        "avg_r1_pos": 66.7
+        "avg_r1_pos": 66.7,
+        "avg_pt_rank": 62.4,
+        "beat_exp_count": 34
       },
       "tier_4_5": {
         "n": 59,
         "in_r1_top10": 0,
-        "avg_r1_pos": 80.7
+        "avg_r1_pos": 80.7,
+        "avg_pt_rank": 135.7,
+        "beat_exp_count": 51
       }
     }
   },
