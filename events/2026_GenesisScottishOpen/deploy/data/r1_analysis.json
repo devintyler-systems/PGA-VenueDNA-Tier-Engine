@@ -3,7 +3,7 @@
   "event_slug": "2026_genesis_scottish_open",
   "round": 1,
   "generated_date": "2026-07-10",
-  "build_timestamp": "2026-07-10T00:19:54",
+  "build_timestamp": "2026-07-10T00:38:40",
   "field_size": 156,
   "population_anchor_size": 156,
   "active_field_size": 156,
@@ -13,7 +13,7 @@
     "course_name": "The Renaissance Club",
     "par": 71,
     "is_final": true,
-    "cache_fingerprint": "1783667994_1"
+    "cache_fingerprint": "1783669120_1"
   },
   "model_performance": {
     "spearman_rho": 0.2888,
@@ -11877,7 +11877,71 @@
         "note": "Struggling toward cut line — SG:TOTAL -15.16 (+15); R2 must improve SG:APP (-4.69) to survive"
       }
     ],
-    "watch_next_round": [],
+    "watch_next_round": [
+      {
+        "player": "Tom Kim",
+        "position": "T1",
+        "delta_v_p": 0.6965,
+        "sg_app": 3.24,
+        "flag_type": "sustainable"
+      },
+      {
+        "player": "Bernd Wiesberger",
+        "position": "T1",
+        "delta_v_p": 0.4367,
+        "sg_app": 2.233,
+        "flag_type": "sustainable"
+      },
+      {
+        "player": "Rasmus Højgaard",
+        "position": "T1",
+        "delta_v_p": 0.5381,
+        "sg_app": 3.542,
+        "flag_type": "sustainable"
+      },
+      {
+        "player": "Michael Thorbjornsen",
+        "position": "T6",
+        "delta_v_p": 0.1126,
+        "sg_app": -1.187,
+        "flag_type": "slippage"
+      },
+      {
+        "player": "Matt McCarty",
+        "position": "T13",
+        "delta_v_p": 0.0369,
+        "sg_app": -0.707,
+        "flag_type": "slippage"
+      },
+      {
+        "player": "Wyndham Clark",
+        "position": "T13",
+        "delta_v_p": 0.4651,
+        "sg_app": 2.446,
+        "flag_type": "sustainable"
+      },
+      {
+        "player": "Danny Willett",
+        "position": "T13",
+        "delta_v_p": -0.0798,
+        "sg_app": -0.965,
+        "flag_type": "slippage"
+      },
+      {
+        "player": "Corey Conners",
+        "position": "T13",
+        "delta_v_p": 0.4083,
+        "sg_app": 3.638,
+        "flag_type": "sustainable"
+      },
+      {
+        "player": "Zach Bauchou",
+        "position": "T13",
+        "delta_v_p": -0.0787,
+        "sg_app": -1.08,
+        "flag_type": "slippage"
+      }
+    ],
     "wave_risk_annotation": [],
     "wave_scoring_averages": {}
   }

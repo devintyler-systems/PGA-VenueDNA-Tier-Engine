@@ -1,6 +1,6 @@
 {
   "event_slug": "2026_genesis_scottish_open",
-  "rounds_completed": 2,
+  "rounds_completed": 1,
   "cumulative_signals": {
     "app_150_200": {
       "consensus": "validated",
@@ -43,7 +43,7 @@
   "per_round": {
     "1": {
       "round": 1,
-      "generated_at": "2026-07-10T00:19:54",
+      "generated_at": "2026-07-10T00:38:40",
       "generated_date": "2026-07-10",
       "field_size": 156,
       "spearman_rho": 0.2888,

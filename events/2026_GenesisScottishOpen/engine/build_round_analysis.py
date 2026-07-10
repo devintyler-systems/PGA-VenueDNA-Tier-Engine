@@ -706,29 +706,35 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
             "note":          note,
         })
 
-    # ── watch_next_round: latent-delta trajectory flags ──────────────────────
-    # ΔV_p = V_p(t) − V_p_baseline.
-    # 'slippage'   — Top 15 AND ΔV_p < −3.0: rank floated on un-modeled noise.
-    # 'sustainable' — Top 15 AND ΔV_p ≥ +2.5: position is course-fit backed.
+    # ── watch_next_round: approach-quality trajectory flags ──────────────────
+    # Uses SG:APP directly — semantically matches "approach-backed" / "regression risk" labels.
+    # 'sustainable' — Top 15 AND sg_app >= 2.0: clearly approach-driven position.
+    # 'slippage'   — Top 15 AND (sg_app < -0.5) OR (sg_putt >= 1.5 AND sg_app < 0.5):
+    #               position is putting-driven or approach-poor → likely to regress.
     watch_next_round = []
     for i, se in enumerate(snap_entries):
         pos_num = pos_to_int(se["pos_str"])
         if pos_num > 15:
             continue
-        delta_vp = modulated[i] - se["baseline"]
-        if delta_vp < -3.0:
+        _sg = se["sg"]; _ci = se["ci"]
+        sg_app_live  = to_float(_sg.get("sg-app to green") or _ci.get("sg_app"))
+        sg_putt_live = to_float(_sg.get("sg-putting")      or _ci.get("sg_putt"))
+        delta_vp = round(modulated[i] - se["baseline"], 4)
+        if sg_app_live >= 2.0:
             watch_next_round.append({
                 "player":    se["name"],
                 "position":  se["pos_str"],
-                "delta_v_p": round(delta_vp, 4),
-                "flag_type": "slippage",
-            })
-        elif delta_vp >= 2.5:
-            watch_next_round.append({
-                "player":    se["name"],
-                "position":  se["pos_str"],
-                "delta_v_p": round(delta_vp, 4),
+                "delta_v_p": delta_vp,
+                "sg_app":    round(sg_app_live, 3),
                 "flag_type": "sustainable",
+            })
+        elif sg_app_live < -0.5 or (sg_putt_live >= 1.5 and sg_app_live < 0.5):
+            watch_next_round.append({
+                "player":    se["name"],
+                "position":  se["pos_str"],
+                "delta_v_p": delta_vp,
+                "sg_app":    round(sg_app_live, 3),
+                "flag_type": "slippage",
             })
 
     live_lean_notes = {

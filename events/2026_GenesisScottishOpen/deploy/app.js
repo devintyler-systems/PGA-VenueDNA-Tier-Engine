@@ -2980,14 +2980,14 @@ function renderRoundPanel(body, rData, roundNum) {
   const riserRows = sustainable.length
     ? sustainable.map(w => `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
         <span style="font-weight:600">${w.player} <span style="color:var(--muted)">${w.position}</span></span>
-        <span style="color:#4ade80">ΔV ${deltaFmt(w.delta_v_p)} — approach-backed</span>
+        <span style="color:#4ade80">APP ${sgFmt(w.sg_app)} — approach-backed</span>
       </div>`).join('')
     : '<p class="ri-placeholder">No approach-backed top-15 flags.</p>';
 
   const slippageRows = slippage.length
     ? slippage.map(w => `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:.16rem 0;border-bottom:1px solid var(--border)">
         <span style="font-weight:600">${w.player} <span style="color:var(--muted)">${w.position}</span></span>
-        <span style="color:#f87171">ΔV ${deltaFmt(w.delta_v_p)} — regression risk</span>
+        <span style="color:#f87171">APP ${sgFmt(w.sg_app)} — regression risk</span>
       </div>`).join('')
     : '<p class="ri-placeholder">No slippage-risk flags in current top 15.</p>';
 
