@@ -2908,7 +2908,7 @@ function renderRoundPanel(body, rData, roundNum) {
     .slice(0, 15);
   const lbRows = lbTop.map(r => `<tr>
     <td>${r.r1_pos_str || r.r1_pos}</td>
-    <td style="font-weight:600">${r.r1_name}</td>
+    <td style="font-weight:600">${r.r1_name}${r.data_depth_class ? `<span class="depth-badge ${r.data_depth_class.toLowerCase()}">${r.data_depth_class}</span>` : ''}</td>
     <td style="color:#4ade80">${scoreFmt(r.r1_score)}</td>
     <td style="color:var(--muted)">${r.pt_rank || '—'}</td>
     <td>${r.pt_tier ? `T${r.pt_tier}` : '—'}</td>

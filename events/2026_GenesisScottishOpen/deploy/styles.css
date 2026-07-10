@@ -166,6 +166,11 @@ main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 6rem; }
 .tier-badge.t4 { background: #78350f; color: #fde68a; border: 1px solid var(--t4); }
 .tier-badge.t5 { background: #7f1d1d; color: #fca5a5; border: 1px solid var(--t5); }
 
+/* Round panel data-depth badges */
+.depth-badge { display: inline-block; font-size: .6rem; font-weight: 700; border-radius: 3px; padding: .1rem .32rem; margin-left: .4rem; text-transform: uppercase; vertical-align: middle; letter-spacing: .03em; }
+.depth-badge.full  { background: #05200c; border: 1px solid #16a34a55; color: #86efac; }
+.depth-badge.debut { background: #451a0322; border: 1px solid #d97706; color: #fde68a; }
+
 /* VTS bar */
 .vts-cell { min-width: 7rem; }
 .vts-bar-wrap { display: flex; align-items: center; gap: .4rem; }
