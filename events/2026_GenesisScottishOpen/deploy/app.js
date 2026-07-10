@@ -2319,41 +2319,40 @@ function sectionBrieZPanel(p) {
     ? 'var(--muted)'
     : (+bzScore >= 0.50 ? '#4ade80' : +bzScore >= -0.50 ? '#fcd34d' : '#f87171');
 
-  // ── Row assembly ─────────────────────────────────────────────────────────────
-  const rows = [
-    isBaseline
-      ? `<div class="bz-row bz-baseline-notice">
+  // ── Row assembly — each row pushed only when its condition is met ────────────
+  const rows = [];
+  if (isBaseline) {
+    rows.push(`<div class="bz-row bz-baseline-notice">
            <span class="bz-label" style="color:#fcd34d" title="No live BRIE-Z data for this player — pre-tournament baseline only">
              Historical Aggregate Baseline Mode
            </span>
            <span class="bz-val" style="color:var(--muted)">0.00</span>
-         </div>`
-      : '',
-    fwSg != null
-      ? `<div class="bz-row">
+         </div>`);
+  }
+  if (fwSg != null) {
+    rows.push(`<div class="bz-row">
            <span class="bz-label" title="Live R1 SG:APP (150-200yd fairway approach proxy) — confirms pre-tournament fw_sg projection">FW-SG 150-200</span>
            <span class="bz-val" style="color:${color(fwSg)}">${fmt(fwSg)}</span>
-         </div>`
-      : '',
-    psa != null
-      ? `<div class="bz-row">
+         </div>`);
+  }
+  if (psa != null) {
+    rows.push(`<div class="bz-row">
            <span class="bz-label" title="Avoid-rough rate centered at field mean — positive = better than average">Poor Shot Avoid (PSA)</span>
            <span class="bz-val" style="color:${color(psa)}">${fmt(psa)}</span>
-         </div>`
-      : '',
-    waveBonus != null && +waveBonus > 0
-      ? `<div class="bz-row">
+         </div>`);
+  }
+  if (waveBonus != null && +waveBonus > 0) {
+    rows.push(`<div class="bz-row">
            <span class="bz-label" title="+0.15 SG bonus for players in the favored wave draw">Wave Bonus</span>
            <span class="bz-val" style="color:#4ade80">+${(+waveBonus).toFixed(2)} ★</span>
-         </div>`
-      : '',
-  ].filter(Boolean).join('');
+         </div>`);
+  }
 
   return `<div class="modal-section">
     <h4>BRIE-Z Sub-Driver <span style="font-size:.72rem;color:var(--muted);font-weight:400">150-200yd Approach · Schema v1.1</span>
       <span class="bz-zscore" style="color:${scoreColor}" title="Z-scored BRIE-Z composite (field-relative σ)">${fmtZ(bzScore)}</span>
     </h4>
-    <div class="bz-grid">${rows}</div>
+    <div class="bz-grid">${rows.join('')}</div>
   </div>`;
 }
 

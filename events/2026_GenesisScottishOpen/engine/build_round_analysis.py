@@ -338,8 +338,27 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
     leaderboard_snapshot = []
     for i, se in enumerate(snap_entries):
         probs  = latent_model.enforce_monotonicity(prob_dicts[i])
-        sg     = se["sg"]; ci = se["ci"]
+        pp     = se["pp"]; sg = se["sg"]; ci = se["ci"]
         cum_sg = cum_sg_per_player[i]
+
+        live_sg_app = to_float(sg.get("sg-app to green") or ci.get("sg_app"))
+
+        # app_150_200_fw_sg: pre-tournament 150-200yd fairway SG projection from payload.
+        # Debut / late-entry players missing from payload fall back to the round's sg_app.
+        _fw_sg_raw = pp.get("app_150_200_value") if pp else None
+        app_150_200_fw_sg = (
+            round(to_float(_fw_sg_raw), 4) if _fw_sg_raw is not None
+            else round(live_sg_app, 3)
+        )
+
+        # app_150_200_poor_shot_avoidance: rough-from-150+ SG proxy from payload.
+        # Captures historical tendency to avoid rough in the 150-200yd approach zone.
+        # Falls back to 0.0 when no historical baseline exists.
+        _psa_raw = pp.get("rough_over150_value") if pp else None
+        app_150_200_poor_shot_avoidance = (
+            round(to_float(_psa_raw), 4) if _psa_raw is not None else 0.0
+        )
+
         leaderboard_snapshot.append({
             "r1_pos":             pos_to_int(se["pos_str"]),
             "r1_pos_str":         se["pos_str"],
@@ -360,10 +379,12 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
             "top10_pct":    float(probs["top10_pct"]),
             "top20_pct":    float(probs["top20_pct"]),
             "live_win_pct": round(float(probs["win_pct"]) / 100.0, 6),
-            "sg_app":  round(to_float(sg.get("sg-app to green") or ci.get("sg_app")),  3),
+            "sg_app":  round(live_sg_app, 3),
             "sg_putt": round(to_float(sg.get("sg-putting")      or ci.get("sg_putt")), 3),
             "sg_arg":  round(to_float(ci.get("sg_arg")),  3),
             "sg_ott":  round(to_float(sg.get("sg-ott")   or ci.get("sg_ott")),  3),
+            "app_150_200_fw_sg":               app_150_200_fw_sg,
+            "app_150_200_poor_shot_avoidance": app_150_200_poor_shot_avoidance,
         })
 
     # ── Model performance + metadata ──────────────────────────────────────
@@ -393,6 +414,7 @@ def build(round_num: int, event_slug: str, adj_weights: dict[str, float]) -> dic
 
     _build_ts = int(datetime.now().timestamp())
     metadata = {
+        "round":             round_num,
         "round_label":       f"Round {round_num}",
         "course_name":       "The Renaissance Club",
         "par":               71,
