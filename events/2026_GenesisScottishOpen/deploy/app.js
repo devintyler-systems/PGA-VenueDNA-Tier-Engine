@@ -805,7 +805,8 @@ async function init() {
   r1Data         = await tryLoadRound('r1_analysis.json',         'Round 1');
   r2Data         = await tryLoadRound('r2_analysis.json',         'Round 2');
   r3Data         = await tryLoadRound('r3_analysis.json',         'Round 3');
-  r4Data         = await tryLoadRound('r4_analysis.json',         'Final');
+  r4Data         = await tryLoadRound('final_analysis.json',      'Final') ||
+                   await tryLoadRound('r4_analysis.json',         'Final');
   cumulativeData = await tryLoadRound('cumulative_learning.json', 'Cumulative learning');
 
   renderWaveRiskAnnotation(r1Data || r2Data || r3Data || r4Data);
@@ -2766,7 +2767,11 @@ function showRoundPanel(round, body) {
     const [data, num] = roundMap[round];
     if (data) {
       try {
-        renderRoundPanel(body, data, num);
+        if (round === 'final' && data.metadata?.is_full_tournament) {
+          renderFinalPanel(body, data);
+        } else {
+          renderRoundPanel(body, data, num);
+        }
       } catch (err) {
         console.error(`[VenueDNA] renderRoundPanel R${num} failed:`, err);
         body.innerHTML = `<div class="ri-card" style="color:#f87171;padding:1.5rem">
@@ -3049,6 +3054,236 @@ function renderRoundPanel(body, rData, roundNum) {
           <h4>Favorites Tracker</h4>
           <div style="font-size:.78rem">${favHTML}</div>
         </div>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   FINAL TOURNAMENT PANEL — SOP-COMPLIANT AUDIT VIEW
+══════════════════════════════════════════════════════ */
+function renderFinalPanel(body, d) {
+  const sgFmt    = v => v == null ? '—' : (v >= 0 ? '+' : '') + (+v).toFixed(2);
+  const scoreFmt = v => v == null ? '—' : v === 0 ? 'E' : (v > 0 ? '+' : '') + (+v).toFixed(0);
+  const sigColor = { validated:'#4ade80', mixed:'#fcd34d', neutral:'#94a3b8', weak:'#94a3b8', negative:'#f87171', unknown:'#64748b' };
+  const statusColor = { VALIDATED:'#4ade80', OVERPERFORMING:'#fcd34d', UNDERPERFORMING:'#f87171', ON_TRACK:'#94a3b8', 'ON TRACK':'#94a3b8', UNMATCHED:'#64748b' };
+
+  const ms   = d.match_summary || {};
+  const meta = d.metadata || {};
+  const rho  = d.model_performance?.spearman_rho ?? 0;
+  const rhoColor = rho > 0.35 ? '#4ade80' : rho > 0.18 ? '#fcd34d' : '#f87171';
+
+  /* ── Phase 1: Tournament Learning ── */
+  const tl   = d.tournament_learning || {};
+  const fa   = tl.final_assessment || {};
+  const keepHTML = (tl.keep_unchanged || []).map(s => `<li style="margin:.18rem 0">${s}</li>`).join('');
+  const leanUpHTML = (tl.lean_up || []).map(t => `<li style="margin:.18rem 0"><b>${t.trait}</b> — ${t.note}</li>`).join('');
+  const leanDownHTML = (tl.lean_down || []).map(t => `<li style="margin:.18rem 0"><b>${t.trait}</b> — ${t.note}</li>`).join('');
+  const faHTML = [
+    fa.winner       && `<p style="margin:.22rem 0"><b>Winner:</b> ${fa.winner}</p>`,
+    fa.runner_up    && `<p style="margin:.22rem 0"><b>Runner-Up:</b> ${fa.runner_up}</p>`,
+    fa.model_hit    && `<p style="margin:.22rem 0"><b>Model Hit:</b> ${fa.model_hit}</p>`,
+    fa.model_miss_1 && `<p style="margin:.22rem 0"><b>Miss 1:</b> ${fa.model_miss_1}</p>`,
+    fa.model_miss_2 && `<p style="margin:.22rem 0"><b>Miss 2:</b> ${fa.model_miss_2}</p>`,
+    fa.spearman_note && `<p style="margin:.4rem 0;color:var(--muted);font-style:italic;font-size:.68rem">${fa.spearman_note}</p>`,
+  ].filter(Boolean).join('');
+
+  /* ── Phase 2.1: Leaderboard vs PT Model ── */
+  const lvmRows = (d.leaderboard_vs_model || []).map(r => {
+    const sc = statusColor[r.status] || '#94a3b8';
+    return `<tr>
+      <td>${r.r1_pos_str || r.r1_pos}</td>
+      <td style="font-weight:600">${r.r1_name}</td>
+      <td style="color:#4ade80">${scoreFmt(r.r1_score)}</td>
+      <td style="color:var(--muted)">${r.pt_rank || '—'}</td>
+      <td>${r.pt_tier ? `T${r.pt_tier}` : '—'}</td>
+      <td>${r.pt_vts ? (+r.pt_vts).toFixed(1) : '—'}</td>
+      <td><span style="color:${sc};font-weight:700;font-size:.65rem">${r.status}</span></td>
+      <td style="color:var(--muted);font-size:.63rem;max-width:14rem;white-space:normal;line-height:1.4">${r.thesis_note || ''}</td>
+    </tr>`;
+  }).join('');
+
+  /* ── Phase 2.2: Trait Reality Check ── */
+  const ta = d.trait_audit || {};
+  const traitCards = Object.entries(ta).map(([key, t]) => {
+    const sig = t.signal || 'neutral';
+    const col = sigColor[sig] || '#94a3b8';
+    const pct = t.venue_weight != null ? Math.round(t.venue_weight * 100) : '?';
+    const proxyLabel = t.source_confidence === 'direct' ? 'DIRECT' : t.source_confidence === 'weak-proxy' ? 'WEAK-PROXY' : (t.source_confidence || '—').toUpperCase();
+    return `<div style="padding:.45rem .6rem;border:1px solid var(--border);border-radius:.375rem;margin-bottom:.35rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-bottom:.15rem">
+        <span style="font-weight:700;font-size:.7rem">${key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</span>
+        <span style="color:${col};font-weight:700;font-size:.68rem;text-transform:uppercase">${sig}</span>
+      </div>
+      <div style="font-size:.63rem;color:var(--muted);margin-bottom:.12rem">
+        Wt: <b>${pct}%</b> · Proxy: <b>${proxyLabel}</b> · SG Δ: <b style="color:${col}">${sgFmt(t.sg_delta)}</b>
+      </div>
+      <div style="font-size:.65rem;color:var(--fg);line-height:1.4">${t.key_data_point || '—'}</div>
+      ${t.enrichment?.enrichment_note ? `<div style="font-size:.6rem;color:var(--muted);margin-top:.1rem;font-style:italic">${t.enrichment.enrichment_note}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  const sgAvg = d.sg_leader_averages?.top10 || {};
+  const traitSGNote = `<div style="font-size:.63rem;color:var(--muted);margin-top:.4rem;padding:.35rem .5rem;background:rgba(255,255,255,.04);border-radius:.25rem">
+    <b>Top-10 SG Leader Averages:</b> APP <span style="color:#4ade80">${sgFmt(sgAvg.sg_app)}</span> · OTT <span style="color:#4ade80">${sgFmt(sgAvg.sg_ott)}</span> · PUTT <span style="color:#4ade80">${sgFmt(sgAvg.sg_putt)}</span> · ARG <span style="color:#4ade80">${sgFmt(sgAvg.sg_arg)}</span>
+  </div>`;
+
+  /* ── Phase 2.3: Tier Performance ── */
+  const tierRows = (d.tier_performance || []).map(t => {
+    const isHL = t.label === 'Tier 1+2' || t.label === 'PT Top 20';
+    const scoreStr = t.avg_score != null ? (t.avg_score >= 0 ? '+' : '') + t.avg_score.toFixed(1) : '—';
+    return `<tr${isHL ? ' style="background:rgba(74,222,128,.06);font-weight:700"' : ''}>
+      <td>${t.label}</td>
+      <td>${t.n}</td>
+      <td>${t.avg_pos?.toFixed(1) ?? '—'}</td>
+      <td style="color:#4ade80">${scoreStr}</td>
+      <td>${t.in_top10}/${t.n}</td>
+      <td>${t.in_top20}/${t.n}</td>
+    </tr>`;
+  }).join('');
+
+  /* ── Phase 2.4: Approach Leaders + Slippage Risk ── */
+  const riserRows = (d.weekend_risers || []).slice(0, 6).map(r =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:.18rem 0;border-bottom:1px solid var(--border)">
+      <span style="font-weight:600">${r.name} <span style="color:var(--muted);font-size:.65rem">PT#${r.pt_rank}</span></span>
+      <span>Pos <b>${r.pos}</b> · APP <span style="color:#4ade80">${sgFmt(r.sg_app)}</span> · PUTT ${sgFmt(r.sg_putt)}</span>
+    </div>`).join('') || '<p class="ri-placeholder">No data.</p>';
+
+  const slipRows = (d.slippage_risk || []).slice(0, 6).map(r =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:.18rem 0;border-bottom:1px solid var(--border)">
+      <span style="font-weight:600">${r.name} <span style="color:var(--muted);font-size:.65rem">pos ${r.pos}</span></span>
+      <span style="color:#fcd34d">PUTT ${sgFmt(r.sg_putt)} / APP ${sgFmt(r.sg_app)} — regression risk</span>
+    </div>`).join('') || '<p class="ri-placeholder">No slippage candidates.</p>';
+
+  /* ── Phase 2.5: Engine Learning Flags ── */
+  const elf = d.engine_learning_flags?.traits || {};
+  const elfRows = Object.entries(elf).map(([key, t]) => {
+    const cons = (t.consensus || 'NEUTRAL').toUpperCase();
+    const consCol = sigColor[cons.toLowerCase()] || '#94a3b8';
+    const rounds = ['r1','r2','r3','r4'];
+    const sigCells = rounds.map(r => {
+      const v = t[r] || '—';
+      return `<span style="color:${sigColor[v] || '#64748b'}">${v.charAt(0).toUpperCase()}</span>`;
+    }).join(' · ');
+    const deltaCells = rounds.map(r => {
+      const v = t.sg_deltas?.[r];
+      return v != null ? sgFmt(v) : '—';
+    }).join(' · ');
+    return `<tr>
+      <td style="font-weight:700;font-size:.7rem">${key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</td>
+      <td style="font-size:.65rem;color:var(--muted)">${Math.round((t.weight||0)*100)}%</td>
+      <td style="font-size:.65rem">${sigCells}</td>
+      <td><span style="color:${consCol};font-weight:700;font-size:.65rem">${cons}</span></td>
+      <td style="font-size:.63rem;color:var(--muted)">${deltaCells}</td>
+      <td style="font-size:.65rem;color:${consCol}">${t.recommendation || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  /* ── Phase 3: Diagnostics ── */
+  const unmatchedStr = ms.unmatched?.length ? ms.unmatched.join(', ') : 'None';
+  const diagItems = [
+    `Player match rate: <b>${ms.matched ?? '?'} / ${(ms.matched ?? 0) + (ms.unmatched?.length ?? 0)}</b> (${ms.match_rate_pct?.toFixed(1) ?? '?'}%) — target ≥95%`,
+    `Unmatched players: <b>${unmatchedStr}</b>`,
+    `Spearman ρ: <b style="color:${rhoColor}">${rho >= 0 ? '+' : ''}${(+rho).toFixed(3)}</b> (pre-tournament rank vs final position, n=${meta.field_size_finished ?? '?'})`,
+    `Winner: <b>${meta.winner}</b> ${meta.winner_score_str || ''}`,
+    `Tournament class: <b>Standard (cut at ${meta.field_size_finished ?? '?'})</b>`,
+    `Data sources: final_leaderboard.csv · final_course_insights.csv · vts_full.csv · cumulative_learning.json`,
+  ].map(s => `<div style="font-size:.68rem;padding:.2rem 0;border-bottom:1px solid var(--border);line-height:1.5">${s}</div>`).join('');
+
+  /* ── Assemble ── */
+  body.innerHTML = `
+    <div class="ri-r1-layout">
+
+      <!-- Header -->
+      <div class="ri-r1-header">
+        <span class="ri-r1-label">Tournament Learning — Final Round</span>
+        <span class="ri-r1-sub">${meta.course_name || 'The Renaissance Club'} · Par ${meta.par ?? 71} · <b>${meta.winner || ''}</b> wins at ${meta.winner_score_str || ''}</span>
+        <span class="ri-r1-meta">Built ${(d.build_timestamp || d.generated_at || '—').replace('T',' ')} · ${ms.matched ?? '?'}/${(ms.matched ?? 0) + (ms.unmatched?.length ?? 0)} matched (${ms.match_rate_pct?.toFixed(1) ?? '?'}%) · Spearman ρ <span style="color:${rhoColor};font-weight:700">${rho >= 0 ? '+' : ''}${(+rho).toFixed(3)}</span></span>
+      </div>
+
+      <div class="ri-r1-grid">
+
+        <!-- Phase 1: Tournament Learning 4-Column -->
+        <div class="ri-card ri-card-wide">
+          <h4>Phase 1 — Tournament Learning</h4>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-top:.75rem">
+            <div>
+              <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:.4rem">Keep Unchanged</div>
+              <ul style="margin:0;padding-left:1.1rem;font-size:.7rem;line-height:1.7;color:var(--fg)">${keepHTML || '<li>No items</li>'}</ul>
+            </div>
+            <div>
+              <div style="font-size:.65rem;color:#4ade80;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:.4rem">Lean Up ↑</div>
+              <ul style="margin:0;padding-left:1.1rem;font-size:.7rem;line-height:1.7;color:var(--fg)">${leanUpHTML || '<li>No items</li>'}</ul>
+            </div>
+            <div>
+              <div style="font-size:.65rem;color:#f87171;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:.4rem">Lean Down ↓</div>
+              <ul style="margin:0;padding-left:1.1rem;font-size:.7rem;line-height:1.7;color:var(--fg)">${leanDownHTML || '<li>No items</li>'}</ul>
+            </div>
+            <div>
+              <div style="font-size:.65rem;color:#fcd34d;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:.4rem">Final Assessment</div>
+              <div style="font-size:.7rem;line-height:1.65;color:var(--fg)">${faHTML || '—'}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 2.1: Leaderboard vs PT Model -->
+        <div class="ri-card ri-card-wide">
+          <h4>2.1 — Leaderboard vs Pre-Tournament Model (Top 20)</h4>
+          <div class="ri-lb-scroll">
+            <table class="ri-lb-table">
+              <thead><tr><th>Pos</th><th>Player</th><th>Score</th><th>PT Rank</th><th>Tier</th><th>VTS</th><th>Status</th><th>Thesis Note</th></tr></thead>
+              <tbody>${lvmRows || '<tr><td colspan="8" style="color:var(--muted)">No data</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Phase 2.2: Trait Reality Check -->
+        <div class="ri-card">
+          <h4>2.2 — Trait Reality Check</h4>
+          ${traitCards}
+          ${traitSGNote}
+        </div>
+
+        <!-- Phase 2.3: Tier Performance -->
+        <div class="ri-card">
+          <h4>2.3 — Model vs Realized: Tier Performance</h4>
+          <table class="ri-lb-table" style="width:100%">
+            <thead><tr><th>Tier</th><th>N</th><th>Avg Pos</th><th>Avg Score</th><th>Top 10</th><th>Top 20</th></tr></thead>
+            <tbody>${tierRows || '<tr><td colspan="6" style="color:var(--muted)">No data</td></tr>'}</tbody>
+          </table>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.55rem">Spearman ρ: <b style="color:${rhoColor}">${rho >= 0 ? '+' : ''}${(+rho).toFixed(3)}</b> — pre-tournament rank vs final position</div>
+        </div>
+
+        <!-- Phase 2.4: Approach Leaders -->
+        <div class="ri-card">
+          <h4>2.4 — Approach-Led Finishers</h4>
+          <div style="font-size:.65rem;color:var(--muted);margin-bottom:.4rem">Approach-backed top performers — sustainable, not putting-spiked</div>
+          ${riserRows}
+        </div>
+
+        <!-- Phase 2.4b: Slippage Risk -->
+        <div class="ri-card">
+          <h4>2.4 — Slippage / Regression Candidates</h4>
+          <div style="font-size:.65rem;color:var(--muted);margin-bottom:.4rem">Position driven by putting spike — regression risk vs career profile</div>
+          ${slipRows}
+        </div>
+
+        <!-- Phase 2.5: Engine Learning Flags -->
+        <div class="ri-card ri-card-wide">
+          <h4>2.5 — Engine Learning Flags (4-Round Cumulative Signal)</h4>
+          <div class="ri-lb-scroll">
+            <table class="ri-lb-table">
+              <thead><tr><th>Trait</th><th>Wt</th><th>R1 · R2 · R3 · R4</th><th>Consensus</th><th>SG Deltas R1 · R2 · R3 · R4</th><th>Recommendation</th></tr></thead>
+              <tbody>${elfRows || '<tr><td colspan="6" style="color:var(--muted)">No engine learning data</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Phase 3: Diagnostics -->
+        <div class="ri-card ri-card-wide">
+          <h4>Phase 3 — Round 4 Diagnostics</h4>
+          ${diagItems}
+        </div>
+
       </div>
     </div>`;
 }

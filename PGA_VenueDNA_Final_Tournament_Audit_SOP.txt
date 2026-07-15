@@ -1,0 +1,356 @@
+PGA VenueDNA — Final Tournament Audit SOP
+Standard Operating Procedure for Post-Event Audits
+Based on the Travelers Championship 2026 model architecture
+
+Purpose
+This SOP defines the exact sequence, logic, and decision rules for conducting a final tournament audit within the VenueDNA Tier Engine. The goal is consistent, reproducible post-event review that separates noise from genuine model signal, identifies weight adjustment candidates, and preserves engine integrity across tournaments.
+
+Prerequisites Before Starting
+Before opening the Final tab or R4 Detailed Assessment, confirm:
+
+Field is locked — FIELD LOCKED badge is active, iter:r4 confirmed
+
+Data sources are confirmed — round4_leaderboard.csv, round4_player_strokes_gained.csv, trait_form_matrix.csv, event_payload.json, round4_course_stats.csv, round4_course_insights.csv are all loaded
+
+Player match rate is acceptable — target ≥95% (Travelers hit 70/72 = 97.2%)
+
+Unmatched players are documented — flag WD/DNF/data gaps explicitly (e.g., Hojgaard, Mitchell at Travelers)
+
+Spec version confirmed — note Spec v#, Venue file version, Model iteration (e.g., v1.1-post-event), and build date
+
+Tournament class confirmed — Signature (no cut, 72 players, 4 rounds), Standard (cut applies), or Elevated. This affects how you interpret cut survival fields and sample sizes
+
+Phase 1 — Tournament Learning (Final Tab, Top Section)
+This is the executive summary layer. It must be completed before diving into R4 Detailed Assessment. Think of it as the "headline verdict."
+
+Step 1.1 — Populate the Four Columns
+Work left to right:
+
+KEEP UNCHANGED
+Document what the model got structurally right and must not be altered:
+
+Which base VTS rankings held
+
+Whether confidence bands and imputation status were appropriate
+
+Whether anti-pattern flags (Bomb + Spray, Wedge Liability, Poor Birdie Conv, Rough Approach Liability) should remain active next cycle
+
+Rule: If a flag was active and the flagged player profile did NOT finish in the top 10, the flag is working. Keep it. Do not remove flags based on one tournament.
+
+LEAN UP
+List traits where leader deltas were positive and directionally consistent with model prediction. For each trait, note:
+
+Delta (pts)
+
+Proxy type (direct / weak-proxy / not-testable)
+
+Validation status
+
+Example format: APP Wedge — validated (+13 pts · weak-proxy)
+
+Threshold guidance: A trait needs ≥+5pt delta AND at least 2 rounds of consistent validation to qualify as Lean Up.
+
+LEAN DOWN
+List traits where the observed signal was inflated by outliers or was structurally misleading. This is NOT the same as "the trait didn't matter" — it means the raw number overstates what the engine should learn.
+
+At Travelers, Putt Short Conv and Putt Lag both fell here despite positive SG:PUTT averages — because Clark's +3.78 outlier inflated the field mean. The rule: if a trait's positive delta is driven by 1-2 players rather than distributed across the top 10, lean it down.
+
+FINAL ASSESSMENT
+Write 3-5 player-specific narratives for the top finishers, noting:
+
+Final position and score
+
+Key SG category drivers (which one led the round)
+
+Whether they were flagged or not flagged
+
+Sustainability verdict: approach-backed = sustainable; putting-spiked = regression risk
+
+Close with the tournament's Spearman ρ and one sentence on correlation direction.
+
+Step 1.2 — Document Trait Signal Flags
+For any trait that crossed the signal threshold during the tournament week, produce a flag entry:
+
+Required fields per flag:
+
+Trait name and current model weight
+
+4-round consensus (Validated / Mixed / Neutral / Negative)
+
+Signal trend (R1 delta → R2 → R3 → R4)
+
+Recommendation (weight adjustment direction and magnitude estimate)
+
+Status — always mark POST-EVENT REVIEW REQUIRED during the tournament. Never change weights mid-tournament.
+
+At Travelers:
+
+Putt Short Conv (19% weight): R1:0.0→R2:+6.1→R3:+8.8→R4:+2.0, consensus MIXED → weight likely 16–15pp too high
+
+Putt Lag (10% weight): R1:-1.4→R2:+2.5→R3:+6.5→R4:-0.4, consensus NEUTRAL → weight likely 7–6pp too high
+
+Phase 2 — R4 Detailed Assessment
+This is the analytical core. Five sub-sections in sequence.
+
+Step 2.1 — Leaderboard vs Pre-Tournament VTS Model
+What you're building: A top-20 table comparing actual R4 finish position to what the model predicted pre-tournament.
+
+Required columns:
+
+POS (final position)
+
+PLAYER
+
+SCORE (to par)
+
+PT RANK (pre-tournament model rank)
+
+VTS (pre-tournament score)
+
+STATUS
+
+THESIS NOTE (optional, for notable overperformers / flags)
+
+Status classification logic:
+
+Status	Definition
+VALIDATED	Player finished within ±5 positions of PT Rank AND was in the top 20
+ON TRACK	Player was a mid-tier model pick and finished in a reasonable range
+OVERPERFORMING	Player meaningfully outperformed their PT Rank (e.g., PT Rank 51, finished T7)
+UNDERPERFORMING	Player meaningfully underperformed (e.g., PT Rank 2, finished outside top 30)
+UNMATCHED	Player data not found in leaderboard CSV — document reason (WD, DNF, data gap)
+Thesis notes — only write these for players where a specific SG category drove the overperformance. Format: [category] elite (+X.XX) | [category] strong (+X.XX) | pre-event driver: [TRAIT]
+
+What to check:
+
+How many of the top 10 were in the PT Model Top 10? (Travelers: 3/10)
+
+How many were in the PT Model Top 20? (Travelers: 7/20)
+
+Is the Spearman ρ improving from R1 through Final? (Expected: yes, peaking at R4)
+
+Are VALIDATED players approach-backed or putting-spiked? (This matters for Phase 1 sustainability verdict)
+
+Step 2.2 — Trait Reality Check
+What you're building: A trait-by-trait scorecard for all 10 venue traits, comparing the top-10 observed performance to field average, and validating whether the model's pre-tournament weighting was directionally correct.
+
+Required fields per trait card:
+
+Trait name
+
+Model weight %
+
+Validation status (VALIDATED / MIXED / NEUTRAL / NEGATIVE)
+
+Proxy type (DIRECT / WEAK-PROXY / N/A)
+
+Key data point (the specific stat that proves or disproves the trait)
+
+Proxy type definitions:
+
+DIRECT — the trait can be measured by a single unambiguous stat (e.g., OTT Accuracy → driving accuracy %)
+
+WEAK-PROXY — the trait is inferred from a correlated stat that also captures other skills (e.g., APP family → GIR%, which also reflects tee shot quality)
+
+N/A — no clean proxy available; rely on narrative and contextual enrichment
+
+Validation rules:
+
+VALIDATED: top-10 leaders outperformed the field on the proxy stat in the expected direction AND the delta is meaningful (not just noise)
+
+MIXED: some rounds validated, some didn't; outlier influence present
+
+NEUTRAL: top-10 leaders performed at field level; trait didn't separate
+
+NEGATIVE: top-10 leaders actually underperformed the field on the proxy (flag for weight reduction)
+
+The putting problem — important structural note: At Travelers, both Putt Short Conv and Putt Lag share SG:PUTT as their proxy. This means you cannot distinguish between them through the stat layer alone. When two traits share the same proxy, their individual validation is unreliable. Flag this limitation in the audit and note it as a structural gap for future venue file design.
+
+For each trait, note one enrichment action if applicable:
+
+Example: D.Accuracy: top10=72.1% vs field=67.4% (+4.7pp) → OTT_Acc enrichment confirmed
+
+Step 2.3 — Model vs Realized — Tier Performance
+What you're building: A tier-level performance summary table proving or disproving that the model's tiering system correctly stratified the field.
+
+Required rows:
+
+Tier 1 (n=1 or 2 top VTS players)
+
+Tier 2 (n=3–5 next-tier players)
+
+T1+T2 Combined
+
+PT Model Top 10
+
+PT Model Top 20
+
+Full Field (72 or cut field size)
+
+Required columns:
+
+N (player count in tier)
+
+AVG POS (average final position)
+
+AVG SCORE (average score to par)
+
+TOP 10 (X/N players who finished in actual top 10)
+
+TOP 20 (X/N players who finished in actual top 20)
+
+How to interpret the table:
+
+Tier 1 and T1+T2 are your strongest signal. If Tier 1 finishes avg pos ≤5 and Tier 2 finishes avg pos ≤15, the engine's top-end separation is working.
+
+The gap between PT Model Top 20 (avg pos, avg score) and Full Field is the model-field separation metric. Bigger gap = better discrimination.
+
+Spearman ρ at the bottom of this section should match what was stated in Tournament Learning.
+
+Travelers benchmark: T1+T2 combined went 4/4 in the top 20 — this is the gold standard. Tier 1 (Scheffler) hit avg pos 2.0 at -21. That's a clean Tier 1 validation. In future tournaments, if T1+T2 goes less than 50% in the top 20, the tiering logic needs review.
+
+Step 2.4 — Final Round Projection
+What you're building: A forward-looking riser list and a regression candidate list — players whose R4 trajectory the model would have elevated or flagged going into the final round.
+
+Risers section — required fields per player:
+
+Player name
+
+Current position entering R4
+
+Score to par
+
+PT Tier
+
+Thesis strength (- / - - / - - - , where - - - = approach-led + scrambling + pre-tournament model basis)
+
+SG splits: APP / ARG / PUTT / OTT (round-level)
+
+Pre-event driver (the single trait from the trait_form_matrix that most aligns with their R3 performance)
+
+One-line thesis note
+
+What qualifies as a riser:
+
+Positive APP delta (≥+1.0 SG:APP)
+
+Pre-tournament model had them in T3–T5 tier (hidden value)
+
+Their current position underrepresents their traits (they're 5+ spots lower than their SG profile warrants)
+
+No active negative flags on their profile
+
+Slippage Risk / Regression Candidates:
+
+Flag players whose position is driven by a single unsustainable SG category (most commonly PUTT spike)
+
+Required format: Player name, current position, score, what's inflating them, regression verdict
+
+Travelers example: Wyndham Clark, T5 -18, putting-driven (+3.78 PUTT vs -1.74 APP) → regression likely
+
+The thesis scoring rule (- - - ):
+
+- - = approach-led + scrambling solid + pre-tournament model agreement
+
+- = approach-led + one other positive + pre-tournament model agreement
+
+= one positive category OR position underrepresentation only
+
+Step 2.5 — Engine Learning Flags
+What you're building: A 4-round cumulative signal table for all 10 traits, giving the engine a clear consensus verdict on what held across the full tournament.
+
+Required columns:
+
+Trait name
+
+Round-by-round signal (R1: [status] · R2: [status] · R3: [status] · R4: [status])
+
+4-Round Consensus (VALIDATED / MIXED / NEUTRAL / NEGATIVE)
+
+Round deltas (R1: +X.X, R2: +X.X, R3: +X.X, R4: +X.X)
+
+Signal status per round is determined by whether the trait delta for that round exceeded the validation threshold (directionally positive AND meaningful magnitude):
+
+Validated = clearly positive, consistent with thesis
+
+Mixed = inconsistent direction or outlier-driven
+
+Neutral = near zero, no separation
+
+Weak = present but marginal
+
+Negative = inverse of thesis
+
+Consensus rules:
+
+VALIDATED: 3+ of 4 rounds validated, no round explicitly negative
+
+MIXED: 2 validated + 1-2 mixed/neutral, or spike-then-collapse pattern
+
+NEUTRAL: 0-1 validated, rest neutral
+
+NEGATIVE: 2+ rounds negative
+
+Traits to prioritize for post-event weight review:
+
+Any MIXED or NEUTRAL trait with weight ≥10% → weight reduction candidate
+
+Any VALIDATED trait with weight <10% → weight increase candidate
+
+Any trait that was VALIDATED in R1-R3 but collapsed in R4 → investigate outlier contamination
+
+Travelers specific findings to carry forward:
+
+APP family (Wedge, 100-150, 150-200) — all 4 rounds VALIDATED, strong consecutive deltas. These weights should hold or increase.
+
+OTT Accuracy — VALIDATED with one R3 mixed blip (still direct-measured). Hold weight.
+
+OTT Distance — MIXED all tournament, low weight (5%). Candidate for further reduction.
+
+Putt Short Conv — MIXED consensus, inflated by outlier. Candidate for reallocation to APP family.
+
+Putt Lag — NEUTRAL consensus. Weight reduction candidate.
+
+ARG Rough — VALIDATED. Hold.
+
+ARG Bunker — MIXED (R4 mixed). Monitor.
+
+Par-5 Scoring — VALIDATED. Hold.
+
+Phase 3 — Round 4 Diagnostics (Footer Verification)
+This section validates the data quality of the audit itself. Always confirm:
+
+Player match rate (target ≥95%)
+
+Unmatched players named and reason documented
+
+All data sources listed
+
+SG proxy mapping confirmed (SG:APP → which traits, SG:PUTT → which traits, etc.)
+
+Course Insights (DataGolf proxy) match rate and any divergence from PGAT SG noted
+
+Traits upgraded this tournament (or "none" if none upgraded)
+
+Confirmed trait upgrades (e.g., OTT Accuracy confirmed this cycle)
+
+Spearman ρ stated (pre-tournament rank vs R4 position, n=field size)
+
+Phase 4 — Post-Event Weight Adjustment Protocol
+Do not adjust weights during the tournament. All adjustments are post-event only.
+
+Weight Adjustment Decision Tree:
+text
+Is the trait VALIDATED across 3+ tournaments (not just this one)?
+  YES → Candidate for weight increase (max +3pp per cycle)
+  NO → Hold; collect more data
+
+Is the trait MIXED or NEUTRAL with weight ≥10%?
+  YES → Candidate for weight reduction (max -3pp per cycle)
+  NO → Hold
+
+Is there a trait with DIRECT measurement that's currently WEAK-PROXY weighted?
+  YES → Elevate proxy type classification; consider weight increase
+
+Is a weight adjustment available (total weights must sum to 100%)?
+  YES → Pair every
