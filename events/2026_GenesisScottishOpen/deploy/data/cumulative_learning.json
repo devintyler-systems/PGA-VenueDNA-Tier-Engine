@@ -68,20 +68,91 @@
         "Zach Bauchou"
       ],
       "wave_annotation_n": 0
+    },
+    "4": {
+      "round": 4,
+      "generated_at": "2026-07-15",
+      "spearman_rho": 0.124,
+      "trait_signals": {
+        "app_150_200": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.184,
+          "enrichment_signal": null
+        },
+        "ott_positional": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 0.674,
+          "enrichment_signal": null
+        },
+        "app_overall": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.184,
+          "enrichment_signal": null
+        },
+        "driving_accuracy": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 0.674,
+          "enrichment_signal": null
+        },
+        "sg_putt": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 1.174,
+          "enrichment_signal": null
+        },
+        "sg_arg": {
+          "signal": "neutral",
+          "source_confidence": "weak-proxy",
+          "trait_delta": null,
+          "sg_delta": 0.353,
+          "enrichment_signal": null
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 2,
+        "pt_top10_in_top20": 3,
+        "tier1_2_in_top20": 10
+      },
+      "risers": [
+        "Danny Willett",
+        "Cam Davis",
+        "Kevin Roy",
+        "Keita Nakajima",
+        "Joost Luiten",
+        "Andy Sullivan",
+        "Francesco Molinari"
+      ],
+      "slippage": [
+        "Tyrrell Hatton"
+      ],
+      "wave_annotation_n": 0
     }
   },
   "cumulative_signals": {
     "app_150_200": {
       "rounds_observed": [
-        1
+        1,
+        4
       ],
       "signal_history": [
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
+        null,
         null
       ],
       "consensus": "neutral",
@@ -89,15 +160,19 @@
     },
     "ott_positional": {
       "rounds_observed": [
-        1
+        1,
+        4
       ],
       "signal_history": [
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
+        null,
         null
       ],
       "consensus": "neutral",
@@ -105,15 +180,19 @@
     },
     "app_overall": {
       "rounds_observed": [
-        1
+        1,
+        4
       ],
       "signal_history": [
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
+        null,
         null
       ],
       "consensus": "neutral",
@@ -121,15 +200,19 @@
     },
     "driving_accuracy": {
       "rounds_observed": [
-        1
+        1,
+        4
       ],
       "signal_history": [
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
+        null,
         null
       ],
       "consensus": "neutral",
@@ -137,15 +220,19 @@
     },
     "sg_putt": {
       "rounds_observed": [
-        1
+        1,
+        4
       ],
       "signal_history": [
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
+        null,
         null
       ],
       "consensus": "neutral",
@@ -153,25 +240,30 @@
     },
     "sg_arg": {
       "rounds_observed": [
-        1
+        1,
+        4
       ],
       "signal_history": [
+        "neutral",
         "neutral"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
+        null,
         null
       ],
       "consensus": "neutral",
       "consensus_confidence": "weak-proxy"
     }
   },
-  "last_updated": "2026-07-09",
-  "updated_at": "2026-07-09T15:46:22",
-  "rounds_completed": 1,
+  "last_updated": "2026-07-15",
+  "updated_at": "2026-07-15T13:21:33",
+  "rounds_completed": 4,
   "rounds_present": [
-    1
+    1,
+    4
   ]
 }

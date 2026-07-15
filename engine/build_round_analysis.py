@@ -157,6 +157,51 @@ _EVENT_CONFIGS: dict[str, dict] = {
             "par5_scoring":    {"primary": "gir",           "direction": "higher_better", "secondary": "d_distance"},
         },
     },
+    # ── 2026 The Open Championship — Royal Birkdale ───────────────────────────
+    # Weights derived from links-optimized GSO baseline with Birkdale adjustments:
+    #   ott_accuracy  +4% (vs GSO driving_accuracy 0.12): gorse/rough demands peak
+    #   ott_positional −2% (vs GSO 0.20): positional play yields to accuracy priority
+    #   app_overall  −2% (vs GSO 0.15): absorbs net balance shift
+    "2026_the_open_championship": {
+        "event_name":   "2026 The Open Championship",
+        "course_name":  "Royal Birkdale",
+        "par":          70,
+        "event_dir_glob": "events/*the_open*",
+        "course_key":   "royal_birkdale",
+        "favored_wave": "late_early",
+        "trait_cols": {
+            "app_150_200":   "trait_app_150_200",
+            "ott_accuracy":  "trait_driving_accuracy",
+            "ott_positional":"trait_ott_positional",
+            "app_overall":   "trait_app_overall",
+            "sg_putt":       "trait_sg_putt",
+            "sg_arg":        "trait_sg_arg",
+        },
+        "venue_weights": {
+            "app_150_200":   0.30,
+            "ott_accuracy":  0.16,
+            "ott_positional":0.18,
+            "app_overall":   0.13,
+            "sg_putt":       0.13,
+            "sg_arg":        0.10,
+        },
+        "sg_proxy": {
+            "app_150_200":   "sg_app",
+            "ott_accuracy":  "sg_ott",
+            "ott_positional":"sg_ott",
+            "app_overall":   "sg_app",
+            "sg_putt":       "sg_putt",
+            "sg_arg":        "sg_arg",
+        },
+        "ci_trait_map": {
+            "app_150_200":   {"primary": "gir",        "direction": "higher_better", "secondary": "fairway_prox"},
+            "ott_accuracy":  {"primary": "d_accuracy", "direction": "higher_better", "secondary": None},
+            "ott_positional":{"primary": "d_accuracy", "direction": "higher_better", "secondary": None},
+            "app_overall":   {"primary": "fairway_prox","direction": "lower_better", "secondary": "gir"},
+            "sg_putt":       {"primary": None,         "direction": None,            "secondary": None},
+            "sg_arg":        {"primary": "scrambling", "direction": "higher_better", "secondary": "rough_prox"},
+        },
+    },
 }
 
 cfg = _EVENT_CONFIGS.get(EVENT_SLUG)

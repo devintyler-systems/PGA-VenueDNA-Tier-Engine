@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "event_slug": "2026_the_open_championship",
+  "event_name": "2026 The Open Championship",
+  "course_name": "Royal Birkdale",
+  "par": 70,
+  "baseline_source": "2026_genesis_scottish_open links-optimized post-mortem",
+  "generated_at": "2026-07-15",
+  "weight_derivation": {
+    "method": "GSO links baseline + Royal Birkdale hazard adjustments",
+    "gso_baseline_weights": {
+      "app_150_200":      0.30,
+      "ott_positional":   0.20,
+      "app_overall":      0.15,
+      "driving_accuracy": 0.12,
+      "sg_putt":          0.13,
+      "sg_arg":           0.10
+    },
+    "adjustments_applied": [
+      {
+        "trait":  "ott_accuracy",
+        "source_trait": "driving_accuracy",
+        "delta":  "+0.04",
+        "rationale": "Royal Birkdale gorse corridors and coastal rough impose severe penalties on inaccuracy off the tee; drives outside tight target zones face unplayable lies or forced layups"
+      },
+      {
+        "trait":  "ott_positional",
+        "delta":  "-0.02",
+        "rationale": "General positional play less differentiated when accuracy constraints dominate; Birkdale rewards specific fairway zones over broad tee-shot excellence"
+      },
+      {
+        "trait":  "app_overall",
+        "delta":  "-0.02",
+        "rationale": "Balance adjustment to maintain weight sum = 1.00; overall approach play slightly less separated than approach precision from 150-200 yards"
+      }
+    ]
+  },
+  "final_weights": {
+    "app_150_200":   0.30,
+    "ott_accuracy":  0.16,
+    "ott_positional":0.18,
+    "app_overall":   0.13,
+    "sg_putt":       0.13,
+    "sg_arg":        0.10,
+    "_sum_check":    1.00
+  },
+  "trait_column_map": {
+    "app_150_200":   "trait_app_150_200",
+    "ott_accuracy":  "trait_driving_accuracy",
+    "ott_positional":"trait_ott_positional",
+    "app_overall":   "trait_app_overall",
+    "sg_putt":       "trait_sg_putt",
+    "sg_arg":        "trait_sg_arg"
+  },
+  "course_intelligence": {
+    "turf_type":        "links_links",
+    "exposure_index":   "very_high",
+    "typical_wind_mph": "18-30",
+    "rough_penalty":    "severe",
+    "green_contour":    "firm_undulating",
+    "key_holes":        ["H6 Calamity Corner par-3", "H12 Plateau par-4", "H17 Home par-4"],
+    "primary_threats":  ["gorse OB right", "coastal wind shifts", "pot bunkers"],
+    "ott_target_width_yards": 22
+  },
+  "notes": [
+    "Trait columns map to GSO field input matrix columns; rebuild trait_form_matrix from 2026 Open field when data becomes available",
+    "ott_accuracy weight (0.16) is the highest accuracy premium in the VenueDNA library — only Carnoustie exceeds it",
+    "sg_putt weight intentionally held at GSO level; Birkdale greens are challenging but not the decisive differentiator vs links accuracy"
+  ]
+}
