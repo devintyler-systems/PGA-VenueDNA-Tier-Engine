@@ -229,9 +229,11 @@ _event_candidates = sorted(_ROOT.glob(event_glob))
 if not _event_candidates:
     print(f"ERROR: Cannot find event directory for '{EVENT_SLUG}'. Searched: {_ROOT / event_glob}")
     raise SystemExit(1)
-EVENT_DIR = _event_candidates[0]
-OUT = EVENT_DIR / "output"
-DEP = EVENT_DIR / "deploy" / "data"
+EVENT_DIR  = _event_candidates[0]
+OUT        = EVENT_DIR / "output"
+DEP        = EVENT_DIR / "deploy" / "data"
+INPUT_DIR  = OUT / f"round{ROUND}"
+OUTPUT_DIR = DEP
 
 # ── Enrichment thresholds (conservative universal defaults) ───────────────────
 TRAIT_SIGNAL_THRESHOLDS = {"strong": 6, "lean": 2, "neutral": -3}
@@ -264,7 +266,7 @@ else:
             break
     else:
         if DRY_RUN:
-            ROUND_DIR = OUT / f"round{ROUND}"
+            ROUND_DIR = INPUT_DIR
         else:
             print(f"ERROR: Round {ROUND} data directory not found.")
             print(f"  Create {OUT / f'round{ROUND}'} and place round{ROUND}_*.csv files inside.")
@@ -1157,7 +1159,7 @@ if CUM_OUT.exists():
         cumulative_learning = json.load(f)
 else:
     cumulative_learning = {
-        "schema_version":    "1.1",
+        "schema_version":    "1.0",
         "event_slug":        EVENT_SLUG,
         "created_at":        TODAY,
         "per_round":         {},
@@ -1526,8 +1528,8 @@ if DRY_RUN:
     try:
         with open(CUM_DEP, encoding="utf-8") as _vf:
             _cldata = json.load(_vf)
-        if _cldata.get("schema_version") != "1.1":
-            _val_errors.append("cumulative_learning.json: schema_version != '1.1'")
+        if _cldata.get("schema_version") != "1.0":
+            _val_errors.append("cumulative_learning.json: schema_version != '1.0'")
     except Exception as _ve:
         _val_errors.append(f"Read error cumulative_learning.json: {_ve}")
 
@@ -1542,6 +1544,11 @@ if DRY_RUN:
     for _cp in _cleanup_paths:
         try:
             Path(_cp).unlink(missing_ok=True)
+        except Exception:
+            pass
+    for _d in [ROUND_DIR, PAIRINGS.parent]:
+        try:
+            _d.rmdir()
         except Exception:
             pass
     print(f"[dry-run] Cleaned {len(_cleanup_paths)} test artifacts. Engine validated for R1 live ingestion.")

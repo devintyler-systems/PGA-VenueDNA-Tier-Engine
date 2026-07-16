@@ -19,6 +19,7 @@ const S = {
   activeFetchTarget: null,
   weather:    { speed: 0, direction: 'N/A', wave_delta: 0.0, tide: 'N/A' },
   waveByPlayer: {},
+  cumulativeLearning: null,
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -919,11 +920,15 @@ async function switchRound(r) {
   pending?.classList.remove('hidden');
   content?.classList.add('hidden');
   try {
-    const resp = await fetch(`data/r${r}_analysis.json`);
+    const [resp, cumLearn] = await Promise.all([
+      fetch(`data/r${r}_analysis.json`),
+      fetch('data/cumulative_learning.json').then(res => res.ok ? res.json() : null).catch(() => null),
+    ]);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     if (S.activeFetchTarget !== r) return;
     S.roundData[r] = data;
+    S.cumulativeLearning = cumLearn;
     liveSection?.classList.remove('loading-blur');
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
