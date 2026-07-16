@@ -1,4 +1,4 @@
-"""
+﻿"""
 VenueDNA Generic Round Analysis Builder — engine/build_round_analysis.py
 Schema version 1.1
 
@@ -301,12 +301,12 @@ def ascii_fold(s: str) -> str:
     return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
 
 
-_COMBINING_RE = re.compile("[̀-ͯ]")
+_COMBINING_RE = re.compile("[\u0300-\u036f]")
 
 def norm_name(s: str) -> str:
     """Mirror JS normName: NFD decompose, strip U+0300-U+036F combining marks, lowercase, trim."""
     stripped = _COMBINING_RE.sub("", unicodedata.normalize("NFD", str(s)))
-    return re.sub("[‘‘’`]", "’", stripped).lower().strip()
+    return re.sub("[‘’`’]", "’", stripped).lower().strip()
 
 
 def fl_to_lf(name: str) -> str:
@@ -652,7 +652,7 @@ model_perf = {
 pairs = [(r["pt_rank"], r["r1_pos"]) for r in matched if r.get("pt_rank")]
 n  = len(pairs)
 d2 = sum((a - b)**2 for a, b in pairs)
-spearman_rho = round(1 - 6 * d2 / (n * (n**2 - 1)), 3) if n > 2 else 0.0
+spearman_rho = round(1 - 6 * d2 / (n * (n**2 - 1)), 3) if n >= 10 else 0.0
 
 # ── Trait audit ───────────────────────────────────────────────────────────────
 top10_group = [r for r in joined if r["r1_pos"] <= 10]

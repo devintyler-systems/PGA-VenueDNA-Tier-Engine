@@ -17,6 +17,8 @@ const S = {
   roundData:         {},
   altPlayers:        [],
   activeFetchTarget: null,
+  weather:    { speed: 0, direction: 'N/A', wave_delta: 0.0, tide: 'N/A' },
+  waveByPlayer: {},
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -99,12 +101,19 @@ function canonName(rawName) {
   if (!S.altPlayers.find(x => x.player === nm)) {
     S.altPlayers.push({
       player: nm, rank: '—', tier: 'T5',
-      vts_final: 50.0, neutralSkillIndex: 50.0, venueFitScore: 50.0,
-      venueHistoryDelta: 0, penalties_total: 0,
+      vts_final: 50.0,
+      neutralSkillIndex: 50.0, nsi_final: 50.0,
+      venueFitScore: 50.0,     vfs_final: 50.0,
+      venueHistoryDelta: 0,    vhd: 0.0,
+      penalties_total: 0,
       winPct: null, top5Pct: null, top10Pct: null,
       top20Pct: null, makeCutPct: null, missCutPct: null,
+      win_prob: 0.001, top5_prob: 0.005, top10_prob: 0.010,
+      top20_prob: 0.020, make_cut_prob: 0.500, miss_cut_prob: 0.500,
       birkdaleTag: 'RoyalBirkdaleDebut',
+      band_name: 'Debut Profile',
       tierReason: 'Late alternate or field addition — not in pre-tournament model.',
+      risk_flags: ['Late Alternate / No Pre-Tourney Model Data'],
       _flags: [], _isAlt: true,
     });
     console.info('[VenueDNA] alt registered:', nm);
@@ -153,6 +162,11 @@ async function init() {
 
     bindEvents();
     renderAll();
+
+    fetch('data/weather_forecast.json')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .catch(() => ({ speed: 18, direction: 'WNW', wave_delta: 0.35, tide: 'Incoming / Damp' }))
+      .then(wx => { S.weather = { ...S.weather, ...wx }; renderWeather(S.weather); });
   } catch (err) {
     console.error('[VenueDNA]', err);
     if (tbody) tbody.innerHTML =
@@ -568,13 +582,13 @@ function openModal(name) {
   const tBg    = { T1:'var(--t1-bg)', T2:'var(--t2-bg)', T3:'var(--t3-bg)', T4:'var(--t4-bg)', T5:'var(--t5-bg)' }[tier];
   const tBd    = { T1:'var(--t1-b)', T2:'var(--t2-b)', T3:'var(--t3-b)', T4:'var(--t4-b)', T5:'var(--t5-b)' }[tier];
 
-  // Prefer brief probabilities; fall back to board values
-  const wPct    = br.win_prob      ?? p.winPct;
-  const t5Pct   = br.top5_prob     ?? p.top5Pct;
-  const t10Pct  = br.top10_prob    ?? p.top10Pct;
-  const t20Pct  = br.top20_prob    ?? p.top20Pct;
-  const mcPct   = br.make_cut_prob ?? p.makeCutPct;
-  const missPct = br.miss_cut_prob ?? p.missCutPct;
+  // Prefer brief probabilities; fall back to board values; then to alt-player defaults
+  const wPct    = br.win_prob      ?? p.winPct  ?? p.win_prob;
+  const t5Pct   = br.top5_prob     ?? p.top5Pct ?? p.top5_prob;
+  const t10Pct  = br.top10_prob    ?? p.top10Pct ?? p.top10_prob;
+  const t20Pct  = br.top20_prob    ?? p.top20Pct ?? p.top20_prob;
+  const mcPct   = br.make_cut_prob ?? p.makeCutPct ?? p.make_cut_prob;
+  const missPct = br.miss_cut_prob ?? p.missCutPct ?? p.miss_cut_prob;
   const wcs     = br.win_ceiling_score;
   const cs      = br.contention_score;
   const fs      = br.floor_score;
@@ -606,6 +620,14 @@ function openModal(name) {
 
   const analystLabel = tn <= 2 ? 'Analyst Intelligence — Full Brief' : tn === 3 ? 'Model Conviction' : 'Model Note';
 
+  const playerWave  = S.waveByPlayer[normName(p.player)] || p.wave || null;
+  const waveDelta   = S.weather.wave_delta || 0;
+  const waveIsFav   = playerWave === 'favorable';
+  const waveIsDisadv = playerWave === 'unfavorable';
+  const waveAdj     = waveIsFav ? -waveDelta : waveIsDisadv ? +waveDelta : 0;
+  const waveLabel   = waveIsFav ? 'Favorable' : waveIsDisadv ? 'Unfavorable' : 'Neutral';
+  const adjFloor    = fs != null ? +(fs + waveAdj).toFixed(1) : null;
+
   S.activePlayer = name;
 
   document.getElementById('modal-content').innerHTML = `
@@ -620,7 +642,7 @@ function openModal(name) {
           ${badges.map(b => `<span class="badge sans">${b}</span>`).join('')}
           ${flags.map(f => flag(f)).join('')}
         </div>
-        ${scoring.band ? `<div class="modal-band-row"><span class="modal-band-pill" style="background:${tBg};color:${tColor};border-color:${tBd}">${scoring.band}</span></div>` : ''}
+        ${(scoring.band || p.band_name) ? `<div class="modal-band-row"><span class="modal-band-pill" style="background:${tBg};color:${tColor};border-color:${tBd}">${scoring.band || p.band_name}</span></div>` : ''}
       </div>
       <div class="modal-vts">
         <div class="modal-vts-val sans">${f2(p.vts_final)}</div>
@@ -651,6 +673,29 @@ function openModal(name) {
           ${scoring.ceiling  ? `<div class="latent-pill"><div class="latent-val" style="color:var(--gold)">${scoring.ceiling}</div><div class="latent-lbl">Ceiling</div></div>` : ''}
           ${scoring.floor    ? `<div class="latent-pill"><div class="latent-val" style="color:var(--accent)">${scoring.floor}</div><div class="latent-lbl">Floor</div></div>` : ''}
         </div>
+
+        ${S.weather.speed > 0 ? `<div style="margin-top:14px;padding:10px 14px;background:#0f172a;border:1px solid #1e293b;border-radius:8px">
+          <div class="sans" style="font-size:10px;letter-spacing:.08em;color:#f59e0b;margin-bottom:8px">WEATHER &amp; WAVE PROFILE</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+            <div>
+              <span class="sans" style="font-size:11px;color:#94a3b8">Wind: </span>
+              <span class="sans" style="font-size:12px;color:#e2e8f0;font-weight:600">${S.weather.speed} mph ${S.weather.direction}</span>
+            </div>
+            <div>
+              <span class="sans" style="font-size:11px;color:#94a3b8">Tide: </span>
+              <span class="sans" style="font-size:12px;color:#e2e8f0">${S.weather.tide}</span>
+            </div>
+            <div>
+              <span class="sans" style="font-size:11px;color:#94a3b8">Wave: </span>
+              <span class="sans" style="font-size:12px;font-weight:700;color:${waveIsFav ? '#3b82f6' : waveIsDisadv ? '#f59e0b' : '#94a3b8'}">${waveLabel}</span>
+              ${waveDelta > 0 && playerWave ? `<span class="sans" style="font-size:11px;color:${waveIsFav ? '#3b82f6' : '#f59e0b'};margin-left:4px">(${waveIsFav ? '-' : '+'}${waveDelta.toFixed(2)} strokes)</span>` : ''}
+            </div>
+            ${adjFloor != null && waveAdj !== 0 ? `<div>
+              <span class="sans" style="font-size:11px;color:#94a3b8">Adj. Floor: </span>
+              <span class="sans" style="font-size:12px;font-weight:600;color:${waveIsFav ? '#3b82f6' : '#f59e0b'}">${adjFloor > 0 ? '+' : ''}${adjFloor}</span>
+            </div>` : ''}
+          </div>
+        </div>` : ''}
       </div>
 
       <!-- §2 — STYLE / FIT BADGES -->
@@ -660,7 +705,13 @@ function openModal(name) {
       </div>` : ''}
 
       <!-- §3 — WIN CASE / TIER BRIEF -->
-      ${buildWinCase(p, br, tier)}
+      ${p._isAlt
+        ? `<div class="modal-sec">
+            <div class="modal-sec-title sans">Pre-Tournament Status</div>
+            <div class="analyst-brief" style="color:var(--text-2);font-style:italic">No pre-tournament briefing available; field alternate tracked at baseline thresholds.</div>
+            ${(p.risk_flags || []).length ? `<div class="modal-note sans" style="color:var(--accent);margin-top:8px">${p.risk_flags.join(' · ')}</div>` : ''}
+          </div>`
+        : buildWinCase(p, br, tier)}
 
       <!-- §4 — PLAYER ANALYSIS -->
       ${(br.neutral_skill_summary || br.venue_fit_summary || br.venue_history_summary || br.form_summary) ? `<div class="modal-sec">
@@ -870,6 +921,11 @@ function renderLiveRound(data, el) {
   const risers   = (data.weekend_risers || data.risers || []).slice(0, 15);
   const slippage = (data.slippage_risk || []).slice(0, 10);
 
+  S.waveByPlayer = {};
+  for (const r of lbSnap) {
+    if (r.r1_name && r.wave) S.waveByPlayer[normName(r.r1_name)] = r.wave;
+  }
+
   const sgFmt = v => v != null ? (v > 0 ? '+' : '') + Number(v).toFixed(2) : '—';
   const posFmt = r => r.r1_pos_str || r.r1_pos || '—';
   const deltaHtml = (pt, pos) => {
@@ -881,7 +937,7 @@ function renderLiveRound(data, el) {
   };
 
   el.innerHTML = `
-    ${lean.putt_caution ? `<div class="live-banner putt-caution sans">
+    ${lean.putt_caution ? `<div class="putt-caution-banner sans">
       <strong>⚠ Putting Caution Active</strong> — ${lean.putt_outliers?.length || ''} players with putting-biased performance prone to regression.
       ${(lean.putt_outliers || []).length ? '<br><span style="margin-top:5px;display:inline-block">' +
         lean.putt_outliers.map(p => `<span style="margin-right:10px">${p.player} <b>(SG-PUTT: ${sgFmt(p.sg_putt)})</b></span>`).join('') +
@@ -956,18 +1012,15 @@ function renderLiveRound(data, el) {
       <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
         <table class="live-table">
           <thead><tr>
-            <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
-            <th>Δ Rank</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th><th>Risk Flag</th>
+            <th class="left">Player</th><th>Δ Rank</th>
+            <th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th>
           </tr></thead>
           <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
             <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
-            <td class="sans">${posFmt(r)}</td>
-            <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
             <td class="sans">${deltaHtml(r.pt_rank, r.r1_pos)}</td>
             <td class="sans" style="color:${(r.sg_app||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgFmt(r.sg_app)}</td>
             <td class="sans" style="color:var(--accent);font-weight:700">${sgFmt(r.sg_putt)}</td>
             <td class="sans">${sgFmt(r.sg_tot)}</td>
-            <td class="sans" style="color:var(--accent);font-size:11px;white-space:normal;max-width:160px">${(r.risk_flags || []).join(' · ') || '—'}</td>
           </tr>`).join('')}</tbody>
         </table>
       </div>
@@ -1071,6 +1124,41 @@ function reindexRankColumn() {
       rankEl.innerHTML = `${i + 1}<span class="badge sans" style="font-size:9px;padding:1px 4px;margin-left:4px;vertical-align:middle;opacity:.75">VTS:#${orig}</span>`;
     }
   });
+}
+
+// ── Weather renderer ───────────────────────────────────────────────────────────
+function renderWeather(wx) {
+  const section = document.getElementById('weather-impact-section');
+  if (!section) return;
+
+  const speedEl = document.getElementById('wx-wind-speed');
+  const dirEl   = document.getElementById('wx-wind-dir');
+  const tideEl  = document.getElementById('wx-tide');
+  const deltaEl = document.getElementById('wx-wave-delta');
+  const badgeEl = document.getElementById('wx-badge');
+  const noteEl  = document.getElementById('wx-wave-note');
+
+  if (speedEl) speedEl.textContent = wx.speed ?? '—';
+  if (dirEl)   dirEl.textContent   = wx.direction ?? '—';
+  if (tideEl)  tideEl.textContent  = wx.tide ?? '—';
+  if (deltaEl) deltaEl.textContent = wx.wave_delta != null ? (wx.wave_delta > 0 ? '+' : '') + Number(wx.wave_delta).toFixed(2) : '—';
+
+  const speed = wx.speed ?? 0;
+  const severity = speed >= 30 ? 'Severe' : speed >= 20 ? 'Significant' : speed >= 12 ? 'Moderate' : 'Light';
+  const sevColor = speed >= 30 ? '#ef4444' : speed >= 20 ? '#f59e0b' : speed >= 12 ? '#3b82f6' : '#22c55e';
+  if (badgeEl) { badgeEl.textContent = severity; badgeEl.style.background = sevColor; }
+
+  if (noteEl) {
+    if (wx.wave_delta > 0) {
+      noteEl.textContent = `Wave model active — late/early tee times favored by ${wx.wave_delta.toFixed(2)} strokes vs. midday wave.`;
+      noteEl.style.color = '#3b82f6';
+    } else {
+      noteEl.textContent = 'Wave delta neutral — no tee-time adjustment applied.';
+      noteEl.style.color = '#64748b';
+    }
+  }
+
+  section.classList.remove('hidden');
 }
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
