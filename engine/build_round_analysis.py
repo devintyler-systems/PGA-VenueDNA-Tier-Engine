@@ -170,6 +170,7 @@ _EVENT_CONFIGS: dict[str, dict] = {
         "course_name":  "Royal Birkdale",
         "par":          70,
         "event_dir_glob": "events/*the_open*",
+        "event_root":   "C:/PGA_VenueDNA/events/2026_the_open_championship",
         "course_key":   "royal_birkdale",
         "favored_wave": "late_early",
         "trait_cols": {
@@ -230,10 +231,12 @@ if not _event_candidates:
     print(f"ERROR: Cannot find event directory for '{EVENT_SLUG}'. Searched: {_ROOT / event_glob}")
     raise SystemExit(1)
 EVENT_DIR  = _event_candidates[0]
+_root_cfg  = cfg.get("event_root")
+EVENT_ROOT = Path(_root_cfg) if _root_cfg else EVENT_DIR
 OUT        = EVENT_DIR / "output"
 DEP        = EVENT_DIR / "deploy" / "data"
-INPUT_DIR  = OUT / f"round{ROUND}"
-OUTPUT_DIR = DEP
+INPUT_DIR  = EVENT_ROOT / "output" / f"round{ROUND}"
+OUTPUT_DIR = EVENT_ROOT / "deploy" / "data"
 
 # ── Enrichment thresholds (conservative universal defaults) ───────────────────
 TRAIT_SIGNAL_THRESHOLDS = {"strong": 6, "lean": 2, "neutral": -3}
@@ -1128,7 +1131,7 @@ live_lean_notes: dict = {
 
 # ── Cumulative learning ───────────────────────────────────────────────────────
 CUM_OUT = OUT / f"{EVENT_SLUG}_cumulative_learning.json"
-CUM_DEP = DEP / "cumulative_learning.json"
+CUM_DEP = OUTPUT_DIR / "cumulative_learning.json"
 
 this_round_entry = {
     "round":        ROUND,
