@@ -1384,9 +1384,10 @@ if WAVE_PENALTY > 0 and WX_DISADV_WAVE:
             _penalized_n += 1
     print(f"Wave penalty applied: {_penalized_n} players in '{WX_DISADV_WAVE}' draw penalized -{WAVE_PENALTY} latent pts")
 
-_mu    = sum(_vpt) / len(_vpt) if _vpt else 0.0
-_sigma = max((sum((v - _mu) ** 2 for v in _vpt) / len(_vpt)) ** 0.5 if _vpt else 1.0, 1e-9)
-_zs    = [(v - _mu) / _sigma for v in _vpt]
+_mu           = sum(_vpt) / len(_vpt) if _vpt else 0.0
+field_std_dev = (sum((v - _mu) ** 2 for v in _vpt) / len(_vpt)) ** 0.5 if _vpt else 1.0
+_sigma        = max(1e-9, field_std_dev)
+_zs           = [(v - _mu) / _sigma for v in _vpt]
 
 _LIVE_TEMPS = {"win": 0.30, "top5": 0.55, "top10": 0.75, "top20": 1.10}
 

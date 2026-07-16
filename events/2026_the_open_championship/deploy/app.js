@@ -589,15 +589,16 @@ function buildLiveSGBlock(p) {
       '</div>';
   }
 
-  const sgCol = v => v == null ? '#64748b' : v >= 0 ? '#34d399' : '#fb7185';
-  const sgFmt = v => v == null ? '--' : (v >= 0 ? '+' : '') + Number(v).toFixed(2);
+  const sgSafe = v => (v == null || (typeof v === 'number' && isNaN(v))) ? null : v;
+  const sgCol  = v => v == null ? '#94a3b8' : v >= 0 ? '#34d399' : '#fb7185';
+  const sgFmt  = v => v == null ? '0.00' : (v >= 0 ? '+' : '') + Number(v).toFixed(2);
 
   const metrics = [
-    { lbl: 'OTT',  val: row.sg_ott  },
-    { lbl: 'APP',  val: row.sg_app  },
-    { lbl: 'ARG',  val: row.sg_arg  },
-    { lbl: 'PUTT', val: row.sg_putt },
-    { lbl: 'TOT',  val: row.sg_tot  },
+    { lbl: 'ott',  val: sgSafe(row.sg_ott)  },
+    { lbl: 'app',  val: sgSafe(row.sg_app)  },
+    { lbl: 'arg',  val: sgSafe(row.sg_arg)  },
+    { lbl: 'putt', val: sgSafe(row.sg_putt) },
+    { lbl: 'tot',  val: sgSafe(row.sg_tot)  },
   ];
 
   const cells = metrics.map(m =>
@@ -817,13 +818,16 @@ function openModal(name) {
               const _ck = resolveCumKey(t.label);
               const _cs = _ck && (S.cumulativeLearning?.cumulative_signals?.[_ck]);
               const _ch = _cs?.signal_history?.length
-                ? `<div class="trait-meta-row">History: [${_cs.signal_history.join(', ')}]</div>`
+                ? `<div class="trait-history-text">History: ${_cs.signal_history.map(v => `[${v}]`).join(' ')}</div>`
                 : '';
               return `<div class="trait-row">
-                <div class="trait-lbl">${t.label}${_ch}</div>
-                <div class="trait-wt">${Math.round((t.weight || 0) * 100)}%</div>
-                <div class="trait-track"><div class="${fc}" style="width:${sc}%"></div></div>
-                <div class="trait-score"${vc ? ` style="${vc}"` : ''}>${f1(t.score)}</div>
+                <div class="trait-meta-row">
+                  <div class="trait-lbl">${t.label}</div>
+                  <div class="trait-wt">${Math.round((t.weight || 0) * 100)}%</div>
+                  <div class="trait-track"><div class="${fc}" style="width:${sc}%"></div></div>
+                  <div class="trait-score"${vc ? ` style="${vc}"` : ''}>${f1(t.score)}</div>
+                </div>
+                ${_ch}
               </div>`;
             }).join('')}
           </div>
@@ -950,6 +954,7 @@ function resolveCumKey(label) {
   for (const k of Object.keys(signals)) {
     if (l.includes(k.replace(/_/g, '')) || k.replace(/_/g, '').includes(l)) return k;
   }
+  // Canon Schema v1.1 rules — return canonical key regardless of current signal availability
   const rules = [
     [/150|200/,                          'app_150_200'],
     [/accuracy|ottacc|drivingacc/,       'ott_accuracy'],
@@ -958,8 +963,8 @@ function resolveCumKey(label) {
     [/sgputt|putting/,                   'sg_putt'],
     [/arg|aroundgreen/,                  'sg_arg'],
     [/wedge/,                            'app_wedge'],
-    [/100/,                              'app_100_150'],
-    [/shortconv|convrate/,               'putt_short_conv'],
+    [/\b100\b/,                          'app_100_150'],
+    [/shortconv|convrate|short.*conv/,   'putt_short_conv'],
     [/lag/,                              'putt_lag'],
     [/rough/,                            'arg_rough'],
     [/bunker/,                           'arg_bunker'],
@@ -967,9 +972,11 @@ function resolveCumKey(label) {
     [/dist/,                             'ott_distance'],
   ];
   for (const [re, k] of rules) {
-    if (re.test(l) && signals[k]) return k;
+    if (re.test(l)) return k;
   }
-  return null;
+  // Safe fallback: sanitize unmapped label to snake_case to prevent key-lookup gaps
+  const snakeKey = (label || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return snakeKey || null;
 }
 
 // ── Round tab switching ────────────────────────────────────────────────────────

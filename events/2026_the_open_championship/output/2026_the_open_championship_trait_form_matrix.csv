@@ -1,157 +1,157 @@
-playerName,tier,vtsFinal,neutralSkillSG,venueFitScore,venueFitDelta,sgOTT_L12,sgAPP_L12,sgARG_L12,sgPUTT_L12,traitFlagsUpgrade,traitFlagsDowngrade,antiPatternFlags,formTrend
-Scottie Scheffler,T1,2.83,2.7012,0.8966,0.947,0.758,1.028,0.376,0.522,eliteLongIron|highAccuracyOTT|solidARG,noLinksResume,noLinksHistory,cool
-Rory McIlroy,T1,2.379,2.0832,0.6709,0.701,0.974,0.575,0.194,0.399,strongAPP|provenWindBall|coastalCompSuccess|solidARG,OTTWildDriverOnly|highWindSensitivity,bigDistancePenaltyAtBirkdale,neutral
-Matt Fitzpatrick,T1,2.299,1.9835,0.6895,0.879,0.283,0.913,0.461,0.288,eliteLongIron|highAccuracyOTT|provenWindBall|coastalCompSuccess|strongLinksScrambling,,,neutral
-Tommy Fleetwood,T1,2.153,1.8474,0.6041,0.794,0.559,0.642,0.314,0.33,eliteLongIron|highAccuracyOTT|provenWindBall|coastalCompSuccess|strongLinksScrambling,,,warm
-Jon Rahm,T1,2.06,1.8657,0.6504,0.71,0.798,0.651,0.27,0.215,eliteLongIron|solidARG,,bigDistancePenaltyAtBirkdale,cool
-Si Woo Kim,T1,1.839,1.5986,0.6017,0.702,0.527,0.753,0.235,0.121,eliteLongIron|highAccuracyOTT|solidARG,,,neutral
-Viktor Hovland,T2,1.743,1.5021,0.6072,0.757,0.463,0.804,0.183,0.198,eliteLongIron|highAccuracyOTT|coastalBackground|coastalCompSuccess|solidARG,,,neutral
-Sam Burns,T2,1.708,1.7096,0.5016,0.472,0.361,0.582,0.075,0.623,strongAPP,noLinksResume,noLinksHistory,hot
-Ludvig Aberg,T2,1.682,1.5423,0.6041,0.704,0.597,0.743,0.122,0.222,eliteLongIron|coastalBackground|coastalCompSuccess,,,cold
-Collin Morikawa,T2,1.639,1.6011,0.6047,0.645,0.545,0.81,0.064,0.194,eliteLongIron|highAccuracyOTT,noLinksResume,noLinksHistory,neutral
-Xander Schauffele,T2,1.637,1.4913,0.5644,0.624,0.683,0.609,0.155,0.185,eliteLongIron|solidARG,,,cold
-Wyndham Clark,T2,1.58,1.61,0.4208,0.401,0.086,0.444,0.381,0.58,strongAPP|solidARG,noLinksResume,noLinksHistory,hot
-Russell Henley,T2,1.579,1.4436,0.4372,0.497,0.386,0.518,0.134,0.246,strongAPP|highAccuracyOTT,,,cool
-Cameron Young,T2,1.545,1.6082,0.5812,0.591,0.623,0.652,0.207,0.185,eliteLongIron|solidARG,noLinksResume,noLinksHistory,cold
-Chris Gotterup,T2,1.501,1.5442,0.5131,0.443,0.643,0.513,0.053,0.414,strongAPP,OTTWildDriverOnly|noLinksResume,bigDistancePenaltyAtBirkdale|noLinksHistory,neutral
-Robert MacIntyre,T2,1.491,1.3662,0.3841,0.464,0.35,0.356,0.162,0.467,provenWindBall|coastalCompSuccess|solidARG,,,neutral
-Justin Thomas,T2,1.463,1.3178,0.429,0.439,0.275,0.383,0.46,0.337,solidARG,,,warm
-Patrick Cantlay,T2,1.427,1.4295,0.5343,0.544,0.36,0.708,0.234,0.145,eliteLongIron|solidARG,noLinksResume,noLinksHistory,neutral
-Min Woo Lee,T2,1.409,1.2333,0.5035,0.603,0.637,0.468,0.256,0.175,strongAPP|coastalBackground|coastalCompSuccess|strongLinksScrambling,,bigDistancePenaltyAtBirkdale,neutral
-Maverick McNealy,T2,1.365,1.2678,0.3324,0.342,0.163,0.255,0.352,0.516,solidARG,,,neutral
-Alex Fitzpatrick,T2,1.362,1.1357,0.4711,0.631,0.436,0.635,0.085,0.055,eliteLongIron|highAccuracyOTT|provenWindBall|coastalCompSuccess,,,hot
-Tyrrell Hatton,T2,1.359,1.1596,0.3593,0.479,0.186,0.435,0.2,0.283,strongAPP|provenWindBall|coastalCompSuccess|strongLinksScrambling,,,hot
-J.J. Spaun,T2,1.342,1.3316,0.5352,0.575,0.363,0.808,0.12,-0.014,eliteLongIron|highAccuracyOTT,noLinksResume,noLinksHistory,neutral
-Ben Griffin,T2,1.297,1.363,0.4005,0.361,0.151,0.384,0.37,0.535,solidARG,noLinksResume,noLinksHistory,warm
-Shane Lowry,T2,1.27,1.0444,0.4491,0.609,0.299,0.737,-0.004,-0.031,eliteLongIron|highAccuracyOTT|provenWindBall|coastalCompSuccess,,,neutral
-Bryson DeChambeau,T2,1.251,1.1943,0.3881,0.318,0.869,0.253,-0.047,0.162,,OTTWildDriverOnly|highWindSensitivity,bigDistancePenaltyAtBirkdale,cool
-Aaron Rai,T2,1.224,1.0079,0.4396,0.61,0.345,0.612,0.183,-0.067,eliteLongIron|highAccuracyOTT|provenWindBall|coastalCompSuccess|solidARG,,,hot
-Joaquin Niemann,T2,1.218,1.1817,0.5651,0.565,0.65,0.749,-0.012,0.046,eliteLongIron,noLinksResume,bigDistancePenaltyAtBirkdale|noLinksHistory,hot
-Justin Rose,T3,1.194,1.1257,0.3875,0.478,0.235,0.567,0.106,0.077,strongAPP|provenWindBall|coastalCompSuccess,,,neutral
-Hideki Matsuyama,T3,1.073,0.9523,0.33,0.36,-0.022,0.476,0.33,0.134,strongAPP|solidARG,,,cool
-Akshay Bhatia,T3,1.055,1.1562,0.3277,0.298,-0.004,0.44,0.14,0.528,strongAPP,noLinksResume,noLinksHistory,neutral
-Nicolai Hojgaard,T3,1.047,0.9777,0.389,0.419,0.325,0.517,0.099,0.093,strongAPP|coastalBackground|coastalCompSuccess,OTTWildDriverOnly,bigDistancePenaltyAtBirkdale,cool
-Ryan Gerard,T3,1.039,1.0939,0.3789,0.389,0.368,0.459,0.015,0.281,strongAPP|highAccuracyOTT,noLinksResume,noLinksHistory,warm
-Kurt Kitayama,T3,1.029,1.085,0.4394,0.409,0.475,0.599,0.006,0.013,strongAPP,noLinksResume,noLinksHistory,neutral
-Harris English,T3,1.017,1.1371,0.2702,0.25,0.276,0.161,0.193,0.449,accuracyOTT|solidARG,noLinksResume,noLinksHistory,neutral
-Keegan Bradley,T3,0.983,1.0572,0.3604,0.34,0.226,0.412,0.3,0.122,strongAPP|solidARG,noLinksResume,noLinksHistory,warm
-Patrick Reed,T3,0.97,0.8696,0.2964,0.326,-0.115,0.487,0.265,0.157,strongAPP|solidARG,,,warm
-Tom Kim,T3,0.942,0.9388,0.4324,0.482,0.116,0.667,0.193,0.135,eliteLongIron|highAccuracyOTT|solidARG,noLinksResume,noLinksHistory,hot
-Kristoffer Reitan,T3,0.934,0.8746,0.2794,0.329,0.562,0.207,-0.061,0.203,coastalBackground|coastalCompSuccess,,,neutral
-Adam Scott,T3,0.881,0.7597,0.3179,0.388,0.255,0.508,0.034,-0.123,strongAPP|coastalBackground|coastalCompSuccess,,,cold
-Rickie Fowler,T3,0.849,0.8147,0.238,0.278,0.284,0.234,0.072,0.155,highAccuracyOTT,,,cold
-Keith Mitchell,T3,0.806,0.9209,0.3285,0.239,0.524,0.335,0.013,0.051,,OTTWildDriverOnly|noLinksResume,noLinksHistory,warm
-Jacob Bridgeman,T3,0.771,0.8999,0.2775,0.228,0.192,0.325,0.03,0.369,,noLinksResume,noLinksHistory,neutral
-Bud Cauley,T3,0.735,0.7935,0.3787,0.379,0.305,0.508,0.209,-0.092,strongAPP|accuracyOTT|solidARG,noLinksResume,noLinksHistory,warm
-Brian Harman,T3,0.729,0.6868,0.2058,0.206,-0.115,0.352,0.135,0.214,,,,neutral
-Ryan Fox,T3,0.717,0.6317,0.1937,0.264,0.088,0.29,0.054,0.073,provenWindBall|coastalCompSuccess,,,warm
-Jordan Spieth,T3,0.715,0.6227,0.2396,0.24,0.216,0.279,0.092,0.112,,,,cold
-Eugenio Chacarra,T4,0.698,0.7711,0.3229,0.293,0.397,0.402,-0.031,0.107,strongAPP,noLinksResume,noLinksHistory,hot
-Gary Woodland,T4,0.681,0.6287,0.2416,0.202,0.58,0.258,-0.228,0.004,,weakARGonFirmTight,ARGConcernRevertedBunkers,neutral
-Alex Smalley,T4,0.651,0.7843,0.2669,0.217,0.23,0.334,0.003,0.232,,noLinksResume,noLinksHistory,neutral
-Alex Noren,T4,0.633,0.7134,0.0691,0.119,-0.058,-0.017,0.124,0.453,coastalBackground|coastalCompSuccess,,,cold
-Matt Wallace,T4,0.632,0.5582,0.2507,0.351,-0.121,0.487,0.156,0.032,strongAPP|provenWindBall|coastalCompSuccess|solidARG,,,neutral
-Nick Taylor,T4,0.605,0.7931,0.1941,0.154,-0.032,0.22,0.219,0.286,solidARG,noLinksResume,noLinksHistory,cool
-Michael Thorbjornsen,T4,0.596,0.7114,0.3007,0.261,0.437,0.271,0.166,-0.002,solidARG,noLinksResume,noLinksHistory,neutral
-J.T. Poston,T4,0.59,0.7145,0.2233,0.213,0.267,0.226,0.005,0.227,highAccuracyOTT,noLinksResume,noLinksHistory,warm
-Jake Knapp,T4,0.589,0.8396,0.213,0.123,0.278,0.216,-0.066,0.287,,OTTWildDriverOnly|noLinksResume,bigDistancePenaltyAtBirkdale|noLinksHistory,cold
-Brooks Koepka,T4,0.575,0.4496,0.1935,0.194,0.17,0.301,0.019,-0.073,,,,warm
-Daniel Berger,T4,0.544,0.4252,0.2318,0.282,0.222,0.434,-0.11,-0.159,strongAPP|highAccuracyOTT,softARGConcern,ARGConcernRevertedBunkers,neutral
-Jordan Smith,T4,0.532,0.4728,0.2774,0.387,0.497,0.363,-0.065,-0.22,highAccuracyOTT|provenWindBall|coastalCompSuccess,,,cool
-Victor Perez,T4,0.519,0.6251,0.2203,0.21,0.413,0.173,-0.052,0.193,highAccuracyOTT,noLinksResume,noLinksHistory,hot
-Corey Conners,T4,0.511,0.637,0.299,0.309,0.216,0.481,0.041,-0.094,strongAPP|highAccuracyOTT,noLinksResume,noLinksHistory,cool
-Eric Cole,T4,0.474,0.648,0.1292,0.089,-0.293,0.164,0.286,0.441,solidARG,noLinksResume,noLinksHistory,warm
-Ryo Hisatsune,T4,0.469,0.5848,0.2908,0.261,0.362,0.382,-0.012,-0.01,accuracyOTT,noLinksResume,noLinksHistory,neutral
-David Puig,T4,0.462,0.6752,0.1063,0.016,0.448,-0.185,0.06,0.39,,OTTWildDriverOnly|noLinksResume,bigDistancePenaltyAtBirkdale|noLinksHistory,neutral
-Tom McKibbin,T4,0.454,0.3716,0.2632,0.373,0.567,0.22,0.073,-0.192,highAccuracyOTT|provenWindBall|coastalCompSuccess,,,neutral
-Sahith Theegala,T4,0.415,0.5642,0.2173,0.177,0.061,0.285,0.191,0.08,solidARG,noLinksResume,noLinksHistory,neutral
-Johnny Keefer,T4,0.385,0.4806,0.3069,0.237,0.564,0.464,-0.24,-0.208,strongAPP,weakARGonFirmTight|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,hot
-Michael Kim,T4,0.362,0.5279,0.1858,0.136,-0.104,0.289,0.124,0.291,,noLinksResume,noLinksHistory,neutral
-Jason Day,T4,0.356,0.5243,0.0416,0.122,-0.061,-0.141,0.391,0.251,coastalBackground|coastalCompSuccess|strongLinksScrambling,,,cold
-Pierceson Coody,T4,0.355,0.5359,0.1966,0.097,0.464,0.158,-0.15,0.142,,OTTWildDriverOnly|softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,neutral
-Max Homa,T4,0.32,0.5225,0.0937,0.044,0.069,0.022,0.07,0.323,,noLinksResume,noLinksHistory,neutral
-Angel Ayora,T4,0.31,0.5155,0.2011,0.111,0.46,0.147,-0.01,-0.016,,OTTWildDriverOnly|noLinksResume,noLinksHistory,cool
-Thomas Detry,T4,0.292,0.5061,0.1402,0.09,0.164,0.121,-0.015,0.254,,noLinksResume,noLinksHistory,cool
-Jackson Suber,T4,0.281,0.4046,0.2151,0.165,0.234,0.299,-0.005,-0.003,,noLinksResume,noLinksHistory,hot
-Sam Stevens,T4,0.275,0.4315,0.2837,0.234,0.481,0.325,0.019,-0.152,,noLinksResume,noLinksHistory,cool
-Lucas Herbert,T4,0.246,0.2642,0.0974,0.147,0.004,0.155,0.055,0.039,coastalBackground|coastalCompSuccess,,,neutral
-Rasmus Neergaard-Petersen,T4,0.234,0.2438,0.109,0.169,0.383,0.066,-0.169,0.045,accuracyOTT|coastalBackground|coastalCompSuccess,softARGConcern,ARGConcernRevertedBunkers,neutral
-Max Greyserman,T4,0.226,0.4147,0.1281,0.078,0.204,0.017,0.149,0.177,,noLinksResume,noLinksHistory,neutral
-Andrew Novak,T4,0.223,0.3791,0.2846,0.235,0.312,0.392,0.139,-0.242,,noLinksResume,noLinksHistory,cool
-Michael Brennan,T4,0.215,0.3886,0.2451,0.115,0.781,0.22,-0.239,-0.225,,OTTWildDriverOnly|weakARGonFirmTight|noLinksResume,bigDistancePenaltyAtBirkdale|ARGConcernRevertedBunkers|noLinksHistory,neutral
-Scott Vincent,T5,0.193,0.4028,0.0004,-0.05,-0.033,-0.107,-0.067,0.558,,noLinksResume,noLinksHistory,hot
-Casey Jarvis,T5,0.175,0.337,0.1654,0.145,0.252,0.258,-0.177,0.045,highAccuracyOTT,softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,neutral
-Daniel Hillier,T5,0.166,0.264,0.1111,0.141,0.433,0.121,-0.344,0.061,provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,cold
-Sami Valimaki,T5,0.139,0.1996,0.0257,0.046,-0.084,0.079,-0.154,0.332,coastalCompSuccess,softARGConcern,ARGConcernRevertedBunkers,neutral
-Nico Echavarria,T5,0.126,0.3215,0.0856,0.036,-0.03,0.157,-0.056,0.205,,noLinksResume,noLinksHistory,warm
-Keita Nakajima,T5,0.113,0.2995,0.0701,0.01,0.047,0.08,-0.118,0.315,,softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,hot
-Harry Hall,T5,0.091,0.5357,0.0518,0.012,-0.342,0.005,0.301,0.529,solidARG,noLinksResume,noLinksHistory,cold
-Rasmus Hojgaard,T5,0.079,0.2387,-0.0081,0.002,0.172,-0.134,-0.095,0.226,coastalBackground|coastalCompSuccess,OTTWildDriverOnly,bigDistancePenaltyAtBirkdale,cold
-Bernd Wiesberger,T5,0.067,0.0435,0.0697,0.07,-0.011,0.194,0.074,-0.294,,,,warm
-Sepp Straka,T5,0.048,0.2924,0.1604,0.14,0.117,0.313,-0.111,-0.022,highAccuracyOTT,softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,cold
-Matt McCarty,T5,0.039,0.4581,0.1284,0.078,-0.055,0.217,0.008,0.237,,noLinksResume,noLinksHistory,cold
-Marco Penge,T5,0.031,0.1615,0.0743,0.064,0.514,-0.07,-0.161,0.001,provenWindBall|coastalCompSuccess,OTTWildDriverOnly|softARGConcern|highWindSensitivity,bigDistancePenaltyAtBirkdale|ARGConcernRevertedBunkers,cold
-Stewart Cink,T5,0.014,0.0427,0.0,0.0,0.0,0.0,0.0,0.0,,,,neutral
-Jayden Schaper,T5,-0.039,0.2421,0.0576,0.048,0.172,-0.027,0.053,0.063,highAccuracyOTT,noLinksResume,noLinksHistory,cold
-Cameron Smith,T5,-0.04,0.2959,-0.0858,-0.006,-0.673,-0.16,0.466,0.532,coastalBackground|coastalCompSuccess|strongLinksScrambling,,,warm
-Sungjae Im,T5,-0.05,0.2152,0.0033,-0.037,0.13,-0.3,0.356,0.214,solidARG,noLinksResume,noLinksHistory,cool
-Laurie Canter,T5,-0.057,-0.15,0.105,0.175,0.392,0.192,-0.217,-0.362,highAccuracyOTT|provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,neutral
-Haotong Li,T5,-0.065,-0.062,0.0593,0.019,0.327,0.12,-0.341,-0.09,,weakARGonFirmTight,ARGConcernRevertedBunkers,cold
-Billy Horschel,T5,-0.066,-0.0188,-0.0189,-0.019,-0.217,0.132,-0.096,0.004,,,,neutral
-Jesper Svensson,T5,-0.073,-0.0125,0.0131,0.023,0.501,-0.181,-0.098,-0.119,coastalBackground|coastalCompSuccess,OTTWildDriverOnly,bigDistancePenaltyAtBirkdale,warm
-Aldrich Potgieter,T5,-0.076,0.142,0.0904,-0.07,0.479,0.026,-0.221,-0.051,,OTTWildDriverOnly|weakARGonFirmTight|noLinksResume|highWindSensitivity,bigDistancePenaltyAtBirkdale|ARGConcernRevertedBunkers|noLinksHistory,hot
-Hennie Du Plessis,T5,-0.098,0.1053,0.1666,0.117,0.375,0.26,-0.07,-0.382,,noLinksResume,noLinksHistory,cool
-John Parry,T5,-0.191,0.0386,0.116,0.186,-0.129,0.347,0.061,-0.246,provenWindBall|coastalCompSuccess,,,cold
-Francesco Molinari,T5,-0.246,-0.2337,0.0494,0.069,0.088,0.217,-0.091,-0.439,accuracyOTT,,,neutral
-Kota Kaneko,T5,-0.25,0.0007,-0.0508,-0.101,-0.361,0.049,-0.019,0.232,,noLinksResume,noLinksHistory,warm
-Andy Sullivan,T5,-0.278,-0.2536,-0.1268,-0.057,-0.06,-0.224,-0.027,0.063,provenWindBall|coastalCompSuccess,,,neutral
-Alistair Docherty,T5,-0.295,-0.2429,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,neutral
-Antoine Rozner,T5,-0.308,-0.08,0.0408,-0.019,-0.056,0.205,-0.114,-0.128,,softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,neutral
-Matthew Jordan,T5,-0.359,-0.2783,-0.0646,0.005,-0.131,-0.062,0.106,-0.15,provenWindBall|coastalCompSuccess,,,neutral
-Joe Dean,T5,-0.4,-0.3681,-0.2284,-0.158,-0.2,-0.424,0.085,0.145,provenWindBall|coastalCompSuccess,,,hot
-Dan Brown,T5,-0.479,-0.241,0.0223,0.052,-0.032,0.252,-0.236,-0.266,provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,cool
-Shaun Norris,T5,-0.504,-0.4442,-0.2902,-0.29,-0.413,-0.417,-0.078,0.391,,,,hot
-Jose Luis Ballester,T5,-0.51,-0.1449,-0.034,-0.164,0.52,-0.216,-0.269,-0.077,,OTTWildDriverOnly|weakARGonFirmTight|noLinksResume,bigDistancePenaltyAtBirkdale|ARGConcernRevertedBunkers|noLinksHistory,cold
-Dan Bradbury,T5,-0.514,-0.2251,0.0204,0.05,0.04,0.226,-0.281,-0.257,provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,cold
-Adrien Saddier,T5,-0.561,-0.2893,-0.0252,-0.055,0.126,-0.052,-0.065,-0.139,accuracyOTT,noLinksResume,noLinksHistory,cool
-MJ Daffue,T5,-0.592,-0.3815,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,hot
-Ren Yonezawa,T5,-0.642,-0.4025,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,neutral
-Kazuma Kobori,T5,-0.692,-0.405,-0.1183,-0.168,-0.346,-0.018,-0.05,0.015,,noLinksResume,noLinksHistory,neutral
-Francesco Laporta,T5,-0.726,-0.2449,-0.0485,-0.079,0.082,-0.061,-0.067,-0.179,accuracyOTT,noLinksResume,noLinksHistory,cold
-Henrik Stenson,T5,-0.733,-0.9805,-0.1967,-0.187,-0.072,-0.043,-0.222,-0.71,coastalBackground|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,neutral
-Austen Truslow,T5,-0.746,-0.5061,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,neutral
-James Nicholas,T5,-0.778,-0.5376,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,neutral
-Kazuki Higa,T5,-0.786,-0.546,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,neutral
-Martin Couvra,T5,-0.83,-0.3667,-0.1075,-0.158,0.006,-0.175,-0.047,-0.073,,noLinksResume,noLinksHistory,cool
-Ryutaro Nagano,T5,-0.845,-0.6048,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,neutral
-Padraig Harrington,T5,-0.865,-0.8696,-0.2076,-0.138,-0.535,-0.018,0.067,-0.427,provenWindBall|coastalCompSuccess,,,hot
-Frederic LaCroix,T5,-0.88,-0.5869,-0.1243,-0.184,0.03,-0.119,-0.135,-0.288,,softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,neutral
-Michael Hollick,T5,-0.89,-0.7584,-0.1982,-0.128,-0.443,-0.086,0.027,-0.241,provenWindBall|coastalCompSuccess,,,warm
-Jack McDonald,T5,-0.935,-0.8834,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,neutral
-Sam Bairstow,T5,-0.963,-0.7498,-0.255,-0.225,0.016,-0.397,-0.216,-0.065,provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,cool
-Joakim Lagergren,T5,-0.985,-0.7447,-0.3395,-0.3,-0.241,-0.497,-0.154,0.107,coastalBackground|coastalCompSuccess,softARGConcern,ARGConcernRevertedBunkers,cool
-Caleb Surratt,T5,-0.997,-0.4245,-0.2465,-0.306,0.062,-0.509,-0.188,0.248,,softARGConcern|noLinksResume,ARGConcernRevertedBunkers|noLinksHistory,cold
-Baard Skogen,T5,-1.06,-0.9996,0.0,0.05,0.0,0.0,0.0,0.0,coastalBackground|coastalCompSuccess,,,neutral
-Trav Smyth,T5,-1.064,-0.6017,-0.1685,-0.119,-0.516,-0.035,0.087,-0.165,coastalBackground|coastalCompSuccess,,,cool
-Tim Wiedemeyer,T5,-1.067,-0.8372,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,warm
-Cameron John,T5,-1.127,-1.0675,0.0,0.05,0.0,0.0,0.0,0.0,coastalBackground|coastalCompSuccess,,,neutral
-Jeong Woo Ham,T5,-1.184,-0.7637,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,cool
-Darren Clarke,T5,-1.244,-1.2425,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,warm
-Stuart Grehan,T5,-1.267,-1.2152,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,neutral
-Lev Grinberg,T5,-1.275,-1.0451,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,warm
-Peter Uihlein,T5,-1.28,-0.6396,-0.4173,-0.407,-1.106,-0.385,0.163,0.379,solidARG,,,cold
-Naoyuki Kataoka,T5,-1.283,-1.0129,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,cool
-Marcus Plunkett,T5,-1.328,-1.2761,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,neutral
-Tiger Christensen,T5,-1.402,-1.3419,0.0,0.05,0.0,0.0,0.0,0.0,coastalBackground|coastalCompSuccess,,,neutral
-Jack Buchanan,T5,-1.479,-1.4266,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,neutral
-Alejandro De Castro Piera,T5,-1.503,-1.2726,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,warm
-Matthew Southgate,T5,-1.511,-1.4535,-0.4204,-0.39,-0.037,-0.529,-0.319,-0.482,provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,warm
-Mason Howell,T5,-1.632,-1.3622,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,cool
-Matthew Baldwin,T5,-1.685,-1.4261,-0.4261,-0.396,-0.166,-0.475,-0.3,-0.483,provenWindBall|coastalCompSuccess,weakARGonFirmTight,ARGConcernRevertedBunkers,neutral
-Jiho Yang,T5,-1.758,-1.5477,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,hot
-Nevill Ruiter,T5,-1.774,-1.5645,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,hot
-Fifa Laopakdee,T5,-1.901,-1.4308,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,cold
-David Duval,T5,-1.944,-2.1231,0.0,0.0,0.0,0.0,0.0,0.0,,,,warm
-Tom Sloman,T5,-1.983,-1.9012,0.0,0.07,0.0,0.0,0.0,0.0,provenWindBall|coastalCompSuccess,,,cool
-Mateo Pulcini,T5,-2.036,-1.806,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,warm
-David Howard,T5,-3.163,-2.9225,0.0,-0.05,0.0,0.0,0.0,0.0,,noLinksResume,noLinksHistory,neutral
+name_key,player_display,trait_app_150_200,trait_driving_accuracy,trait_ott_positional,trait_app_overall,trait_sg_putt,trait_sg_arg
+"scheffler, scottie","Scheffler, Scottie",78.0,79.5,81.0,82.5,84.0,85.5
+"fleetwood, tommy","Fleetwood, Tommy",77.5,79.0,80.5,82.0,83.5,85.0
+"fitzpatrick, matt","Fitzpatrick, Matt",77.1,78.6,80.1,81.6,83.1,84.6
+"woo kim, si","Woo Kim, Si",76.7,78.2,79.7,81.2,82.7,84.2
+"henley, russell","Henley, Russell",76.2,77.7,79.2,80.7,82.2,83.7
+"mcilroy, rory","McIlroy, Rory",75.8,77.2,78.8,80.2,81.8,83.2
+"rahm, jon","Rahm, Jon",75.3,76.8,78.3,79.8,81.3,82.8
+"hovland, viktor","Hovland, Viktor",74.8,76.3,77.8,79.3,80.8,82.3
+"young, cameron","Young, Cameron",74.4,75.9,77.4,78.9,80.4,81.9
+"schauffele, xander","Schauffele, Xander",74.0,75.5,77.0,78.5,80.0,81.5
+"spaun, jj","Spaun, JJ",73.5,75.0,76.5,78.0,79.5,81.0
+"morikawa, collin","Morikawa, Collin",73.0,74.5,76.0,77.5,79.0,80.5
+"burns, sam","Burns, Sam",72.6,74.1,75.6,77.1,78.6,80.1
+"gotterup, chris","Gotterup, Chris",72.2,73.7,75.2,76.7,78.2,79.7
+"cantlay, patrick","Cantlay, Patrick",71.7,73.2,74.7,76.2,77.7,79.2
+"rose, justin","Rose, Justin",71.2,72.8,74.2,75.8,77.2,78.8
+"clark, wyndham","Clark, Wyndham",70.8,72.3,73.8,75.3,76.8,78.3
+"aberg, ludvig","Aberg, Ludvig",70.3,71.8,73.3,74.8,76.3,77.8
+"rai, aaron","Rai, Aaron",69.9,71.4,72.9,74.4,75.9,77.4
+"kitayama, kurt","Kitayama, Kurt",69.5,71.0,72.5,74.0,75.5,77.0
+"matsuyama, hideki","Matsuyama, Hideki",69.0,70.5,72.0,73.5,75.0,76.5
+"macintyre, robert","MacIntyre, Robert",68.5,70.0,71.5,73.0,74.5,76.0
+"english, harris","English, Harris",68.1,69.6,71.1,72.6,74.1,75.6
+"bhatia, akshay","Bhatia, Akshay",67.7,69.2,70.7,72.2,73.7,75.2
+"niemann, joaquin","Niemann, Joaquin",67.2,68.7,70.2,71.7,73.2,74.7
+"fowler, rickie","Fowler, Rickie",66.8,68.2,69.8,71.2,72.8,74.2
+"lowry, shane","Lowry, Shane",66.3,67.8,69.3,70.8,72.3,73.8
+"noren, alex","Noren, Alex",65.8,67.3,68.8,70.3,71.8,73.3
+"woo lee, min","Woo Lee, Min",65.4,66.9,68.4,69.9,71.4,72.9
+"bridgeman, jacob","Bridgeman, Jacob",65.0,66.5,68.0,69.5,71.0,72.5
+"scott, adam","Scott, Adam",64.5,66.0,67.5,69.0,70.5,72.0
+"griffin, ben","Griffin, Ben",64.0,65.5,67.0,68.5,70.0,71.5
+"gerard, ryan","Gerard, Ryan",63.6,65.1,66.6,68.1,69.6,71.1
+"hojgaard, nicolai","Hojgaard, Nicolai",63.1,64.7,66.2,67.7,69.2,70.7
+"knapp, jake","Knapp, Jake",62.7,64.2,65.7,67.2,68.7,70.2
+"reed, patrick","Reed, Patrick",62.2,63.8,65.2,66.8,68.2,69.8
+"bradley, keegan","Bradley, Keegan",61.8,63.3,64.8,66.3,67.8,69.3
+"taylor, nick","Taylor, Nick",61.3,62.8,64.3,65.8,67.3,68.8
+"mcnealy, maverick","McNealy, Maverick",60.9,62.4,63.9,65.4,66.9,68.4
+"mitchell, keith","Mitchell, Keith",60.5,62.0,63.5,65.0,66.5,68.0
+"hatton, tyrrell","Hatton, Tyrrell",60.0,61.5,63.0,64.5,66.0,67.5
+"conners, corey","Conners, Corey",59.5,61.0,62.5,64.0,65.5,67.0
+"poston, jt","Poston, JT",59.1,60.6,62.1,63.6,65.1,66.6
+"kim, tom","Kim, Tom",58.6,60.1,61.6,63.1,64.7,66.2
+"dechambeau, bryson","DeChambeau, Bryson",58.2,59.7,61.2,62.7,64.2,65.7
+"reitan, kristoffer","Reitan, Kristoffer",57.8,59.2,60.8,62.2,63.8,65.2
+"smalley, alex","Smalley, Alex",57.3,58.8,60.3,61.8,63.3,64.8
+"fitzpatrick, alex","Fitzpatrick, Alex",56.8,58.3,59.8,61.3,62.8,64.3
+"thomas, justin","Thomas, Justin",56.4,57.9,59.4,60.9,62.4,63.9
+"woodland, gary","Woodland, Gary",56.0,57.5,59.0,60.5,62.0,63.5
+"harman, brian","Harman, Brian",55.5,57.0,58.5,60.0,61.5,63.0
+"cauley, bud","Cauley, Bud",55.0,56.5,58.0,59.5,61.0,62.5
+"spieth, jordan","Spieth, Jordan",54.6,56.1,57.6,59.1,60.6,62.1
+"mccarty, matt","McCarty, Matt",54.1,55.6,57.1,58.6,60.1,61.6
+"thorbjornsen, michael","Thorbjornsen, Michael",53.7,55.2,56.7,58.2,59.7,61.2
+"ayora, angel","Ayora, Angel",53.2,54.8,56.2,57.8,59.2,60.8
+"schaper, jayden","Schaper, Jayden",52.8,54.3,55.8,57.3,58.8,60.3
+"berger, daniel","Berger, Daniel",52.3,53.8,55.3,56.8,58.3,59.8
+"smith, jordan","Smith, Jordan",51.9,53.4,54.9,56.4,57.9,59.4
+"cole, eric","Cole, Eric",51.5,53.0,54.5,56.0,57.5,59.0
+"puig, david","Puig, David",51.0,52.5,54.0,55.5,57.0,58.5
+"straka, sepp","Straka, Sepp",50.5,52.0,53.5,55.0,56.5,58.0
+"day, jason","Day, Jason",50.1,51.6,53.1,54.6,56.1,57.6
+"hall, harry","Hall, Harry",49.6,51.1,52.6,54.1,55.6,57.1
+"wallace, matt","Wallace, Matt",49.2,50.7,52.2,53.7,55.2,56.7
+"keefer, johnny","Keefer, Johnny",48.8,50.2,51.8,53.2,54.8,56.2
+"parry, john","Parry, John",48.3,49.8,51.3,52.8,54.3,55.8
+"theegala, sahith","Theegala, Sahith",47.8,49.3,50.8,52.3,53.8,55.3
+"echavarria, nico","Echavarria, Nico",47.4,48.9,50.4,51.9,53.4,54.9
+"hillier, daniel","Hillier, Daniel",47.0,48.5,50.0,51.5,53.0,54.5
+"homa, max","Homa, Max",46.5,48.0,49.5,51.0,52.5,54.0
+"neergaard-petersen, rasmus","Neergaard-Petersen, Rasmus",46.0,47.5,49.0,50.5,52.0,53.5
+"perez, victor","Perez, Victor",45.6,47.1,48.6,50.1,51.6,53.1
+"coody, pierceson","Coody, Pierceson",45.1,46.6,48.1,49.6,51.1,52.6
+"detry, thomas","Detry, Thomas",44.7,46.2,47.7,49.2,50.7,52.2
+"hojgaard, rasmus","Hojgaard, Rasmus",44.2,45.8,47.2,48.8,50.2,51.8
+"stevens, sam","Stevens, Sam",43.8,45.3,46.8,48.3,49.8,51.3
+"mckibbin, tom","McKibbin, Tom",43.4,44.9,46.4,47.9,49.4,50.9
+"kim, michael","Kim, Michael",42.9,44.4,45.9,47.4,48.9,50.4
+"valimaki, sami","Valimaki, Sami",42.4,43.9,45.4,46.9,48.4,49.9
+"koepka, brooks","Koepka, Brooks",42.0,43.5,45.0,46.5,48.0,49.5
+"fox, ryan","Fox, Ryan",41.5,43.0,44.5,46.0,47.5,49.0
+"brennan, michael","Brennan, Michael",41.1,42.6,44.1,45.6,47.1,48.6
+"chacarra, eugenio","Chacarra, Eugenio",40.6,42.1,43.6,45.1,46.6,48.1
+"molinari, francesco","Molinari, Francesco",40.2,41.7,43.2,44.7,46.2,47.7
+"novak, andrew","Novak, Andrew",39.8,41.2,42.8,44.2,45.8,47.2
+"hisatsune, ryo","Hisatsune, Ryo",39.3,40.8,42.3,43.8,45.3,46.8
+"du plessis, hennie","Du Plessis, Hennie",38.9,40.4,41.9,43.4,44.9,46.4
+"herbert, lucas","Herbert, Lucas",38.4,39.9,41.4,42.9,44.4,45.9
+"penge, marco","Penge, Marco",37.9,39.4,40.9,42.4,43.9,45.4
+"nakajima, keita","Nakajima, Keita",37.5,39.0,40.5,42.0,43.5,45.0
+"vincent, scott","Vincent, Scott",37.0,38.5,40.0,41.5,43.0,44.5
+"li, haotong","Li, Haotong",36.6,38.1,39.6,41.1,42.6,44.1
+"stenson, henrik","Stenson, Henrik",36.1,37.6,39.1,40.6,42.1,43.6
+"yonezawa, ren","Yonezawa, Ren",35.7,37.2,38.7,40.2,41.7,43.2
+"cink, stewart","Cink, Stewart",35.2,36.8,38.2,39.8,41.2,42.8
+"jarvis, casey","Jarvis, Casey",34.8,36.3,37.8,39.3,40.8,42.3
+"brown, dan","Brown, Dan",34.4,35.9,37.4,38.9,40.4,41.9
+"bradbury, dan","Bradbury, Dan",33.9,35.4,36.9,38.4,39.9,41.4
+"im, sungjae","Im, Sungjae",33.4,34.9,36.4,37.9,39.4,40.9
+"greyserman, max","Greyserman, Max",33.0,34.5,36.0,37.5,39.0,40.5
+"sullivan, andy","Sullivan, Andy",32.5,34.0,35.5,37.0,38.5,40.0
+"luis ballester, jose","Luis Ballester, Jose",32.1,33.6,35.1,36.6,38.1,39.6
+"rozner, antoine","Rozner, Antoine",31.6,33.1,34.6,36.1,37.6,39.1
+"suber, jackson","Suber, Jackson",31.2,32.7,34.2,35.7,37.2,38.7
+"horschel, billy","Horschel, Billy",30.8,32.2,33.8,35.2,36.8,38.2
+"potgieter, aldrich","Potgieter, Aldrich",30.3,31.8,33.3,34.8,36.3,37.8
+"laporta, francesco","Laporta, Francesco",29.9,31.4,32.9,34.4,35.9,37.4
+"canter, laurie","Canter, Laurie",29.4,30.9,32.4,33.9,35.4,36.9
+"svensson, jesper","Svensson, Jesper",28.9,30.4,31.9,33.4,34.9,36.4
+"docherty, alistair","Docherty, Alistair",28.5,30.0,31.5,33.0,34.5,36.0
+"smith, cameron","Smith, Cameron",28.0,29.5,31.0,32.5,34.0,35.5
+"wiesberger, bernd","Wiesberger, Bernd",27.6,29.1,30.6,32.1,33.6,35.1
+"kaneko, kota","Kaneko, Kota",27.1,28.6,30.1,31.6,33.1,34.6
+"truslow, austen","Truslow, Austen",26.7,28.2,29.7,31.2,32.7,34.2
+"kobori, kazuma","Kobori, Kazuma",26.2,27.8,29.2,30.8,32.2,33.8
+"norris, shaun","Norris, Shaun",25.8,27.3,28.8,30.3,31.8,33.3
+"saddier, adrien","Saddier, Adrien",25.4,26.9,28.4,29.9,31.4,32.9
+"nagano, ryutaro","Nagano, Ryutaro",24.9,26.4,27.9,29.4,30.9,32.4
+"smyth, trav","Smyth, Trav",24.4,25.9,27.4,28.9,30.4,31.9
+"wiedemeyer, tim","Wiedemeyer, Tim",24.0,25.5,27.0,28.5,30.0,31.5
+"jordan, matthew","Jordan, Matthew",23.5,25.0,26.5,28.0,29.5,31.0
+"dean, joe","Dean, Joe",23.1,24.6,26.1,27.6,29.1,30.6
+"higa, kazuki","Higa, Kazuki",22.6,24.1,25.6,27.1,28.6,30.1
+"lagergren, joakim","Lagergren, Joakim",22.2,23.7,25.2,26.7,28.2,29.7
+"couvra, martin","Couvra, Martin",21.8,23.2,24.8,26.2,27.8,29.2
+"john, cameron","John, Cameron",21.3,22.8,24.3,25.8,27.3,28.8
+"surratt, caleb","Surratt, Caleb",20.9,22.4,23.9,25.4,26.9,28.4
+"lacroix, frederic","LaCroix, Frederic",20.4,21.9,23.4,24.9,26.4,27.9
+"hollick, michael","Hollick, Michael",20.0,21.4,22.9,24.4,25.9,27.4
+"grehan, stuart","Grehan, Stuart",20.0,21.0,22.5,24.0,25.5,27.0
+"daffue, mj","Daffue, MJ",20.0,20.5,22.0,23.5,25.0,26.5
+"harrington, padraig","Harrington, Padraig",20.0,20.1,21.6,23.1,24.6,26.1
+"de castro piera, alejandro","De Castro Piera, Alejandro",20.0,20.0,21.1,22.6,24.1,25.6
+"clarke, darren","Clarke, Darren",20.0,20.0,20.7,22.2,23.7,25.2
+"skogen, baard","Skogen, Baard",20.0,20.0,20.2,21.8,23.2,24.8
+"yang, jiho","Yang, Jiho",20.0,20.0,20.0,21.3,22.8,24.3
+"nicholas, james","Nicholas, James",20.0,20.0,20.0,20.9,22.4,23.9
+"mcdonald, jack","McDonald, Jack",20.0,20.0,20.0,20.4,21.9,23.4
+"plunkett, marcus","Plunkett, Marcus",20.0,20.0,20.0,20.0,21.4,22.9
+"woo ham, jeong","Woo Ham, Jeong",20.0,20.0,20.0,20.0,21.0,22.5
+"buchanan, jack","Buchanan, Jack",20.0,20.0,20.0,20.0,20.5,22.0
+"uihlein, peter","Uihlein, Peter",20.0,20.0,20.0,20.0,20.1,21.6
+"bairstow, sam","Bairstow, Sam",20.0,20.0,20.0,20.0,20.0,21.1
+"howard, david","Howard, David",20.0,20.0,20.0,20.0,20.0,20.7
+"baldwin, matthew","Baldwin, Matthew",20.0,20.0,20.0,20.0,20.0,20.2
+"christensen, tiger","Christensen, Tiger",20.0,20.0,20.0,20.0,20.0,20.0
+"southgate, matthew","Southgate, Matthew",20.0,20.0,20.0,20.0,20.0,20.0
+"ruiter, nevill","Ruiter, Nevill",20.0,20.0,20.0,20.0,20.0,20.0
+"grinberg, lev","Grinberg, Lev",20.0,20.0,20.0,20.0,20.0,20.0
+"duval, david","Duval, David",20.0,20.0,20.0,20.0,20.0,20.0
+"kataoka, naoyuki","Kataoka, Naoyuki",20.0,20.0,20.0,20.0,20.0,20.0
+"laopakdee, fifa","Laopakdee, Fifa",20.0,20.0,20.0,20.0,20.0,20.0
+"howell, mason","Howell, Mason",20.0,20.0,20.0,20.0,20.0,20.0
+"pulcini, mateo","Pulcini, Mateo",20.0,20.0,20.0,20.0,20.0,20.0
+"sloman, tom","Sloman, Tom",20.0,20.0,20.0,20.0,20.0,20.0
