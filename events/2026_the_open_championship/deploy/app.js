@@ -764,11 +764,16 @@ function openModal(name) {
           <div class="modal-sec-title sans">Trait Profile — Venue Weight vs Player Score</div>
           <div class="trait-rows">
             ${traitScores.map(t => {
-              const sc = clamp(isNaN(t.score) || t.score == null ? 50 : t.score, 0, 100);
-              const fc = traitFillCls(t.score);
-              const vc = traitScoreColor(t.score);
+              const sc  = Math.max(0, Math.min(100, isNaN(t.score) || t.score == null ? 50 : t.score));
+              const fc  = traitFillCls(t.score);
+              const vc  = traitScoreColor(t.score);
+              const _ck = resolveCumKey(t.label);
+              const _cs = _ck && (S.cumulativeLearning?.cumulative_signals?.[_ck]);
+              const _ch = _cs?.signal_history?.length
+                ? `<span class="sans" style="display:block;font-size:10px;color:var(--text-3);margin-top:2px">History: [${_cs.signal_history.join(', ')}]</span>`
+                : '';
               return `<div class="trait-row">
-                <div class="trait-lbl">${t.label}</div>
+                <div class="trait-lbl">${t.label}${_ch}</div>
                 <div class="trait-wt">${Math.round((t.weight || 0) * 100)}%</div>
                 <div class="trait-track"><div class="${fc}" style="width:${sc}%"></div></div>
                 <div class="trait-score"${vc ? ` style="${vc}"` : ''}>${f1(t.score)}</div>
@@ -890,6 +895,36 @@ function flag(code) {
   return `<span class="flag ${m.cls} sans" title="${m.full}">${m.lbl}</span>`;
 }
 
+// ── Resolve a trait label string to a cumulative_signals key ──────────────────
+function resolveCumKey(label) {
+  if (!S.cumulativeLearning) return null;
+  const signals = S.cumulativeLearning.cumulative_signals || {};
+  const l = (label || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const k of Object.keys(signals)) {
+    if (l.includes(k.replace(/_/g, '')) || k.replace(/_/g, '').includes(l)) return k;
+  }
+  const rules = [
+    [/150|200/,                          'app_150_200'],
+    [/accuracy|ottacc|drivingacc/,       'ott_accuracy'],
+    [/positional|ottpos/,                'ott_positional'],
+    [/appoverall|appgen|overallapproach/, 'app_overall'],
+    [/sgputt|putting/,                   'sg_putt'],
+    [/arg|aroundgreen/,                  'sg_arg'],
+    [/wedge/,                            'app_wedge'],
+    [/100/,                              'app_100_150'],
+    [/shortconv|convrate/,               'putt_short_conv'],
+    [/lag/,                              'putt_lag'],
+    [/rough/,                            'arg_rough'],
+    [/bunker/,                           'arg_bunker'],
+    [/par5/,                             'par5_scoring'],
+    [/dist/,                             'ott_distance'],
+  ];
+  for (const [re, k] of rules) {
+    if (re.test(l) && signals[k]) return k;
+  }
+  return null;
+}
+
 // ── Round tab switching ────────────────────────────────────────────────────────
 const PRE_SECTIONS = ['sec-spotlight','sec-board','sec-intel','sec-risk','sec-method'];
 
@@ -928,6 +963,7 @@ async function switchRound(r) {
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
     renderLiveRound(S.roundData[r], content);
+    renderCumulativeAnalysis();
     return;
   }
 
@@ -948,6 +984,7 @@ async function switchRound(r) {
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
     renderLiveRound(data, content);
+    renderCumulativeAnalysis();
   } catch (e) {
     console.warn(`[VenueDNA] R${r} unavailable:`, e.message);
     liveSection?.classList.remove('loading-blur');
@@ -1102,6 +1139,67 @@ function renderLiveRound(data, el) {
     ${lean.rho_note ? `<div style="margin-top:16px;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3)">${lean.rho_note}</div>` : ''}
   `;
 
+}
+
+// ── Cumulative learning renderer ──────────────────────────────────────────────
+function renderCumulativeAnalysis() {
+  if (!S.cumulativeLearning) return;
+
+  const rounds   = S.cumulativeLearning.rounds_completed;
+  const isFinalC = !!S.cumulativeLearning.is_final;
+  const signals  = S.cumulativeLearning.cumulative_signals || {};
+  const traitKeys = Object.keys(signals);
+
+  // Update engine header badge with live round status
+  const badgeEl = document.getElementById('engine-version-badge');
+  if (badgeEl && rounds != null) {
+    badgeEl.textContent = isFinalC
+      ? `v3+Audit ENGINE · Final`
+      : `v3+Audit ENGINE · R${rounds} Completed`;
+  }
+
+  if (!traitKeys.length) return;
+
+  const liveContent = document.getElementById('live-content');
+  if (!liveContent) return;
+
+  document.getElementById('cum-analysis-section')?.remove();
+
+  const signalColor = s =>
+    s === 'validated'      ? 'var(--green-ok)'
+    : s === 'mixed'        ? 'var(--navy)'
+    : s === 'weak'         ? 'var(--accent)'
+    : s === 'not_testable' ? 'var(--text-3)'
+    : '';
+
+  const el = document.createElement('div');
+  el.id = 'cum-analysis-section';
+  el.innerHTML = `
+    <div class="live-sub-header" style="margin-top:24px">
+      <div class="live-sub-title">Cumulative Learning — Multi-Round Trait Trajectory</div>
+      <div class="live-sub-note sans">${isFinalC ? 'Final consensus' : `R${rounds} consensus`} · horizon delta profiles</div>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:16px 20px;box-shadow:0 2px 8px var(--shadow)">
+      <div class="trait-rows">
+        ${traitKeys.map(tk => {
+          const cs        = signals[tk];
+          const hist      = cs.signal_history || [];
+          const consensus = cs.consensus || '—';
+          const conf      = cs.consensus_confidence || '';
+          const deltas    = (cs.delta_history || []).filter(d => d != null);
+          const deltaStr  = deltas.length ? `Δ [${deltas.join(', ')}]` : '';
+          return `<div class="trait-row" style="gap:8px">
+            <div class="trait-lbl" style="min-width:130px">${tk.replace(/_/g, ' ')}</div>
+            <div class="trait-wt sans" style="min-width:80px;color:${signalColor(consensus)};font-weight:700">${consensus}</div>
+            <div style="flex:1;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-2)">${hist.join(' → ') || '—'}</div>
+            <div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${deltaStr}</div>
+            <div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${conf}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  liveContent.appendChild(el);
 }
 
 // ── Spotlight toggle ───────────────────────────────────────────────────────────

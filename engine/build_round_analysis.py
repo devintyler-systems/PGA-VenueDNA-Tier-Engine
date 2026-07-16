@@ -1,4 +1,4 @@
-﻿"""
+"""
 VenueDNA Generic Round Analysis Builder — engine/build_round_analysis.py
 Schema version 1.1
 
@@ -309,15 +309,18 @@ def csv_columns(p: Path) -> list[str]:
 
 
 def ascii_fold(s: str) -> str:
-    return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
+    folded = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
+    return folded.replace('.', '')
 
 
 _COMBINING_RE = re.compile("[\u0300-\u036f]")
 
 def norm_name(s: str) -> str:
     """Mirror JS normName: NFD decompose, strip U+0300-U+036F combining marks, lowercase, trim."""
-    stripped = _COMBINING_RE.sub("", unicodedata.normalize("NFD", str(s)))
-    return re.sub("[‘’`’]", "’", stripped).lower().strip()
+    stripped   = _COMBINING_RE.sub("", unicodedata.normalize("NFD", str(s)))
+    no_periods = stripped.replace('.', '')
+    return re.sub("[‘’`’]", "'", no_periods).lower().strip()
+
 
 
 def fl_to_lf(name: str) -> str:
@@ -339,7 +342,7 @@ def parse_float(v: Any) -> float | None:
 
 def parse_prox(s: Any) -> int | None:
     s = (str(s).strip()
-         .replace("’", "'").replace("‘", "'")
+         .replace("'", "'").replace("‘", "'")
          .replace("”", '"').replace("“", '"'))
     m = re.match(r"(\d+)'\s*(\d+)\"", s)
     if m:
@@ -524,6 +527,27 @@ ci_rows = load_csv(CI_PATH) if ci_loaded else []
 with open(PAY_PATH, encoding="utf-8") as f:
     payload = json.load(f)
 
+# ── Leaderboard header normalisation — handles lowercase, "Player Name", etc. ─
+if lb:
+    _lb_col = set(lb[0].keys())
+    _LB_PLAYER = ("PLAYER", "Player", "player", "Player Name", "player_name", "NAME", "Name")
+    _lbc = next((a for a in _LB_PLAYER if a in _lb_col), None)
+    if _lbc and _lbc != "PLAYER":
+        for r in lb:
+            r["PLAYER"] = r.pop(_lbc, "")
+        _lb_col = set(lb[0].keys())
+    _LB_POS = ("POS", "Pos", "pos", "POSITION", "Position", "position")
+    _lbp = next((a for a in _LB_POS if a in _lb_col), None)
+    if _lbp and _lbp != "POS":
+        for r in lb:
+            r["POS"] = r.pop(_lbp, "")
+        _lb_col = set(lb[0].keys())
+    _LB_SCORE = ("TOTAL", "Total", "total", "SCORE", "Score", "score", f"R{ROUND}", f"r{ROUND}")
+    _lbs = next((a for a in _LB_SCORE if a in _lb_col), None)
+    if _lbs and _lbs not in ("TOTAL",):
+        for r in lb:
+            r["TOTAL"] = r.pop(_lbs, "")
+
 # ── Weather forecast — wind/wave latent penalty matrix ────────────────────────
 _WEATHER_PATH = DEP / "weather_forecast.json"
 _WX = {"speed": 0, "direction": "N/A", "wave_delta": 0.0, "tide": "N/A",
@@ -602,6 +626,43 @@ if sg:
                 if src in r:
                     r[dst] = r.pop(src)
         sg_col_set = set(sg[0].keys())
+    # Colon-separated format: SG:OTT / SG:APP / SG:ARG / SG:PUTT (R&A / DP World Tour)
+    _COLON_MAP = {
+        "SG:OTT":  "SG-Off the Tee",      "sg:ott":   "SG-Off the Tee",
+        "SG:APP":  "SG-Approach to Green", "sg:app":   "SG-Approach to Green",
+        "SG:ARG":  "SG- Around the Green", "sg:arg":   "SG- Around the Green",
+        "SG:PUTT": "SG-Putting",           "sg:putt":  "SG-Putting",
+        "SG:Total":"SG-Total",             "sg:total": "SG-Total",
+    }
+    if any(k in sg_col_set for k in _COLON_MAP):
+        for r in sg:
+            for src, dst in list(_COLON_MAP.items()):
+                if src in r:
+                    r[dst] = r.pop(src)
+        sg_col_set = set(sg[0].keys())
+    # Long-form column names (Strokes Gained Approach, Strokes Gained Off the Tee, etc.)
+    _LONG_MAP = {
+        "Strokes Gained Off the Tee":       "SG-Off the Tee",
+        "Strokes Gained Approach":          "SG-Approach to Green",
+        "Strokes Gained Approach to Green": "SG-Approach to Green",
+        "Strokes Gained Around the Green":  "SG- Around the Green",
+        "Strokes Gained Putting":           "SG-Putting",
+        "Strokes Gained Total":             "SG-Total",
+    }
+    if any(k in sg_col_set for k in _LONG_MAP):
+        for r in sg:
+            for src, dst in list(_LONG_MAP.items()):
+                if src in r:
+                    r[dst] = r.pop(src)
+        sg_col_set = set(sg[0].keys())
+    # SG player name column aliases ("Player Name", "player", "Name")
+    if "Player" not in sg_col_set:
+        _SG_NAME = ("PLAYER", "player", "Player Name", "player_name", "Name", "name")
+        _sgn = next((a for a in _SG_NAME if a in sg_col_set), None)
+        if _sgn:
+            for r in sg:
+                r["Player"] = r.pop(_sgn)
+            sg_col_set = set(sg[0].keys())
     SG_ARG_COL = (
         "SG- Around the Green" if "SG- Around the Green" in sg_col_set
         else "SG-Around the Green" if "SG-Around the Green" in sg_col_set
@@ -805,7 +866,7 @@ pairs = [(r["pt_rank"], r["r1_pos"]) for r in matched if r.get("pt_rank")]
 n  = len(pairs)
 d2 = sum((a - b)**2 for a, b in pairs)
 spearman_rho = round(1 - 6 * d2 / (n * (n**2 - 1)), 3) if n >= 10 else 0.0
-if math.isnan(spearman_rho):
+if math.isnan(spearman_rho) or math.isinf(spearman_rho):
     spearman_rho = 0.000
 
 # ── Trait audit ───────────────────────────────────────────────────────────────
@@ -1192,6 +1253,7 @@ else:
 cumulative_learning["last_updated"]     = TODAY
 cumulative_learning["updated_at"]       = BUILD_TS
 cumulative_learning["rounds_completed"] = ROUND
+cumulative_learning["is_final"]         = IS_FINAL
 cumulative_learning["per_round"][str(ROUND)] = this_round_entry
 
 rounds_present = sorted(set(cumulative_learning.get("rounds_present",[]) + [ROUND]))
@@ -1502,12 +1564,11 @@ for path in [out_path, dep_path]:
         json.dump(output, f, indent=2)
     print(f"Wrote: {path}")
 
-if not FINAL_BUILD:
-    for path in [CUM_OUT, CUM_DEP]:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(cumulative_learning, f, indent=2)
-        print(f"Wrote: {path}")
+for path in [CUM_OUT, CUM_DEP]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(cumulative_learning, f, indent=2)
+    print(f"Wrote: {path}")
 
 # ── Dry-run validation and cleanup ────────────────────────────────────────────
 if DRY_RUN:
@@ -1593,5 +1654,4 @@ out_stem = "final_analysis" if FINAL_BUILD else f"r{ROUND}_analysis"
 print(f"  Files written:")
 print(f"    output/{EVENT_SLUG}_{out_stem}.json")
 print(f"    deploy/data/{out_stem}.json")
-if not FINAL_BUILD:
-    print(f"    deploy/data/cumulative_learning.json  (rounds: {rounds_present})")
+print(f"    deploy/data/cumulative_learning.json  (rounds: {rounds_present}, is_final={IS_FINAL})")
