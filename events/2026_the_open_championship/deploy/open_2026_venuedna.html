@@ -106,6 +106,7 @@ body{font-family:'Georgia','Times New Roman',serif;background:var(--bg);color:va
 .chip:hover{border-color:var(--accent);color:var(--accent)}
 .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .result-count{font-family:-apple-system,sans-serif;font-size:12px;color:var(--text-3);padding:8px 0 4px}
+.hidden{display:none!important}
 
 /* SECTIONS */
 .section{padding:38px 0 28px}
@@ -429,7 +430,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
       <div class="search-row">
         <div class="search-input-wrap">
           <span class="search-icon sans">⌕</span>
-          <input type="text" class="search-input sans" id="search-in" placeholder="Search player, flag, tier…" oninput="onSearch(this.value)">
+          <input type="text" class="search-input sans" id="player-search" placeholder="Search player, flag, tier…">
         </div>
         <div class="filter-chips">
           <div class="chip sans active" data-f="all" onclick="setChip('all')">All</div>
