@@ -1,0 +1,192 @@
+{
+  "venue_id": "2026_The_Open_Royal_Birkdale",
+  "course_name": "Royal Birkdale Golf Club",
+  "tour": "Open Championship",
+  "par": 70,
+  "yardage": 7223,
+  "scoring_par_baseline": {
+    "expected_winning_score_relative_to_par": -8,
+    "sigma_winning_score": 3,
+    "field_scoring_spread_multiplier": 1.10
+  },
+  "skill_weighting": {
+    "neutral_skill_baseline": {
+      "SG_OTT": 0.25,
+      "SG_APP": 0.40,
+      "SG_ARG": 0.20,
+      "SG_PUTT": 0.15
+    },
+    "venue_fit_delta_multipliers": {
+      "SG_OTT": 1.15,
+      "SG_APP": 1.25,
+      "SG_ARG": 1.20,
+      "SG_PUTT": 0.95
+    },
+    "volatility_multipliers": {
+      "high_variance_OTT": 1.30,
+      "high_variance_APP": 1.10,
+      "high_variance_PUTT": 0.80
+    }
+  },
+  "off_the_tee_profile": {
+    "distance_importance": 0.35,
+    "accuracy_importance": 0.65,
+    "left_right_miss_penalty": 1.25,
+    "fairway_bunker_penalty": 1.40,
+    "rough_penalty_factor": 1.20,
+    "optimal_club_downshift_bonus": 0.15,
+    "notes": [
+      "Narrow, bunker-pinched landing zones on most par 4s/5s; positional OTT is rewarded over max distance.",
+      "OB and gorse/dunes create true stroke-loss for wide misses, not just small expected value leakage.",
+      "2017 fairways-hit at Birkdale were lower than typical Open rota venues despite many players clubbing down."
+    ]
+  },
+  "approach_profile": {
+    "distance_bucket_weights": {
+      "50_100": 0.10,
+      "100_125": 0.12,
+      "125_150": 0.13,
+      "150_175": 0.18,
+      "175_200": 0.22,
+      "200_225": 0.15,
+      "225_plus": 0.10
+    },
+    "green_size_factor": 0.90,
+    "green_firmness_factor": 1.10,
+    "wind_adjustment_factor": 1.15,
+    "long_iron_separation_factor": 1.20,
+    "notes": [
+      "High density of 440+ yard par 4s and 185+ yard par 3s puts heavy weight on 175–225+ yard approach play.",
+      "2017 Birkdale SG decomposition shows outsized separation on approach relative to OTT and PUTT.",
+      "Firm, elevated greens with run-offs magnify the cost of small approach errors, especially in crosswind."
+    ]
+  },
+  "around_green_profile": {
+    "importance": 1.20,
+    "bunker_difficulty_factor": 1.30,
+    "runoff_severity_factor": 1.35,
+    "tight_lie_skill_bonus": 0.20,
+    "up_and_down_frequency_multiplier": 1.15,
+    "notes": [
+      "Deep revetted pot bunkers and steep run-offs around greens increase ARG frequency and stroke value.",
+      "DataGolf course stats show above-average scrambling difficulty and below-normal sand-save rates at Birkdale.",
+      "Links-style repertoire (bump-and-run, hybrid putts, low checkers) should be rewarded over generic ARG."
+    ]
+  },
+  "putting_profile": {
+    "importance": 0.90,
+    "green_speed_stimp": 10.2,
+    "3_putt_avoidance_weight": 0.60,
+    "short_putt_weight": 0.25,
+    "long_putt_weight": 0.15,
+    "wind_on_greens_factor": 1.10,
+    "notes": [
+      "Medium green speeds and wind reduce pure spike-putting edge; lag putting and 3-putt avoidance matter more.",
+      "Course history and historical Open data show moderate putting separation vs typical PGA parkland stops."
+    ]
+  },
+  "condition_overrides": {
+    "firm_fast": {
+      "SG_OTT_accuracy_multiplier": 1.10,
+      "SG_APP_long_iron_multiplier": 1.15,
+      "SG_ARG_multiplier": 1.10,
+      "SG_PUTT_multiplier": 0.95
+    },
+    "soft_windy": {
+      "SG_OTT_distance_multiplier": 1.05,
+      "SG_APP_overall_multiplier": 1.20,
+      "SG_ARG_multiplier": 1.05,
+      "SG_PUTT_multiplier": 1.00
+    }
+  },
+  "wind_profile": {
+    "expected_speed_mph": {
+      "min": 10,
+      "max": 25
+    },
+    "directional_pattern": [
+      "W",
+      "NW",
+      "SW"
+    ],
+    "wind_importance_multiplier": 1.20,
+    "wind_skill_bonus": 0.25,
+    "wind_sensitivity_penalty": 0.25,
+    "notes": [
+      "Typical July Southport pattern: 10–20 mph with gusts toward 25; direction mostly from the Irish Sea.",
+      "Difficulty spike at long-iron holes (4, 6, 12, 13, 15, 18) under 20+ mph conditions."
+    ]
+  },
+  "course_trait_flags": {
+    "is_links": true,
+    "is_coastal": true,
+    "is_tree_lined": false,
+    "is_altitude": false,
+    "par5_reachable_rate_estimate": {
+      "par5_14": 0.05,
+      "par5_17": 0.45
+    },
+    "birdie_rate_modifier": 0.90,
+    "bogey_rate_modifier": 1.10
+  },
+  "similar_course_mapping": {
+    "Sea_Island_Seaside": 0.931,
+    "Colonial_CC": 0.901,
+    "Dyes_Valley": 0.889,
+    "Harbour_Town": 0.871,
+    "TPC_Four_Seasons": 0.847,
+    "El_Cardonal": 0.847,
+    "Oakdale_GCC": 0.845,
+    "PGA_West_Palmer": 0.844,
+    "TPC_Southwind": 0.840,
+    "Innisbrook_Copperhead": 0.832,
+    "Royal_Troon": 0.828,
+    "TPC_Twin_Cities": 0.820,
+    "Waialae_CC": 0.813,
+    "Sawgrass_CC": 0.800
+  },
+  "player_trait_overrides": {
+    "upgrade_traits": [
+      "elite_long_iron",
+      "high_accuracy_OTT",
+      "proven_wind_ball",
+      "strong_links_scrambling",
+      "coastal_comp_success"
+    ],
+    "downgrade_traits": [
+      "OTT_wild_driver_only",
+      "high_spin_high_apex_ball",
+      "weak_ARG_on_firm_tight",
+      "no_links_resume",
+      "high_wind_sensitivity"
+    ]
+  },
+  "penalties_and_gates": {
+    "hard_gates": [
+      {
+        "trait": "extreme_OTT_inaccuracy",
+        "threshold": -0.50,
+        "penalty": -0.30,
+        "comment": "Players losing >0.5 SG OTT per round with high dispersion are structurally fragile in Birkdale corridors."
+      },
+      {
+        "trait": "very_weak_ARG",
+        "threshold": -0.40,
+        "penalty": -0.25,
+        "comment": "Deep bunkers and steep run-offs increase ARG leverage; very weak short game is a non-starter."
+      }
+    ],
+    "soft_gates": [
+      {
+        "trait": "no_links_history",
+        "penalty": -0.10,
+        "comment": "Partial downgrade for total absence of links sample; can be offset by strong comp-course record."
+      },
+      {
+        "trait": "high_Wind_SG_loss",
+        "penalty": -0.15,
+        "comment": "Players with documented negative performance in windy events get a modest fit downgrade."
+      }
+    ]
+  }
+}

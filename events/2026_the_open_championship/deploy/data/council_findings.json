@@ -1,0 +1,366 @@
+{
+  "council_version": "v3",
+  "event": "2026 The Open Championship",
+  "generated_at": "2026-07-16T03:28:53Z",
+  "model_version": "VenueDNA v3",
+  "roles": {
+    "architect": {
+      "reviewer": "Architect",
+      "focus": "Structural validation of T1 list — approach-first thesis at Royal Birkdale",
+      "findings": [
+        {
+          "player": "Scottie Scheffler",
+          "tier": 1,
+          "vts": 83.26,
+          "note": "T1 case built on NSI=100.0, VFS=97.6. Approach: SG:APP +1.09. Links delta: +3.7 VFS pts. Birkdale: RoyalBirkdaleDebut (0 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Tommy Fleetwood",
+          "tier": 1,
+          "vts": 82.23,
+          "note": "T1 case built on NSI=96.8, VFS=88.9. Approach: SG:APP +0.63. Links delta: +5.9 VFS pts. Birkdale: BirkdaleHistoryThin (1 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Matt Fitzpatrick",
+          "tier": 1,
+          "vts": 81.66,
+          "note": "T1 case built on NSI=97.4, VFS=89.6. Approach: SG:APP +0.86. Links delta: +6.4 VFS pts. Birkdale: BirkdaleHistoryThin (1 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Si Woo Kim",
+          "tier": 1,
+          "vts": 80.63,
+          "note": "T1 case built on NSI=93.5, VFS=92.5. Approach: SG:APP +0.79. Links delta: +5.2 VFS pts. Birkdale: BirkdaleHistoryThin (1 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Russell Henley",
+          "tier": 1,
+          "vts": 79.66,
+          "note": "T1 case built on NSI=95.5, VFS=89.0. Approach: SG:APP +0.70. Links delta: +4.8 VFS pts. Birkdale: BirkdaleHistoryThin (1 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Rory McIlroy",
+          "tier": 1,
+          "vts": 78.98,
+          "note": "T1 case built on NSI=99.3, VFS=72.5. Approach: SG:APP +0.51. Links delta: +7.4 VFS pts. Birkdale: BirkdaleHistoryThin (1 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Jon Rahm",
+          "tier": 1,
+          "vts": 78.14,
+          "note": "T1 case built on NSI=98.1, VFS=81.4. Approach: SG:APP +0.63. Links delta: +3.0 VFS pts. Birkdale: BirkdaleHistoryThin (1 events). Structural validator: APPROVED."
+        },
+        {
+          "player": "Viktor Hovland",
+          "tier": 1,
+          "vts": 78.09,
+          "note": "T1 case built on NSI=90.3, VFS=87.6. Approach: SG:APP +0.83. Links delta: +5.2 VFS pts. Birkdale: RoyalBirkdaleDebut (0 events). Structural validator: APPROVED."
+        }
+      ]
+    },
+    "skeptic": {
+      "reviewer": "Skeptic",
+      "focus": "Challenge overrated positions, flag structural contradictions",
+      "findings": [
+        {
+          "player": "Scottie Scheffler",
+          "tier": 1,
+          "vts": 83.26,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T1 projection"
+          ]
+        },
+        {
+          "player": "Viktor Hovland",
+          "tier": 1,
+          "vts": 78.09,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T1 projection"
+          ]
+        },
+        {
+          "player": "Cameron Young",
+          "tier": 2,
+          "vts": 77.98,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T2 projection"
+          ]
+        },
+        {
+          "player": "J.J. Spaun",
+          "tier": 2,
+          "vts": 75.25,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T2 projection"
+          ]
+        },
+        {
+          "player": "Collin Morikawa",
+          "tier": 2,
+          "vts": 74.8,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T2 projection"
+          ]
+        },
+        {
+          "player": "Sam Burns",
+          "tier": 2,
+          "vts": 74.22,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T2 projection"
+          ]
+        },
+        {
+          "player": "Chris Gotterup",
+          "tier": 2,
+          "vts": 73.82,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T2 projection"
+          ]
+        },
+        {
+          "player": "Patrick Cantlay",
+          "tier": 2,
+          "vts": 73.77,
+          "issues": [
+            "Debut at Royal Birkdale — no course-specific data for T2 projection"
+          ]
+        }
+      ]
+    },
+    "market_contrarian": {
+      "reviewer": "Market Contrarian",
+      "focus": "Identify links-boosted players the market has not fully repriced",
+      "findings": [
+        {
+          "player": "Tommy Fleetwood",
+          "tier": 1,
+          "vts": 82.23,
+          "links_delta": 5.93,
+          "note": "Links signal +5.9 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 4. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Matt Fitzpatrick",
+          "tier": 1,
+          "vts": 81.66,
+          "links_delta": 6.42,
+          "note": "Links signal +6.4 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 4. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Si Woo Kim",
+          "tier": 1,
+          "vts": 80.63,
+          "links_delta": 5.2,
+          "note": "Links signal +5.2 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 2. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Russell Henley",
+          "tier": 1,
+          "vts": 79.66,
+          "links_delta": 4.84,
+          "note": "Links signal +4.8 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 0. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Rory McIlroy",
+          "tier": 1,
+          "vts": 78.98,
+          "links_delta": 7.41,
+          "note": "Links signal +7.4 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 3. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Viktor Hovland",
+          "tier": 1,
+          "vts": 78.09,
+          "links_delta": 5.16,
+          "note": "Links signal +5.2 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 2. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Chris Gotterup",
+          "tier": 2,
+          "vts": 73.82,
+          "links_delta": 6.58,
+          "note": "Links signal +6.6 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 2. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Justin Rose",
+          "tier": 2,
+          "vts": 73.16,
+          "links_delta": 4.67,
+          "note": "Links signal +4.7 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 1. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Wyndham Clark",
+          "tier": 2,
+          "vts": 73.11,
+          "links_delta": 4.93,
+          "note": "Links signal +4.9 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 2. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Robert MacIntyre",
+          "tier": 2,
+          "vts": 68.58,
+          "links_delta": 6.35,
+          "note": "Links signal +6.3 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 4. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Min Woo Lee",
+          "tier": 2,
+          "vts": 65.52,
+          "links_delta": 4.77,
+          "note": "Links signal +4.8 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 1. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Nicolai Hojgaard",
+          "tier": 2,
+          "vts": 64.68,
+          "links_delta": 4.77,
+          "note": "Links signal +4.8 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 3. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Tom Kim",
+          "tier": 3,
+          "vts": 60.91,
+          "links_delta": 7.84,
+          "note": "Links signal +7.8 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 2. Strong multi-window signal — monitor odds."
+        },
+        {
+          "player": "Jordan Spieth",
+          "tier": 3,
+          "vts": 58.16,
+          "links_delta": 4.29,
+          "note": "Links signal +4.3 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 0. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Michael Thorbjornsen",
+          "tier": 3,
+          "vts": 56.85,
+          "links_delta": 4.67,
+          "note": "Links signal +4.7 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 1. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Jason Day",
+          "tier": 3,
+          "vts": 54.05,
+          "links_delta": 4.74,
+          "note": "Links signal +4.7 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 0. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Johnny Keefer",
+          "tier": 3,
+          "vts": 53.59,
+          "links_delta": 5.07,
+          "note": "Links signal +5.1 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 1. Thin sample — 6M heavily weighted; validate via 24M window."
+        },
+        {
+          "player": "Victor Perez",
+          "tier": 3,
+          "vts": 50.5,
+          "links_delta": 5.08,
+          "note": "Links signal +5.1 VFS pts — if general NSI understates links ceiling, this player may outperform market odds. 12M events: 2. Strong multi-window signal — monitor odds."
+        }
+      ]
+    },
+    "audit_officer": {
+      "reviewer": "Audit Officer",
+      "focus": "Data integrity — source validation, debut flags, thin samples, missing windows",
+      "findings": [
+        {
+          "check": "Birkdale debut count",
+          "finding": "115 players have no Birkdale history. VHN set to neutral 50 baseline.",
+          "severity": "INFO"
+        },
+        {
+          "check": "Birkdale thin sample",
+          "finding": "41 players have 1 Birkdale event — VHN shrunk 45% toward 50.",
+          "severity": "INFO"
+        },
+        {
+          "check": "No links SG data",
+          "finding": "18 players have no links SG data in any window — zero links delta applied.",
+          "severity": "INFO"
+        },
+        {
+          "check": "T1 with debut flag",
+          "finding": "2 T1 player(s) have no Birkdale history: Scottie Scheffler, Viktor Hovland. Debut risk cannot positively anchor T1 — NSI and VFS must carry entire case.",
+          "severity": "WARN"
+        }
+      ]
+    },
+    "synthesis_chair": {
+      "reviewer": "Synthesis Chair",
+      "focus": "Final rulings — accepts, overrides, Tom Kim adjudication",
+      "findings": [
+        {
+          "player": "Scottie Scheffler",
+          "topic": "Negative links 6M signal vs elite NSI",
+          "ruling": "Scheffler holds T1 via elite NSI (100.0/100). 6M links SG: -0.161/rd (GSO near-miss performance). Links delta +3.7 VFS pts — modest negative. NSI dominance (40% weight) outweighs the links VFS penalty at this magnitude. T1 standing MAINTAINED. Note: Royal Birkdale links fragility is a real risk; if links-specific underperformance is systemic, market odds may be too short."
+        },
+        {
+          "player": "All T1 players",
+          "topic": "T1 validation",
+          "ruling": "8 players in T1 (VTS≥78). All require NSI≥75 OR links delta≥4.0 to justify. T1 debuts (no Birkdale): 2 player(s) — these hold on NSI/VFS strength alone. Council accepts T1 list as structurally sound. No forced demotions."
+        },
+        {
+          "player": "Tom Kim",
+          "topic": "Complete adjudication",
+          "ruling": "RULING: Tom Kim moves from v2 rank ~50 to v3 rank 44 (T3). No manual override applied — model movement (10.9 VTS pts gained) is evidence-based. Links SG signal is sustained across multiple windows (not just GSO). Top 10 and Top 20 markets are the recommended play. Win market: plausible ceiling but NSI constraint at 58.7/100 limits structural T1 case."
+        }
+      ]
+    }
+  },
+  "tom_kim_adjudication": {
+    "player": "Tom Kim",
+    "adjudication": "EXPLICIT COUNCIL REVIEW",
+    "prior_version_rank": "~50th (v2 — general L12 SG only, 0.530/rd)",
+    "v3_rank": 44,
+    "v3_tier": 3,
+    "v3_vts": 60.91,
+    "nsi": 58.71,
+    "vfs_base": 59.08,
+    "vfs_links_delta": 7.84,
+    "vfs_final": 66.92,
+    "vhn": 50.09,
+    "form": 65.6,
+    "links_windows": {
+      "6m": {
+        "events": 1,
+        "total_mean": 4.168,
+        "conf": 0.4,
+        "note": "GSO win — sole 6M event, high conf penalty"
+      },
+      "12m": {
+        "events": 2,
+        "total_mean": 2.977,
+        "conf": 0.75,
+        "note": "2 events, moderate confidence"
+      },
+      "24m": {
+        "events": 4,
+        "total_mean": 1.924,
+        "conf": 1.0,
+        "note": "4 events, full confidence"
+      },
+      "alltime": {
+        "events": 8,
+        "total_mean": 2.095,
+        "conf": 1.0,
+        "note": "8 events, full confidence"
+      }
+    },
+    "weighted_signal": 1.9593,
+    "vfs_delta_applied": 7.84,
+    "architect_ruling": "Tom Kim's general L12 SG (0.530/rd) placed him ~50th in v2. Links SG across all windows is elite: 6M +4.168 (1 ev, conf=0.40), 12M +2.977 (2 ev, conf=0.75), 24M +1.924 (4 ev), alltime +2.095 (8 ev). Weighted signal +1.959/rd → VFS delta +7.8 pts applied. NSI remains constrained by general form (0.530/rd → pctile 58.7). VTS v3: 60.9 (v2 was ~50). Material upward movement confirmed.",
+    "skeptic_challenge": "6M window is GSO win only (1 event, conf=0.40). GSO at Dundonald Links — a legitimate links test but single-tournament sample. If GSO was a one-week form spike on a moderately links-like layout, alltime 8-event signal (+2.095/rd) provides the stabiliser. NSI constraint at 58.7/100 limits T2 case — links ceiling is real but general skill floor is mid-field.",
+    "market_contrarian_note": "Post-GSO win, market may overrate Tom Kim's general form but underrate his links-specific ceiling. VTS 60.9 (T3) represents a structural re-rating from v2 ~50th. At correct links-adjusted odds, Tom Kim is a value play in Top 20 and Top 10 markets. Win market remains constrained by NSI floor vs T1 players.",
+    "synthesis_ruling": "RULING: Tom Kim moves from v2 rank ~50 to v3 rank 44 (T3). No manual override applied — model movement (10.9 VTS pts gained) is evidence-based. Links SG signal is sustained across multiple windows (not just GSO). Top 10 and Top 20 markets are the recommended play. Win market: plausible ceiling but NSI constraint at 58.7/100 limits structural T1 case."
+  },
+  "key_stats": {
+    "t1_count": 8,
+    "t2_count": 29,
+    "debut_count": 115,
+    "thin_birkdale_count": 41,
+    "links_boosted_count": 18,
+    "no_links_data_count": 18,
+    "skeptic_flags_raised": 8
+  }
+}

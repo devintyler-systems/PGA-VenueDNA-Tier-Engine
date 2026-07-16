@@ -1,0 +1,59 @@
+{
+  "event_id": "2026_the_open_championship",
+  "generated_at": "2026-07-16T03:28:53Z",
+  "field_size": 156,
+  "model_version": "VenueDNA v3",
+  "trait_coverage": {
+    "app_150_200": {
+      "covered": 108,
+      "imputed": 48,
+      "coverage_pct": 69.2
+    },
+    "ott_positional": {
+      "covered": 156,
+      "imputed": 0,
+      "coverage_pct": 100.0
+    },
+    "app_overall": {
+      "covered": 140,
+      "imputed": 16,
+      "coverage_pct": 89.7
+    },
+    "driving_accuracy": {
+      "covered": 141,
+      "imputed": 15,
+      "coverage_pct": 90.4
+    },
+    "sg_putt": {
+      "covered": 140,
+      "imputed": 16,
+      "coverage_pct": 89.7
+    },
+    "sg_arg": {
+      "covered": 140,
+      "imputed": 16,
+      "coverage_pct": 89.7
+    }
+  },
+  "debut_players": [
+    "Collin Morikawa"
+  ],
+  "summary": {
+    "total_players": 156,
+    "debut_count": 1,
+    "anti_pattern_count": 101,
+    "tier_distribution": {
+      "1": 8,
+      "2": 29,
+      "3": 45,
+      "4": 50,
+      "5": 24
+    },
+    "win_pct_sum": 100.0,
+    "avg_vts": 50.16,
+    "links_boosted_players": 18,
+    "birkdale_active_players": 0,
+    "birkdale_thin_players": 41,
+    "model_version": "VenueDNA v3"
+  }
+}
