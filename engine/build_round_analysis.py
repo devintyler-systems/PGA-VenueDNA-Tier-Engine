@@ -56,7 +56,7 @@ sys.path.insert(0, str(_ROOT))
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 parser = argparse.ArgumentParser(description="VenueDNA generic round analysis builder")
-parser.add_argument("--event_slug", required=True, help="e.g. 2026_genesis_scottish_open")
+parser.add_argument("--event_slug", "--event", dest="event_slug", required=True, help="e.g. 2026_genesis_scottish_open")
 grp = parser.add_mutually_exclusive_group(required=True)
 grp.add_argument("--round", type=int, choices=[1, 2, 3, 4])
 grp.add_argument("--final", action="store_true")

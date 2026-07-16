@@ -10,6 +10,9 @@ const S = {
   currentTier:   'all',
   searchQuery:   '',
   sort: { key: 'rank', dir: 1 },
+  numFilters: { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null },
+  spotlightOpen:  false,
+  advFilterOpen:  false,
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -120,6 +123,12 @@ function bindEvents() {
   window.addEventListener('scroll', () =>
     document.getElementById('scroll-top')?.classList.toggle('visible', window.scrollY > 400)
   );
+  document.getElementById('spotlight-toggle')?.addEventListener('click', toggleSpotlight);
+  document.getElementById('adv-toggle')?.addEventListener('click', toggleAdvFilter);
+  document.getElementById('clear-filters-btn')?.addEventListener('click', clearFilters);
+  ['af-vts-min','af-vts-max','af-nsi-min','af-nsi-max','af-vfs-min','af-vfs-max','af-win-min','af-win-max'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', onNumFilter);
+  });
 }
 
 // ── Render orchestration ───────────────────────────────────────────────────────
@@ -144,7 +153,7 @@ function renderSpotlight() {
     const hasPen = (p.penalties_total || 0) < 0;
     const br    = S.briefsByName[normName(p.player)] || {};
     const badges = p.badges || br.badges || [];
-    return `<div class="spotlight-card ${tc}" onclick="openModal(${JSON.stringify(p.player)})">
+    return `<div class="spotlight-card ${tc}" data-player="${esc(p.player)}">
       <div class="sc-top">
         <div class="sc-rank sans">${p.rank}</div>
         <div>
@@ -173,6 +182,14 @@ function renderSpotlight() {
       <div class="sc-reason">${p.tierReason || ''}</div>
     </div>`;
   }).join('');
+
+  grid.querySelectorAll('.spotlight-card[data-player]').forEach(card => {
+    card.addEventListener('click', () => {
+      const name = card.dataset.player;
+      scrollToPlayer(name);
+      openModal(name);
+    });
+  });
 }
 
 function bar(lbl, fillPct, cls, val, valColor) {
@@ -199,7 +216,7 @@ function renderTable() {
     const tBg    = { T1:'var(--t1-bg)', T2:'var(--t2-bg)', T3:'var(--t3-bg)', T4:'var(--t4-bg)', T5:'var(--t5-bg)' }[p.tier];
     const hasPen = (p.penalties_total || 0) < 0;
     const flagStr = p._flags.join(',');
-    return `<tr data-player="${esc(p.player)}" data-tier="${p.tier}" data-flags="${flagStr}" data-tag="${p.birkdaleTag || ''}">
+    return `<tr data-player="${esc(p.player)}" data-tier="${p.tier}" data-flags="${flagStr}" data-tag="${p.birkdaleTag || ''}" data-vts="${p.vts_final ?? ''}" data-nsi="${p.neutralSkillIndex ?? ''}" data-vfs="${p.venueFitScore ?? ''}" data-win="${p.winPct ?? ''}">
       <td class="left"><span class="rank-num sans" style="background:${tBg};color:${tColor}">${p.rank}</span></td>
       <td class="left"><div class="player-name-cell">${p.player}
         <small><span class="tier-badge sans" style="background:${tBg};color:${tColor};border:1px solid ${tColor}">${p.tier}</span>
@@ -232,6 +249,8 @@ function renderTable() {
 // ── Visibility engine — toggles .hidden; no DOM destruction ───────────────────
 function applyVisibility() {
   const q = normName(S.searchQuery);
+  const nf = S.numFilters;
+  const hasNumFilter = Object.values(nf).some(v => v !== null);
   let shown = 0;
 
   document.querySelectorAll('#board-tbody tr[data-player]').forEach(tr => {
@@ -262,12 +281,28 @@ function applyVisibility() {
       if (!matchName && !matchFlag && !matchTier) show = false;
     }
 
+    if (show && hasNumFilter) {
+      const vts = parseFloat(tr.dataset.vts);
+      const nsi = parseFloat(tr.dataset.nsi);
+      const vfs = parseFloat(tr.dataset.vfs);
+      const win = parseFloat(tr.dataset.win);
+      if (nf.vts_min !== null && (isNaN(vts) || vts < nf.vts_min)) show = false;
+      if (nf.vts_max !== null && (isNaN(vts) || vts > nf.vts_max)) show = false;
+      if (nf.nsi_min !== null && (isNaN(nsi) || nsi < nf.nsi_min)) show = false;
+      if (nf.nsi_max !== null && (isNaN(nsi) || nsi > nf.nsi_max)) show = false;
+      if (nf.vfs_min !== null && (isNaN(vfs) || vfs < nf.vfs_min)) show = false;
+      if (nf.vfs_max !== null && (isNaN(vfs) || vfs > nf.vfs_max)) show = false;
+      if (nf.win_min !== null && (isNaN(win) || win < nf.win_min)) show = false;
+      if (nf.win_max !== null && (isNaN(win) || win > nf.win_max)) show = false;
+    }
+
     tr.classList.toggle('hidden', !show);
     if (show) shown++;
   });
 
   setResultCount(shown);
   updateBoardSub(shown);
+  reindexRankColumn();
 }
 
 // ── Sort ───────────────────────────────────────────────────────────────────────
@@ -329,7 +364,7 @@ function renderIntel() {
     const players = (leads[t] || []).slice(0, 3);
     return `<div class="tier-block ${t.toLowerCase()}-bl">
       <div class="tier-block-header sans"><span>${t} — ${desc}</span><span>${counts[t] || ''}</span></div>
-      ${players.map(lp => `<div class="tier-block-player" onclick="openModal(${JSON.stringify(lp.player)})">
+      ${players.map(lp => `<div class="tier-block-player" data-player="${esc(lp.player)}" style="cursor:pointer">
         <div class="tbp-name">#${lp.rank} ${lp.player}</div>
         <div class="tbp-vals sans">
           <span>VTS <b>${f2(lp.vts)}</b></span>
@@ -340,6 +375,10 @@ function renderIntel() {
       </div>`).join('')}
     </div>`;
   }).join('');
+
+  grid.querySelectorAll('.tier-block-player[data-player]').forEach(el => {
+    el.addEventListener('click', () => openModal(el.dataset.player));
+  });
 }
 
 // ── Risk register ──────────────────────────────────────────────────────────────
@@ -354,8 +393,8 @@ function renderRisk() {
     const rPlayers = riskData[RISK_KEYS[code]] || [];
     const cols  = RISK_COLS[code] || [{ k:'rank',l:'#' },{ k:'player',l:'Player' },{ k:'reason',l:'Reason' }];
     const rows  = rPlayers.length
-      ? rPlayers.map(rp => `<tr onclick="openModal(${JSON.stringify(rp.player)})">${cols.map(c => `<td>${fmtRisk(rp[c.k], c.k)}</td>`).join('')}</tr>`).join('')
-      : (rule.affectedPlayers || []).map(name => `<tr onclick="openModal(${JSON.stringify(name)})"><td colspan="${cols.length}">${name}</td></tr>`).join('');
+      ? rPlayers.map(rp => `<tr data-player="${esc(rp.player)}" style="cursor:pointer">${cols.map(c => `<td>${fmtRisk(rp[c.k], c.k)}</td>`).join('')}</tr>`).join('')
+      : (rule.affectedPlayers || []).map(name => `<tr data-player="${esc(name)}" style="cursor:pointer"><td colspan="${cols.length}">${name}</td></tr>`).join('');
     return `<div class="risk-rule-card">
       <div class="risk-rule-header" onclick="toggleRisk(this)">
         <span class="flag risk-code ${m.cls} sans">${code}</span>
@@ -372,6 +411,10 @@ function renderRisk() {
       </div>
     </div>`;
   }).join('');
+
+  container.querySelectorAll('.risk-pt tbody tr[data-player]').forEach(tr => {
+    tr.addEventListener('click', () => openModal(tr.dataset.player));
+  });
 }
 
 function toggleRisk(hdr) {
@@ -637,7 +680,7 @@ function openModal(name) {
         <div class="modal-layers">
           <div class="layer-row"><div class="layer-lbl sans">NSI</div><div class="layer-track"><div class="layer-fill" style="width:${nPct2}%;background:var(--navy)"></div></div><div class="layer-val sans" style="color:var(--navy)">${f1(p.neutralSkillIndex)}</div></div>
           <div class="layer-row"><div class="layer-lbl sans">VFS</div><div class="layer-track"><div class="layer-fill" style="width:${vPct2}%;background:var(--green-ok)"></div></div><div class="layer-val sans" style="color:var(--green-ok)">${f1(p.venueFitScore)}</div></div>
-          <div class="layer-row"><div class="layer-lbl sans">VHD</div><div class="layer-track"><div class="layer-fill" style="width:${vhPct2}%;background:var(--gold)"></div></div><div class="layer-val sans" style="color:var(--gold)">${vhd(p.venueHistoryDelta)}</div></div>
+          <div class="layer-row"><div class="layer-lbl sans">VHD</div>${vhdDivergingBar(p.venueHistoryDelta)}<div class="layer-val sans" style="color:${(p.venueHistoryDelta||0)>=0?'var(--green-ok)':'var(--accent)'}">${vhd(p.venueHistoryDelta)}</div></div>
           ${activePens.length ? `<div class="layer-row"><div class="layer-lbl sans">Penalties</div><div class="layer-track"><div class="layer-fill" style="width:${pPct2}%;background:var(--accent)"></div></div><div class="layer-val sans" style="color:var(--accent)">${f2(p.penalties_total)}</div></div>` : ''}
         </div>
         ${br.vfs_base != null ? `<div class="modal-note sans" style="margin-top:8px">VFS Base: ${f2(br.vfs_base)} · Links Δ: ${br.vfs_links_delta != null ? f2(br.vfs_links_delta) : '—'} · VHN: ${br.venue_history_normalized != null ? f1(br.venue_history_normalized) : '—'} · Form: ${br.form_score != null ? f1(br.form_score) : '—'}</div>` : ''}
@@ -700,6 +743,85 @@ function flag(code) {
   const m = FM[code];
   if (!m) return `<span class="flag sans">${code}</span>`;
   return `<span class="flag ${m.cls} sans" title="${m.full}">${m.lbl}</span>`;
+}
+
+// ── Spotlight toggle ───────────────────────────────────────────────────────────
+function toggleSpotlight() {
+  S.spotlightOpen = !S.spotlightOpen;
+  document.getElementById('spotlight-container')?.classList.toggle('hidden', !S.spotlightOpen);
+  const btn = document.getElementById('spotlight-toggle');
+  if (btn) btn.textContent = S.spotlightOpen ? 'Hide Spotlight' : 'Show Spotlight';
+}
+
+// ── Advanced filter panel toggle ───────────────────────────────────────────────
+function toggleAdvFilter() {
+  S.advFilterOpen = !S.advFilterOpen;
+  document.getElementById('adv-filter-panel')?.classList.toggle('hidden', !S.advFilterOpen);
+  const btn = document.getElementById('adv-toggle');
+  if (btn) btn.textContent = S.advFilterOpen ? '▲ Filter' : '▼ Filter';
+}
+
+// ── Numeric filter input handler ───────────────────────────────────────────────
+function onNumFilter() {
+  const getVal = id => { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; };
+  S.numFilters = {
+    vts_min: getVal('af-vts-min'), vts_max: getVal('af-vts-max'),
+    nsi_min: getVal('af-nsi-min'), nsi_max: getVal('af-nsi-max'),
+    vfs_min: getVal('af-vfs-min'), vfs_max: getVal('af-vfs-max'),
+    win_min: getVal('af-win-min'), win_max: getVal('af-win-max'),
+  };
+  applyVisibility();
+}
+
+// ── Clear all filters and reset sort to VTS rank ──────────────────────────────
+function clearFilters() {
+  S.currentFilter = 'all';
+  S.currentTier   = 'all';
+  S.searchQuery   = '';
+  S.numFilters    = { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null };
+  S.sort          = { key: 'rank', dir: 1 };
+  const srch = document.getElementById('player-search');
+  if (srch) srch.value = '';
+  document.querySelectorAll('.chip[data-f]').forEach(el => el.classList.toggle('active', el.dataset.f === 'all'));
+  document.querySelectorAll('.tier-tile').forEach(el => el.classList.toggle('active', el.dataset.tier === 'all'));
+  ['af-vts-min','af-vts-max','af-nsi-min','af-nsi-max','af-vfs-min','af-vfs-max','af-win-min','af-win-max'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  renderTable();
+}
+
+// ── Scroll Full Field table to a player row ────────────────────────────────────
+function scrollToPlayer(name) {
+  const tr = document.querySelector(`#board-tbody tr[data-player="${name.replace(/"/g, '\\"')}"]`);
+  if (!tr) return;
+  tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Diverging VHD bar: green right for positive, red left for negative ─────────
+function vhdDivergingBar(val) {
+  const v = val || 0;
+  const fillPct = Math.min(Math.abs(v) / 5.0 * 50, 50);
+  const center = `<div style="position:absolute;left:50%;transform:translateX(-50%);width:1px;top:0;bottom:0;background:var(--border-2)"></div>`;
+  if (v >= 0) {
+    return `<div class="layer-track" style="position:relative;overflow:hidden">${center}<div style="position:absolute;left:50%;width:${fillPct}%;top:0;bottom:0;border-radius:0 4px 4px 0;background:var(--green-ok)"></div></div>`;
+  }
+  return `<div class="layer-track" style="position:relative;overflow:hidden">${center}<div style="position:absolute;right:50%;width:${fillPct}%;top:0;bottom:0;border-radius:4px 0 0 4px;background:var(--accent)"></div></div>`;
+}
+
+// ── Re-index rank column based on current sort and visible rows ────────────────
+function reindexRankColumn() {
+  const isByRank = S.sort.key === 'rank' || S.sort.key === 'vts_final';
+  document.querySelectorAll('#board-tbody tr[data-player]:not(.hidden)').forEach((tr, i) => {
+    const rankEl = tr.cells[0]?.querySelector('.rank-num');
+    if (!rankEl) return;
+    if (!rankEl.dataset.origRank) rankEl.dataset.origRank = rankEl.textContent.trim();
+    const orig = rankEl.dataset.origRank;
+    if (isByRank) {
+      rankEl.textContent = orig;
+    } else {
+      rankEl.innerHTML = `${i + 1}<span class="badge sans" style="font-size:9px;padding:1px 4px;margin-left:4px;vertical-align:middle;opacity:.75">VTS:#${orig}</span>`;
+    }
+  });
 }
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
