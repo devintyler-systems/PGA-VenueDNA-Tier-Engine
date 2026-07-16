@@ -677,6 +677,7 @@ joined: list[dict] = []
 unmatched: list[str] = []
 seen: set[str] = set()
 duplicates: list[str] = []
+_field_n = len(lb)
 
 for row in lb:
     if not any(row.values()):
@@ -731,6 +732,13 @@ for row in lb:
     record["ci"] = ci_by_norm.get(record["norm_name"].lower())
     joined.append(record)
     if not pt:
+        print(f"[warn] Alternate detected during join: {r_name}")
+        record["pt_rank"]   = _field_n + 1
+        record["pt_tier"]   = 5
+        record["pt_vts"]    = 50.0
+        record["pt_flags"]  = "DEBUT, ALT"
+        record["pt_driver"] = "alternate entry"
+        record["pt_vhd"]    = 0.0
         unmatched.append(r_name)
 
 matched = [r for r in joined if r["matched"]]
