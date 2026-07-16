@@ -2,19 +2,21 @@
 
 // ── State ──────────────────────────────────────────────────────────────────────
 const S = {
-  boardData:     [],
-  briefsByName:  {},
-  analysis:      null,
-  activePlayer:  null,
-  currentFilter: 'all',
-  currentTier:   'all',
-  searchQuery:   '',
+  boardData:         [],
+  briefsByName:      {},
+  analysis:          null,
+  activePlayer:      null,
+  currentFilter:     'all',
+  currentTier:       'all',
+  searchQuery:       '',
   sort: { key: 'rank', dir: 1 },
   numFilters: { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null },
-  spotlightOpen:  false,
-  advFilterOpen:  false,
-  currentRound:   'pre',
-  roundData:      {},
+  spotlightOpen:     false,
+  advFilterOpen:     false,
+  currentRound:      'pre',
+  roundData:         {},
+  altPlayers:        [],
+  activeFetchTarget: null,
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -64,6 +66,50 @@ function normName(s) {
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().trim()
     .replace(/[\u2018\u2019\u0060']/g, "'");
+}
+
+// ── Canonical name join — live CSV → boardData with suffix/initials fallbacks ─
+function canonName(rawName) {
+  const nm = rawName || '';
+  if (!nm) return nm;
+
+  // 1. Direct normName match
+  let found = S.boardData.find(x => normName(x.player) === normName(nm));
+  if (found) return found.player;
+
+  // 2. Strip trailing generational suffixes (Jr., Sr., II, III, IV) and retry
+  const stripped = nm.replace(/\s*\b(?:Jr\.?|Sr\.?|I{2,3}|IV)\b\s*$/i, '').trim();
+  if (stripped && stripped !== nm) {
+    found = S.boardData.find(x => normName(x.player) === normName(stripped));
+    if (found) return found.player;
+  }
+
+  // 3. Initials first-name pattern ("A.B. Lastname") — unambiguous last-name match
+  const initM = nm.match(/^(?:[A-Z]\.)+(?:\s+[A-Z]\.)*\s+(.+)$/i);
+  if (initM) {
+    const lastName = normName(initM[1]);
+    const cands = S.boardData.filter(x => {
+      const parts = normName(x.player).split(' ');
+      return parts[parts.length - 1] === lastName;
+    });
+    if (cands.length === 1) return cands[0].player;
+  }
+
+  // 4. Fallback: register a runtime debut/alternate record so the drawer stays openable
+  if (!S.altPlayers.find(x => x.player === nm)) {
+    S.altPlayers.push({
+      player: nm, rank: '—', tier: 'T5',
+      vts_final: 50.0, neutralSkillIndex: 50.0, venueFitScore: 50.0,
+      venueHistoryDelta: 0, penalties_total: 0,
+      winPct: null, top5Pct: null, top10Pct: null,
+      top20Pct: null, makeCutPct: null, missCutPct: null,
+      birkdaleTag: 'RoyalBirkdaleDebut',
+      tierReason: 'Late alternate or field addition — not in pre-tournament model.',
+      _flags: [], _isAlt: true,
+    });
+    console.info('[VenueDNA] alt registered:', nm);
+  }
+  return nm;
 }
 
 // ── Derive audit flags from board row ─────────────────────────────────────────
@@ -128,6 +174,13 @@ function bindEvents() {
   document.querySelectorAll('.round-tab[data-round]').forEach(btn =>
     btn.addEventListener('click', () => switchRound(btn.dataset.round))
   );
+  document.getElementById('live-content')?.addEventListener('click', e => {
+    const tr = e.target.closest('.live-table tr[data-player]');
+    if (!tr) return;
+    const name = tr.dataset.player;
+    if (!name) return;
+    openModal(name);
+  });
   document.getElementById('spotlight-toggle')?.addEventListener('click', toggleSpotlight);
   document.getElementById('adv-toggle')?.addEventListener('click', toggleAdvFilter);
   document.getElementById('clear-filters-btn')?.addEventListener('click', clearFilters);
@@ -502,7 +555,8 @@ function buildWinCase(p, br, tier) {
 
 // ── openModal — all 10 data zones ─────────────────────────────────────────────
 function openModal(name) {
-  const p = S.boardData.find(x => x.player === name);
+  const p = S.boardData.find(x => x.player === name)
+         || S.altPlayers.find(x => x.player === name);
   if (!p) return;
 
   const br    = S.briefsByName[normName(p.player)] || {};
@@ -754,12 +808,14 @@ function flag(code) {
 const PRE_SECTIONS = ['sec-spotlight','sec-board','sec-intel','sec-risk','sec-method'];
 
 async function switchRound(r) {
-  S.currentRound = r;
+  S.currentRound      = r;
+  S.activeFetchTarget = r;
   document.querySelectorAll('.round-tab').forEach(el =>
     el.classList.toggle('active', el.dataset.round === String(r))
   );
 
   if (r === 'pre') {
+    document.getElementById('sec-live')?.classList.remove('loading-blur');
     PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
     document.getElementById('sec-live')?.classList.add('hidden');
     return;
@@ -772,25 +828,33 @@ async function switchRound(r) {
   liveSection?.classList.remove('hidden');
 
   if (S.roundData[r]) {
+    liveSection?.classList.remove('loading-blur');
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
     renderLiveRound(S.roundData[r], content);
     return;
   }
 
+  liveSection?.classList.add('loading-blur');
   pending?.classList.remove('hidden');
   content?.classList.add('hidden');
   try {
     const resp = await fetch(`data/r${r}_analysis.json`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
+    if (S.activeFetchTarget !== r) return;
     S.roundData[r] = data;
+    liveSection?.classList.remove('loading-blur');
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
     renderLiveRound(data, content);
   } catch (e) {
     console.warn(`[VenueDNA] R${r} unavailable:`, e.message);
-    pending?.classList.remove('hidden');
+    liveSection?.classList.remove('loading-blur');
+    if (pending) {
+      pending.innerHTML = `<div style="border:2px solid #f59e0b;background:#0f172a;color:#f59e0b;padding:24px 28px;border-radius:8px;font-family:-apple-system,sans-serif;font-size:15px;font-weight:600;text-align:center;letter-spacing:.02em">Round ${r} Analysis Pending Live Scores</div>`;
+      pending.classList.remove('hidden');
+    }
     content?.classList.add('hidden');
   }
 }
@@ -805,9 +869,6 @@ function renderLiveRound(data, el) {
   const lbSnap = [...(data.leaderboard_snapshot || [])].sort((a, b) => (a.r1_pos || 999) - (b.r1_pos || 999));
   const risers   = (data.weekend_risers || data.risers || []).slice(0, 15);
   const slippage = (data.slippage_risk || []).slice(0, 10);
-
-  // Map raw CSV name → canonical boardData player name via normName join
-  const canonName = nm => S.boardData.find(x => normName(x.player) === normName(nm || ''))?.player || (nm || '');
 
   const sgFmt = v => v != null ? (v > 0 ? '+' : '') + Number(v).toFixed(2) : '—';
   const posFmt = r => r.r1_pos_str || r.r1_pos || '—';
@@ -830,7 +891,7 @@ function renderLiveRound(data, el) {
     <div class="live-sub-header">
       <div class="live-sub-title">${meta.round_label || `Round ${round}`} Leaderboard</div>
       <div class="live-sub-note sans">${match.matched ?? '?'} / ${match.total_r1 ?? match.total ?? '?'} matched</div>
-      ${rho != null ? `<span class="rho-badge sans">ρ = ${rho}</span>` : ''}
+      ${rho != null ? `<span class="rho-badge sans">ρ = ${Number(rho).toFixed(3)}</span>` : ''}
     </div>
     <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
       <table class="live-table">
@@ -859,50 +920,59 @@ function renderLiveRound(data, el) {
       </table>
     </div>
 
-    ${risers.length ? `
-    <div class="live-sub-header">
-      <div class="live-sub-title">Weekend Risers</div>
-      <div class="live-sub-note sans">Approach-backed outperformers</div>
-    </div>
-    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
-      <table class="live-table">
-        <thead><tr>
-          <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
-          <th>Δ Rank</th><th>SG-APP</th><th>SG-PUTT</th><th>SG-TOT</th><th>Thesis</th>
-        </tr></thead>
-        <tbody>${risers.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
-          <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
-          <td class="sans">${posFmt(r)}</td>
-          <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
-          <td class="sans" style="color:var(--green-ok)">▲${r.rank_delta ?? '—'}</td>
-          <td class="sans" style="color:var(--green-ok)">${sgFmt(r.sg_app)}</td>
-          <td class="sans">${sgFmt(r.sg_putt)}</td>
-          <td class="sans">${sgFmt(r.sg_tot)}</td>
-          <td class="sans" style="color:var(--text-2);max-width:200px;white-space:normal;font-size:11px">${r.thesis_note || '—'}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-    </div>` : ''}
+    ${(risers.length || slippage.length) ? `
+    <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
 
-    ${slippage.length ? `
-    <div class="live-sub-header">
-      <div class="live-sub-title">Slippage Risk</div>
-      <div class="live-sub-note sans">Top-20 positions with fragile SG profile</div>
-    </div>
-    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
-      <table class="live-table">
-        <thead><tr>
-          <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
-          <th>SG-PUTT</th><th>SG-APP</th><th>Risk Flag</th>
-        </tr></thead>
-        <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
-          <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
-          <td class="sans">${posFmt(r)}</td>
-          <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
-          <td class="sans" style="color:var(--accent);font-weight:700">${sgFmt(r.sg_putt)}</td>
-          <td class="sans">${sgFmt(r.sg_app)}</td>
-          <td class="sans" style="color:var(--accent);font-size:11px;white-space:normal;max-width:200px">${(r.risk_flags || []).join(' · ') || '—'}</td>
-        </tr>`).join('')}</tbody>
-      </table>
+      ${risers.length ? `<div style="flex:1;min-width:340px">
+      <div class="live-sub-header">
+        <div class="live-sub-title">Weekend Risers</div>
+        <div class="live-sub-note sans">Approach-backed outperformers</div>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
+        <table class="live-table">
+          <thead><tr>
+            <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
+            <th>Δ Rank</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th><th>Thesis</th>
+          </tr></thead>
+          <tbody>${risers.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
+            <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
+            <td class="sans">${posFmt(r)}</td>
+            <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
+            <td class="sans" style="color:var(--green-ok)">▲${r.rank_delta ?? '—'}</td>
+            <td class="sans" style="color:var(--green-ok)">${sgFmt(r.sg_app)}</td>
+            <td class="sans">${sgFmt(r.sg_putt)}</td>
+            <td class="sans">${sgFmt(r.sg_tot)}</td>
+            <td class="sans" style="color:var(--text-2);max-width:200px;white-space:normal;font-size:11px">${r.thesis_note || '—'}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      </div>` : ''}
+
+      ${slippage.length ? `<div style="flex:1;min-width:340px">
+      <div class="live-sub-header">
+        <div class="live-sub-title">Slippage Risk</div>
+        <div class="live-sub-note sans">Top-20 positions with fragile SG profile</div>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
+        <table class="live-table">
+          <thead><tr>
+            <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
+            <th>Δ Rank</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th><th>Risk Flag</th>
+          </tr></thead>
+          <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
+            <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
+            <td class="sans">${posFmt(r)}</td>
+            <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
+            <td class="sans">${deltaHtml(r.pt_rank, r.r1_pos)}</td>
+            <td class="sans" style="color:${(r.sg_app||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgFmt(r.sg_app)}</td>
+            <td class="sans" style="color:var(--accent);font-weight:700">${sgFmt(r.sg_putt)}</td>
+            <td class="sans">${sgFmt(r.sg_tot)}</td>
+            <td class="sans" style="color:var(--accent);font-size:11px;white-space:normal;max-width:160px">${(r.risk_flags || []).join(' · ') || '—'}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      </div>` : ''}
+
     </div>` : ''}
 
     ${(lean.lean_up_traits?.length || lean.lean_down_traits?.length) ? `
@@ -922,17 +992,6 @@ function renderLiveRound(data, el) {
     ${lean.rho_note ? `<div style="margin-top:16px;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3)">${lean.rho_note}</div>` : ''}
   `;
 
-  el.querySelectorAll('.live-table tbody tr[data-player]').forEach(tr => {
-    tr.addEventListener('click', () => {
-      const name = tr.dataset.player;
-      if (!name) return;
-      // canonName already mapped at render time; fall back to normName scan if needed
-      const resolved = S.boardData.find(x => x.player === name)
-        ? name
-        : S.boardData.find(x => normName(x.player) === normName(name))?.player || name;
-      openModal(resolved);
-    });
-  });
 }
 
 // ── Spotlight toggle ───────────────────────────────────────────────────────────

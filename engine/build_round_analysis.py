@@ -301,11 +301,12 @@ def ascii_fold(s: str) -> str:
     return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
 
 
+_COMBINING_RE = re.compile("[̀-ͯ]")
+
 def norm_name(s: str) -> str:
-    """Mirror JS normName: NFD decompose, strip combining accents, lowercase, trim."""
-    import re as _re
-    folded = unicodedata.normalize("NFD", str(s)).encode("ascii", "ignore").decode("ascii")
-    return _re.sub(r"['‘’`]", "'", folded).lower().strip()
+    """Mirror JS normName: NFD decompose, strip U+0300-U+036F combining marks, lowercase, trim."""
+    stripped = _COMBINING_RE.sub("", unicodedata.normalize("NFD", str(s)))
+    return re.sub("[‘‘’`]", "’", stripped).lower().strip()
 
 
 def fl_to_lf(name: str) -> str:
@@ -544,8 +545,9 @@ for row in lb:
         duplicates.append(r_name)
         continue
     seen.add(folded)
-    norm    = fl_to_lf(folded)
-    pt      = pretournament.get(norm.lower())
+    norm      = fl_to_lf(folded)
+    record_nm = fl_to_lf(norm_name(r_name))
+    pt        = pretournament.get(norm.lower())
     sg_row  = sg_by_folded.get(folded)
 
     pos_str = row.get("POS","")
@@ -560,7 +562,7 @@ for row in lb:
 
     record = {
         "r1_name":    r_name,
-        "norm_name":  norm,
+        "norm_name":  record_nm,
         "r1_pos":     pos_num,
         "r1_pos_str": pos_str,
         "r1_score":   score,
