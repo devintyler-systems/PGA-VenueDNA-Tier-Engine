@@ -568,6 +568,51 @@ function buildWinCase(p, br, tier) {
   </div>`;
 }
 
+// ── Live SG block — renders LIVE STROKES GAINED section for modal §1 ──────────
+function buildLiveSGBlock(p) {
+  const r = S.currentRound;
+  if (r === 'pre' || !S.roundData[r]) return '';
+
+  const snap = S.roundData[r].leaderboard_snapshot || [];
+  const nm   = normName(p.player);
+  const row  = snap.find(x => normName(x.r1_name || '') === nm);
+
+  const hasData = row && (row.sg_ott != null || row.sg_app != null ||
+                          row.sg_arg != null || row.sg_putt != null || row.sg_tot != null);
+
+  const hdr = '<div class="sans" style="font-size:10px;letter-spacing:.08em;color:#34d399;margin-bottom:8px">LIVE STROKES GAINED PERFORMANCE</div>';
+
+  if (!hasData) {
+    return '<div style="margin-top:14px;padding:10px 14px;background:#020617;border:1px solid #1e293b;border-radius:8px">' +
+      hdr +
+      '<div class="sans" style="font-size:12px;color:#64748b;font-style:italic">Live Stats: Round data is pending first scorecard</div>' +
+      '</div>';
+  }
+
+  const sgCol = v => v == null ? '#64748b' : v >= 0 ? '#34d399' : '#fb7185';
+  const sgFmt = v => v == null ? '--' : (v >= 0 ? '+' : '') + Number(v).toFixed(2);
+
+  const metrics = [
+    { lbl: 'OTT',  val: row.sg_ott  },
+    { lbl: 'APP',  val: row.sg_app  },
+    { lbl: 'ARG',  val: row.sg_arg  },
+    { lbl: 'PUTT', val: row.sg_putt },
+    { lbl: 'TOT',  val: row.sg_tot  },
+  ];
+
+  const cells = metrics.map(m =>
+    '<div style="background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:7px 4px;text-align:center">' +
+      '<div class="sans" style="font-size:15px;font-weight:800;color:' + sgCol(m.val) + '">' + sgFmt(m.val) + '</div>' +
+      '<div class="sans" style="font-size:9px;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin-top:2px">' + m.lbl + '</div>' +
+    '</div>'
+  ).join('');
+
+  return '<div style="margin-top:14px;padding:10px 14px;background:#020617;border:1px solid #1e293b;border-radius:8px">' +
+    hdr +
+    '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">' + cells + '</div>' +
+    '</div>';
+}
+
 // ── openModal — all 10 data zones ─────────────────────────────────────────────
 function openModal(name) {
   const p = S.boardData.find(x => x.player === name)
@@ -686,6 +731,8 @@ function openModal(name) {
           ${scoring.floor    ? `<div class="latent-pill"><div class="latent-val" style="color:var(--accent)">${scoring.floor}</div><div class="latent-lbl">Floor</div></div>` : ''}
         </div>
 
+        ${buildLiveSGBlock(p)}
+
         ${S.weather.speed > 0 ? `<div style="margin-top:14px;padding:10px 14px;background:#0f172a;border:1px solid #1e293b;border-radius:8px">
           <div class="sans" style="font-size:10px;letter-spacing:.08em;color:#f59e0b;margin-bottom:8px">WEATHER &amp; WAVE PROFILE</div>
           <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
@@ -770,7 +817,7 @@ function openModal(name) {
               const _ck = resolveCumKey(t.label);
               const _cs = _ck && (S.cumulativeLearning?.cumulative_signals?.[_ck]);
               const _ch = _cs?.signal_history?.length
-                ? `<span class="sans" style="display:block;font-size:10px;color:var(--text-3);margin-top:2px">History: [${_cs.signal_history.join(', ')}]</span>`
+                ? `<div class="trait-meta-row">History: [${_cs.signal_history.join(', ')}]</div>`
                 : '';
               return `<div class="trait-row">
                 <div class="trait-lbl">${t.label}${_ch}</div>
