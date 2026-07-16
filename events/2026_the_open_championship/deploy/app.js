@@ -13,7 +13,7 @@ const S = {
   numFilters: { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null },
   spotlightOpen:  false,
   advFilterOpen:  false,
-  activeRound:    'pre',
+  currentRound:   'pre',
   roundData:      {},
 };
 
@@ -754,7 +754,7 @@ function flag(code) {
 const PRE_SECTIONS = ['sec-spotlight','sec-board','sec-intel','sec-risk','sec-method'];
 
 async function switchRound(r) {
-  S.activeRound = r;
+  S.currentRound = r;
   document.querySelectorAll('.round-tab').forEach(el =>
     el.classList.toggle('active', el.dataset.round === String(r))
   );
@@ -806,6 +806,9 @@ function renderLiveRound(data, el) {
   const risers   = (data.weekend_risers || data.risers || []).slice(0, 15);
   const slippage = (data.slippage_risk || []).slice(0, 10);
 
+  // Map raw CSV name → canonical boardData player name via normName join
+  const canonName = nm => S.boardData.find(x => normName(x.player) === normName(nm || ''))?.player || (nm || '');
+
   const sgFmt = v => v != null ? (v > 0 ? '+' : '') + Number(v).toFixed(2) : '—';
   const posFmt = r => r.r1_pos_str || r.r1_pos || '—';
   const deltaHtml = (pt, pos) => {
@@ -841,7 +844,7 @@ function renderLiveRound(data, el) {
           const scoreColor = score < 0 ? 'var(--green-ok)' : score > 0 ? 'var(--accent)' : 'var(--text-3)';
           const scoreStr   = score > 0 ? `+${score}` : String(score);
           const winPct = r.live_win_pct != null ? r.live_win_pct.toFixed(1) + '%' : '—';
-          return `<tr data-player="${esc(r.r1_name || '')}">
+          return `<tr data-player="${esc(canonName(r.r1_name))}">
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
             <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -867,7 +870,7 @@ function renderLiveRound(data, el) {
           <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
           <th>Δ Rank</th><th>SG-APP</th><th>SG-PUTT</th><th>SG-TOT</th><th>Thesis</th>
         </tr></thead>
-        <tbody>${risers.map(r => `<tr data-player="${esc(r.r1_name || '')}">
+        <tbody>${risers.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
           <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
           <td class="sans">${posFmt(r)}</td>
           <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -891,7 +894,7 @@ function renderLiveRound(data, el) {
           <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
           <th>SG-PUTT</th><th>SG-APP</th><th>Risk Flag</th>
         </tr></thead>
-        <tbody>${slippage.map(r => `<tr data-player="${esc(r.r1_name || '')}">
+        <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
           <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
           <td class="sans">${posFmt(r)}</td>
           <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -920,7 +923,15 @@ function renderLiveRound(data, el) {
   `;
 
   el.querySelectorAll('.live-table tbody tr[data-player]').forEach(tr => {
-    tr.addEventListener('click', () => { if (tr.dataset.player) openModal(tr.dataset.player); });
+    tr.addEventListener('click', () => {
+      const name = tr.dataset.player;
+      if (!name) return;
+      // canonName already mapped at render time; fall back to normName scan if needed
+      const resolved = S.boardData.find(x => x.player === name)
+        ? name
+        : S.boardData.find(x => normName(x.player) === normName(name))?.player || name;
+      openModal(resolved);
+    });
   });
 }
 

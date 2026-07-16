@@ -301,6 +301,13 @@ def ascii_fold(s: str) -> str:
     return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
 
 
+def norm_name(s: str) -> str:
+    """Mirror JS normName: NFD decompose, strip combining accents, lowercase, trim."""
+    import re as _re
+    folded = unicodedata.normalize("NFD", str(s)).encode("ascii", "ignore").decode("ascii")
+    return _re.sub(r"['‘’`]", "'", folded).lower().strip()
+
+
 def fl_to_lf(name: str) -> str:
     parts = name.strip().split()
     return parts[-1] + ", " + " ".join(parts[:-1]) if len(parts) >= 2 else name
