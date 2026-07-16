@@ -317,6 +317,29 @@ body{font-family:'Georgia','Times New Roman',serif;background:var(--bg);color:va
 .engine-note{background:var(--gold-soft);border:1px solid rgba(154,116,32,.3);border-radius:var(--radius);padding:13px 17px;font-size:12px;color:var(--text-2);margin-top:14px;line-height:1.55;font-family:-apple-system,sans-serif}
 [data-theme="dark"] .engine-note{border-color:rgba(212,164,64,.2)}
 
+/* ROUND TABS */
+.round-tab-bar{display:flex;gap:0;background:var(--surface)}
+.round-tab{font-family:-apple-system,sans-serif;font-size:12px;font-weight:600;padding:10px 20px;border:none;border-bottom:3px solid transparent;cursor:pointer;background:transparent;color:var(--text-2);transition:all .12s;letter-spacing:.02em;white-space:nowrap}
+.round-tab:hover{color:var(--text);background:var(--surface-2)}
+.round-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+/* LIVE ROUND VIEW */
+.live-banner{padding:12px 16px;border-radius:var(--radius);font-family:-apple-system,sans-serif;font-size:13px;line-height:1.5;margin-bottom:16px}
+.live-banner.pending{background:var(--surface-2);border:1px dashed var(--border-2);color:var(--text-3);text-align:center;padding:36px}
+.live-banner.putt-caution{background:var(--accent-soft);border:1px solid rgba(196,68,88,.3);color:var(--accent)}
+.live-table{width:100%;border-collapse:collapse;font-family:-apple-system,sans-serif;font-size:12px}
+.live-table th{text-align:left;color:var(--text-3);font-size:10px;letter-spacing:.07em;padding:6px 10px;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--surface-2);font-weight:700;text-transform:uppercase}
+.live-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
+.live-table tr:last-child td{border-bottom:none}
+.live-table tbody tr{cursor:pointer;transition:background .1s}
+.live-table tbody tr:hover td{background:var(--surface-2)}
+.lean-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.lean-pill{display:inline-flex;align-items:center;gap:4px;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;padding:4px 11px;border-radius:10px;border:1px solid}
+.lean-up{background:var(--green-soft);color:var(--green-ok);border-color:var(--green-ok)}
+.lean-down{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.live-sub-header{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.live-sub-title{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.live-sub-note{font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3)}
+.rho-badge{font-family:-apple-system,sans-serif;font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:var(--navy-soft);color:var(--navy);margin-left:auto;border:1px solid var(--navy)}
 /* FOOTER */
 footer{background:var(--surface);border-top:1px solid var(--border);padding:18px 0;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3);text-align:center}
 
@@ -410,7 +433,27 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
   </div>
 </nav>
 
+<div id="round-tab-wrap" style="background:var(--surface);border-bottom:2px solid var(--border);position:sticky;top:44px;z-index:99;box-shadow:0 1px 4px var(--shadow)">
+  <div class="container">
+    <div class="round-tab-bar" id="round-tab-bar">
+      <button class="round-tab sans active" data-round="pre">Pre-Tourney</button>
+      <button class="round-tab sans" data-round="1">R1 Live</button>
+      <button class="round-tab sans" data-round="2">R2 Live</button>
+      <button class="round-tab sans" data-round="3">R3 Live</button>
+      <button class="round-tab sans" data-round="4">R4 Final</button>
+    </div>
+  </div>
+</div>
+
 <div class="container">
+
+  <section class="section hidden" id="sec-live">
+    <div id="live-pending" class="live-banner pending hidden">
+      <strong>Round Analysis Pending Live Scores</strong><br>
+      <span style="font-size:12px">This round's data file has not been generated yet. Check back once live scoring begins.</span>
+    </div>
+    <div id="live-content" class="hidden"></div>
+  </section>
 
   <section class="section" id="sec-spotlight">
     <div class="section-header">

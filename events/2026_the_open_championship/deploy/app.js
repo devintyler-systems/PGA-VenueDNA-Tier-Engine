@@ -13,6 +13,8 @@ const S = {
   numFilters: { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null },
   spotlightOpen:  false,
   advFilterOpen:  false,
+  activeRound:    'pre',
+  roundData:      {},
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -122,6 +124,9 @@ function bindEvents() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   window.addEventListener('scroll', () =>
     document.getElementById('scroll-top')?.classList.toggle('visible', window.scrollY > 400)
+  );
+  document.querySelectorAll('.round-tab[data-round]').forEach(btn =>
+    btn.addEventListener('click', () => switchRound(btn.dataset.round))
   );
   document.getElementById('spotlight-toggle')?.addEventListener('click', toggleSpotlight);
   document.getElementById('adv-toggle')?.addEventListener('click', toggleAdvFilter);
@@ -743,6 +748,180 @@ function flag(code) {
   const m = FM[code];
   if (!m) return `<span class="flag sans">${code}</span>`;
   return `<span class="flag ${m.cls} sans" title="${m.full}">${m.lbl}</span>`;
+}
+
+// ── Round tab switching ────────────────────────────────────────────────────────
+const PRE_SECTIONS = ['sec-spotlight','sec-board','sec-intel','sec-risk','sec-method'];
+
+async function switchRound(r) {
+  S.activeRound = r;
+  document.querySelectorAll('.round-tab').forEach(el =>
+    el.classList.toggle('active', el.dataset.round === String(r))
+  );
+
+  if (r === 'pre') {
+    PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+    document.getElementById('sec-live')?.classList.add('hidden');
+    return;
+  }
+
+  PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+  const liveSection = document.getElementById('sec-live');
+  const pending     = document.getElementById('live-pending');
+  const content     = document.getElementById('live-content');
+  liveSection?.classList.remove('hidden');
+
+  if (S.roundData[r]) {
+    pending?.classList.add('hidden');
+    content?.classList.remove('hidden');
+    renderLiveRound(S.roundData[r], content);
+    return;
+  }
+
+  pending?.classList.remove('hidden');
+  content?.classList.add('hidden');
+  try {
+    const resp = await fetch(`data/r${r}_analysis.json`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    S.roundData[r] = data;
+    pending?.classList.add('hidden');
+    content?.classList.remove('hidden');
+    renderLiveRound(data, content);
+  } catch (e) {
+    console.warn(`[VenueDNA] R${r} unavailable:`, e.message);
+    pending?.classList.remove('hidden');
+    content?.classList.add('hidden');
+  }
+}
+
+// ── Live round renderer ────────────────────────────────────────────────────────
+function renderLiveRound(data, el) {
+  const round  = data.round || '?';
+  const meta   = data.metadata || {};
+  const lean   = data.live_lean_notes || {};
+  const match  = data.match_summary  || {};
+  const rho    = (data.model_performance || {}).spearman_rho;
+  const lbSnap = [...(data.leaderboard_snapshot || [])].sort((a, b) => (a.r1_pos || 999) - (b.r1_pos || 999));
+  const risers   = (data.weekend_risers || data.risers || []).slice(0, 15);
+  const slippage = (data.slippage_risk || []).slice(0, 10);
+
+  const sgFmt = v => v != null ? (v > 0 ? '+' : '') + Number(v).toFixed(2) : '—';
+  const posFmt = r => r.r1_pos_str || r.r1_pos || '—';
+  const deltaHtml = (pt, pos) => {
+    if (pt == null) return '—';
+    const d = pt - (pos || 99);
+    if (d > 0)  return `<span style="color:var(--green-ok)">▲${d}</span>`;
+    if (d < 0)  return `<span style="color:var(--accent)">▼${Math.abs(d)}</span>`;
+    return `<span style="color:var(--text-3)">—</span>`;
+  };
+
+  el.innerHTML = `
+    ${lean.putt_caution ? `<div class="live-banner putt-caution sans">
+      <strong>⚠ Putting Caution Active</strong> — ${lean.putt_outliers?.length || ''} players with putting-biased performance prone to regression.
+      ${(lean.putt_outliers || []).length ? '<br><span style="margin-top:5px;display:inline-block">' +
+        lean.putt_outliers.map(p => `<span style="margin-right:10px">${p.player} <b>(SG-PUTT: ${sgFmt(p.sg_putt)})</b></span>`).join('') +
+        '</span>' : ''}
+    </div>` : ''}
+
+    <div class="live-sub-header">
+      <div class="live-sub-title">${meta.round_label || `Round ${round}`} Leaderboard</div>
+      <div class="live-sub-note sans">${match.matched ?? '?'} / ${match.total_r1 ?? match.total ?? '?'} matched</div>
+      ${rho != null ? `<span class="rho-badge sans">ρ = ${rho}</span>` : ''}
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
+      <table class="live-table">
+        <thead><tr>
+          <th>Pos</th><th class="left">Player</th><th>PT Rank</th>
+          <th>Score</th><th>Δ Rank</th>
+          <th>SG-TOT</th><th>SG-APP</th><th>SG-PUTT</th><th>Live Win%</th>
+        </tr></thead>
+        <tbody>${lbSnap.slice(0, 80).map(r => {
+          const score = r.r1_score ?? 0;
+          const scoreColor = score < 0 ? 'var(--green-ok)' : score > 0 ? 'var(--accent)' : 'var(--text-3)';
+          const scoreStr   = score > 0 ? `+${score}` : String(score);
+          const winPct = r.live_win_pct != null ? r.live_win_pct.toFixed(1) + '%' : '—';
+          return `<tr data-player="${esc(r.r1_name || '')}">
+            <td class="sans">${posFmt(r)}</td>
+            <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
+            <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
+            <td class="sans" style="font-weight:700;color:${scoreColor}">${scoreStr}</td>
+            <td class="sans">${deltaHtml(r.pt_rank, r.r1_pos)}</td>
+            <td class="sans">${sgFmt(r.sg_tot)}</td>
+            <td class="sans" style="color:${(r.sg_app||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgFmt(r.sg_app)}</td>
+            <td class="sans" style="color:${(r.sg_putt||0)>=0?'var(--navy)':'var(--accent)'}">${sgFmt(r.sg_putt)}</td>
+            <td class="sans">${winPct}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+
+    ${risers.length ? `
+    <div class="live-sub-header">
+      <div class="live-sub-title">Weekend Risers</div>
+      <div class="live-sub-note sans">Approach-backed outperformers</div>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
+      <table class="live-table">
+        <thead><tr>
+          <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
+          <th>Δ Rank</th><th>SG-APP</th><th>SG-PUTT</th><th>SG-TOT</th><th>Thesis</th>
+        </tr></thead>
+        <tbody>${risers.map(r => `<tr data-player="${esc(r.r1_name || '')}">
+          <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
+          <td class="sans">${posFmt(r)}</td>
+          <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
+          <td class="sans" style="color:var(--green-ok)">▲${r.rank_delta ?? '—'}</td>
+          <td class="sans" style="color:var(--green-ok)">${sgFmt(r.sg_app)}</td>
+          <td class="sans">${sgFmt(r.sg_putt)}</td>
+          <td class="sans">${sgFmt(r.sg_tot)}</td>
+          <td class="sans" style="color:var(--text-2);max-width:200px;white-space:normal;font-size:11px">${r.thesis_note || '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>` : ''}
+
+    ${slippage.length ? `
+    <div class="live-sub-header">
+      <div class="live-sub-title">Slippage Risk</div>
+      <div class="live-sub-note sans">Top-20 positions with fragile SG profile</div>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
+      <table class="live-table">
+        <thead><tr>
+          <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
+          <th>SG-PUTT</th><th>SG-APP</th><th>Risk Flag</th>
+        </tr></thead>
+        <tbody>${slippage.map(r => `<tr data-player="${esc(r.r1_name || '')}">
+          <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
+          <td class="sans">${posFmt(r)}</td>
+          <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
+          <td class="sans" style="color:var(--accent);font-weight:700">${sgFmt(r.sg_putt)}</td>
+          <td class="sans">${sgFmt(r.sg_app)}</td>
+          <td class="sans" style="color:var(--accent);font-size:11px;white-space:normal;max-width:200px">${(r.risk_flags || []).join(' · ') || '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>` : ''}
+
+    ${(lean.lean_up_traits?.length || lean.lean_down_traits?.length) ? `
+    <div class="live-sub-header">
+      <div class="live-sub-title">Live Lean — Trait Signals</div>
+      <div class="live-sub-note sans">R${round} field validation vs model weights</div>
+    </div>
+    <div class="lean-pills">
+      ${(lean.lean_up_traits || []).map(t =>
+        `<span class="lean-pill lean-up sans">▲ ${t.trait}${t.delta != null ? ' Δ' + t.delta : ''}${t.confidence ? ' · ' + t.confidence : ''}</span>`
+      ).join('')}
+      ${(lean.lean_down_traits || []).map(t =>
+        `<span class="lean-pill lean-down sans">▼ ${t.trait}${t.delta != null ? ' Δ' + t.delta : ''}</span>`
+      ).join('')}
+    </div>` : ''}
+
+    ${lean.rho_note ? `<div style="margin-top:16px;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3)">${lean.rho_note}</div>` : ''}
+  `;
+
+  el.querySelectorAll('.live-table tbody tr[data-player]').forEach(tr => {
+    tr.addEventListener('click', () => { if (tr.dataset.player) openModal(tr.dataset.player); });
+  });
 }
 
 // ── Spotlight toggle ───────────────────────────────────────────────────────────

@@ -1263,7 +1263,7 @@ output = {
     "live_lean_notes":        live_lean_notes,
     "match_summary": {
         "matched":        len(matched),
-        "total":          len(joined),
+        "total_r1":       len(joined),
         "unmatched":      unmatched,
         "match_rate_pct": round(len(matched)/len(joined)*100, 1) if joined else 0,
     },
