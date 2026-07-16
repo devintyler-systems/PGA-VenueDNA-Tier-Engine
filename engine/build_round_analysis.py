@@ -61,8 +61,11 @@ grp = parser.add_mutually_exclusive_group(required=True)
 grp.add_argument("--round", type=int, choices=[1, 2, 3, 4])
 grp.add_argument("--final", action="store_true")
 parser.add_argument("--check", action="store_true", help="Validate inputs only — no build")
+parser.add_argument("--test-dry-run", dest="test_dry_run", action="store_true",
+                    help="Inject mock CSV data and validate full pipeline — no live data required")
 args = parser.parse_args()
 
+DRY_RUN     = args.test_dry_run
 EVENT_SLUG  = args.event_slug
 FINAL_BUILD = args.final
 ROUND       = 4 if FINAL_BUILD else args.round
@@ -260,9 +263,12 @@ else:
             ROUND_DIR = candidate
             break
     else:
-        print(f"ERROR: Round {ROUND} data directory not found.")
-        print(f"  Create {OUT / f'round{ROUND}'} and place round{ROUND}_*.csv files inside.")
-        raise SystemExit(1)
+        if DRY_RUN:
+            ROUND_DIR = OUT / f"round{ROUND}"
+        else:
+            print(f"ERROR: Round {ROUND} data directory not found.")
+            print(f"  Create {OUT / f'round{ROUND}'} and place round{ROUND}_*.csv files inside.")
+            raise SystemExit(1)
     LB_PATH = ROUND_DIR / f"round{ROUND}_leaderboard.csv"
     SG_PATH = ROUND_DIR / f"round{ROUND}_player_strokes_gained.csv"
     CS_PATH = ROUND_DIR / f"round{ROUND}_course_stats.csv"
@@ -370,6 +376,94 @@ def classify_wave(tee_time_str: str, am_cutoff: int = 12) -> str:
     return "early_late" if hour < am_cutoff else "late_early"
 
 
+# ── Dry-run mock environment ──────────────────────────────────────────────────
+_DRY_RUN_CREATED: list[Path] = []
+if DRY_RUN:
+    print(f"[dry-run] Injecting mock environment — {EVENT_NAME} Round {ROUND}")
+    ROUND_DIR.mkdir(parents=True, exist_ok=True)
+
+    _MOCK_PLAYERS = [
+        ("Rory McIlroy",       "1",   "-7"), ("Jon Rahm",           "2",   "-6"),
+        ("Scottie Scheffler",  "T3",  "-5"), ("Viktor Hovland",     "T3",  "-5"),
+        ("Collin Morikawa",    "5",   "-4"), ("Tommy Fleetwood",    "6",   "-3"),
+        ("Tyrrell Hatton",     "T7",  "-3"), ("Shane Lowry",        "T7",  "-3"),
+        ("Matt Fitzpatrick",   "T9",  "-2"), ("Justin Thomas",      "T9",  "-2"),
+        ("Xander Schauffele",  "T11", "-1"), ("Patrick Cantlay",    "T11", "-1"),
+        ("Max Homa",           "T11", "-1"), ("Robert MacIntyre",   "T14", "E"),
+        ("Adam Scott",         "T14", "E"),  ("Francesco Molinari", "T16", "+1"),
+        ("Cameron Smith",      "T16", "+1"), ("Jordan Spieth",      "T16", "+1"),
+        ("Jason Day",          "T19", "+2"), ("Hideki Matsuyama",   "T19", "+2"),
+        ("Brian Harman",       "T21", "+3"), ("Luke Donald",        "T21", "+3"),
+        ("Alex Noren",         "T23", "+4"), ("Thorbjorn Olesen",   "T23", "+4"),
+        ("Louis Debut",        "25",  "+5"),
+    ]
+
+    if not LB_PATH.exists():
+        with open(LB_PATH, "w", newline="", encoding="utf-8") as _f:
+            _cw = csv.writer(_f)
+            _cw.writerow(["PLAYER", "POS", "TOTAL"])
+            _cw.writerows(_MOCK_PLAYERS)
+        _DRY_RUN_CREATED.append(LB_PATH)
+        print(f"[dry-run] Wrote {LB_PATH.name} ({len(_MOCK_PLAYERS)} players)")
+
+    if not SG_PATH.exists():
+        with open(SG_PATH, "w", newline="", encoding="utf-8") as _f:
+            _cw = csv.writer(_f)
+            _cw.writerow(["Player", "SG-Off the Tee", "SG-Approach to Green",
+                          "SG- Around the Green", "SG-Putting", "SG-Total"])
+            for _i, _mp in enumerate(_MOCK_PLAYERS):
+                _cw.writerow([
+                    _mp[0],
+                    round(0.80 - _i * 0.060, 2), round(1.20 - _i * 0.090, 2),
+                    round(0.30 - _i * 0.030, 2), round(0.50 - _i * 0.040, 2),
+                    round(2.80 - _i * 0.220, 2),
+                ])
+        _DRY_RUN_CREATED.append(SG_PATH)
+        print(f"[dry-run] Wrote {SG_PATH.name}")
+
+    if not PAIRINGS.exists():
+        PAIRINGS.parent.mkdir(parents=True, exist_ok=True)
+        with open(PAIRINGS, "w", newline="", encoding="utf-8") as _f:
+            _cw = csv.writer(_f)
+            _cw.writerow(["player_name", "wave"])
+            for _i, _mp in enumerate(_MOCK_PLAYERS):
+                _cw.writerow([_mp[0], "early_late" if _i % 2 == 0 else "late_early"])
+        _DRY_RUN_CREATED.append(PAIRINGS)
+        print(f"[dry-run] Wrote r1_pairings.csv (AM/PM alternating across {len(_MOCK_PLAYERS)} players)")
+
+    if not PAY_PATH.exists():
+        _mock_tiers: dict = {f"tier_{_t}": [] for _t in range(1, 6)}
+        for _i, _mp in enumerate(_MOCK_PLAYERS[:-1]):
+            _lf = fl_to_lf(ascii_fold(_mp[0]))
+            _mock_tiers[f"tier_{min(5, _i // 5 + 1)}"].append({
+                "player_name": _lf, "rank": _i + 1, "tier": _i // 5 + 1,
+                "vts_final":   round(80.0 - _i * 2.5, 1),
+                "win_pct":     round(max(0.1, 15.0 - _i * 0.6), 2),
+                "top10_pct":   round(max(1.0, 45.0 - _i * 1.5), 1),
+                "top20_pct":   round(max(5.0, 65.0 - _i * 1.0), 1),
+                "primary_driver": "app_150_200",
+            })
+        PAY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(PAY_PATH, "w", encoding="utf-8") as _pf:
+            json.dump({"tiers": _mock_tiers, "players": []}, _pf, indent=2)
+        _DRY_RUN_CREATED.append(PAY_PATH)
+        print(f"[dry-run] Wrote event_payload.json (24 modelled + 1 debut alt)")
+
+    if not TFM_PATH.exists():
+        _trait_headers = ["name_key", "player_display"] + list(TRAIT_COLS.values())
+        TFM_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(TFM_PATH, "w", newline="", encoding="utf-8") as _f:
+            _cw = csv.writer(_f)
+            _cw.writerow(_trait_headers)
+            for _i, _mp in enumerate(_MOCK_PLAYERS[:-1]):
+                _lf = fl_to_lf(ascii_fold(_mp[0]))
+                _nk = _lf.lower()
+                _scores = [round(max(20.0, 80.0 - _i * 2.0 + _j * 3.0), 1)
+                           for _j in range(len(TRAIT_COLS))]
+                _cw.writerow([_nk, _lf] + _scores)
+        _DRY_RUN_CREATED.append(TFM_PATH)
+        print(f"[dry-run] Wrote trait form matrix ({len(_MOCK_PLAYERS) - 1} player rows)")
+
 # ── File validation ───────────────────────────────────────────────────────────
 MISSING_REQUIRED = False
 for path, label in [
@@ -427,18 +521,33 @@ with open(PAY_PATH, encoding="utf-8") as f:
 
 # ── Weather forecast — wind/wave latent penalty matrix ────────────────────────
 _WEATHER_PATH = DEP / "weather_forecast.json"
-_WX = {"speed": 0.0, "direction": "N/A", "wave_delta": 0.0, "tide": "N/A", "disadvantaged_wave": None}
-if _WEATHER_PATH.exists():
+_WX = {"speed": 0, "direction": "N/A", "wave_delta": 0.0, "tide": "N/A",
+       "disadvantaged_wave": "Neutral", "favored_wave": "Neutral"}
+try:
+    # Guard 1 — file existence
+    if not _WEATHER_PATH.exists():
+        raise FileNotFoundError("weather_forecast.json not found — safe defaults applied")
+    # Guard 2 — file read and JSON parse
     try:
         with open(_WEATHER_PATH, encoding="utf-8") as _wf:
             _wx_raw = json.load(_wf)
-        _WX["speed"]              = float(_wx_raw.get("speed") or 0)
-        _WX["direction"]          = str(_wx_raw.get("direction") or "N/A")
-        _WX["wave_delta"]         = float(_wx_raw.get("wave_delta") or 0.0)
-        _WX["tide"]               = str(_wx_raw.get("tide") or "N/A")
-        _WX["disadvantaged_wave"] = _wx_raw.get("disadvantaged_wave") or None
-    except Exception as _wxe:
-        print(f"[warn] weather_forecast.json error: {_wxe} — safe defaults applied")
+    except (json.JSONDecodeError, OSError, ValueError) as _parse_err:
+        raise ValueError(f"weather_forecast.json unreadable: {_parse_err}") from _parse_err
+    # Guard 3 — key extraction with type coercion and empty-payload check
+    if not isinstance(_wx_raw, dict) or not _wx_raw:
+        raise ValueError("weather_forecast.json payload is empty or not a JSON object")
+    _WX["speed"]              = float(_wx_raw.get("speed") or 0)
+    _WX["direction"]          = str(_wx_raw.get("direction") or "N/A")
+    _WX["wave_delta"]         = float(_wx_raw.get("wave_delta") or 0.0)
+    _WX["tide"]               = str(_wx_raw.get("tide") or "N/A")
+    _disadv                   = _wx_raw.get("disadvantaged_wave")
+    _WX["disadvantaged_wave"] = str(_disadv) if _disadv else "Neutral"
+except Exception as _wxe:
+    print(f"[warn] Weather loading failed: {_wxe} — safe defaults applied (speed=0, wave_delta=0.0, wave=Neutral)")
+    _WX["speed"]              = 0
+    _WX["wave_delta"]         = 0.0
+    _WX["disadvantaged_wave"] = "Neutral"
+    _WX["favored_wave"]       = "Neutral"
 
 WX_SPEED       = _WX["speed"]
 WX_DELTA       = _WX["wave_delta"]
@@ -447,6 +556,13 @@ WX_DISADV_WAVE = _WX["disadvantaged_wave"] or (_opp_wave if WX_SPEED > 15 else N
 WIND_SEVERITY  = min(1.0, WX_SPEED / 20.0) if WX_SPEED > 15 else 0.0
 WAVE_PENALTY   = round(WX_DELTA * WIND_SEVERITY, 4)
 print(f"Weather: {WX_SPEED:.1f} kts | wave_delta={WX_DELTA} | disadv_wave={WX_DISADV_WAVE or 'none'} | latent_penalty={WAVE_PENALTY}")
+if DRY_RUN:
+    WX_SPEED       = 22.0
+    WX_DELTA       = 0.45
+    WX_DISADV_WAVE = "late_early"
+    WIND_SEVERITY  = min(1.0, WX_SPEED / 20.0)
+    WAVE_PENALTY   = round(WX_DELTA * WIND_SEVERITY, 4)
+    print(f"[dry-run] Weather overridden: {WX_SPEED} kts | wave_delta={WX_DELTA} | disadv_wave={WX_DISADV_WAVE} (PM) | penalty={WAVE_PENALTY}")
 
 print(f"Loaded: {len(lb)} leaderboard / {len(sg)} SG / {len(tfm)} trait rows")
 
@@ -1188,7 +1304,7 @@ if WAVE_PENALTY > 0 and WX_DISADV_WAVE:
             _vpt[_i] -= WAVE_PENALTY
             _wave_penalty_amounts[_i] = -WAVE_PENALTY
             _penalized_n += 1
-    print(f"Wave penalty applied: {_penalized_n} players in '{WX_DISADV_WAVE}' draw penalized −{WAVE_PENALTY} latent pts")
+    print(f"Wave penalty applied: {_penalized_n} players in '{WX_DISADV_WAVE}' draw penalized -{WAVE_PENALTY} latent pts")
 
 _mu    = sum(_vpt) / len(_vpt) if _vpt else 0.0
 _sigma = max((sum((v - _mu) ** 2 for v in _vpt) / len(_vpt)) ** 0.5 if _vpt else 1.0, 1e-9)
@@ -1239,7 +1355,8 @@ for _i, rec in enumerate(lb_snapshot):
     rec["cumulative_sg_tot"] = _lp.get("cumulative_sg_tot")
     _pw = joined[_i].get("wave", "unknown")
     rec["wave_draw"]    = "AM" if _pw == "early_late" else "PM" if _pw == "late_early" else "Neutral"
-    rec["wave_penalty"] = round(_wave_penalty_amounts[_i], 4) if _i < len(_wave_penalty_amounts) else 0.0
+    _raw_pen = round(_wave_penalty_amounts[_i], 4) if _i < len(_wave_penalty_amounts) else 0.0
+    rec["wave_penalty"] = 0.00 if rec["wave_draw"] == "Neutral" else _raw_pen
 
 holes_data: list[dict] = []
 if cs_loaded:
@@ -1375,6 +1492,60 @@ if not FINAL_BUILD:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(cumulative_learning, f, indent=2)
         print(f"Wrote: {path}")
+
+# ── Dry-run validation and cleanup ────────────────────────────────────────────
+if DRY_RUN:
+    _val_errors: list[str] = []
+
+    try:
+        with open(dep_path, encoding="utf-8") as _vf:
+            _vdata = json.load(_vf)
+        if _vdata.get("schema_version") != "1.1":
+            _val_errors.append(f"{dep_path.name}: schema_version != '1.1'")
+        _snap = _vdata.get("leaderboard_snapshot", [])
+        if _snap:
+            for _key in ("wave_draw", "wave_penalty"):
+                if _key not in _snap[0]:
+                    _val_errors.append(f"{dep_path.name}: missing snake_case key '{_key}'")
+        if "total_r1" not in (_vdata.get("match_summary") or {}):
+            _val_errors.append(f"{dep_path.name}: missing match_summary.total_r1")
+        for _row in _snap[:10]:
+            _w   = _row.get("live_win_pct")  or 0
+            _t5  = _row.get("live_top5_pct") or 0
+            _t10 = _row.get("live_top10_pct") or 0
+            _t20 = _row.get("live_top20_pct") or 0
+            if not (_t5 >= _w and _t10 >= _t5 and _t20 >= _t10):
+                _val_errors.append(
+                    f"Probability monotonicity violated — {_row.get('r1_name','?')}: "
+                    f"win={_w} t5={_t5} t10={_t10} t20={_t20}"
+                )
+                break
+    except Exception as _ve:
+        _val_errors.append(f"Read error {dep_path.name}: {_ve}")
+
+    try:
+        with open(CUM_DEP, encoding="utf-8") as _vf:
+            _cldata = json.load(_vf)
+        if _cldata.get("schema_version") != "1.1":
+            _val_errors.append("cumulative_learning.json: schema_version != '1.1'")
+    except Exception as _ve:
+        _val_errors.append(f"Read error cumulative_learning.json: {_ve}")
+
+    if _val_errors:
+        print("\n[dry-run] VALIDATION FAILED:")
+        for _err in _val_errors:
+            print(f"  FAIL: {_err}")
+        raise SystemExit(1)
+
+    print("\n[dry-run] VALIDATION PASSED - schema v1.1 | snake_case keys | probability monotonicity OK")
+    _cleanup_paths = list(_DRY_RUN_CREATED) + [dep_path, CUM_DEP, out_path, CUM_OUT]
+    for _cp in _cleanup_paths:
+        try:
+            Path(_cp).unlink(missing_ok=True)
+        except Exception:
+            pass
+    print(f"[dry-run] Cleaned {len(_cleanup_paths)} test artifacts. Engine validated for R1 live ingestion.")
+    raise SystemExit(0)
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 print()

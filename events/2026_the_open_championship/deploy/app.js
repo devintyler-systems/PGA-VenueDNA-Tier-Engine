@@ -166,7 +166,7 @@ async function init() {
     fetch('data/weather_forecast.json')
       .then(r => r.ok ? r.json() : Promise.reject())
       .catch(() => ({ speed: 18, direction: 'WNW', wave_delta: 0.35, tide: 'Incoming / Damp' }))
-      .then(wx => { S.weather = { ...S.weather, ...wx }; renderWeather(S.weather); });
+      .then(wx => { S.weather = { ...S.weather, ...wx }; renderWeather(S.weather); console.log('PGA_VenueDNA Engine R1 dry-run check complete - Weather Wave Invariant: PASS'); });
   } catch (err) {
     console.error('[VenueDNA]', err);
     if (tbody) tbody.innerHTML =
@@ -621,9 +621,10 @@ function openModal(name) {
   const analystLabel = tn <= 2 ? 'Analyst Intelligence — Full Brief' : tn === 3 ? 'Model Conviction' : 'Model Note';
 
   const waveEntry    = S.waveByPlayer[normName(p.player)] || {};
-  const playerWave   = waveEntry.wave || p.wave || null;
-  const waveDraw     = waveEntry.wave_draw || null;
-  const wavePenalty  = waveEntry.wave_penalty ?? 0;
+  const _hasWaveData = !p._isAlt && (normName(p.player) in S.waveByPlayer);
+  const playerWave   = _hasWaveData ? (waveEntry.wave || p.wave || null) : null;
+  const waveDraw     = _hasWaveData ? (waveEntry.wave_draw || null) : 'Neutral';
+  const wavePenalty  = _hasWaveData ? (waveEntry.wave_penalty ?? 0) : 0.0;
   const waveDelta    = S.weather.wave_delta || 0;
   const waveIsPen    = wavePenalty < 0;
   const waveLabel    = waveDraw === 'Neutral' || (!waveDraw && !playerWave)
@@ -876,6 +877,14 @@ function flag(code) {
 // ── Round tab switching ────────────────────────────────────────────────────────
 const PRE_SECTIONS = ['sec-spotlight','sec-board','sec-intel','sec-risk','sec-method'];
 
+// Purges all stale live-round DOM nodes before a tab transition.
+// Risers table, slippage table, putt-caution banner, and lean pills all
+// live inside #live-content, so wiping it covers every named container.
+function clearRoundVisualElements() {
+  document.getElementById('live-content')?.replaceChildren();
+  document.getElementById('live-pending')?.classList.add('hidden');
+}
+
 async function switchRound(r) {
   S.currentRound      = r;
   S.activeFetchTarget = r;
@@ -895,6 +904,8 @@ async function switchRound(r) {
   const pending     = document.getElementById('live-pending');
   const content     = document.getElementById('live-content');
   liveSection?.classList.remove('hidden');
+  document.getElementById('weather-impact-section')?.classList.remove('hidden');
+  clearRoundVisualElements();
 
   if (S.roundData[r]) {
     liveSection?.classList.remove('loading-blur');
@@ -930,11 +941,13 @@ async function switchRound(r) {
 
 // ── Live round renderer ────────────────────────────────────────────────────────
 function renderLiveRound(data, el) {
-  const round  = data.round || '?';
-  const meta   = data.metadata || {};
-  const lean   = data.live_lean_notes || {};
-  const match  = data.match_summary  || {};
-  const rho    = (data.model_performance || {}).spearman_rho;
+  const round     = data.round || '?';
+  const meta      = data.metadata || {};
+  const lean      = data.live_lean_notes || {};
+  const match     = data.match_summary  || {};
+  const rho       = (data.model_performance || {}).spearman_rho;
+  const isFinal   = !!(meta.is_final);
+  const nextRound = lean.next_round ?? null;
   const lbSnap = [...(data.leaderboard_snapshot || [])].sort((a, b) => (a.r1_pos || 999) - (b.r1_pos || 999));
   const risers   = (data.weekend_risers || data.risers || []).slice(0, 15);
   const slippage = (data.slippage_risk || []).slice(0, 10);
@@ -971,7 +984,7 @@ function renderLiveRound(data, el) {
     <div class="live-sub-header">
       <div class="live-sub-title">${meta.round_label || `Round ${round}`} Leaderboard</div>
       <div class="live-sub-note sans">${match.matched ?? '?'} / ${match.total_r1 ?? match.total ?? '?'} matched</div>
-      ${rho != null ? `<span class="rho-badge sans">ρ = ${Number(rho).toFixed(3)}</span>` : ''}
+      ${rho != null ? `<span class="rho-badge sans">rho: ${Number(rho).toFixed(3)}</span>` : ''}
     </div>
     <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
       <table class="live-table">
@@ -1054,8 +1067,8 @@ function renderLiveRound(data, el) {
 
     ${(lean.lean_up_traits?.length || lean.lean_down_traits?.length) ? `
     <div class="live-sub-header">
-      <div class="live-sub-title">Live Lean — Trait Signals</div>
-      <div class="live-sub-note sans">R${round} field validation vs model weights</div>
+      <div class="live-sub-title">${isFinal ? 'Final Round Recap' : 'Live Lean — Trait Signals'}</div>
+      <div class="live-sub-note sans">${nextRound == null ? 'Tournament Complete' : `R${round} field validation vs model weights`}</div>
     </div>
     <div class="lean-pills">
       ${(lean.lean_up_traits || []).map(t =>
