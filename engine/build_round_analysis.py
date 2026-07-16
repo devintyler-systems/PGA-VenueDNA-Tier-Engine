@@ -797,6 +797,8 @@ pairs = [(r["pt_rank"], r["r1_pos"]) for r in matched if r.get("pt_rank")]
 n  = len(pairs)
 d2 = sum((a - b)**2 for a, b in pairs)
 spearman_rho = round(1 - 6 * d2 / (n * (n**2 - 1)), 3) if n >= 10 else 0.0
+if math.isnan(spearman_rho):
+    spearman_rho = 0.000
 
 # ── Trait audit ───────────────────────────────────────────────────────────────
 top10_group = [r for r in joined if r["r1_pos"] <= 10]
@@ -1307,6 +1309,7 @@ if WAVE_PENALTY > 0 and WX_DISADV_WAVE:
     for _i, _r in enumerate(joined):
         if _r.get("wave") == WX_DISADV_WAVE:
             _vpt[_i] -= WAVE_PENALTY
+            _vpt[_i] = max(0.1, _vpt[_i])
             _wave_penalty_amounts[_i] = -WAVE_PENALTY
             _penalized_n += 1
     print(f"Wave penalty applied: {_penalized_n} players in '{WX_DISADV_WAVE}' draw penalized -{WAVE_PENALTY} latent pts")

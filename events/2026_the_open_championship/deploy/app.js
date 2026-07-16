@@ -745,22 +745,37 @@ function openModal(name) {
       </div>` : ''}
 
       <!-- §5 — TRAIT PROFILE -->
-      ${traitScores.length ? `<div class="modal-sec">
-        <div class="modal-sec-title sans">Trait Profile — Venue Weight vs Player Score</div>
-        <div class="trait-rows">
-          ${traitScores.map(t => {
-            const sc = clamp(t.score, 0, 100);
-            const fc = traitFillCls(t.score);
-            const vc = traitScoreColor(t.score);
-            return `<div class="trait-row">
-              <div class="trait-lbl">${t.label}</div>
-              <div class="trait-wt">${Math.round((t.weight || 0) * 100)}%</div>
-              <div class="trait-track"><div class="${fc}" style="width:${sc}%"></div></div>
-              <div class="trait-score"${vc ? ` style="${vc}"` : ''}>${f1(t.score)}</div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>` : ''}
+      ${p._isAlt
+        ? `<div class="modal-sec">
+            <div class="modal-sec-title sans">Trait Profile — Venue Weight vs Player Score</div>
+            <div class="modal-note sans" style="color:#94a3b8;font-style:italic;margin-bottom:10px">Alternate Entry: Baseline Regressed to Field Mean</div>
+            <div class="trait-rows">
+              ${['App 150–200','OTT Accuracy','OTT Positional','App Overall','SG: Putting','SG: ARG'].map(lbl =>
+                '<div class="trait-row">' +
+                '<div class="trait-lbl" style="color:#64748b">' + lbl + '</div>' +
+                '<div class="trait-wt" style="color:#64748b">—</div>' +
+                '<div class="trait-track"><div class="trait-fill-lo" style="width:50%;background:#475569;opacity:0.5"></div></div>' +
+                '<div class="trait-score" style="color:#64748b">50.0</div>' +
+                '</div>'
+              ).join('')}
+            </div>
+          </div>`
+        : traitScores.length ? `<div class="modal-sec">
+          <div class="modal-sec-title sans">Trait Profile — Venue Weight vs Player Score</div>
+          <div class="trait-rows">
+            ${traitScores.map(t => {
+              const sc = clamp(isNaN(t.score) || t.score == null ? 50 : t.score, 0, 100);
+              const fc = traitFillCls(t.score);
+              const vc = traitScoreColor(t.score);
+              return `<div class="trait-row">
+                <div class="trait-lbl">${t.label}</div>
+                <div class="trait-wt">${Math.round((t.weight || 0) * 100)}%</div>
+                <div class="trait-track"><div class="${fc}" style="width:${sc}%"></div></div>
+                <div class="trait-score"${vc ? ` style="${vc}"` : ''}>${f1(t.score)}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
 
       <!-- §6 — TRAIT DRIVERS -->
       ${topTraits.length ? `<div class="modal-sec">
