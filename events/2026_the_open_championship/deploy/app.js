@@ -620,13 +620,23 @@ function openModal(name) {
 
   const analystLabel = tn <= 2 ? 'Analyst Intelligence — Full Brief' : tn === 3 ? 'Model Conviction' : 'Model Note';
 
-  const playerWave  = S.waveByPlayer[normName(p.player)] || p.wave || null;
-  const waveDelta   = S.weather.wave_delta || 0;
-  const waveIsFav   = playerWave === 'favorable';
-  const waveIsDisadv = playerWave === 'unfavorable';
-  const waveAdj     = waveIsFav ? -waveDelta : waveIsDisadv ? +waveDelta : 0;
-  const waveLabel   = waveIsFav ? 'Favorable' : waveIsDisadv ? 'Unfavorable' : 'Neutral';
-  const adjFloor    = fs != null ? +(fs + waveAdj).toFixed(1) : null;
+  const waveEntry    = S.waveByPlayer[normName(p.player)] || {};
+  const playerWave   = waveEntry.wave || p.wave || null;
+  const waveDraw     = waveEntry.wave_draw || null;
+  const wavePenalty  = waveEntry.wave_penalty ?? 0;
+  const waveDelta    = S.weather.wave_delta || 0;
+  const waveIsPen    = wavePenalty < 0;
+  const waveLabel    = waveDraw === 'Neutral' || (!waveDraw && !playerWave)
+    ? 'Neutral Draw — No Wind Penalty'
+    : waveDraw
+      ? (waveIsPen ? `${waveDraw} Draw — High Wind Exposure` : `${waveDraw} Draw — Favorable Window`)
+      : (playerWave === 'early_late' ? 'AM Draw' : playerWave === 'late_early' ? 'PM Draw' : 'Neutral Draw — No Wind Penalty');
+  const adjFloor     = fs != null && waveIsPen ? +(fs + wavePenalty).toFixed(1) : null;
+  const windMitTrait = (br.trait_scores || []).find(t => /accuracy|ott/i.test(t.label || ''));
+  const windMitScore = windMitTrait ? windMitTrait.score : (p.venueFitScore ?? 50);
+  const windMitPct   = clamp(windMitScore, 0, 100);
+  const windMitFill  = windMitScore >= 85 ? 'trait-fill-hi' : windMitScore >= 70 ? 'trait-fill-mid' : windMitScore >= 50 ? 'trait-fill-lo' : 'trait-fill-weak';
+  const windMitColor = traitScoreColor(windMitScore) || 'color:#94a3b8';
 
   S.activePlayer = name;
 
@@ -676,25 +686,33 @@ function openModal(name) {
 
         ${S.weather.speed > 0 ? `<div style="margin-top:14px;padding:10px 14px;background:#0f172a;border:1px solid #1e293b;border-radius:8px">
           <div class="sans" style="font-size:10px;letter-spacing:.08em;color:#f59e0b;margin-bottom:8px">WEATHER &amp; WAVE PROFILE</div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
             <div>
               <span class="sans" style="font-size:11px;color:#94a3b8">Wind: </span>
-              <span class="sans" style="font-size:12px;color:#e2e8f0;font-weight:600">${S.weather.speed} mph ${S.weather.direction}</span>
+              <span class="sans" style="font-size:12px;color:#e2e8f0;font-weight:600">${S.weather.speed} kts ${S.weather.direction}</span>
             </div>
             <div>
               <span class="sans" style="font-size:11px;color:#94a3b8">Tide: </span>
               <span class="sans" style="font-size:12px;color:#e2e8f0">${S.weather.tide}</span>
             </div>
-            <div>
-              <span class="sans" style="font-size:11px;color:#94a3b8">Wave: </span>
-              <span class="sans" style="font-size:12px;font-weight:700;color:${waveIsFav ? '#3b82f6' : waveIsDisadv ? '#f59e0b' : '#94a3b8'}">${waveLabel}</span>
-              ${waveDelta > 0 && playerWave ? `<span class="sans" style="font-size:11px;color:${waveIsFav ? '#3b82f6' : '#f59e0b'};margin-left:4px">(${waveIsFav ? '-' : '+'}${waveDelta.toFixed(2)} strokes)</span>` : ''}
-            </div>
-            ${adjFloor != null && waveAdj !== 0 ? `<div>
-              <span class="sans" style="font-size:11px;color:#94a3b8">Adj. Floor: </span>
-              <span class="sans" style="font-size:12px;font-weight:600;color:${waveIsFav ? '#3b82f6' : '#f59e0b'}">${adjFloor > 0 ? '+' : ''}${adjFloor}</span>
+            ${waveDraw ? `<div>
+              <span class="sans" style="font-size:11px;color:#94a3b8">Draw: </span>
+              <span class="sans" style="font-size:12px;font-weight:700;color:${waveIsPen ? '#f59e0b' : '#3b82f6'}">${waveLabel}</span>
             </div>` : ''}
           </div>
+          <div style="margin-bottom:8px">
+            <div class="sans" style="font-size:10px;color:#64748b;letter-spacing:.06em;margin-bottom:4px">WIND IMPACT MITIGATION</div>
+            <div class="trait-track"><div class="${windMitFill}" style="width:${windMitPct}%"></div></div>
+            <div class="sans" style="font-size:11px;margin-top:3px;${windMitColor}">${f1(windMitScore)}</div>
+          </div>
+          ${waveIsPen ? `<div style="margin-top:8px;padding:8px 12px;background:#1c1400;border:1px solid #f59e0b;border-radius:6px;display:flex;align-items:center;gap:10px">
+            <span class="sans" style="font-size:13px;font-weight:700;color:#f59e0b">${wavePenalty.toFixed(2)} Strokes</span>
+            <span class="sans" style="font-size:11px;color:#94a3b8">Latent score adjusted for wind wave exposure</span>
+          </div>` : ''}
+          ${adjFloor != null ? `<div style="margin-top:6px">
+            <span class="sans" style="font-size:11px;color:#94a3b8">Adj. Floor: </span>
+            <span class="sans" style="font-size:12px;font-weight:600;color:#f59e0b">${adjFloor > 0 ? '+' : ''}${adjFloor}</span>
+          </div>` : ''}
         </div>` : ''}
       </div>
 
@@ -923,7 +941,13 @@ function renderLiveRound(data, el) {
 
   S.waveByPlayer = {};
   for (const r of lbSnap) {
-    if (r.r1_name && r.wave) S.waveByPlayer[normName(r.r1_name)] = r.wave;
+    if (r.r1_name) {
+      S.waveByPlayer[normName(r.r1_name)] = {
+        wave:         r.wave        || null,
+        wave_draw:    r.wave_draw   || null,
+        wave_penalty: r.wave_penalty ?? 0,
+      };
+    }
   }
 
   const sgFmt = v => v != null ? (v > 0 ? '+' : '') + Number(v).toFixed(2) : '—';

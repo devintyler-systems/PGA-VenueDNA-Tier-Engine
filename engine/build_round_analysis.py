@@ -425,6 +425,29 @@ ci_rows = load_csv(CI_PATH) if ci_loaded else []
 with open(PAY_PATH, encoding="utf-8") as f:
     payload = json.load(f)
 
+# ── Weather forecast — wind/wave latent penalty matrix ────────────────────────
+_WEATHER_PATH = DEP / "weather_forecast.json"
+_WX = {"speed": 0.0, "direction": "N/A", "wave_delta": 0.0, "tide": "N/A", "disadvantaged_wave": None}
+if _WEATHER_PATH.exists():
+    try:
+        with open(_WEATHER_PATH, encoding="utf-8") as _wf:
+            _wx_raw = json.load(_wf)
+        _WX["speed"]              = float(_wx_raw.get("speed") or 0)
+        _WX["direction"]          = str(_wx_raw.get("direction") or "N/A")
+        _WX["wave_delta"]         = float(_wx_raw.get("wave_delta") or 0.0)
+        _WX["tide"]               = str(_wx_raw.get("tide") or "N/A")
+        _WX["disadvantaged_wave"] = _wx_raw.get("disadvantaged_wave") or None
+    except Exception as _wxe:
+        print(f"[warn] weather_forecast.json error: {_wxe} — safe defaults applied")
+
+WX_SPEED       = _WX["speed"]
+WX_DELTA       = _WX["wave_delta"]
+_opp_wave      = "early_late" if FAVORED_WAVE == "late_early" else "late_early"
+WX_DISADV_WAVE = _WX["disadvantaged_wave"] or (_opp_wave if WX_SPEED > 15 else None)
+WIND_SEVERITY  = min(1.0, WX_SPEED / 20.0) if WX_SPEED > 15 else 0.0
+WAVE_PENALTY   = round(WX_DELTA * WIND_SEVERITY, 4)
+print(f"Weather: {WX_SPEED:.1f} kts | wave_delta={WX_DELTA} | disadv_wave={WX_DISADV_WAVE or 'none'} | latent_penalty={WAVE_PENALTY}")
+
 print(f"Loaded: {len(lb)} leaderboard / {len(sg)} SG / {len(tfm)} trait rows")
 
 # Normalise SG columns
@@ -1154,6 +1177,19 @@ _vpt = [
     for r in joined
 ]
 
+# ── Wind/wave latent penalty: depress V_p(t) for disadvantaged draw ───────────
+# Latent_adj = Latent_raw − (wave_delta × WindSeverityFactor)
+# WindSeverityFactor = min(1.0, speed_kts / 20.0)  — only active when speed > 15 kts
+_wave_penalty_amounts: list[float] = [0.0] * len(joined)
+if WAVE_PENALTY > 0 and WX_DISADV_WAVE:
+    _penalized_n = 0
+    for _i, _r in enumerate(joined):
+        if _r.get("wave") == WX_DISADV_WAVE:
+            _vpt[_i] -= WAVE_PENALTY
+            _wave_penalty_amounts[_i] = -WAVE_PENALTY
+            _penalized_n += 1
+    print(f"Wave penalty applied: {_penalized_n} players in '{WX_DISADV_WAVE}' draw penalized −{WAVE_PENALTY} latent pts")
+
 _mu    = sum(_vpt) / len(_vpt) if _vpt else 0.0
 _sigma = max((sum((v - _mu) ** 2 for v in _vpt) / len(_vpt)) ** 0.5 if _vpt else 1.0, 1e-9)
 _zs    = [(v - _mu) / _sigma for v in _vpt]
@@ -1201,6 +1237,9 @@ for _i, rec in enumerate(lb_snapshot):
     rec["live_top20_pct"]    = _lp.get("top20_pct")
     rec["v_p_t"]             = _lp.get("v_p_t")
     rec["cumulative_sg_tot"] = _lp.get("cumulative_sg_tot")
+    _pw = joined[_i].get("wave", "unknown")
+    rec["wave_draw"]    = "AM" if _pw == "early_late" else "PM" if _pw == "late_early" else "Neutral"
+    rec["wave_penalty"] = round(_wave_penalty_amounts[_i], 4) if _i < len(_wave_penalty_amounts) else 0.0
 
 holes_data: list[dict] = []
 if cs_loaded:
@@ -1302,6 +1341,14 @@ output = {
         "population_anchor_size": len(pop_registry),
         "active_field_size":      len(cumulative_sg_by_norm),
         "eliminated_frozen_count": len(pop_registry) - len(cumulative_sg_by_norm),
+        "wave_penalty_params": {
+            "wx_speed_kts":       WX_SPEED,
+            "wx_delta_strokes":   WX_DELTA,
+            "disadvantaged_wave": WX_DISADV_WAVE,
+            "wind_severity":      WIND_SEVERITY,
+            "latent_penalty":     WAVE_PENALTY,
+            "players_penalized":  sum(1 for v in _wave_penalty_amounts if v < 0),
+        },
     },
     "course_stats":         holes_data,
     "easiest_holes":        easiest,
