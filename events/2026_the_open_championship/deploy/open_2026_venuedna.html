@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2026 The Open Championship — PGA VenueDNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <style>
 :root {
   --bg: #f4f0ea;
@@ -361,25 +363,123 @@ body{font-family:'Georgia','Times New Roman',serif;background:var(--bg);color:va
 /* FOOTER */
 footer{background:var(--surface);border-top:1px solid var(--border);padding:18px 0;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3);text-align:center}
 
+/* CUMULATIVE LEARNING GRID */
+.cum-grid-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)}
+.cum-grid-header{display:grid;grid-template-columns:160px 140px 110px 160px 1fr;background:#070c16;border-bottom:2px solid var(--border);padding:7px 14px}
+.cum-col-hdr{font-family:-apple-system,sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569}
+.cum-grid-row{display:grid;grid-template-columns:160px 140px 110px 160px 1fr;padding:8px 14px;border-bottom:1px solid var(--border);align-items:center;transition:background .1s}
+.cum-grid-row:last-child{border-bottom:none}
+.cum-grid-row:hover{background:var(--surface-2)}
+.cum-cell-key{font-family:-apple-system,sans-serif;font-size:12px;font-weight:600;color:var(--text);text-transform:capitalize}
+.cum-pill{display:inline-flex;align-items:center;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;border:1px solid;letter-spacing:.03em}
+.cum-pill-validated{background:rgba(56,189,248,.12);border-color:#38bdf8;color:#38bdf8}
+.cum-pill-mixed{background:rgba(251,191,36,.12);border-color:#fbbf24;color:#fbbf24}
+.cum-pill-weak{background:rgba(248,113,113,.12);border-color:#f87171;color:#f87171}
+.cum-pill-not_testable{background:rgba(100,116,139,.12);border-color:#64748b;color:#64748b}
+.cum-pill-neutral{background:rgba(148,163,184,.1);border-color:#94a3b8;color:#94a3b8}
+.cum-mag-val{font-family:-apple-system,sans-serif;font-size:12px;font-weight:700;color:var(--text)}
+.cum-conf-tag{display:inline-flex;align-items:center;font-family:-apple-system,sans-serif;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.03em}
+.cum-conf-confirmed{background:rgba(52,211,153,.12);border:1px solid #34d399;color:#34d399}
+.cum-conf-weak{background:rgba(251,191,36,.1);border:1px solid #fbbf24;color:#fbbf24}
+.cum-conf-default{background:rgba(100,116,139,.1);border:1px solid #475569;color:#94a3b8}
+.cum-traj{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.cum-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.cum-connector{width:10px;height:1px;background:#334155;display:inline-block;flex-shrink:0;margin:0 1px}
+
+/* RULE FILTER BUILDER */
+.rfb-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.rfb-title{font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.rfb-zone{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;min-height:16px}
+.rfb-empty{font-family:-apple-system,sans-serif;font-size:12px;color:var(--text-3);font-style:italic;padding:2px 0}
+.rfb-rule{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rfb-select{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:-apple-system,sans-serif;font-size:12px;padding:5px 7px;outline:none;cursor:pointer}
+.rfb-select:focus{border-color:var(--accent)}
+.rfb-op{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:-apple-system,sans-serif;font-size:13px;font-weight:700;padding:5px 8px;outline:none;cursor:pointer;width:54px;text-align:center}
+.rfb-op:focus{border-color:var(--accent)}
+.rfb-input{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:-apple-system,sans-serif;font-size:12px;padding:5px 7px;outline:none;width:76px}
+.rfb-input:focus{border-color:var(--accent)}
+.rfb-remove{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-3);cursor:pointer;font-family:-apple-system,sans-serif;font-size:11px;padding:5px 8px;transition:all .1s}
+.rfb-remove:hover{border-color:var(--accent);color:var(--accent)}
+.rfb-quick-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)}
+.rfb-quick-lbl{font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);white-space:nowrap}
+
+/* GLOSSARY MODAL */
+.glossary-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9500;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s;backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px}
+.glossary-overlay.open{opacity:1;visibility:visible}
+.glossary-modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);max-width:960px;width:100%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.glossary-header{padding:15px 22px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:#070c16}
+.glossary-title{font-family:-apple-system,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
+.glossary-subtitle{font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3)}
+.glossary-close{margin-left:auto;width:26px;height:26px;border:1px solid var(--border);border-radius:50%;background:var(--surface-2);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:-apple-system,sans-serif;transition:all .1s}
+.glossary-close:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.glossary-body{overflow-y:auto;padding:20px 22px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.glossary-col-title{font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.glossary-entry{margin-bottom:11px}
+.glossary-entry-key{font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+.glossary-entry-val{font-size:12px;color:var(--text-2);line-height:1.5}
+@media(max-width:768px){.glossary-body{grid-template-columns:1fr}}
+
 /* SCROLL TOP */
 .scroll-top{position:fixed;bottom:20px;right:20px;width:36px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:15px;box-shadow:var(--shadow-md);z-index:500;transition:all .15s;font-family:-apple-system,sans-serif}
 .scroll-top.visible{display:flex}
 .scroll-top:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 
+/* FORECAST DECK — 4 condition boxes */
+.forecast-deck-inner{background:#070c16;border:1px solid #1a2640;border-radius:var(--radius-lg);padding:18px 22px;margin:24px 0 0}
+.forecast-deck-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #1a2640}
+.fd-title{font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b}
+.forecast-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.forecast-box{background:#0c1525;border:1px solid #1a2640;border-radius:8px;padding:14px 16px;text-align:center}
+.fb-label{font-family:-apple-system,sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#475569;margin-bottom:8px}
+.fb-rating{font-family:-apple-system,sans-serif;font-size:15px;font-weight:800;line-height:1.2;margin-bottom:5px;color:#94a3b8}
+.fb-detail{font-family:-apple-system,sans-serif;font-size:11px;color:#475569}
+.fb-exceptional{color:#34d399!important}
+.fb-very-benign{color:#4ade80!important}
+.fb-benign{color:#a3e635!important}
+.fb-challenging{color:#f59e0b!important}
+.fb-severe{color:#f87171!important}
+.forecast-wave-note{margin-top:12px;padding:8px 12px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-radius:6px;font-family:-apple-system,sans-serif;font-size:12px;color:#93c5fd;display:none}
+
+/* INFO GRID — 3 summary cards */
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 0}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
+.info-card-title{font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.info-kv{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);font-family:-apple-system,sans-serif;font-size:12px;gap:8px}
+.info-kv:last-child{border-bottom:none}
+.info-k{color:var(--text-3);white-space:nowrap}
+.info-v{color:var(--text);font-weight:600;text-align:right}
+.info-v.gold{color:var(--gold)}
+.info-v.accent{color:var(--accent)}
+
+/* SPOTLIGHT CAROUSEL — horizontal scroll */
+.spotlight-grid{display:flex!important;gap:15px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.spotlight-grid::-webkit-scrollbar{height:4px}
+.spotlight-grid::-webkit-scrollbar-track{background:var(--surface-2);border-radius:2px}
+.spotlight-grid::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
+.spotlight-card{min-width:285px!important;max-width:310px!important;flex-shrink:0;scroll-snap-align:start}
+
+/* SPOTLIGHT ANALYST BRIEF */
+.sc-analyst{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
+.sc-analyst-row{background:var(--surface-2);border-radius:4px;padding:6px 9px}
+.sc-analyst-lbl{font-family:-apple-system,sans-serif;font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:3px}
+.sc-analyst-txt{font-size:11.5px;color:var(--text-2);line-height:1.45}
+
 /* RESPONSIVE */
 @media(max-width:1000px){.tier-intel-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){
   .hero-divider{display:none}
-  .spotlight-grid{grid-template-columns:1fr}
   .board-table th:nth-child(n+8),.board-table td:nth-child(n+8){display:none}
   .tier-intel-grid{grid-template-columns:1fr 1fr}
   .modal{max-height:90vh}
+  .forecast-boxes{grid-template-columns:repeat(2,1fr)}
+  .info-grid{grid-template-columns:1fr}
 }
 @media(max-width:520px){
   .hero-inner{padding:24px 14px 20px}
   .container{padding:0 13px}
   .board-table th:nth-child(n+6),.board-table td:nth-child(n+6){display:none}
   .tier-intel-grid{grid-template-columns:1fr 1fr}
+  .forecast-boxes{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -465,30 +565,66 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
 
 <div class="container">
 
-  <div id="weather-impact-section" class="hidden" style="margin-bottom:16px">
-    <div class="wx-header">
-      <div class="wx-title sans">Weather &amp; Wind</div>
-      <span class="wx-badge sans" id="wx-badge">Loading…</span>
+  <div id="forecast-deck" style="margin-bottom:16px">
+    <div class="forecast-deck-inner">
+      <div class="forecast-deck-header">
+        <div class="fd-title sans">Conditions Forecast — Royal Birkdale</div>
+        <span class="wx-badge sans" id="wx-badge">Loading…</span>
+      </div>
+      <div class="forecast-boxes">
+        <div class="forecast-box" id="fb-wind">
+          <div class="fb-label sans">Wind Impact</div>
+          <div class="fb-rating sans" id="fb-wind-rating">—</div>
+          <div class="fb-detail sans" id="fb-wind-detail">— mph</div>
+        </div>
+        <div class="forecast-box" id="fb-tide">
+          <div class="fb-label sans">Tide / Surface</div>
+          <div class="fb-rating sans" id="fb-tide-rating">—</div>
+          <div class="fb-detail sans" id="fb-tide-detail">—</div>
+        </div>
+        <div class="forecast-box" id="fb-wave">
+          <div class="fb-label sans">Wave Score Δ</div>
+          <div class="fb-rating sans" id="fb-wave-rating">—</div>
+          <div class="fb-detail sans" id="fb-wave-detail">—</div>
+        </div>
+        <div class="forecast-box" id="fb-overall">
+          <div class="fb-label sans">Overall Conditions</div>
+          <div class="fb-rating sans" id="fb-overall-rating">—</div>
+          <div class="fb-detail sans" id="fb-overall-detail">—</div>
+        </div>
+      </div>
+      <div class="forecast-wave-note sans" id="wx-wave-note"></div>
     </div>
-    <div class="wx-stats" id="wx-stats">
-      <div class="wx-stat">
-        <div class="wx-stat-val sans" id="wx-wind-speed">—</div>
-        <div class="wx-stat-lbl sans">Wind mph</div>
-      </div>
-      <div class="wx-stat">
-        <div class="wx-stat-val sans" id="wx-wind-dir">—</div>
-        <div class="wx-stat-lbl sans">Direction</div>
-      </div>
-      <div class="wx-stat">
-        <div class="wx-stat-val sans" id="wx-tide">—</div>
-        <div class="wx-stat-lbl sans">Tide / Surface</div>
-      </div>
-      <div class="wx-stat">
-        <div class="wx-stat-val sans" id="wx-wave-delta">—</div>
-        <div class="wx-stat-lbl sans">Wave Δ</div>
-      </div>
+  </div>
+
+  <div class="info-grid" id="info-grid">
+    <div class="info-card">
+      <div class="info-card-title sans">Venue</div>
+      <div class="info-kv"><span class="info-k sans">Course</span><span class="info-v sans">Royal Birkdale</span></div>
+      <div class="info-kv"><span class="info-k sans">Location</span><span class="info-v sans">Southport, England</span></div>
+      <div class="info-kv"><span class="info-k sans">Par</span><span class="info-v gold sans">70</span></div>
+      <div class="info-kv"><span class="info-k sans">Yardage</span><span class="info-v sans">~7,156 yds</span></div>
+      <div class="info-kv"><span class="info-k sans">Type</span><span class="info-v sans">Links — Coastal</span></div>
+      <div class="info-kv"><span class="info-k sans">Field</span><span class="info-v sans">156 players</span></div>
     </div>
-    <div class="wx-wave sans" id="wx-wave-note"></div>
+    <div class="info-card">
+      <div class="info-card-title sans">Birkdale Trait Weights</div>
+      <div class="info-kv"><span class="info-k sans">OTT Accuracy</span><span class="info-v gold sans">16%</span></div>
+      <div class="info-kv"><span class="info-k sans">OTT Positional</span><span class="info-v gold sans">18%</span></div>
+      <div class="info-kv"><span class="info-k sans">App Overall</span><span class="info-v sans">13%</span></div>
+      <div class="info-kv"><span class="info-k sans">GSO Form Multiplier</span><span class="info-v accent sans">1.25×</span></div>
+      <div class="info-kv"><span class="info-k sans">T1 Threshold</span><span class="info-v sans">≥78.0 VTS</span></div>
+      <div class="info-kv"><span class="info-k sans">Active Audit Rules</span><span class="info-v sans">9</span></div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title sans">Winner Profile</div>
+      <div class="info-kv"><span class="info-k sans">Ball-Striking</span><span class="info-v gold sans">Elite (NSI ≥75)</span></div>
+      <div class="info-kv"><span class="info-k sans">Tee-Ball Style</span><span class="info-v sans">Accuracy + Positional</span></div>
+      <div class="info-kv"><span class="info-k sans">Iron Game</span><span class="info-v sans">Dominant T2G</span></div>
+      <div class="info-kv"><span class="info-k sans">Links Form</span><span class="info-v sans">Confirmed GSO</span></div>
+      <div class="info-kv"><span class="info-k sans">Risk Flags</span><span class="info-v accent sans">No R3 / No R6</span></div>
+      <div class="info-kv"><span class="info-k sans">Putting Reliance</span><span class="info-v sans">Low</span></div>
+    </div>
   </div>
 
   <section class="section hidden" id="sec-live">
@@ -503,10 +639,10 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
     <div class="section-header">
       <h2 class="section-title">Tier 1 &amp; 2 Spotlight</h2>
       <span class="section-sub sans">6 Course Architects · 22 Contention Windows</span>
-      <button id="spotlight-toggle" class="chip sans" style="margin-left:auto">Show Spotlight</button>
+      <button id="spotlight-toggle" class="chip sans active" style="margin-left:auto">Hide Spotlight</button>
       <span class="section-anchor sans" onclick="document.getElementById('sec-board').scrollIntoView({behavior:'smooth'})">↓ Full Board</span>
     </div>
-    <div id="spotlight-container" class="hidden">
+    <div id="spotlight-container">
       <div class="spotlight-grid" id="spotlight-grid"></div>
     </div>
   </section>
@@ -532,43 +668,23 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
           <div class="chip sans" data-f="zerolinks" onclick="setChip('zerolinks')">Zero Links</div>
           <button class="chip sans" id="adv-toggle">▼ Filter</button>
           <button class="chip sans" id="clear-filters-btn">Clear ×</button>
+          <button class="chip sans" id="glossary-btn" onclick="openGlossary()">? Glossary</button>
         </div>
       </div>
-      <div id="adv-filter-panel" class="hidden" style="margin-top:10px;padding:13px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end">
-        <div>
-          <div class="sans" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px">VTS</div>
-          <div style="display:flex;gap:5px;align-items:center">
-            <input type="number" id="af-vts-min" placeholder="Min" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-            <span class="sans" style="color:var(--text-3);font-size:11px">–</span>
-            <input type="number" id="af-vts-max" placeholder="Max" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-          </div>
+      <div id="adv-filter-panel" class="hidden" style="margin-top:10px;padding:13px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius)">
+        <div class="rfb-header">
+          <span class="rfb-title">Advanced Filters</span>
+          <button class="chip sans" id="rfb-add-rule">+ Add Rule</button>
+          <button class="chip sans" onclick="clearFilters()" style="margin-left:auto">Clear All ×</button>
         </div>
-        <div>
-          <div class="sans" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px">NSI</div>
-          <div style="display:flex;gap:5px;align-items:center">
-            <input type="number" id="af-nsi-min" placeholder="Min" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-            <span class="sans" style="color:var(--text-3);font-size:11px">–</span>
-            <input type="number" id="af-nsi-max" placeholder="Max" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-          </div>
-        </div>
-        <div>
-          <div class="sans" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px">VFS</div>
-          <div style="display:flex;gap:5px;align-items:center">
-            <input type="number" id="af-vfs-min" placeholder="Min" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-            <span class="sans" style="color:var(--text-3);font-size:11px">–</span>
-            <input type="number" id="af-vfs-max" placeholder="Max" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-          </div>
-        </div>
-        <div>
-          <div class="sans" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px">WIN%</div>
-          <div style="display:flex;gap:5px;align-items:center">
-            <input type="number" id="af-win-min" placeholder="Min" step="0.1" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-            <span class="sans" style="color:var(--text-3);font-size:11px">–</span>
-            <input type="number" id="af-win-max" placeholder="Max" step="0.1" class="sans" style="width:70px;padding:5px 7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:12px;outline:none">
-          </div>
-        </div>
-        <div style="margin-left:auto">
-          <button class="chip sans" onclick="clearFilters()">Clear Filters &amp; Sort</button>
+        <div id="active-filters-zone" class="rfb-zone"></div>
+        <div class="rfb-quick-row">
+          <span class="rfb-quick-lbl">Quick:</span>
+          <button class="chip sans" onclick="applyPreset('iron-elites')">Iron Elites</button>
+          <button class="chip sans" onclick="applyPreset('long-iron-fits')">Long-Iron Fits</button>
+          <button class="chip sans" onclick="applyPreset('positional-drivers')">Positional Drivers</button>
+          <button class="chip sans" onclick="applyPreset('safe-cut-makers')">Safe Cut Makers</button>
+          <button class="chip sans" onclick="applyPreset('ceiling-plays')">Ceiling Plays</button>
         </div>
       </div>
       <div class="result-count sans" id="result-ct">Showing 156 of 156 players</div>
@@ -611,25 +727,6 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
     <div class="risk-rules" id="risk-rules"></div>
   </section>
 
-  <section class="section" id="sec-method">
-    <div class="section-header">
-      <h2 class="section-title">Engine &amp; Methodology</h2>
-      <span class="section-sub sans">VenueDNA Tier Engine v3 + Audit Corrections · 9 rules</span>
-    </div>
-    <div class="method-grid">
-      <div class="method-card"><div class="method-card-title">NSI — Neutral Skill Index</div><p>Baseline skill score from strokes-gained and shot-quality metrics, normalised across the field. Reflects ball-striking, approach, and putting competency independent of venue. Scale 0–100.</p></div>
-      <div class="method-card"><div class="method-card-title">VFS — Venue Fit Score</div><p>Alignment between a player's skill shape and Birkdale's structural demands. Rewards iron-dominant profiles, OTT accuracy, approach precision. Boosted by confirmed GSO links form (1.25× multiplier). Scale 0–100.</p></div>
-      <div class="method-card"><div class="method-card-title">VHD — Venue History Delta</div><p>Adjustment from actual Royal Birkdale SG history (all-time rounds). Positive = historically outperforms model. Depth-gated: fewer than 6 Birkdale rounds triggers R4 penalty on excess VHN above 50.</p></div>
-      <div class="method-card"><div class="method-card-title">Audit Penalties (R1–R9)</div><p>Nine structural risk rules subtracting VTS when a player's profile is exposed at links. Penalties range from −0.15×excess (R4 depth gate) to −5.0 (R3 OTT-only, R6 putt-led) to −9.1 (compound R3+R7).</p></div>
-      <div class="method-card"><div class="method-card-title">Tier Assignment</div><p>VTS thresholds: T1 ≥78.0, T2 ≥63.5, T3 ≥48.0, T4 ≥33.0, T5 &lt;33.0. Engine thresholds are 2 pts below spec §9 defaults. Scheffler (78.26) and Hovland (78.09) are T1 by engine, T2 by spec default.</p></div>
-      <div class="method-card"><div class="method-card-title">Links Weights (Birkdale)</div><p>OTT accuracy 16% (+4% vs spec default), OTT positional 18% (−2%), approach overall 13% (−2%). Birkdale's precision layout and par 70 penalise length-without-accuracy profiles strongly.</p></div>
-    </div>
-    <div class="engine-note">
-      <strong>Engine invariant check: PASS</strong> — 0 violations. Spec deltas: 2 players in 78–80 range are T1 by engine but T2 by spec §9 defaults.
-      Fixed 40/30/15/15 weights diverge from spec §6.1 blend classes for players with 5+ Birkdale starts (should be VHD=30%).
-      Generated: 2026-07-15 · Schema 3.1-export / 3.2-pretournament · Read-only display — engine locked.
-    </div>
-  </section>
 
 </div>
 
@@ -646,6 +743,48 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
 <footer class="sans">
   PGA VenueDNA · 2026 The Open Championship · Royal Birkdale · Engine v3 + Audit · 2026-07-15 · Read-only
 </footer>
+
+<div class="glossary-overlay" id="glossary-modal-overlay" onclick="onGlossaryOverlayClick(event)">
+  <div class="glossary-modal">
+    <div class="glossary-header">
+      <span class="glossary-title sans">VenueDNA Glossary</span>
+      <span class="glossary-subtitle sans">Royal Birkdale · Engine v3 + Audit · 9 rules</span>
+      <button class="glossary-close sans" onclick="closeGlossary()">✕</button>
+    </div>
+    <div class="glossary-body">
+      <div>
+        <div class="glossary-col-title sans">Scores &amp; Metrics</div>
+        <div class="glossary-entry"><div class="glossary-entry-key">VTS — Venue Tier Score</div><div class="glossary-entry-val">Composite ranking metric: NSI 40% + VFS 30% + VHN 15% + Form 15%. Scale 0–100. Primary sort key.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">NSI — Neutral Skill Index</div><div class="glossary-entry-val">Baseline skill from strokes-gained and shot-quality metrics, normalised across the field. Venue-agnostic. Scale 0–100.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">VFS — Venue Fit Score</div><div class="glossary-entry-val">Alignment between player skill shape and Birkdale's structural demands. Rewards iron-dominant, OTT-accurate profiles. GSO form 1.25× multiplier applied. Scale 0–100.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">VHD — Venue History Delta</div><div class="glossary-entry-val">Adjustment from actual Royal Birkdale SG history. Positive = historically outperforms model. Depth-gated: &lt;6 Birkdale rounds triggers R4 penalty on excess VHN above 50.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">Tier Thresholds</div><div class="glossary-entry-val">T1 ≥78.0 · T2 ≥63.5 · T3 ≥48.0 · T4 ≥33.0 · T5 &lt;33.0. Engine thresholds 2 pts below spec §9 defaults.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">Links Weights (Birkdale)</div><div class="glossary-entry-val">OTT Accuracy 16% (+4% vs default), OTT Positional 18% (−2%), App Overall 13% (−2%). Precision par 70 layout penalises length-without-accuracy profiles.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">Engine Status</div><div class="glossary-entry-val">Invariant check: PASS · 0 violations · Generated 2026-07-15 · Schema 3.1-export / 3.2-pretournament · Read-only locked.</div></div>
+      </div>
+      <div>
+        <div class="glossary-col-title sans">Projected Scoring (Modal)</div>
+        <div class="glossary-entry"><div class="glossary-entry-key">Win% / Top 5–20% / Cut%</div><div class="glossary-entry-val">Model-estimated finish probabilities from VTS via field-calibrated logistic curves. Updated live with SG data during rounds.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">WCS — Win Ceiling Score</div><div class="glossary-entry-val">Maximum potential output given optimal conditions. High WCS + high NSI = ceiling play candidate.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">CS — Contention Score</div><div class="glossary-entry-val">Expected contention band — where the model projects the player finishes on average across field simulations.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">FS — Floor Score</div><div class="glossary-entry-val">Downside output protection. Low FS = high variance / cut-risk player. Adjusted by wave penalty during live rounds.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">CSS — Cut Survival Score</div><div class="glossary-entry-val">Composite cut likelihood combining FS, NSI, and historical cut rate at links venues. Above 60 = reliable cut maker.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">Scoring Band</div><div class="glossary-entry-val">Expected range label for the player's projected output (e.g., "Contender Band", "Dark Horse Window"). Derived from tier + penalty profile.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">rho — Spearman Correlation</div><div class="glossary-entry-val">Live model-to-field rank correlation. Values &gt;0.35 = strong predictiveness. Displayed on live round leaderboard header.</div></div>
+      </div>
+      <div>
+        <div class="glossary-col-title sans">Best Betting Lane</div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R1 — PUTT Regression</div><div class="glossary-entry-val">High-NSI players propped by non-transferable putting. Without links T2G confirmation: −4.0 VTS (no links) / −2.0 (borderline).</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R2 — Zero Links</div><div class="glossary-entry-val">No links/Birkdale rounds — modelled delta unconstrained. Cap: ±1.5, excess removed from VTS.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R3 — OTT-Only Links</div><div class="glossary-entry-val">Positive GSO OTT but collapsed APP. Birkdale precision layout punishes length-without-accuracy: −5.0 VTS.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R4 — Depth Gate</div><div class="glossary-entry-val">Thin Birkdale sample (&lt;6 rounds) inflates VHN. Penalty: −0.15 × excess VHN above 50.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R6 — Putt-Led Total</div><div class="glossary-entry-val">Positive GSO driven by putting alone. Wind-exposed Birkdale greens don't transfer: −3.0 VTS.</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R7 — Links APP Gate</div><div class="glossary-entry-val">Below-threshold approach at links. Birkdale demands elite iron play inside 175 yds: −2.5 VTS / −1.5 (borderline).</div></div>
+        <div class="glossary-entry"><div class="glossary-entry-key">R9 — Form Spike</div><div class="glossary-entry-val">HOT/WARM form not validated by links evidence. Form credit discounted 40% of above-neutral contribution.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

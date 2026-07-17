@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 // ── State ──────────────────────────────────────────────────────────────────────
 const S = {
@@ -12,7 +12,7 @@ const S = {
   sort:      { key: 'rank', dir: 1 },
   liveSort:  { key: 'r1_pos', dir: 1 },
   numFilters: { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null },
-  spotlightOpen:     false,
+  spotlightOpen:     true,
   advFilterOpen:     false,
   currentRound:      'pre',
   roundData:         {},
@@ -21,6 +21,8 @@ const S = {
   weather:    { speed: 0, direction: 'N/A', wave_delta: 0.0, tide: 'N/A' },
   waveByPlayer: {},
   cumulativeLearning: null,
+  filterRules:       [],
+  glossaryOpen:      false,
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -63,6 +65,38 @@ const RULE_EXP = {
   R7:'Below-threshold APP at links courses. Birkdale demands elite approach inside 175 yds. −2.5 (no links); −1.5 (borderline).',
   R9:'HOT/WARM form not validated by links evidence. Form credit discounted 40% of above-neutral contribution.',
 };
+
+// ── Filter field definitions ──────────────────────────────────────────────────
+const FILTER_FIELDS = [
+  { key:'pt_vts',          label:'VTS',            get:(p)      => p.vts_final },
+  { key:'pt_nsi',          label:'NSI',            get:(p)      => p.neutralSkillIndex },
+  { key:'pt_vfs',          label:'VFS',            get:(p)      => p.venueFitScore },
+  { key:'pt_vhd',          label:'VHD',            get:(p)      => p.venueHistoryDelta },
+  { key:'live_win',        label:'Win%',           get:(p)      => p.winPct },
+  { key:'live_top10',      label:'Top 10%',        get:(p)      => p.top10Pct },
+  { key:'live_cut',        label:'Cut%',           get:(p)      => p.makeCutPct },
+  { key:'pt_tier',         label:'Tier #',         get:(p)      => parseInt((p.tier||'T5')[1]) },
+  { key:'app_150_200',     label:'App 150–200',    get:(p,br)   => traitScore(br,'app_150_200') },
+  { key:'ott_accuracy',    label:'OTT Accuracy',   get:(p,br)   => traitScore(br,'ott_accuracy') },
+  { key:'ott_positional',  label:'OTT Positional', get:(p,br)   => traitScore(br,'ott_positional') },
+  { key:'app_overall',     label:'App Overall',    get:(p,br)   => traitScore(br,'app_overall') },
+  { key:'sg_putt',         label:'SG: Putting',    get:(p,br)   => traitScore(br,'sg_putt') },
+  { key:'sg_arg',          label:'SG: ARG',        get:(p,br)   => traitScore(br,'sg_arg') },
+];
+
+const QUICK_PRESETS = {
+  'iron-elites':        [{ field:'app_150_200',    op:'>=', val:70 }, { field:'pt_vfs', op:'>=', val:60 }],
+  'long-iron-fits':     [{ field:'ott_positional', op:'>=', val:65 }, { field:'app_overall', op:'>=', val:60 }],
+  'positional-drivers': [{ field:'ott_positional', op:'>=', val:70 }],
+  'safe-cut-makers':    [{ field:'live_cut',        op:'>=', val:70 }],
+  'ceiling-plays':      [{ field:'pt_vts',          op:'>=', val:55 }, { field:'live_win', op:'>=', val:2 }],
+};
+
+function traitScore(br, key) {
+  const ts = (br || {}).trait_scores || [];
+  const entry = ts.find(t => resolveCumKey(t.label) === key);
+  return entry != null ? entry.score : null;
+}
 
 // ── Name normalisation — accent-strip + lowercase + trim ──────────────────────
 function normName(s) {
@@ -183,7 +217,7 @@ function bindEvents() {
     srch.addEventListener('input', e => { S.searchQuery = e.target.value; applyVisibility(); });
     srch.addEventListener('keyup', e => { S.searchQuery = e.target.value; applyVisibility(); });
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeGlossary(); } });
   window.addEventListener('scroll', () =>
     document.getElementById('scroll-top')?.classList.toggle('visible', window.scrollY > 400)
   );
@@ -200,8 +234,23 @@ function bindEvents() {
   document.getElementById('spotlight-toggle')?.addEventListener('click', toggleSpotlight);
   document.getElementById('adv-toggle')?.addEventListener('click', toggleAdvFilter);
   document.getElementById('clear-filters-btn')?.addEventListener('click', clearFilters);
-  ['af-vts-min','af-vts-max','af-nsi-min','af-nsi-max','af-vfs-min','af-vfs-max','af-win-min','af-win-max'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', onNumFilter);
+  document.getElementById('rfb-add-rule')?.addEventListener('click', addFilterRule);
+  document.getElementById('adv-filter-panel')?.addEventListener('click', e => {
+    const removeBtn = e.target.closest('.rfb-remove[data-idx]');
+    if (removeBtn) removeFilterRule(parseInt(removeBtn.dataset.idx));
+  });
+  document.getElementById('adv-filter-panel')?.addEventListener('change', e => {
+    const rule = e.target.closest('.rfb-rule[data-idx]');
+    if (!rule) return;
+    const idx = parseInt(rule.dataset.idx);
+    if (e.target.classList.contains('rfb-select')) updateRuleField(idx, e.target.value);
+    if (e.target.classList.contains('rfb-op'))     updateRuleOp(idx, e.target.value);
+  });
+  document.getElementById('adv-filter-panel')?.addEventListener('input', e => {
+    const rule = e.target.closest('.rfb-rule[data-idx]');
+    if (rule && e.target.classList.contains('rfb-input')) {
+      updateRuleVal(parseInt(rule.dataset.idx), e.target.value);
+    }
   });
 }
 
@@ -254,6 +303,21 @@ function renderSpotlight() {
       ${badges.length ? `<div class="sc-flags">${badges.map(b => `<span class="badge sans">${b}</span>`).join('')}</div>` : ''}
       ${p._flags.length ? `<div class="sc-flags">${p._flags.map(f => flag(f)).join('')}</div>` : ''}
       <div class="sc-reason">${p.tierReason || ''}</div>
+      ${(() => {
+        const rows = [
+          { lbl: 'Win Mechanism',      val: br.scoring_thesis },
+          { lbl: 'Course Calibration', val: br.birkdale_history_note },
+          { lbl: 'Key Risk to Monitor',val: br.failure_condition || br.risk_vector },
+          { lbl: 'Analyst Brief',      val: br.conviction_statement },
+        ].filter(r => r.val);
+        return rows.length
+          ? `<div class="sc-analyst">${rows.map(r =>
+              `<div class="sc-analyst-row">
+                <div class="sc-analyst-lbl sans">${r.lbl}</div>
+                <div class="sc-analyst-txt">${esc(r.val)}</div>
+              </div>`).join('')}</div>`
+          : '';
+      })()}
     </div>`;
   }).join('');
 
@@ -320,11 +384,10 @@ function renderTable() {
   updateSortArrows();
 }
 
-// ── Visibility engine — toggles .hidden; no DOM destruction ───────────────────
+// ── Visibility / leaderboard filter engine — toggles .hidden; no DOM destruction
 function applyVisibility() {
   const q = normName(S.searchQuery);
-  const nf = S.numFilters;
-  const hasNumFilter = Object.values(nf).some(v => v !== null);
+  const hasRuleFilter = S.filterRules.length > 0;
   let shown = 0;
 
   document.querySelectorAll('#board-tbody tr[data-player]').forEach(tr => {
@@ -352,22 +415,26 @@ function applyVisibility() {
       const matchName = name.includes(q);
       const matchFlag = flags.some(f => f.toLowerCase().includes(q));
       const matchTier = normName(tier) === q;
-      if (!matchName && !matchFlag && !matchTier) show = false;
+      const matchTag  = tag.toLowerCase().includes(q);
+      if (!matchName && !matchFlag && !matchTier && !matchTag) show = false;
     }
 
-    if (show && hasNumFilter) {
-      const vts = parseFloat(tr.dataset.vts);
-      const nsi = parseFloat(tr.dataset.nsi);
-      const vfs = parseFloat(tr.dataset.vfs);
-      const win = parseFloat(tr.dataset.win);
-      if (nf.vts_min !== null && (isNaN(vts) || vts < nf.vts_min)) show = false;
-      if (nf.vts_max !== null && (isNaN(vts) || vts > nf.vts_max)) show = false;
-      if (nf.nsi_min !== null && (isNaN(nsi) || nsi < nf.nsi_min)) show = false;
-      if (nf.nsi_max !== null && (isNaN(nsi) || nsi > nf.nsi_max)) show = false;
-      if (nf.vfs_min !== null && (isNaN(vfs) || vfs < nf.vfs_min)) show = false;
-      if (nf.vfs_max !== null && (isNaN(vfs) || vfs > nf.vfs_max)) show = false;
-      if (nf.win_min !== null && (isNaN(win) || win < nf.win_min)) show = false;
-      if (nf.win_max !== null && (isNaN(win) || win > nf.win_max)) show = false;
+    if (show && hasRuleFilter) {
+      const pData = S.boardData.find(x => x.player === tr.dataset.player);
+      const br    = pData ? (S.briefsByName[normName(pData.player)] || {}) : {};
+      for (const rule of S.filterRules) {
+        if (rule.val === '' || rule.val === null || rule.val === undefined) continue;
+        const fieldDef = FILTER_FIELDS.find(f => f.key === rule.field);
+        if (!fieldDef) continue;
+        const v = fieldDef.get(pData || {}, br);
+        if (v == null) { show = false; break; }
+        const numV = parseFloat(v);
+        const numR = parseFloat(rule.val);
+        if (isNaN(numV) || isNaN(numR)) continue;
+        if (rule.op === '>=' && numV < numR) { show = false; break; }
+        if (rule.op === '<=' && numV > numR) { show = false; break; }
+        if (rule.op === '='  && Math.abs(numV - numR) > 0.001) { show = false; break; }
+      }
     }
 
     tr.classList.toggle('hidden', !show);
@@ -925,6 +992,24 @@ function onOverlayClick(e) {
   if (e.target.id === 'modal-overlay') closeModal();
 }
 
+// ── Glossary modal ─────────────────────────────────────────────────────────────
+function openGlossary() {
+  S.glossaryOpen = true;
+  document.getElementById('glossary-modal-overlay')?.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGlossary() {
+  if (!S.glossaryOpen) return;
+  S.glossaryOpen = false;
+  document.getElementById('glossary-modal-overlay')?.classList.remove('open');
+  if (!S.activePlayer) document.body.style.overflow = '';
+}
+
+function onGlossaryOverlayClick(e) {
+  if (e.target.id === 'glossary-modal-overlay') closeGlossary();
+}
+
 // ── Theme toggle ───────────────────────────────────────────────────────────────
 function toggleTheme() {
   const isDark = document.documentElement.dataset.theme === 'dark';
@@ -1010,7 +1095,6 @@ async function switchRound(r) {
   const pending     = document.getElementById('live-pending');
   const content     = document.getElementById('live-content');
   liveSection?.classList.remove('hidden');
-  document.getElementById('weather-impact-section')?.classList.remove('hidden');
   clearRoundVisualElements();
 
   if (S.roundData[r]) {
@@ -1252,43 +1336,80 @@ function renderCumulativeAnalysis() {
 
   document.getElementById('cum-analysis-section')?.remove();
 
-  const signalColor = s =>
-    s === 'validated'      ? 'var(--green-ok)'
-    : s === 'mixed'        ? 'var(--navy)'
-    : s === 'weak'         ? 'var(--accent)'
-    : s === 'not_testable' ? 'var(--text-3)'
-    : '';
+  const pillCls = s => {
+    if (s === 'validated')    return 'cum-pill-validated';
+    if (s === 'mixed')        return 'cum-pill-mixed';
+    if (s === 'weak')         return 'cum-pill-weak';
+    if (s === 'not_testable') return 'cum-pill-not_testable';
+    return 'cum-pill-not_testable';
+  };
+
+  const confCls = c => {
+    if (!c) return 'cum-conf-default';
+    if (c.includes('proxy-confirmed') || c.includes('confirmed')) return 'cum-conf-confirmed';
+    if (c.includes('weak'))  return 'cum-conf-weak';
+    if (c.includes('mixed')) return 'cum-conf-weak';
+    return 'cum-conf-default';
+  };
+
+  const dotColor = v => {
+    if (v === 'validated') return '#34d399';
+    if (v === 'mixed')     return '#fbbf24';
+    if (v === 'weak')      return '#f87171';
+    return '#475569';
+  };
+
+  const renderTraj = hist => {
+    if (!hist || !hist.length) return '<span style="color:#475569;font-size:10px">—</span>';
+    return hist.map((v, i) => {
+      const dot  = '<span class="cum-dot" style="background:' + dotColor(v) + '" title="' + v + '"></span>';
+      const conn = i < hist.length - 1 ? '<span class="cum-connector"></span>' : '';
+      return dot + conn;
+    }).join('');
+  };
+
+  const rows = traitKeys.map(tk => {
+    const cs        = signals[tk];
+    const hist      = cs.signal_history || [];
+    const consensus = cs.consensus || 'not_testable';
+    const confRaw   = cs.consensus_confidence || '';
+    const deltas    = (cs.delta_history || []).filter(d => d != null && !isNaN(parseFloat(d)));
+    const mag       = deltas.length
+      ? (deltas.reduce((a, d) => a + Math.abs(parseFloat(d)), 0) / deltas.length).toFixed(2)
+      : '—';
+    const confLabel = confRaw || (
+      consensus === 'validated' ? 'proxy-confirmed'
+      : consensus === 'weak'   ? 'weak-proxy'
+      : consensus === 'mixed'  ? 'mixed-signal'
+      : 'pending'
+    );
+    return '<div class="cum-grid-row">'
+      + '<div class="cum-trait-key">' + tk.replace(/_/g, ' ') + '</div>'
+      + '<div><span class="cum-pill ' + pillCls(consensus) + '">' + consensus.replace(/_/g, ' ') + '</span></div>'
+      + '<div class="cum-mag">' + mag + '</div>'
+      + '<div><span class="cum-conf-tag ' + confCls(confLabel) + '">' + confLabel.replace(/_/g, ' ') + '</span></div>'
+      + '<div class="cum-traj">' + renderTraj(hist) + '</div>'
+      + '</div>';
+  }).join('');
 
   const el = document.createElement('div');
   el.id = 'cum-analysis-section';
-  el.innerHTML = `
-    <div class="live-sub-header" style="margin-top:24px">
-      <div class="live-sub-title">Cumulative Learning — Multi-Round Trait Trajectory</div>
-      <div class="live-sub-note sans">${isFinalC ? 'Final consensus' : `R${rounds} consensus`} · horizon delta profiles</div>
-    </div>
-    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:16px 20px;box-shadow:0 2px 8px var(--shadow)">
-      <div class="trait-rows">
-        ${traitKeys.map(tk => {
-          const cs        = signals[tk];
-          const hist      = cs.signal_history || [];
-          const consensus = cs.consensus || '—';
-          const conf      = cs.consensus_confidence || '';
-          const deltas    = (cs.delta_history || []).filter(d => d != null);
-          const deltaStr  = deltas.length ? `Δ [${deltas.join(', ')}]` : '';
-          const histStr   = hist.length ? `History: [${hist.join(', ')}]` : '';
-          return `<div class="trait-row">
-            <div class="trait-meta-row" style="flex-wrap:wrap;gap:6px">
-              <div class="trait-lbl">${tk.replace(/_/g, ' ')}</div>
-              <div class="trait-wt sans" style="color:${signalColor(consensus)};font-weight:700">${consensus}</div>
-              ${deltaStr ? `<div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${deltaStr}</div>` : ''}
-              ${conf ? `<div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${conf}</div>` : ''}
-            </div>
-            ${histStr ? `<div class="trait-history-text">${histStr}</div>` : ''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-  `;
+  el.innerHTML = '<div class="live-sub-header" style="margin-top:24px">'
+    + '<div class="live-sub-title">Cumulative Learning — Multi-Round Trait Trajectory</div>'
+    + '<div class="live-sub-note sans">'
+    + (isFinalC ? 'Final consensus' : 'R' + rounds + ' consensus')
+    + ' · horizon delta profiles</div>'
+    + '</div>'
+    + '<div class="cum-grid-wrap">'
+    + '<div class="cum-grid-header">'
+    + '<div>Trait Model Key</div>'
+    + '<div>Consensus State</div>'
+    + '<div>Abs Magnitude</div>'
+    + '<div>Proxy Confidence</div>'
+    + '<div>Trajectory Marks</div>'
+    + '</div>'
+    + rows
+    + '</div>';
   liveContent.appendChild(el);
 }
 
@@ -1297,7 +1418,10 @@ function toggleSpotlight() {
   S.spotlightOpen = !S.spotlightOpen;
   document.getElementById('spotlight-container')?.classList.toggle('hidden', !S.spotlightOpen);
   const btn = document.getElementById('spotlight-toggle');
-  if (btn) btn.textContent = S.spotlightOpen ? 'Hide Spotlight' : 'Show Spotlight';
+  if (btn) {
+    btn.textContent = S.spotlightOpen ? 'Hide Spotlight' : 'Show Spotlight';
+    btn.classList.toggle('active', S.spotlightOpen);
+  }
 }
 
 // ── Advanced filter panel toggle ───────────────────────────────────────────────
@@ -1308,16 +1432,70 @@ function toggleAdvFilter() {
   if (btn) btn.textContent = S.advFilterOpen ? '▲ Filter' : '▼ Filter';
 }
 
-// ── Numeric filter input handler ───────────────────────────────────────────────
-function onNumFilter() {
-  const getVal = id => { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; };
-  S.numFilters = {
-    vts_min: getVal('af-vts-min'), vts_max: getVal('af-vts-max'),
-    nsi_min: getVal('af-nsi-min'), nsi_max: getVal('af-nsi-max'),
-    vfs_min: getVal('af-vfs-min'), vfs_max: getVal('af-vfs-max'),
-    win_min: getVal('af-win-min'), win_max: getVal('af-win-max'),
-  };
+// ── Rule filter builder functions ─────────────────────────────────────────────
+function renderFilterRules() {
+  const zone = document.getElementById('active-filters-zone');
+  if (!zone) return;
+  if (!S.filterRules.length) {
+    zone.innerHTML = '<div class="rfb-empty sans">No rules active. Add a rule or use Quick Filters below.</div>';
+    return;
+  }
+  const fieldOptions = FILTER_FIELDS.map(f =>
+    `<option value="${f.key}">${f.label}</option>`
+  ).join('');
+  zone.innerHTML = S.filterRules.map((rule, i) => `
+    <div class="rfb-rule" data-idx="${i}">
+      <select class="rfb-select sans">
+        ${FILTER_FIELDS.map(f =>
+          `<option value="${f.key}"${rule.field === f.key ? ' selected' : ''}>${f.label}</option>`
+        ).join('')}
+      </select>
+      <select class="rfb-op sans">
+        <option value=">="${rule.op === '>=' ? ' selected' : ''}>≥</option>
+        <option value="<="${rule.op === '<=' ? ' selected' : ''}>≤</option>
+        <option value="="${rule.op === '='  ? ' selected' : ''}>=</option>
+      </select>
+      <input type="number" class="rfb-input sans" value="${rule.val ?? ''}" placeholder="Value" step="0.1">
+      <button class="rfb-remove sans" data-idx="${i}">✕</button>
+    </div>
+  `).join('');
+}
+
+function addFilterRule() {
+  S.filterRules.push({ field: FILTER_FIELDS[0].key, op: '>=', val: '' });
+  renderFilterRules();
+}
+
+function removeFilterRule(idx) {
+  S.filterRules.splice(idx, 1);
+  renderFilterRules();
   applyVisibility();
+}
+
+function updateRuleField(idx, field) {
+  if (S.filterRules[idx]) { S.filterRules[idx].field = field; applyVisibility(); }
+}
+
+function updateRuleOp(idx, op) {
+  if (S.filterRules[idx]) { S.filterRules[idx].op = op; applyVisibility(); }
+}
+
+function updateRuleVal(idx, val) {
+  if (S.filterRules[idx]) { S.filterRules[idx].val = val; applyVisibility(); }
+}
+
+function applyPreset(name) {
+  const preset = QUICK_PRESETS[name];
+  if (!preset) return;
+  S.filterRules = preset.map(r => ({ ...r }));
+  renderFilterRules();
+  applyVisibility();
+  if (!S.advFilterOpen) {
+    S.advFilterOpen = true;
+    document.getElementById('adv-filter-panel')?.classList.remove('hidden');
+    const btn = document.getElementById('adv-toggle');
+    if (btn) btn.textContent = '▲ Filter';
+  }
 }
 
 // ── Clear all filters and reset sort to VTS rank ──────────────────────────────
@@ -1325,15 +1503,13 @@ function clearFilters() {
   S.currentFilter = 'all';
   S.currentTier   = 'all';
   S.searchQuery   = '';
-  S.numFilters    = { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null };
+  S.filterRules   = [];
   S.sort          = { key: 'rank', dir: 1 };
   const srch = document.getElementById('player-search');
   if (srch) srch.value = '';
   document.querySelectorAll('.chip[data-f]').forEach(el => el.classList.toggle('active', el.dataset.f === 'all'));
   document.querySelectorAll('.tier-tile').forEach(el => el.classList.toggle('active', el.dataset.tier === 'all'));
-  ['af-vts-min','af-vts-max','af-nsi-min','af-nsi-max','af-vfs-min','af-vfs-max','af-win-min','af-win-max'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
+  renderFilterRules();
   renderTable();
 }
 
@@ -1371,39 +1547,75 @@ function reindexRankColumn() {
   });
 }
 
-// ── Weather renderer ───────────────────────────────────────────────────────────
+// ── Weather renderer — four-box conditions deck ────────────────────────────────
 function renderWeather(wx) {
-  const section = document.getElementById('weather-impact-section');
-  if (!section) return;
+  const speed     = wx.speed ?? 0;
+  const waveDelta = wx.wave_delta ?? 0;
+  const tide      = wx.tide ?? '—';
 
-  const speedEl = document.getElementById('wx-wind-speed');
-  const dirEl   = document.getElementById('wx-wind-dir');
-  const tideEl  = document.getElementById('wx-tide');
-  const deltaEl = document.getElementById('wx-wave-delta');
-  const badgeEl = document.getElementById('wx-badge');
-  const noteEl  = document.getElementById('wx-wave-note');
+  // Overall badge (severity label)
+  const severity  = speed >= 30 ? 'Severe' : speed >= 20 ? 'Significant' : speed >= 12 ? 'Moderate' : 'Light';
+  const sevColor  = speed >= 30 ? '#ef4444' : speed >= 20 ? '#f59e0b' : speed >= 12 ? '#3b82f6' : '#22c55e';
+  const badgeEl   = document.getElementById('wx-badge');
+  if (badgeEl) { badgeEl.textContent = severity; badgeEl.style.background = sevColor; badgeEl.style.color = '#000'; }
 
-  if (speedEl) speedEl.textContent = wx.speed ?? '—';
-  if (dirEl)   dirEl.textContent   = wx.direction ?? '—';
-  if (tideEl)  tideEl.textContent  = wx.tide ?? '—';
-  if (deltaEl) deltaEl.textContent = wx.wave_delta != null ? (wx.wave_delta > 0 ? '+' : '') + Number(wx.wave_delta).toFixed(2) : '—';
+  // Box 1 — Wind Impact
+  const windRating = speed >= 30 ? ['Severe',      'fb-severe']
+    : speed >= 22  ? ['Challenging',  'fb-challenging']
+    : speed >= 15  ? ['Benign',       'fb-benign']
+    : speed >= 8   ? ['Very Benign',  'fb-very-benign']
+    : ['Exceptional', 'fb-exceptional'];
+  const windRatingEl = document.getElementById('fb-wind-rating');
+  const windDetailEl = document.getElementById('fb-wind-detail');
+  if (windRatingEl) { windRatingEl.textContent = windRating[0]; windRatingEl.className = `fb-rating sans ${windRating[1]}`; }
+  if (windDetailEl) windDetailEl.textContent = `${speed} mph ${wx.direction ?? ''}`.trim();
 
-  const speed = wx.speed ?? 0;
-  const severity = speed >= 30 ? 'Severe' : speed >= 20 ? 'Significant' : speed >= 12 ? 'Moderate' : 'Light';
-  const sevColor = speed >= 30 ? '#ef4444' : speed >= 20 ? '#f59e0b' : speed >= 12 ? '#3b82f6' : '#22c55e';
-  if (badgeEl) { badgeEl.textContent = severity; badgeEl.style.background = sevColor; }
+  // Box 2 — Tide / Surface
+  const tideLower  = tide.toLowerCase();
+  const tideRating = tideLower.includes('firm') || tideLower.includes('fast')
+    ? ['Firm / Fast',    'fb-challenging']
+    : tideLower.includes('damp') || tideLower.includes('soft') || tideLower.includes('incoming') || tideLower.includes('wet')
+    ? ['Soft / Active',  'fb-very-benign']
+    : ['Neutral',        'fb-benign'];
+  const tideRatingEl = document.getElementById('fb-tide-rating');
+  const tideDetailEl = document.getElementById('fb-tide-detail');
+  if (tideRatingEl) { tideRatingEl.textContent = tideRating[0]; tideRatingEl.className = `fb-rating sans ${tideRating[1]}`; }
+  if (tideDetailEl) tideDetailEl.textContent = tide;
 
+  // Box 3 — Wave Score Δ
+  const waveRating = waveDelta >= 0.5  ? ['Significant',  'fb-challenging']
+    : waveDelta >= 0.25 ? ['Moderate',     'fb-benign']
+    : waveDelta >= 0.1  ? ['Minor',         'fb-very-benign']
+    : ['Negligible',    'fb-exceptional'];
+  const waveRatingEl = document.getElementById('fb-wave-rating');
+  const waveDetailEl = document.getElementById('fb-wave-detail');
+  if (waveRatingEl) { waveRatingEl.textContent = waveRating[0]; waveRatingEl.className = `fb-rating sans ${waveRating[1]}`; }
+  if (waveDetailEl) waveDetailEl.textContent = (waveDelta > 0 ? '+' : '') + Number(waveDelta).toFixed(2) + ' strokes';
+
+  // Box 4 — Overall Conditions (composite)
+  const windScore  = speed < 8 ? 3 : speed < 15 ? 2 : speed < 22 ? 1 : speed < 30 ? 0 : -1;
+  const waveScore  = waveDelta < 0.1 ? 1 : waveDelta < 0.25 ? 0 : -1;
+  const composite  = windScore + waveScore;
+  const overallRating = composite >= 3  ? ['Exceptional',  'fb-exceptional']
+    : composite >= 1  ? ['Very Benign',  'fb-very-benign']
+    : composite === 0 ? ['Benign',       'fb-benign']
+    : composite === -1 ? ['Challenging', 'fb-challenging']
+    : ['Severe',        'fb-severe'];
+  const overallRatingEl = document.getElementById('fb-overall-rating');
+  const overallDetailEl = document.getElementById('fb-overall-detail');
+  if (overallRatingEl) { overallRatingEl.textContent = overallRating[0]; overallRatingEl.className = `fb-rating sans ${overallRating[1]}`; }
+  if (overallDetailEl) overallDetailEl.textContent = `${severity} wind · ${waveRating[0]} wave Δ`;
+
+  // Wave note (shows only when wave model is active)
+  const noteEl = document.getElementById('wx-wave-note');
   if (noteEl) {
-    if (wx.wave_delta > 0) {
-      noteEl.textContent = `Wave model active — late/early tee times favored by ${wx.wave_delta.toFixed(2)} strokes vs. midday wave.`;
-      noteEl.style.color = '#3b82f6';
+    if (waveDelta > 0.1) {
+      noteEl.textContent = `Wave model active — late/early tee times favored by ${waveDelta.toFixed(2)} strokes vs. midday wave.`;
+      noteEl.style.display = 'block';
     } else {
-      noteEl.textContent = 'Wave delta neutral — no tee-time adjustment applied.';
-      noteEl.style.color = '#64748b';
+      noteEl.style.display = 'none';
     }
   }
-
-  section.classList.remove('hidden');
 }
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
