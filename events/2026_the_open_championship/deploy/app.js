@@ -21,8 +21,8 @@ const S = {
   weather:    { speed: 0, direction: 'N/A', wave_delta: 0.0, tide: 'N/A' },
   waveByPlayer: {},
   cumulativeLearning: null,
-  filterRules:       [],
-  glossaryOpen:      false,
+  filterRules:          [],
+  glossaryModalOpen:    false,
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -85,11 +85,11 @@ const FILTER_FIELDS = [
 ];
 
 const QUICK_PRESETS = {
-  'iron-elites':        [{ field:'app_150_200',    op:'>=', val:70 }, { field:'pt_vfs', op:'>=', val:60 }],
-  'long-iron-fits':     [{ field:'ott_positional', op:'>=', val:65 }, { field:'app_overall', op:'>=', val:60 }],
-  'positional-drivers': [{ field:'ott_positional', op:'>=', val:70 }],
-  'safe-cut-makers':    [{ field:'live_cut',        op:'>=', val:70 }],
-  'ceiling-plays':      [{ field:'pt_vts',          op:'>=', val:55 }, { field:'live_win', op:'>=', val:2 }],
+  'iron-elites':        [{ field:'app_150_200',  op:'>=', val:70 }],
+  'long-iron-fits':     [{ field:'app_150_200',  op:'>=', val:60 }],
+  'positional-drivers': [{ field:'ott_accuracy', op:'>=', val:65 }],
+  'safe-cut-makers':    [{ field:'pt_vts',        op:'>=', val:65 }],
+  'ceiling-plays':      [{ field:'live_win',      op:'>=', val:5.0 }],
 };
 
 function traitScore(br, key) {
@@ -384,6 +384,32 @@ function renderTable() {
   updateSortArrows();
 }
 
+// ── Named rule engine — evaluates S.filterRules against one player record ─────
+// Handles numeric comparisons and case-insensitive string profile matching.
+function applyLeaderboardFilters(pData, br) {
+  if (!S.filterRules.length) return true;
+  for (const rule of S.filterRules) {
+    if (rule.val === '' || rule.val === null || rule.val === undefined) continue;
+    const fieldDef = FILTER_FIELDS.find(f => f.key === rule.field);
+    if (!fieldDef) continue;
+    const v = fieldDef.get(pData || {}, br);
+    if (v == null) return false;
+    if (typeof v === 'string') {
+      const sv = v.toLowerCase();
+      const qv = String(rule.val).toLowerCase();
+      if (rule.op === '='  && !sv.includes(qv)) return false;
+      continue;
+    }
+    const numV = parseFloat(v);
+    const numR = parseFloat(rule.val);
+    if (isNaN(numV) || isNaN(numR)) continue;
+    if (rule.op === '>=' && numV < numR) return false;
+    if (rule.op === '<=' && numV > numR) return false;
+    if (rule.op === '='  && Math.abs(numV - numR) > 0.001) return false;
+  }
+  return true;
+}
+
 // ── Visibility / leaderboard filter engine — toggles .hidden; no DOM destruction
 function applyVisibility() {
   const q = normName(S.searchQuery);
@@ -422,19 +448,7 @@ function applyVisibility() {
     if (show && hasRuleFilter) {
       const pData = S.boardData.find(x => x.player === tr.dataset.player);
       const br    = pData ? (S.briefsByName[normName(pData.player)] || {}) : {};
-      for (const rule of S.filterRules) {
-        if (rule.val === '' || rule.val === null || rule.val === undefined) continue;
-        const fieldDef = FILTER_FIELDS.find(f => f.key === rule.field);
-        if (!fieldDef) continue;
-        const v = fieldDef.get(pData || {}, br);
-        if (v == null) { show = false; break; }
-        const numV = parseFloat(v);
-        const numR = parseFloat(rule.val);
-        if (isNaN(numV) || isNaN(numR)) continue;
-        if (rule.op === '>=' && numV < numR) { show = false; break; }
-        if (rule.op === '<=' && numV > numR) { show = false; break; }
-        if (rule.op === '='  && Math.abs(numV - numR) > 0.001) { show = false; break; }
-      }
+      if (!applyLeaderboardFilters(pData || {}, br)) show = false;
     }
 
     tr.classList.toggle('hidden', !show);
@@ -994,14 +1008,14 @@ function onOverlayClick(e) {
 
 // ── Glossary modal ─────────────────────────────────────────────────────────────
 function openGlossary() {
-  S.glossaryOpen = true;
+  S.glossaryModalOpen = true;
   document.getElementById('glossary-modal-overlay')?.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closeGlossary() {
-  if (!S.glossaryOpen) return;
-  S.glossaryOpen = false;
+  if (!S.glossaryModalOpen) return;
+  S.glossaryModalOpen = false;
   document.getElementById('glossary-modal-overlay')?.classList.remove('open');
   if (!S.activePlayer) document.body.style.overflow = '';
 }

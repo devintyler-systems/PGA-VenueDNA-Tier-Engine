@@ -205,6 +205,23 @@ _EVENT_CONFIGS: dict[str, dict] = {
             "sg_putt":       {"primary": None,         "direction": None,            "secondary": None},
             "sg_arg":        {"primary": "scrambling", "direction": "higher_better", "secondary": "rough_prox"},
         },
+        # Weekend firm/fast override: 0.08 VTS haircut for high-apex/high-spin profiles
+        # Active from R2 — dry conditions confirmed through opening 36 holes.
+        # Targets R3-flagged (OTT-Only Links) players whose trajectory volatility is
+        # stressed by the sustained NW wind on fast Birkdale surfaces.
+        "weekend_high_spin_penalty": {
+            "active_from_round": 2,
+            "penalty_vts":       0.08,
+            "flag":              "high_apex_high_spin",
+            "players": [
+                "Scottie Scheffler", "Jon Rahm", "Rory McIlroy", "Kurt Kitayama",
+                "Ryan Gerard", "Kristoffer Reitan", "Alex Smalley", "Tyrrell Hatton",
+                "Angel Ayora", "Justin Thomas", "Sepp Straka", "Daniel Hillier",
+                "Pierceson Coody", "Sam Stevens", "Rasmus Neergaard-Petersen",
+                "Rasmus Hojgaard", "Hennie Du Plessis", "Marco Penge", "Max Greyserman",
+                "Haotong Li", "Casey Jarvis", "Jesper Svensson", "Andy Sullivan",
+            ],
+        },
     },
 }
 
@@ -1401,9 +1418,26 @@ _field_avg_cum_sg = sum(_pop_vals) / len(_pop_vals) if _pop_vals else 0.0
 
 _gamma = 0.35 * ROUND
 
+# ── Weekend high-spin penalty (firm/fast Birkdale override) ───────────────────
+_spin_cfg    = cfg.get("weekend_high_spin_penalty", {})
+_spin_active = (
+    isinstance(_spin_cfg, dict)
+    and ROUND >= _spin_cfg.get("active_from_round", 99)
+    and _spin_cfg.get("penalty_vts", 0) > 0
+)
+_spin_pen_vts     = _spin_cfg.get("penalty_vts", 0.0) if _spin_active else 0.0
+_spin_pen_players = (
+    {ascii_fold(p).lower() for p in (_spin_cfg.get("players") or [])}
+    if _spin_active else set()
+)
+if _spin_active:
+    print(f"Weekend spin penalty: -{_spin_pen_vts:.2f} VTS applied to "
+          f"{len(_spin_pen_players)} high-apex/high-spin players (R{ROUND})")
+
 _ordered_nks = [r["norm_name"].lower() for r in joined]
 _vpt = [
     (r["pt_vts"] if r.get("pt_vts") is not None else field_vts_mean)
+    - (_spin_pen_vts if ascii_fold(r["r1_name"]).lower() in _spin_pen_players else 0.0)
     + _gamma * (cumulative_sg_by_norm.get(r["norm_name"].lower(), 0.0) - _field_avg_cum_sg)
     for r in joined
 ]
