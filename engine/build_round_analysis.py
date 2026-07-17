@@ -527,6 +527,25 @@ ci_rows = load_csv(CI_PATH) if ci_loaded else []
 with open(PAY_PATH, encoding="utf-8") as f:
     payload = json.load(f)
 
+# Board-export rank override — post-audit VTS ranks supersede event_payload ranks
+_board_rank: dict[str, int] = {}
+for _be_name in ("board_export.json", f"{EVENT_SLUG}_board_export.json",
+                 "open_2026_board_export.json"):
+    _be_path = DEP / _be_name
+    if _be_path.exists():
+        try:
+            with open(_be_path, encoding="utf-8") as _bef:
+                _be_doc = json.load(_bef)
+            for _bep in _be_doc.get("players", []):
+                _bek = ascii_fold(_bep.get("player", "")).lower()
+                if _bek and isinstance(_bep.get("rank"), int):
+                    _board_rank[_bek] = _bep["rank"]
+            if _board_rank:
+                print(f"[info] Board rank override loaded: {len(_board_rank)} players from {_be_name}")
+                break
+        except Exception as _bee:
+            print(f"[warn] Board export rank load failed ({_be_name}): {_bee}")
+
 # ── Leaderboard header normalisation — handles lowercase, "Player Name", etc. ─
 if lb:
     _lb_col = set(lb[0].keys())
@@ -774,7 +793,7 @@ for row in lb:
         "r1_score":   score,
         "wave":       wave_val,
         "matched":    pt is not None,
-        "pt_rank":    pt["rank"]              if pt else None,
+        "pt_rank":    (_board_rank.get(folded.lower()) or pt["rank"]) if pt else None,
         "pt_tier":    pt["tier"]              if pt else None,
         "pt_vts":     parse_float(pt.get("vts_final")) if pt else None,
         "pt_win_pct": parse_float(pt.get("win_pct") or pt.get("win_prob")) if pt else None,
@@ -788,7 +807,7 @@ for row in lb:
         "sg_putt": parse_float(sg_row.get("SG-Putting"))           if sg_row else None,
         "sg_tot":  parse_float(sg_row.get("SG-Total"))             if sg_row else None,
         "traits":     lookup_traits(norm),
-        "rank_delta": (pt["rank"] - pos_num) if pt else 0,
+        "rank_delta": ((_board_rank.get(folded.lower()) or pt["rank"]) - pos_num) if pt else 0,
     }
     record["ci"] = ci_by_norm.get(record["norm_name"].lower())
     joined.append(record)

@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "event_slug": "2026_the_open_championship",
+  "created_at": "2026-07-16",
+  "per_round": {
+    "1": {
+      "round": 1,
+      "generated_at": "2026-07-16",
+      "spearman_rho": 0.203,
+      "trait_signals": {
+        "app_150_200": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 2.9,
+          "sg_delta": 1.471,
+          "enrichment_signal": "not_available"
+        },
+        "ott_accuracy": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 3.0,
+          "sg_delta": 0.708,
+          "enrichment_signal": "not_available"
+        },
+        "ott_positional": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 3.2,
+          "sg_delta": 0.708,
+          "enrichment_signal": "not_available"
+        },
+        "app_overall": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 3.3,
+          "sg_delta": 1.471,
+          "enrichment_signal": "not_available"
+        },
+        "sg_putt": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 3.5,
+          "sg_delta": 1.832,
+          "enrichment_signal": null
+        },
+        "sg_arg": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 3.6,
+          "sg_delta": 0.757,
+          "enrichment_signal": "not_available"
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 1,
+        "pt_top10_in_top20": 3,
+        "tier1_2_in_top20": 5
+      },
+      "risers": [
+        "MJ Daffue",
+        "Jackson Suber",
+        "Sungjae Im",
+        "Dan Brown",
+        "Pierceson Coody",
+        "Francesco Molinari",
+        "Thomas Detry"
+      ],
+      "slippage": [
+        "Pierceson Coody",
+        "Ryo Hisatsune"
+      ],
+      "wave_annotation_n": 0
+    }
+  },
+  "cumulative_signals": {
+    "app_150_200": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        2.9
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    },
+    "ott_accuracy": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        3.0
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    },
+    "ott_positional": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        3.2
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    },
+    "app_overall": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        3.3
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    },
+    "sg_putt": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        3.5
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    },
+    "sg_arg": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        3.6
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    }
+  },
+  "last_updated": "2026-07-16",
+  "updated_at": "2026-07-16T16:54:31",
+  "rounds_completed": 1,
+  "is_final": false,
+  "rounds_present": [
+    1
+  ]
+}

@@ -330,7 +330,9 @@ body{font-family:'Georgia','Times New Roman',serif;background:var(--bg);color:va
 .live-banner.pending{background:var(--surface-2);border:1px dashed var(--border-2);color:var(--text-3);text-align:center;padding:36px}
 .live-banner.putt-caution{background:var(--accent-soft);border:1px solid rgba(196,68,88,.3);color:var(--accent)}
 .live-table{width:100%;border-collapse:collapse;font-family:-apple-system,sans-serif;font-size:12px}
-.live-table th{text-align:left;color:var(--text-3);font-size:10px;letter-spacing:.07em;padding:6px 10px;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--surface-2);font-weight:700;text-transform:uppercase}
+.live-table th{text-align:left;color:var(--text-3);font-size:10px;letter-spacing:.07em;padding:6px 10px;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--surface-2);font-weight:700;text-transform:uppercase;cursor:pointer;user-select:none;transition:color .1s}
+.live-table th:hover{color:var(--text)}
+.live-table th.sort-active{color:var(--accent)}
 .live-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
 .live-table tr:last-child td{border-bottom:none}
 .live-table tbody tr{cursor:pointer;transition:background .1s}

@@ -9,7 +9,8 @@ const S = {
   currentFilter:     'all',
   currentTier:       'all',
   searchQuery:       '',
-  sort: { key: 'rank', dir: 1 },
+  sort:      { key: 'rank', dir: 1 },
+  liveSort:  { key: 'r1_pos', dir: 1 },
   numFilters: { vts_min:null, vts_max:null, nsi_min:null, nsi_max:null, vfs_min:null, vfs_max:null, win_min:null, win_max:null },
   spotlightOpen:     false,
   advFilterOpen:     false,
@@ -1034,6 +1035,8 @@ async function switchRound(r) {
     if (S.activeFetchTarget !== r) return;
     S.roundData[r] = data;
     S.cumulativeLearning = cumLearn;
+    const _tabBtn = document.querySelector(`.round-tab[data-round="${r}"]`);
+    if (_tabBtn) _tabBtn.textContent = data.metadata?.is_final ? `R${r} Final` : `R${r} Live`;
     liveSection?.classList.remove('loading-blur');
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
@@ -1059,7 +1062,14 @@ function renderLiveRound(data, el) {
   const rho       = (data.model_performance || {}).spearman_rho;
   const isFinal   = !!(meta.is_final);
   const nextRound = lean.next_round ?? null;
-  const lbSnap = [...(data.leaderboard_snapshot || [])].sort((a, b) => (a.r1_pos || 999) - (b.r1_pos || 999));
+  const _ls = S.liveSort;
+  const lbSnap = [...(data.leaderboard_snapshot || [])].sort((a, b) => {
+    if (_ls.key === 'r1_name') return _ls.dir * (a.r1_name || '').localeCompare(b.r1_name || '');
+    const _va = a[_ls.key] ?? (_ls.dir > 0 ? Infinity : -Infinity);
+    const _vb = b[_ls.key] ?? (_ls.dir > 0 ? Infinity : -Infinity);
+    return _ls.dir * (_va - _vb);
+  });
+  const _lsArrow = key => `<span class="sort-arrow ${key === _ls.key ? (_ls.dir > 0 ? 'asc' : 'desc') + ' active' : 'idle'}"></span>`;
   const risers   = (data.weekend_risers || data.risers || []).slice(0, 15);
   const slippage = (data.slippage_risk || []).slice(0, 10);
 
@@ -1100,9 +1110,15 @@ function renderLiveRound(data, el) {
     <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
       <table class="live-table">
         <thead><tr>
-          <th>Pos</th><th class="left">Player</th><th>PT Rank</th>
-          <th>Score</th><th>Δ Rank</th>
-          <th>SG-TOT</th><th>SG-APP</th><th>SG-PUTT</th><th>Live Win%</th>
+          <th data-sort-key="r1_pos">Pos ${_lsArrow('r1_pos')}</th>
+          <th class="left" data-sort-key="r1_name">Player ${_lsArrow('r1_name')}</th>
+          <th data-sort-key="pt_rank">PT Rank ${_lsArrow('pt_rank')}</th>
+          <th data-sort-key="r1_score">Score ${_lsArrow('r1_score')}</th>
+          <th data-sort-key="rank_delta">Δ Rank ${_lsArrow('rank_delta')}</th>
+          <th data-sort-key="sg_tot">SG-TOT ${_lsArrow('sg_tot')}</th>
+          <th data-sort-key="sg_app">SG-APP ${_lsArrow('sg_app')}</th>
+          <th data-sort-key="sg_putt">SG-PUTT ${_lsArrow('sg_putt')}</th>
+          <th data-sort-key="live_win_pct">Live Win% ${_lsArrow('live_win_pct')}</th>
         </tr></thead>
         <tbody>${lbSnap.slice(0, 80).map(r => {
           const score = r.r1_score ?? 0;
@@ -1193,6 +1209,21 @@ function renderLiveRound(data, el) {
     ${lean.rho_note ? `<div style="margin-top:16px;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-3)">${lean.rho_note}</div>` : ''}
   `;
 
+  el.querySelectorAll('.live-table thead th[data-sort-key]').forEach(th => {
+    th.addEventListener('click', () => sortLiveLeaderboard(th.dataset.sortKey));
+  });
+}
+
+// ── Live leaderboard sort ──────────────────────────────────────────────────────
+function sortLiveLeaderboard(key) {
+  const ascByDefault = key === 'r1_pos' || key === 'r1_name' || key === 'pt_rank' || key === 'r1_score';
+  S.liveSort.dir = S.liveSort.key === key ? -S.liveSort.dir : (ascByDefault ? 1 : -1);
+  S.liveSort.key = key;
+  const r = S.currentRound;
+  if (r !== 'pre' && S.roundData[r]) {
+    renderLiveRound(S.roundData[r], document.getElementById('live-content'));
+    renderCumulativeAnalysis();
+  }
 }
 
 // ── Cumulative learning renderer ──────────────────────────────────────────────
