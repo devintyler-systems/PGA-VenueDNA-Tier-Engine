@@ -318,9 +318,18 @@ _COMBINING_RE = re.compile("[\u0300-\u036f]")
 def norm_name(s: str) -> str:
     """Mirror JS normName: NFD decompose, strip U+0300-U+036F combining marks, lowercase, trim."""
     stripped   = _COMBINING_RE.sub("", unicodedata.normalize("NFD", str(s)))
-    no_periods = stripped.replace('.', '')
+    no_periods = stripped.replace(".", "")
     return re.sub("[‘’`’]", "'", no_periods).lower().strip()
 
+
+_SUFFIX_RE = re.compile(r'\b(jr\.?|sr\.?|ii|iii|iv)\s*$', re.IGNORECASE)
+
+def _deep_norm(s: str) -> str:
+    """Robust lookup key: norm_name + collapse commas + strip trailing name suffixes.
+    Handles ‘Last, First’ board-export format and Jr./Sr. designations."""
+    n = norm_name(s).replace(',', ' ')
+    n = _SUFFIX_RE.sub('', n).strip()
+    return re.sub(r'\s+', ' ', n)
 
 
 def fl_to_lf(name: str) -> str:
@@ -537,9 +546,13 @@ for _be_name in ("board_export.json", f"{EVENT_SLUG}_board_export.json",
             with open(_be_path, encoding="utf-8") as _bef:
                 _be_doc = json.load(_bef)
             for _bep in _be_doc.get("players", []):
-                _bek = ascii_fold(_bep.get("player", "")).lower()
-                if _bek and isinstance(_bep.get("rank"), int):
-                    _board_rank[_bek] = _bep["rank"]
+                _bek  = ascii_fold(_bep.get("player", "")).lower()
+                _bek2 = _deep_norm(_bep.get("player", ""))
+                if isinstance(_bep.get("rank"), int):
+                    if _bek:
+                        _board_rank[_bek] = _bep["rank"]
+                    if _bek2 and _bek2 != _bek:
+                        _board_rank[_bek2] = _bep["rank"]
             if _board_rank:
                 print(f"[info] Board rank override loaded: {len(_board_rank)} players from {_be_name}")
                 break
@@ -793,7 +806,7 @@ for row in lb:
         "r1_score":   score,
         "wave":       wave_val,
         "matched":    pt is not None,
-        "pt_rank":    (_board_rank.get(folded.lower()) or pt["rank"]) if pt else None,
+        "pt_rank":    (_board_rank.get(folded.lower()) or _board_rank.get(_deep_norm(r_name)) or pt["rank"]) if pt else None,
         "pt_tier":    pt["tier"]              if pt else None,
         "pt_vts":     parse_float(pt.get("vts_final")) if pt else None,
         "pt_win_pct": parse_float(pt.get("win_pct") or pt.get("win_prob")) if pt else None,
@@ -807,7 +820,7 @@ for row in lb:
         "sg_putt": parse_float(sg_row.get("SG-Putting"))           if sg_row else None,
         "sg_tot":  parse_float(sg_row.get("SG-Total"))             if sg_row else None,
         "traits":     lookup_traits(norm),
-        "rank_delta": ((_board_rank.get(folded.lower()) or pt["rank"]) - pos_num) if pt else 0,
+        "rank_delta": ((_board_rank.get(folded.lower()) or _board_rank.get(_deep_norm(r_name)) or pt["rank"]) - pos_num) if pt else 0,
     }
     record["ci"] = ci_by_norm.get(record["norm_name"].lower())
     joined.append(record)
@@ -1140,6 +1153,8 @@ def _make_thesis_note(r: dict) -> str:
 
 weekend_risers: list[dict] = []
 for r in by_delta[:20]:
+    if str(r.get("r1_pos_str", "")).upper().strip().startswith(("CUT", "MC", "WD", "DQ", "MDF")):
+        continue
     ts = riser_thesis_score(r)
     if ts >= 2 and r.get("r1_score", 0) <= -3:
         rec = player_summary(r)
@@ -1250,6 +1265,10 @@ this_round_entry = {
 if CUM_OUT.exists():
     with open(CUM_OUT, encoding="utf-8") as f:
         cumulative_learning = json.load(f)
+elif CUM_DEP.exists():
+    with open(CUM_DEP, encoding="utf-8") as f:
+        cumulative_learning = json.load(f)
+    print(f"[info] Cumulative state loaded from deploy fallback: {CUM_DEP}")
 else:
     cumulative_learning = {
         "schema_version":    "1.0",
@@ -1300,7 +1319,7 @@ for tk, v in trait_audit.items():
 # ── Leaderboard snapshot ──────────────────────────────────────────────────────
 lb_snapshot = [
     {k: r[k] for k in ("r1_name","r1_pos","r1_pos_str","r1_score","pt_rank",
-                         "pt_tier","pt_vts","sg_app","sg_putt","sg_ott","sg_arg","sg_tot","wave")
+                         "pt_tier","pt_vts","sg_app","sg_putt","sg_ott","sg_arg","sg_tot","wave","rank_delta")
      if k in r}
     for r in joined
 ]

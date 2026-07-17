@@ -1017,6 +1017,8 @@ async function switchRound(r) {
     liveSection?.classList.remove('loading-blur');
     pending?.classList.add('hidden');
     content?.classList.remove('hidden');
+    const _tabBtnC = document.querySelector(`.round-tab[data-round="${r}"]`);
+    if (_tabBtnC) _tabBtnC.textContent = S.roundData[r].metadata?.is_final ? `R${r} Final` : `R${r} Live`;
     renderLiveRound(S.roundData[r], content);
     renderCumulativeAnalysis();
     return;
@@ -1273,12 +1275,15 @@ function renderCumulativeAnalysis() {
           const conf      = cs.consensus_confidence || '';
           const deltas    = (cs.delta_history || []).filter(d => d != null);
           const deltaStr  = deltas.length ? `Δ [${deltas.join(', ')}]` : '';
-          return `<div class="trait-row" style="gap:8px">
-            <div class="trait-lbl" style="min-width:130px">${tk.replace(/_/g, ' ')}</div>
-            <div class="trait-wt sans" style="min-width:80px;color:${signalColor(consensus)};font-weight:700">${consensus}</div>
-            <div style="flex:1;font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-2)">${hist.join(' → ') || '—'}</div>
-            <div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${deltaStr}</div>
-            <div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${conf}</div>
+          const histStr   = hist.length ? `History: [${hist.join(', ')}]` : '';
+          return `<div class="trait-row">
+            <div class="trait-meta-row" style="flex-wrap:wrap;gap:6px">
+              <div class="trait-lbl">${tk.replace(/_/g, ' ')}</div>
+              <div class="trait-wt sans" style="color:${signalColor(consensus)};font-weight:700">${consensus}</div>
+              ${deltaStr ? `<div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${deltaStr}</div>` : ''}
+              ${conf ? `<div class="sans" style="font-size:10px;color:var(--text-3);white-space:nowrap">${conf}</div>` : ''}
+            </div>
+            ${histStr ? `<div class="trait-history-text">${histStr}</div>` : ''}
           </div>`;
         }).join('')}
       </div>
