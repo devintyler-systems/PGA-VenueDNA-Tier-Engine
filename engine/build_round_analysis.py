@@ -1749,6 +1749,10 @@ else:
     out_path = OUT / f"{EVENT_SLUG}_r{ROUND}_analysis.json"
     dep_path = DEP / f"r{ROUND}_analysis.json"
 
+import os as _os
+if not _os.path.exists("C:/PGA_VenueDNA/architecture_blueprint.md"):
+    print("[warn] System architecture blueprint missing.")
+
 for path in [out_path, dep_path]:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
