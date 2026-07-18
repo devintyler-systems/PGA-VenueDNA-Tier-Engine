@@ -1117,6 +1117,7 @@ async function switchRound(r) {
     content?.classList.remove('hidden');
     const _tabBtnC = document.querySelector(`.round-tab[data-round="${r}"]`);
     if (_tabBtnC) _tabBtnC.textContent = S.roundData[r].metadata?.is_final ? `R${r} Final` : `R${r} Live`;
+    S.liveLeanNotes = S.roundData[r].live_lean_notes || {};
     renderLiveRound(S.roundData[r], content);
     renderCumulativeAnalysis();
     return;
@@ -1135,6 +1136,7 @@ async function switchRound(r) {
     if (S.activeFetchTarget !== r) return;
     S.roundData[r] = data;
     S.cumulativeLearning = cumLearn;
+    S.liveLeanNotes = data.live_lean_notes || {};
     const _tabBtn = document.querySelector(`.round-tab[data-round="${r}"]`);
     if (_tabBtn) _tabBtn.textContent = data.metadata?.is_final ? `R${r} Final` : `R${r} Live`;
     liveSection?.classList.remove('loading-blur');
@@ -1224,7 +1226,8 @@ function renderLiveRound(data, el) {
           const score = r.r1_score ?? 0;
           const scoreColor = score < 0 ? 'var(--green-ok)' : score > 0 ? 'var(--accent)' : 'var(--text-3)';
           const scoreStr   = score > 0 ? `+${score}` : String(score);
-          const winPct = r.live_win_pct != null ? r.live_win_pct.toFixed(1) + '%' : '—';
+          const isElim  = /^(CUT|WD|DQ|MC|MDF)/i.test(r.r1_pos_str || '');
+          const winPct  = isElim ? '0.0%' : (r.live_win_pct != null ? r.live_win_pct.toFixed(1) + '%' : '—');
           return `<tr data-player="${esc(canonName(r.r1_name))}">
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
@@ -1294,7 +1297,7 @@ function renderLiveRound(data, el) {
 
     ${(lean.lean_up_traits?.length || lean.lean_down_traits?.length) ? `
     <div class="live-sub-header">
-      <div class="live-sub-title">${isFinal ? 'Final Round Recap' : 'Live Lean — Trait Signals'}</div>
+      <div class="live-sub-title">${isFinal ? 'Final Round Recap' : (nextRound != null ? `ROUND ${nextRound} LIVE LEAN` : 'Live Lean — Trait Signals')}</div>
       <div class="live-sub-note sans">${nextRound == null ? 'Tournament Complete' : `R${round} field validation vs model weights`}</div>
     </div>
     <div class="lean-pills">

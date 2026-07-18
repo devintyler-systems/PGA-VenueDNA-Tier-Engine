@@ -1122,9 +1122,12 @@ def player_summary(r: dict) -> dict:
     }
 
 # ── Slippage risk ─────────────────────────────────────────────────────────────
+_ELIM_PFX = ("CUT", "MC", "WD", "DQ", "MDF")
 slippage_risk: list[dict] = []
 for r in matched:
     if r["r1_pos"] > 20:
+        continue
+    if str(r.get("r1_pos_str", "")).upper().strip().startswith(_ELIM_PFX):
         continue
     risks = []
     sg_putt = r.get("sg_putt") or 0
@@ -1148,23 +1151,83 @@ def riser_thesis_score(r: dict) -> int:
     if r.get("sg_putt") and r["sg_putt"] > 0.3: score += 1
     return score
 
+# Extract high-spin player set early so _make_thesis_note can reference it
+_spin_early_cfg  = cfg.get("weekend_high_spin_penalty", {})
+_SPIN_ROUND_GATE = (
+    _spin_early_cfg.get("active_from_round", 99)
+    if isinstance(_spin_early_cfg, dict) else 99
+)
+_SPIN_PLAYERS_EARLY: set[str] = (
+    {ascii_fold(p).lower() for p in (_spin_early_cfg.get("players") or [])}
+    if isinstance(_spin_early_cfg, dict) else set()
+)
+
 _seen_notes: set[str] = set()
 
 def _make_thesis_note(r: dict) -> str:
-    notes = []
-    if r.get("sg_app") and r["sg_app"] > 0.8:   notes.append(f"approach elite ({r['sg_app']:+.2f})")
-    elif r.get("sg_app") and r["sg_app"] > 0.4:  notes.append(f"approach solid ({r['sg_app']:+.2f})")
-    if r.get("sg_arg") and r["sg_arg"] > 0.5:    notes.append(f"scrambling strong ({r['sg_arg']:+.2f})")
-    if r.get("sg_putt") and r["sg_putt"] > 0.8:  notes.append(f"putting hot ({r['sg_putt']:+.2f})")
-    if r.get("pt_driver"):                         notes.append(f"pre-event driver: {r['pt_driver']}")
-    if not notes:
-        notes.append(f"score above expectation (R{ROUND} score {r.get('r1_score',0):+d})")
+    name_key   = ascii_fold(r.get("r1_name", "")).lower()
+    is_hi_spin = (ROUND >= _SPIN_ROUND_GATE) and (name_key in _SPIN_PLAYERS_EARLY)
 
-    # Unique-narrative enforcement: if this note text has been used, disambiguate
-    # with player-specific SG total so no two cards share identical content.
+    sg_app  = r.get("sg_app")  or 0.0
+    sg_arg  = r.get("sg_arg")  or 0.0
+    sg_putt = r.get("sg_putt") or 0.0
+    sg_ott  = r.get("sg_ott")  or 0.0
+    pt_vts  = r.get("pt_vts")  or 0.0
+    score   = r.get("r1_score", 0)
+
+    notes = []
+
+    # app_150_200 — primary Birkdale separation trait (SG-APP proxy)
+    if sg_app >= 0.8:
+        notes.append(f"app_150_200 elite (SG-APP {sg_app:+.2f})")
+    elif sg_app >= 0.4:
+        notes.append(f"app_150_200 positive (SG-APP {sg_app:+.2f})")
+    elif sg_app < -0.3:
+        notes.append(f"app_150_200 below field (SG-APP {sg_app:+.2f})")
+
+    # ott_accuracy — positional driving signal
+    if sg_ott >= 0.5:
+        notes.append(f"ott_accuracy supported (SG-OTT {sg_ott:+.2f})")
+    elif sg_ott < -0.4:
+        notes.append(f"ott_accuracy stressed (SG-OTT {sg_ott:+.2f})")
+
+    # pt_vts — pre-event fit anchor; always included to guarantee note uniqueness
+    notes.append(f"pt_vts={pt_vts:.2f}")
+
+    # ARG scrambling
+    if sg_arg >= 0.5:
+        notes.append(f"scrambling positive ({sg_arg:+.2f} ARG)")
+    elif sg_arg < -0.4:
+        notes.append(f"scrambling stressed ({sg_arg:+.2f} ARG)")
+
+    # Putting
+    if sg_putt >= 0.8:
+        notes.append(f"putting hot ({sg_putt:+.2f} PUTT)")
+    elif sg_putt < -0.8:
+        notes.append(f"putting suppressed ({sg_putt:+.2f} PUTT)")
+
+    # Pre-event driver
+    if r.get("pt_driver"):
+        notes.append(f"pre-event driver: {r['pt_driver']}")
+
+    # Score context if narrative is thin
+    if len(notes) < 2:
+        notes.append(f"R{ROUND} score {score:+d}")
+
+    # High-spin trajectory risk — injected after substantive content
+    if is_hi_spin:
+        notes.append(
+            "TRAJECTORY RISK: NNW 18kts steady baseline — unstable landing windows and "
+            f"descent variability under firm/fast Birkdale stress (R{ROUND})"
+        )
+
     base = " | ".join(notes)
     if base in _seen_notes:
-        base += f" | R{ROUND} SG total: {r.get('sg_tot', 0):+.2f}"
+        raise SystemExit(
+            f"FATAL: Duplicate player brief detected for '{r.get('r1_name', '')}'. "
+            f"Narrative engine must produce unique analysis per player. "
+            f"Text: \"{base[:120]}...\""
+        )
     _seen_notes.add(base)
     return base
 
@@ -1192,6 +1255,7 @@ sustainable_leaders = [
     if r["r1_pos"] <= 6
     and r["r1_name"] not in slippage_names
     and (r.get("sg_app") or 0) > 0.5
+    and not str(r.get("r1_pos_str", "")).upper().strip().startswith(_ELIM_PFX)
 ]
 
 watch_next: list[dict] = [
@@ -1223,12 +1287,35 @@ putt_outliers = sorted(
     key=lambda x: -(x.get("sg_putt") or 0)
 )
 
-lean_up   = [{"trait": tk, "delta": trait_audit[tk].get("trait_delta"),
-               "confidence": trait_audit[tk].get("source_confidence","proxy-confirmed"),
-               "enr_signal": (trait_audit[tk].get("enrichment") or {}).get("enrichment_signal")}
-             for tk in TRAIT_COLS if trait_audit[tk]["signal"] == "validated"]
+# Firm/fast override — three traits guaranteed in lean_up matching active multipliers.
+# These appear regardless of whether the data audit flags them as "validated" because
+# the SG CSV multipliers (OTT x1.10, APP x1.15, ARG x1.10) are baked in at data prep.
+_FF_LEAN: list[dict] = []
+if WX_SPEED > 0:
+    _wx_kts = int(WX_SPEED)
+    _FF_LEAN = [
+        {"trait": "app_150_200", "delta": None, "confidence": "firm-fast-override",
+         "multiplier": "APP x1.15",
+         "enr_signal": f"175-225yd separation elevated; NNW {_wx_kts}kts active"},
+        {"trait": "app_200+",    "delta": None, "confidence": "firm-fast-override",
+         "multiplier": "APP x1.15",
+         "enr_signal": "long-iron into exposed greens — primary weekend stress vector"},
+        {"trait": "ott_accuracy","delta": None, "confidence": "firm-fast-override",
+         "multiplier": "OTT x1.10",
+         "enr_signal": f"positional driving premium — firm/fast Birkdale corridors ({_WX.get('tide','N/A')})"},
+    ]
+_ff_lean_keys = {e["trait"] for e in _FF_LEAN}
+
+lean_up = _FF_LEAN + [
+    {"trait": tk, "delta": trait_audit[tk].get("trait_delta"),
+     "confidence": trait_audit[tk].get("source_confidence", "proxy-confirmed"),
+     "enr_signal": (trait_audit[tk].get("enrichment") or {}).get("enrichment_signal")}
+    for tk in TRAIT_COLS
+    if trait_audit[tk]["signal"] == "validated"
+    and tk not in _ff_lean_keys
+]
 lean_down = [{"trait": tk, "delta": trait_audit[tk].get("trait_delta")}
-             for tk in TRAIT_COLS if trait_audit[tk]["signal"] in ("weak","not_testable")]
+             for tk in TRAIT_COLS if trait_audit[tk]["signal"] in ("weak", "not_testable")]
 
 rho_note = (
     f"R{ROUND} rho={spearman_rho} — tournament complete." if IS_FINAL
@@ -1473,10 +1560,37 @@ def _softmax_t(z_arr: list[float], temp: float) -> list[float]:
 if not _zs:
     raise SystemExit("ERROR: No field data — leaderboard join produced zero players.")
 
-_win   = _softmax_t(_zs, _LIVE_TEMPS["win"])
-_top5  = _softmax_t(_zs, _LIVE_TEMPS["top5"])
-_top10 = _softmax_t(_zs, _LIVE_TEMPS["top10"])
-_top20 = _softmax_t(_zs, _LIVE_TEMPS["top20"])
+# ── CUT/WD/DQ hard-clamp ─────────────────────────────────────────────────────
+# Eliminated players are zeroed before softmax so remaining probability sums
+# to exactly 100% over the active weekend field only.
+_ELIM_PREFIXES = ("CUT", "MC", "WD", "DQ", "MDF")
+_active_mask   = [
+    not str(r.get("r1_pos_str", "")).upper().strip().startswith(_ELIM_PREFIXES)
+    for r in joined
+]
+_active_zs = [_zs[i] for i, ok in enumerate(_active_mask) if ok]
+_n_elim    = _active_mask.count(False)
+if _n_elim:
+    print(f"CUT/WD/DQ clamp: {_n_elim} eliminated players zeroed; softmax over {len(_active_zs)} active players")
+
+if not _active_zs:
+    raise SystemExit("ERROR: No active players remaining after CUT/WD/DQ elimination.")
+
+_wa   = _softmax_t(_active_zs, _LIVE_TEMPS["win"])
+_t5a  = _softmax_t(_active_zs, _LIVE_TEMPS["top5"])
+_t10a = _softmax_t(_active_zs, _LIVE_TEMPS["top10"])
+_t20a = _softmax_t(_active_zs, _LIVE_TEMPS["top20"])
+
+# Map active results back to full-field index; eliminated entries receive 0.0
+_win, _top5, _top10, _top20 = [], [], [], []
+_ai = 0
+for _ok in _active_mask:
+    if _ok:
+        _win.append(_wa[_ai]);   _top5.append(_t5a[_ai])
+        _top10.append(_t10a[_ai]); _top20.append(_t20a[_ai])
+        _ai += 1
+    else:
+        _win.append(0.0); _top5.append(0.0); _top10.append(0.0); _top20.append(0.0)
 
 for _i in range(len(_ordered_nks)):
     _top5[_i]  = max(_top5[_i],  _win[_i])
@@ -1572,6 +1686,10 @@ output = {
         "is_final":           IS_FINAL,
         "is_full_tournament": FINAL_BUILD,
         "favored_wave":       FAVORED_WAVE,
+        "wx_speed_kts":       WX_SPEED,
+        "wx_direction":       _WX.get("direction", "N/A"),
+        "wx_wave_delta":      WX_DELTA,
+        "wx_tide":            _WX.get("tide", "N/A"),
     },
     "round_sources":          round_sources,
     "course_insights_loaded": ci_loaded,
