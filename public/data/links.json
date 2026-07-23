@@ -1,0 +1,11 @@
+{
+  "event_id": "2026_the_open_championship",
+  "generated_at": "2026-07-18T02:35:29Z",
+  "availability": "not supplied by active event inputs",
+  "tournament_homepage": null,
+  "official_leaderboard": null,
+  "datagolf_event_page": null,
+  "field_list_source": "input/the_open_championship_player_field_R1_R2_teetimes.csv",
+  "weather_source": "input/birkdale_full_course_weather_data_2026.json",
+  "notes": "Null URLs are deliberate: no canonical URLs were present in the active event inputs."
+}
