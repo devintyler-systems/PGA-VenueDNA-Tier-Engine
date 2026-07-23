@@ -1303,8 +1303,25 @@ function onOverlayClick(e) {
 }
 
 // ── Glossary modal ─────────────────────────────────────────────────────────────
+function renderGlossary() {
+  const body = document.getElementById('glossary-body');
+  if (!body) return;
+  body.innerHTML = Object.entries(uiGlossary).map(([section, items]) =>
+    `<div class="gloss-section">
+      <div class="gloss-section-title">${esc(section)}</div>
+      ${items.map(({ term, def }) =>
+        `<div class="gloss-item">
+          <span class="gi-term">${esc(term)}</span>
+          <div class="gi-def">${esc(def)}</div>
+        </div>`
+      ).join('')}
+    </div>`
+  ).join('');
+}
+
 function openGlossary() {
   S.glossaryModalOpen = true;
+  renderGlossary();
   document.getElementById('glossary-modal-overlay')?.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1348,6 +1365,51 @@ const FM = {
   'VenueDNA_flag_high_variance':      { lbl:'VAR',   cls:'flag-warn',   full:'High variance profile — wide outcome range; ceiling and floor both elevated' },
   'VenueDNA_flag_form_concern':       { lbl:'FORM',  cls:'flag-danger', full:'Recent form concern — performance below recent-season baseline' },
   'VenueDNA_flag_ott_accuracy':       { lbl:'OTT',   cls:'flag-warn',   full:'OTT accuracy concern — driving accuracy penalty applied' },
+};
+
+// ── UI Glossary — rendered dynamically into #glossary-body ─────────────────────
+const uiGlossary = {
+  'Score Components': [
+    { term: 'VTS 0–100', def: 'Venue Tier Score: z-scored composite of SG Similar Composite across the full field (mean=50, std=15). The official ranking signal.' },
+    { term: 'NSI 0–100', def: 'Neutral Skill Index: z-scored SG Base Composite — general skill ranking independent of venue fit. Tells you who is playing the best golf right now, ignoring course fit.' },
+    { term: 'SG Base', def: 'Baseline skill across all courses — stability-weighted composite (6m:20%, 12m:30%, 24m:50%). The long-run skill anchor.' },
+    { term: 'SG Sim', def: 'Similar-course strokes gained — sample-weighted regression using the top-20 courses most similar to TPC Twin Cities.' },
+    { term: 'Δ Fit', def: 'Delta between SG Sim and SG Base — TPC Twin Cities venue fit signal. Positive = course-specialist upside; clamped ±0.50 SG/round.' },
+    { term: 'VFS (Venue Fit)', def: 'Δ Fit expressed as a venue fit signal. Used on the Contention Map Y-axis. High VFS + high NSI = structural contender.' },
+  ],
+  'Traits': [
+    { term: 'NeutralSkill (NSI)', def: 'Player skill level independent of venue. Drives the X-axis on the Contention Map.' },
+    { term: 'VenueFitDelta', def: 'How much TPC Twin Cities specifically helps or hurts this player vs. their all-course baseline.' },
+    { term: 'VenueHistoryDelta', def: 'Course-history adjustment — derived from prior starts at TPC Twin Cities. Clamped to a modest modifier.' },
+    { term: 'App 150–200 yd', def: 'Approach strokes gained from 150–200 yards. The #1 birdie creation mechanism at TPC Twin Cities (46% of approaches from this range).' },
+    { term: 'OTT Accuracy / Positional', def: 'Driving accuracy and positional efficiency. Penalised on the 9 water-threatened driving holes at TPC.' },
+  ],
+  'Probability Outputs': [
+    { term: 'Win%', def: 'Tempered softmax win probability (T=3.5); full field sums to ~100%.' },
+    { term: 'Top5% / Top10%', def: 'Tempered softmax placement probabilities (T=7.0); field sums to ~500% / ~1000%.' },
+    { term: 'Cut%', def: 'Estimated make-cut probability: min(98, max(20, Top20% × 1.25 + 10)).' },
+    { term: 'Fair +Odds', def: 'Implied fair American odds derived from model probability. Formula: fair decimal = 100 / p%; American = +(decimal−1)×100 if positive. These are model-implied prices, NOT betting lines.' },
+  ],
+  'Tiers': [
+    { term: 'T1 — Elite', def: 'Ranks 1–5. Structural winners: high NSI AND positive VFS. Must-consider contenders.' },
+    { term: 'T2 — Strong', def: 'Ranks 6–12. Primary contenders with at least one structural advantage at TPC.' },
+    { term: 'T3 — Mid-tier', def: 'Ranks 13–25. Viable ceiling plays if a key trait fires. Dark horse territory.' },
+    { term: 'T4 — Value', def: 'Ranks 26–40. Fragile paths requiring multiple things to go right.' },
+    { term: 'T5 — Long-shots', def: 'Ranks 41+. Structural mismatches or limited data — fade candidates.' },
+  ],
+  'Anti-Pattern Flags': [
+    { term: 'ACC — Accuracy Risk', def: 'Driving accuracy concern. Penalty exposure on TPC\'s 9 water-threatened holes. Even a single penalty stroke can cascade.' },
+    { term: 'SGO — Short Game Only', def: 'Short-game-only profile. TPC rewards ball-striking over scrambling; this flag signals a structural ceiling.' },
+    { term: 'PUTT — Putting Dependency', def: 'Putting-reliant profile. Easy bentgrass greens compress putting edges vs. trickier venues.' },
+    { term: 'LI– — Long-Iron Deficit', def: '150–200 fw SG below neutral. Limits birdie creation on TPC\'s approach-heavy layout.' },
+    { term: 'FORM — Form Concern', def: 'Recent performance below recent-season baseline. Watch vs. baseline trend.' },
+    { term: 'DEB — Course Debut', def: 'No prior TPC Twin Cities starts — no course history adjustment available.' },
+  ],
+  'Analyst Mode': [
+    { term: 'What It Is', def: 'A client-side weight-adjustment sandbox. Trait weights can be changed to explore how rankings would shift under a different emphasis (e.g., if you believe putting matters more than approach this week).' },
+    { term: 'What It Is NOT', def: 'Official VenueDNA outputs. Analyst Mode results are clearly badged as UNOFFICIAL and are never written back to any data file.' },
+    { term: 'Reset to Official', def: 'The "Reset to official model" button restores canonical VenueDNA weights and exits Analyst Mode. The rank table reverts to official order.' },
+  ],
 };
 
 function flag(code, penMag) {

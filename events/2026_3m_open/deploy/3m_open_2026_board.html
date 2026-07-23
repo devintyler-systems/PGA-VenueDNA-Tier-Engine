@@ -546,34 +546,8 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
       <h2 style="color:var(--gold);font-size:1.1rem;">Glossary — 3M Open 2026</h2>
       <button class="modal-close" id="glossary-modal-close">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="gloss-section">
-        <div class="gloss-section-title">Score Components</div>
-        <div class="gloss-item"><span class="gi-term">VTS 0–100</span><div class="gi-def">Venue Tier Score: z-scored composite of SG Similar Composite across the full field (mean=50, std=15)</div></div>
-        <div class="gloss-item"><span class="gi-term">NSI 0–100</span><div class="gi-def">Neutral Skill Index: z-scored SG Base Composite — general skill ranking independent of venue fit</div></div>
-        <div class="gloss-item"><span class="gi-term">SG Base</span><div class="gi-def">Baseline skill across all courses — stability-weighted composite (6m:20%, 12m:30%, 24m:50%)</div></div>
-        <div class="gloss-item"><span class="gi-term">SG Sim</span><div class="gi-def">Similar-course strokes gained — sample-weighted regression using Top-20 courses most similar to TPC Twin Cities</div></div>
-        <div class="gloss-item"><span class="gi-term">Δ Fit</span><div class="gi-def">Delta between SG Sim and SG Base — TPC Twin Cities venue fit signal; positive = course specialist upside; clamped ±0.50</div></div>
-      </div>
-      <div class="gloss-section">
-        <div class="gloss-section-title">Probability Outputs</div>
-        <div class="gloss-item"><span class="gi-term">Win%</span><div class="gi-def">Tempered softmax win probability (T=3.5); field sums to ~100%</div></div>
-        <div class="gloss-item"><span class="gi-term">Top10%</span><div class="gi-def">Tempered softmax Top-10 probability (T=7.0); field sums to ~1000%</div></div>
-        <div class="gloss-item"><span class="gi-term">Cut%</span><div class="gi-def">Estimated make-cut probability derived from Top-20% rate: min(98, max(20, Top20% × 1.25 + 10))</div></div>
-      </div>
-      <div class="gloss-section">
-        <div class="gloss-section-title">Tiers</div>
-        <div class="gloss-item"><span class="gi-term">T1</span><div class="gi-def">Ranks 1–5 · Elite contenders</div></div>
-        <div class="gloss-item"><span class="gi-term">T2</span><div class="gi-def">Ranks 6–12 · Strong contenders</div></div>
-        <div class="gloss-item"><span class="gi-term">T3</span><div class="gi-def">Ranks 13–25 · Mid-tier plays</div></div>
-        <div class="gloss-item"><span class="gi-term">T4</span><div class="gi-def">Ranks 26–40 · Value tier</div></div>
-        <div class="gloss-item"><span class="gi-term">T5</span><div class="gi-def">Ranks 41+ · Long-shots and cut riskers</div></div>
-      </div>
-      <div class="gloss-section">
-        <div class="gloss-section-title">Data</div>
-        <div class="gloss-item"><span class="gi-term">FULL</span><div class="gi-def">Player has at least one similar-course round on record</div></div>
-        <div class="gloss-item"><span class="gi-term">DEBUT</span><div class="gi-def">No similar-course history — SG Sim regressed entirely to SG Base; Δ Fit = 0</div></div>
-      </div>
+    <div class="modal-body" id="glossary-body">
+      <!-- Populated dynamically by renderGlossary() in app.js -->
     </div>
   </div>
 </div>
