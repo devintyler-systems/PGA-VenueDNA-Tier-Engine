@@ -1,3 +1,8 @@
+> **AUTHORITY: Reference only**
+> **Canonical counterpart:** `standards/02_PGA_VENUEDNA_SCORING_SPEC.md`
+> **Keep reason:** Contains Space-era NeutralSkill estimation, VHD gating rules, JDC write-back cases, and variance layer logic not present in the standards implementation contract.
+---
+
 # PGA VenueDNA Tier Engine — Scoring Specification
 Version 1.1 — June 2026
 Purpose: Canonical scoring core for the single Perplexity-native PGA VenueDNA system.

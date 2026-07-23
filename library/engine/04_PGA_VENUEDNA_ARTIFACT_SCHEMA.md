@@ -1,3 +1,8 @@
+> **AUTHORITY: Reference only**
+> **Canonical counterpart:** `standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md`
+> **Keep reason:** Contains the three-artifact-class architecture, deploy package layout rules, and Space-era versioning metadata not covered by the standards CSV column contracts.
+---
+
 # PGA VenueDNA Tier Engine — Artifact Schema
 Version 1.1 — June 2026
 Purpose: Canonical output, file, and deploy contract for the single Perplexity-native PGA VenueDNA system.

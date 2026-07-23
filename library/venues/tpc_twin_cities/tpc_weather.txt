@@ -1,0 +1,76 @@
+Here is the full hourly weather breakdown for TPC Twin Cities, Blaine, Minnesota for July 23–26, 2026, compiled from The Weather Channel and the National Weather Service (NWS Twin Cities/MPX office) point forecast for Blaine, MN (45.17°N, 93.24°W).
+
+Note: Times below are local (CDT). All values are forecasts as of the morning of July 23, 2026, and may shift slightly as the dates approach.
+
+Thursday, July 23
+Mostly sunny, warm, and dry all day; clouds increase into the evening.
+
+Time	Temp (°F)	Sky/Conditions	Precip Chance	Humidity	Wind
+6 AM	54	Clear	0%	90%	3 mph SSW
+8 AM	63	Mostly Sunny	1%	72%	3 mph SW
+10 AM	72	Sunny	0%	51%	6 mph SSW
+12 PM	77	Sunny	0%	43%	7 mph SSW
+2 PM	80	Partly Cloudy	0%	38%	8 mph SSW
+4 PM	81 (high)	Partly Cloudy	0%	38%	8 mph SSW
+6 PM	79	Partly Cloudy	0%	39%	8 mph SSW
+8 PM	75	Mostly Cloudy	0%	50%	7 mph SSW
+10 PM	70	Cloudy	0%	66%	6 mph S
+Midnight	68	Mostly Cloudy	0%	70%	6 mph S
+No rain expected. Winds light-to-moderate out of the S/SSW, building slightly through the afternoon. No thunder potential noted.
+
+Friday, July 24
+Partly-to-mostly cloudy, slightly breezier, still dry.
+
+Time	Temp (°F)	Sky/Conditions	Precip Chance	Humidity	Wind
+6 AM	65 (low ~67)	Partly Cloudy	4%	81%	6 mph S
+8 AM	69	Partly Cloudy	3%	75%	8 mph SSW
+10 AM	73	Partly Cloudy	3%	70%	10 mph SSW
+12 PM	76	Partly Cloudy	0%	65%	11 mph SSW
+2 PM	78	Mostly Cloudy	0%	62%	12 mph SSW
+4 PM	81 (high)	Partly Cloudy	0%	60%	13 mph SSW
+6 PM	78	Mostly Cloudy	0%	62%	13 mph SSW
+8 PM	76	Mostly Cloudy	0%	67%	13 mph SSW
+10 PM	73	Mostly Cloudy	2%	75%	10 mph SSW
+Midnight	71	Partly Cloudy	13%	81%	11 mph SSW
+Winds pick up noticeably (10-14 mph sustained SSW) — good early warning for afternoon play. Still essentially no rain risk.
+
+Saturday, July 25
+Warmest day yet, becoming hot and humid with rising heat index; skies clear out through the afternoon before increasing again overnight.
+
+Time	Temp (°F)	Heat Index	Sky/Conditions	Precip Chance	Humidity	Wind
+6 AM	67	75	Partly Cloudy (44% cover)	10%	97%	10 mph SSW
+8 AM	71	86	Partly Cloudy	4%	87%	9 mph SW
+10 AM	79	94	Mostly Clear (17% cover)	4%	74%	8 mph WSW
+12 PM	86	98	Sunny (10% cover)	4%	61%	7 mph W
+1 PM	88	99	Sunny	1%	57%	7 mph W
+2 PM	91 (near high)	98	Sunny (5% cover)	1%	50%	7 mph W
+3 PM	93	96	Sunny	1%	46%	7 mph W
+4 PM	94 (high)	95	Sunny (2% cover)	1%	43%	7 mph W
+5 PM	94	90	Sunny	1%	41%	7 mph WNW
+6 PM	93	88	Sunny	1%	41%	7 mph WNW
+8 PM	88	78	Partly Cloudy	3%	48%	6 mph W
+10 PM	81	—	Partly Cloudy	3%	63%	3 mph SE
+Midnight	77	—	Partly Cloudy (17% cover)	3%	74%	2 mph SSE
+This is the hot day — heat index peaks near 98–99°F in early-mid afternoon (12–3 PM). Winds shift from SW/W in the morning to W/WNW in the afternoon, then go light and swing to SE overnight. No measurable rain expected, but humidity and heat stress will be significant for players/spectators.
+
+Sunday, July 26
+Hottest day of the stretch, sunny/hazy with a very high heat index; still dry, wind light and variable.
+
+Time	Temp (°F)	Heat Index	Sky/Conditions	Precip Chance	Humidity	Wind
+Time	Temp (°F)	Heat Index	Sky/Conditions	Precip Chance	Humidity	Wind
+1 AM	75	—	Clear-ish	5%	79%	2 mph SSE
+3 AM	72	—	Clear	5%	87%	2 mph S
+6 AM (low ~70)	70	—	Increasing clouds (49% cover)	5%	93%	5 mph S
+8 AM	74	79	Partly Cloudy	8%	84%	7 mph S
+10 AM	83	91	Partly Cloudy (39% cover)	8%	67%	8 mph S
+12 PM	89	100	Partly Cloudy	8%	56%	9 mph SSW
+1 PM	91	100	Partly Cloudy	17%	52%	10 mph SSW
+2 PM	93	100	Partly Cloudy	17%	49%	11 mph SSW
+3 PM	94 (high)	99	Partly Cloudy (35% cover)	17%	46%	13 mph SSW
+4 PM	94	97	Partly Cloudy	17%	46%	13 mph SSW
+6 PM	94	90	Partly Cloudy	17%	44%	11 mph SSW
+7 PM	92	86	Partly Cloudy	33% (slight chance storms)	47%	11 mph S
+8 PM	88	83	Partly Cloudy	33%	54%	11 mph S
+10 PM	82	78	Partly Cloudy	33%	67%	10 mph S
+11 PM–Midnight	79–80	77	Partly Cloudy	33%	72–74%	9–10 mph S/SSW
+Sunday is the peak-heat day — highs near 94°F with heat index readings of 97–100°F from roughly 11 AM to 6 PM. A slight chance ("Chc"/"SChc") of showers/thunderstorms develops in the evening (roughly 1 PM–midnight window shows rising precip potential to 17–33%), so an evening thunderstorm risk should be monitored, though nothing is locked in with certainty this far out.

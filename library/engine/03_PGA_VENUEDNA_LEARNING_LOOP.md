@@ -1,3 +1,8 @@
+> **AUTHORITY: Reference only**
+> **Canonical counterpart:** `standards/03_PGA_VENUEDNA_LEARNING_LOOP.md`
+> **Keep reason:** Contains the 16-section audit methodology, global miss ledger schema, and write-back split rules that predate and extend the standards round-cadence spec.
+---
+
 # PGA VenueDNA Tier Engine — Learning Loop Specification
 Version 1.1 — June 2026
 Purpose: Canonical learning, audit, and write-back logic for the single Perplexity-native PGA VenueDNA system.

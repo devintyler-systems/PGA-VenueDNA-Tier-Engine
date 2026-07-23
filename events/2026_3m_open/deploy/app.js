@@ -130,8 +130,8 @@ async function init() {
 
   try {
     const [boardJson, analysisJson, briefsJson] = await Promise.all([
-      fetch('data/board_export.json').then(r => r.json()),
-      fetch('data/final_analysis.json').then(r => r.json()).catch(() => ({})),
+      fetch('data/2026_3m_open_board_export.json').then(r => r.json()),
+      fetch('data/2026_3m_open_final_analysis.json').then(r => r.json()).catch(() => ({})),
       fetch('data/2026_3m_open_player_briefs.json').then(r => r.json()).catch(() => ({})),
     ]);
 
@@ -161,7 +161,7 @@ async function init() {
     bindEvents();
     renderAll();
 
-    fetch('data/weather_forecast.json')
+    fetch('data/2026_3m_open_weather_forecast.json')
       .then(r => r.ok ? r.json() : Promise.reject())
       .catch(() => ({ speed: 0, direction: 'N/A' }))
       .then(wx => { S.weather = { ...S.weather, ...wx }; renderWeather(S.weather); console.log('PGA_VenueDNA Engine R1 dry-run check complete - Weather Wave Invariant: PASS'); });
@@ -1666,7 +1666,7 @@ async function switchRound(r) {
     if (S.pmData) { renderPostMortemView(S.pmData); return; }
     pmSection.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-3);font-family:-apple-system,sans-serif">Loading post-mortem…</div>';
     try {
-      const resp = await fetch('data/post_mortem_analysis.json');
+      const resp = await fetch('data/2026_3m_open_post_mortem_analysis.json');
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       S.pmData = await resp.json();
       renderPostMortemView(S.pmData);
@@ -1701,8 +1701,8 @@ async function switchRound(r) {
   content?.classList.add('hidden');
   try {
     const [resp, cumLearn] = await Promise.all([
-      fetch(`data/r${r}_analysis.json`),
-      fetch('data/cumulative_learning.json').then(res => res.ok ? res.json() : null).catch(() => null),
+      fetch(`data/2026_3m_open_r${r}_analysis.json`),
+      fetch('data/2026_3m_open_cumulative_learning.json').then(res => res.ok ? res.json() : null).catch(() => null),
     ]);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
