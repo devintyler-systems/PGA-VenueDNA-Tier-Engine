@@ -198,7 +198,32 @@ def inject_wave_scalar(
 
     try:
         with open(path, newline="", encoding="utf-8-sig") as fh:
-            rows = list(csv.DictReader(fh))
+            reader = csv.reader(fh)
+            headers_raw = next(reader, None)
+            if not headers_raw:
+                return df
+            headers = [h.strip().lower() for h in headers_raw]
+            if "player_name" not in headers:
+                return df
+            other_cols = [h for h in headers if h != "player_name"]
+            n_other = len(other_cols)
+            rows = []
+            for raw in reader:
+                if not raw:
+                    continue
+                # "Last, First" names may be unquoted, splitting across CSV fields.
+                # Reconstruct by taking the last n_other values as non-name columns
+                # and joining everything before them as the player name.
+                if n_other > 0 and len(raw) > n_other:
+                    player_name = ",".join(raw[:-n_other]).strip()
+                    other_values = raw[-n_other:]
+                else:
+                    player_name = raw[0].strip() if raw else ""
+                    other_values = raw[1 : n_other + 1] if len(raw) > 1 else []
+                row_dict: dict[str, str] = {"player_name": player_name}
+                for col, val in zip(other_cols, other_values):
+                    row_dict[col] = val.strip() if val else ""
+                rows.append(row_dict)
     except Exception:
         return df
 
