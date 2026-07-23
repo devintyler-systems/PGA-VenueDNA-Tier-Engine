@@ -130,7 +130,7 @@ async function init() {
 
   try {
     const [boardJson, analysisJson, briefsJson] = await Promise.all([
-      fetch('data/2026_3m_open_board_export.json').then(r => r.json()),
+      fetch('data/2026_3m_open_event_payload.json').then(r => r.json()),
       fetch('data/2026_3m_open_final_analysis.json').then(r => r.json()).catch(() => ({})),
       fetch('data/2026_3m_open_player_briefs.json').then(r => r.json()).catch(() => ({})),
     ]);
@@ -450,8 +450,15 @@ function renderTable() {
       <td class="sans">${pct(p.winPct)}</td>
       <td class="sans">${pct(p.top10Pct)}</td>
       <td class="sans">${pct(p.makeCutPct)}</td>
+      <td class="sparkline-cell"><canvas id="sp-${p.rank}" width="60" height="22"></canvas></td>
     </tr>`;
   }).join('');
+
+  // Paint sparklines — canvas elements now in DOM
+  sorted.forEach(p => {
+    const cv = document.getElementById(`sp-${p.rank}`);
+    if (cv && Array.isArray(p.l5_array) && p.l5_array.length > 0) renderSparkline(cv, p.l5_array);
+  });
 
   // Bind row-click events — no inline onclick in markup
   tbody.querySelectorAll('tr[data-player]').forEach(tr => {
@@ -1049,7 +1056,14 @@ function buildWinCase(p, br, tier) {
   const tc = tier.toLowerCase();
   const hasAny = br.scoring_thesis || br.failure_condition ||
                  br.risk_vector || br.conviction_statement || br.structural_note;
-  if (!hasAny) return '';
+  if (!hasAny) {
+    return p.win_case
+      ? `<div class="modal-sec">
+           <div class="modal-sec-title sans">Scouting Report</div>
+           <div class="analyst-brief">${p.win_case}</div>
+         </div>`
+      : '';
+  }
 
   if (tn <= 2) {
     const label = tn === 1 ? 'Win Case — Tier 1 Structural Winner' : 'Contention Brief — Primary Contender';
@@ -1158,7 +1172,7 @@ function openModal(name) {
   const fs      = br.floor_score;
   const css     = br.cut_survival_score;
   const scoring     = br.scoring || {};
-  const traitScores = br.trait_scores || [];
+  const traitScores = br.trait_scores || p.trait_scores || [];
   const topTraits   = br.top_traits   || [];
   const badges      = p.badges || br.badges || [];
 
@@ -1233,6 +1247,24 @@ function openModal(name) {
           ${scoring.floor    ? `<div class="latent-pill"><div class="latent-val" style="color:var(--accent)">${scoring.floor}</div><div class="latent-lbl">Floor</div></div>` : ''}
         </div>
 
+        ${(p.vts_floor != null && p.vts_ceil != null) ? `
+        <div class="dial-row">
+          <canvas id="d-win" width="72" height="72"></canvas>
+          <canvas id="d-t5"  width="72" height="72"></canvas>
+          <canvas id="d-t10" width="72" height="72"></canvas>
+          <canvas id="d-cut" width="72" height="72"></canvas>
+        </div>
+        <div class="cf-bar-wrap">
+          <div class="cf-bar-lbl sans">Projection Range (±1σ)</div>
+          <div class="cf-bar-track">
+            <div class="cf-bar-fill" style="left:${Math.max(0,Math.min(100,p.vts_floor))}%;width:${Math.max(0,Math.min(100,(p.vts_ceil||0)-(p.vts_floor||0)))}%"></div>
+            <div class="cf-bar-pin"  style="left:${Math.max(0,Math.min(100,p.vts_final))}%"></div>
+          </div>
+          <div class="cf-bar-ticks sans">
+            <span>Floor ${f1(p.vts_floor)}</span><span>VTS ${f2(p.vts_final)}</span><span>Ceil ${f1(p.vts_ceil)}</span>
+          </div>
+        </div>` : ''}
+
         ${buildLiveSGBlock(p)}
 
         ${S.weather.speed > 0 ? `<div style="margin-top:14px;padding:10px 14px;background:#0f172a;border:1px solid #1e293b;border-radius:8px">
@@ -1243,9 +1275,13 @@ function openModal(name) {
       </div>
 
       <!-- §2 — STYLE / FIT BADGES -->
-      ${badges.length ? `<div class="modal-sec">
+      ${(badges.length || (p.strength_tags||[]).length || (p.weakness_tags||[]).length) ? `<div class="modal-sec">
         <div class="modal-sec-title sans">Style &amp; Fit</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${badges.map(b => `<span class="badge sans" style="font-size:12px;padding:4px 10px">${b}</span>`).join('')}</div>
+        ${badges.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${badges.map(b => `<span class="badge sans" style="font-size:12px;padding:4px 10px">${b}</span>`).join('')}</div>` : ''}
+        ${((p.strength_tags||[]).length || (p.weakness_tags||[]).length) ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${(p.strength_tags||[]).map(t=>`<span class="badge-strength sans">${t}</span>`).join('')}
+          ${(p.weakness_tags||[]).map(t=>`<span class="badge-weakness sans">${t}</span>`).join('')}
+        </div>` : ''}
       </div>` : ''}
 
       <!-- §3 — WIN CASE / TIER BRIEF -->
@@ -1401,6 +1437,7 @@ function openModal(name) {
 
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => drawProbDials(wPct, t5Pct, t10Pct, mcPct));
 }
 
 function closeModal() {
@@ -2356,6 +2393,95 @@ function renderWeather(wx) {
       </div>`;
     }).join('');
   }
+}
+
+// ── Sparklines ─────────────────────────────────────────────────────────────────
+function renderSparkline(canvas, arr) {
+  if (!canvas || !arr || arr.length === 0) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const n = arr.length;
+  const xStep = n > 1 ? (W - 12) / (n - 1) : 0;
+
+  // y: val=1 (best) → top of canvas; val=80 (CUT) → bottom
+  const toY = v => 2 + ((Math.min(v, 80) - 1) / 79) * (H - 4);
+
+  // Trend color: improving (last < first numerically = better finish) = green
+  const trend = arr[arr.length - 1] < arr[0] ? '#4ade80'
+              : arr[arr.length - 1] > arr[0] ? '#fca5a5'
+              : '#94a3b8';
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = trend;
+  ctx.lineWidth   = 1.5;
+  ctx.lineJoin    = 'round';
+  arr.forEach((v, i) => {
+    const x = 6 + i * xStep;
+    const y = toY(v);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Dots — CUT in red, others in trend color
+  arr.forEach((v, i) => {
+    const x = 6 + i * xStep;
+    const y = toY(v);
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = v === 80 ? '#fca5a5' : trend;
+    ctx.fill();
+  });
+}
+
+// ── Radial Probability Dials ───────────────────────────────────────────────────
+function drawDial(id, val, maxPct, label, color) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2, r = 28;
+  const safeVal = Math.min(val ?? 0, maxPct);
+  const pct = safeVal / maxPct;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Background arc
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI * 1.5);
+  ctx.strokeStyle = '#1e2936';
+  ctx.lineWidth   = 6;
+  ctx.stroke();
+
+  // Value arc (clamped to [0, maxPct])
+  if (pct > 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + pct * Math.PI * 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 6;
+    ctx.lineCap     = 'round';
+    ctx.stroke();
+  }
+
+  // Center text
+  ctx.fillStyle  = '#e8e0d4';
+  ctx.font       = 'bold 11px Inter,sans-serif';
+  ctx.textAlign  = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(safeVal != null ? safeVal.toFixed(1) + '%' : '—', cx, cy - 4);
+
+  // Label below center
+  ctx.fillStyle  = '#7a8fa6';
+  ctx.font       = '9px Inter,sans-serif';
+  ctx.fillText(label, cx, cy + 9);
+}
+
+function drawProbDials(w, t5, t10, mc) {
+  drawDial('d-win', w,  15,  'Win',   '#c9a84c');
+  drawDial('d-t5',  t5, 40,  'Top 5', '#4ade80');
+  drawDial('d-t10', t10, 60, 'Top 10','#93c5fd');
+  drawDial('d-cut', mc, 100, 'Cut',   '#c4b5fd');
 }
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
