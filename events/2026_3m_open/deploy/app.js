@@ -2333,6 +2333,29 @@ function renderWeather(wx) {
       noteEl.style.display = 'none';
     }
   }
+
+  // Venue DNA weather card — 4-round forecast grid
+  const badgeInline = document.getElementById('wx-badge-inline');
+  if (badgeInline) { badgeInline.textContent = severity; badgeInline.style.background = sevColor; badgeInline.style.color = '#000'; }
+
+  const roundGrid = document.getElementById('wx-round-grid');
+  if (roundGrid && Array.isArray(wx.rounds) && wx.rounds.length) {
+    roundGrid.innerHTML = wx.rounds.map(r => {
+      const pk = r.speed_peak || 0;
+      const wLabel = pk >= 22 ? 'Challenging' : pk >= 15 ? 'Benign' : pk >= 8 ? 'V. Benign' : 'Exceptional';
+      const wColor = pk >= 22 ? '#f59e0b' : pk >= 15 ? '#3b82f6' : '#22c55e';
+      const flags = [];
+      if (r.heat_index_peak && r.heat_index_peak >= 95) flags.push(`<span style="color:#f59e0b;font-size:.58rem;font-weight:700;">🌡 HI ${r.heat_index_peak}°F</span>`);
+      if (r.storm_risk) flags.push(`<span style="color:#ef4444;font-size:.58rem;font-weight:700;">⚡ ${r.precip_pct}%</span>`);
+      return `<div style="background:var(--surface2);border-radius:4px;padding:.42rem .5rem;">
+        <div style="font-size:.6rem;color:var(--gold);font-weight:700;margin-bottom:.12rem;white-space:nowrap;">${esc(r.label)}</div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--text);">${r.temp_high}°F · <span style="font-size:.65rem;font-weight:400;color:var(--muted);">${esc(r.sky)}</span></div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:.08rem;">${(r.speed_morning || 0)}–${pk} mph ${esc(r.direction)}</div>
+        <div style="font-size:.6rem;color:${wColor};font-weight:600;margin-top:.06rem;">${wLabel}</div>
+        ${flags.length ? `<div style="margin-top:.15rem;display:flex;flex-wrap:wrap;gap:.2rem;">${flags.join('')}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
 }
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────

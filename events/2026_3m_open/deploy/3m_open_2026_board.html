@@ -656,6 +656,17 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
       </div>
     </div>
 
+    <!-- Weather Outlook — populated by renderWeather() -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">
+        Weather Outlook
+        <span id="wx-badge-inline" style="margin-left:.5rem;font-size:.6rem;font-weight:600;padding:.08rem .32rem;border-radius:3px;background:var(--surface2);color:var(--muted);text-transform:none;letter-spacing:0;vertical-align:middle;">—</span>
+      </div>
+      <div id="wx-round-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem;">
+        <div style="font-size:.68rem;color:var(--muted);grid-column:1/-1;">Loading forecast…</div>
+      </div>
+    </div>
+
   </div>
 </section>
 

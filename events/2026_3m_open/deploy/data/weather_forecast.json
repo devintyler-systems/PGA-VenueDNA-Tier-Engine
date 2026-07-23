@@ -1,6 +1,65 @@
 {
-  "speed": 10,
-  "direction": "SW",
-  "wave_delta": 0,
-  "tide": "Soft — summer humidity, bentgrass greens receptive"
+  "active_round": 1,
+  "speed": 8,
+  "direction": "SSW",
+  "wave_delta": 0.04,
+  "tide": "Soft — 54°F overnight low, morning dew on bentgrass; greens receptive all day",
+  "rounds": [
+    {
+      "round": 1,
+      "label": "R1 • Thu 7/23",
+      "temp_high": 81,
+      "sky": "Sunny",
+      "speed_morning": 3,
+      "speed_peak": 8,
+      "direction": "SSW",
+      "heat_index_peak": null,
+      "precip_pct": 1,
+      "storm_risk": false,
+      "wave_delta": 0.04,
+      "tide": "Soft — 54°F overnight, morning dew; greens receptive"
+    },
+    {
+      "round": 2,
+      "label": "R2 • Fri 7/24",
+      "temp_high": 81,
+      "sky": "Partly cloudy",
+      "speed_morning": 6,
+      "speed_peak": 13,
+      "direction": "SSW",
+      "heat_index_peak": null,
+      "precip_pct": 13,
+      "storm_risk": false,
+      "wave_delta": 0.08,
+      "tide": "Soft — afternoon winds 12–13 mph SSW; still dry"
+    },
+    {
+      "round": 3,
+      "label": "R3 • Sat 7/25",
+      "temp_high": 94,
+      "sky": "Sunny",
+      "speed_morning": 9,
+      "speed_peak": 10,
+      "direction": "W/WNW",
+      "heat_index_peak": 99,
+      "precip_pct": 4,
+      "storm_risk": false,
+      "wave_delta": 0.18,
+      "tide": "Firm-soft — HI peaks 98–99°F noon–3 PM; wind shifts W→WNW afternoon"
+    },
+    {
+      "round": 4,
+      "label": "R4 • Sun 7/26",
+      "temp_high": 94,
+      "sky": "Partly cloudy",
+      "speed_morning": 7,
+      "speed_peak": 13,
+      "direction": "S/SSW",
+      "heat_index_peak": 100,
+      "precip_pct": 33,
+      "storm_risk": true,
+      "wave_delta": 0.22,
+      "tide": "Soft-humid — HI 97–100°F peak 11 AM–6 PM; storm risk 17–33% evening"
+    }
+  ]
 }
