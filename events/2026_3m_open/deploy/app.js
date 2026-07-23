@@ -377,7 +377,11 @@ function renderSpotlight() {
         ${bar('Δ Fit',  dPct,    dFit >= 0 ? 'bar-vfs' : 'bar-pen', sgSign(dFit), dFit >= 0 ? 'var(--green-ok)' : 'var(--accent)')}
       </div>
       <div class="sc-stats">
-        <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.winPct)}</div><div class="sc-stat-lbl sans">Win</div></div>
+        <div class="sc-stat-box">
+          <div class="sc-stat-val sans">${pct(p.winPct)}</div>
+          <div class="sc-stat-lbl sans">Win</div>
+          ${fairOdds(p.winPct) ? `<div style="font-size:.55rem;color:var(--muted);font-family:'Inter',sans-serif;">${fairOdds(p.winPct)}</div>` : ''}
+        </div>
         <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.top10Pct)}</div><div class="sc-stat-lbl sans">Top 10</div></div>
         <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.makeCutPct)}</div><div class="sc-stat-lbl sans">Cut</div></div>
       </div>
@@ -1188,12 +1192,35 @@ function openModal(name) {
       <div class="modal-sec">
         <div class="modal-sec-title sans">Probability &amp; Output</div>
         <div class="modal-probs">
-          <div class="prob-box"><div class="prob-val sans">${pct(wPct)}</div><div class="prob-lbl sans">Win</div></div>
-          <div class="prob-box"><div class="prob-val sans">${pct(t5Pct)}</div><div class="prob-lbl sans">Top 5</div></div>
-          <div class="prob-box"><div class="prob-val sans">${pct(t10Pct)}</div><div class="prob-lbl sans">Top 10</div></div>
-          <div class="prob-box"><div class="prob-val sans">${pct(t20Pct)}</div><div class="prob-lbl sans">Top 20</div></div>
-          <div class="prob-box"><div class="prob-val sans">${pct(mcPct)}</div><div class="prob-lbl sans">Make Cut</div></div>
-          <div class="prob-box"><div class="prob-val sans" style="color:var(--accent)">${pct(missPct)}</div><div class="prob-lbl sans">Miss Cut</div></div>
+          <div class="prob-box">
+            <div class="prob-val sans">${pct(wPct)}</div>
+            <div class="prob-lbl sans">Win</div>
+            ${fairOdds(wPct) ? `<div class="prob-odds sans">${fairOdds(wPct)}</div>` : ''}
+          </div>
+          <div class="prob-box">
+            <div class="prob-val sans">${pct(t5Pct)}</div>
+            <div class="prob-lbl sans">Top 5</div>
+            ${fairOdds(t5Pct) ? `<div class="prob-odds sans">${fairOdds(t5Pct)}</div>` : ''}
+          </div>
+          <div class="prob-box">
+            <div class="prob-val sans">${pct(t10Pct)}</div>
+            <div class="prob-lbl sans">Top 10</div>
+            ${fairOdds(t10Pct) ? `<div class="prob-odds sans">${fairOdds(t10Pct)}</div>` : ''}
+          </div>
+          <div class="prob-box">
+            <div class="prob-val sans">${pct(t20Pct)}</div>
+            <div class="prob-lbl sans">Top 20</div>
+            ${fairOdds(t20Pct) ? `<div class="prob-odds sans">${fairOdds(t20Pct)}</div>` : ''}
+          </div>
+          <div class="prob-box">
+            <div class="prob-val sans">${pct(mcPct)}</div>
+            <div class="prob-lbl sans">Make Cut</div>
+            ${fairOdds(mcPct) ? `<div class="prob-odds sans">${fairOdds(mcPct)}</div>` : ''}
+          </div>
+          <div class="prob-box">
+            <div class="prob-val sans" style="color:var(--accent)">${pct(missPct)}</div>
+            <div class="prob-lbl sans">Miss Cut</div>
+          </div>
         </div>
         <div class="latent-row">
           ${wcs != null ? `<div class="latent-pill"><div class="latent-val">${f1(wcs)}</div><div class="latent-lbl">WCS</div></div>` : ''}
@@ -1432,6 +1459,15 @@ function toggleTheme() {
 function f1(v)  { return v != null ? Number(v).toFixed(1) : '—'; }
 function f2(v)  { return v != null ? Number(v).toFixed(2) : '—'; }
 function pct(v) { return v != null ? Number(v).toFixed(1) + '%' : '—'; }
+function fairOdds(v) {
+  if (v == null || Number(v) <= 0) return null;
+  const p  = Number(v);
+  const dc = 100 / p;
+  const am = dc >= 2
+    ? Math.round((dc - 1) * 100)
+    : Math.round(-100 / (dc - 1));
+  return am >= 0 ? '+' + am : String(am);
+}
 function vhd(v) { if (v == null) return '—'; return (v > 0 ? '+' : '') + Number(v).toFixed(3); }
 function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v || 0)); }
 function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
