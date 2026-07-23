@@ -357,6 +357,8 @@ footer { text-align: center; padding: 2rem; font-size: .72rem; color: var(--mute
 .slider-default { font-size: .6rem; color: var(--muted); }
 .slider-current { font-size: .72rem; font-weight: 700; color: var(--gold); }
 .slider-wrap input[type=range] { width: 100%; accent-color: var(--gold); cursor: pointer; }
+.analyst-mode-row td { background: rgba(201,168,76,.04) !important; }
+.analyst-mode-row td:first-child::before { content:'⊡ '; font-size:.55rem; color:var(--gold-dim); vertical-align:middle; }
 
 /* ── Cumulative learning grid ── */
 .cum-grid-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }

@@ -379,7 +379,7 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
     </div>
     <button class="ctrl-btn ctrl-btn-muted" id="btn-glossary">? Glossary</button>
     <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
-    <button class="ctrl-btn" id="btn-scenario" style="border-color:var(--gold-dim);color:var(--gold-dim);">⊡ Scenario</button>
+    <button class="ctrl-btn" id="btn-scenario" style="border-color:var(--gold-dim);color:var(--gold-dim);">⊡ Analyst Mode</button>
   </div>
   <div class="chip-bar" style="padding:0 0 .3rem;">
     <button class="ctrl-btn chip active" data-f="all" onclick="setChip('all')">All</button>
@@ -397,6 +397,14 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
   </div>
   <div id="active-filters-zone"></div>
   <button id="rfb-add-rule" class="ctrl-btn" style="margin-top:.5rem;font-size:.75rem;">+ Add filter rule</button>
+</div>
+
+<!-- ══ ANALYST MODE BANNER ═══════════════════════════════════════════════════ -->
+<div id="analyst-mode-banner" class="hidden" style="background:#1a1200;border:2px solid var(--gold);padding:.5rem 1.2rem;text-align:center;position:sticky;top:53px;z-index:49;">
+  <span style="color:var(--gold);font-weight:700;font-size:.8rem;font-family:'Inter',sans-serif;">
+    ⊡ Analyst Mode (Unofficial scenario) —
+    <button onclick="resetScenario()" style="background:none;border:none;color:var(--gold);text-decoration:underline;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif;">reset to restore official VenueDNA weights</button>
+  </span>
 </div>
 
 <!-- ══ SPOTLIGHT ═════════════════════════════════════════════════════════════ -->
@@ -465,12 +473,12 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
 <div id="scenario-panel" class="hidden" style="max-width:1400px;margin:.5rem auto;padding:0 1rem;">
   <div style="background:#0a1520;border:2px solid var(--gold-dim);border-radius:var(--radius);padding:1rem 1.2rem;">
     <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;flex-wrap:wrap;">
-      <span style="font-weight:700;color:var(--gold);font-size:.9rem;">Scenario Builder</span>
-      <span class="scenario-unofficial-tag">⚠ UNOFFICIAL — Scenario Mode Active</span>
-      <button class="ctrl-btn" id="scenario-reset" style="font-size:.72rem;margin-left:auto;">Reset to Defaults</button>
-      <button class="ctrl-btn" id="scenario-exit" style="font-size:.72rem;border-color:var(--gold);color:var(--gold);">✕ Exit Scenario Mode</button>
+      <span style="font-weight:700;color:var(--gold);font-size:.9rem;">Analyst Mode — Weight Sandbox</span>
+      <span class="scenario-unofficial-tag">⚠ UNOFFICIAL — Analyst Mode Active</span>
+      <button class="ctrl-btn" id="scenario-reset" style="font-size:.72rem;margin-left:auto;">Reset to official model</button>
+      <button class="ctrl-btn" id="scenario-exit" style="font-size:.72rem;border-color:var(--gold);color:var(--gold);">✕ Exit Analyst Mode</button>
     </div>
-    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.65rem;">Adjust trait weights to explore how rankings shift. Results are not official VenueDNA outputs.</div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.65rem;">Adjust trait weights to explore how rankings shift under a different emphasis. Results are NOT official VenueDNA outputs and are never saved.</div>
     <div id="scenario-sliders" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;"></div>
   </div>
 </div>

@@ -796,7 +796,8 @@ function toggleScenarioPanel() {
 function enterScenarioMode() {
   S.scenarioMode = true;
   const btn = document.getElementById('btn-scenario');
-  if (btn) { btn.style.borderColor = 'var(--gold)'; btn.style.color = 'var(--gold)'; btn.textContent = '⊡ Scenario ON'; }
+  if (btn) { btn.style.borderColor = 'var(--gold)'; btn.style.color = 'var(--gold)'; btn.textContent = '⊡ Analyst Mode ON'; }
+  document.getElementById('analyst-mode-banner')?.classList.remove('hidden');
   renderScenarioResults();
 }
 
@@ -804,7 +805,8 @@ function exitScenario() {
   S.scenarioMode = false;
   document.getElementById('scenario-panel')?.classList.add('hidden');
   const btn = document.getElementById('btn-scenario');
-  if (btn) { btn.style.borderColor = 'var(--gold-dim)'; btn.style.color = 'var(--gold-dim)'; btn.textContent = '⊡ Scenario'; }
+  if (btn) { btn.style.borderColor = 'var(--gold-dim)'; btn.style.color = 'var(--gold-dim)'; btn.textContent = '⊡ Analyst Mode'; }
+  document.getElementById('analyst-mode-banner')?.classList.add('hidden');
   // Remove scenario rank column
   document.querySelectorAll('#board-tbody tr[data-player]').forEach(tr => {
     const sc = tr.querySelector('.scenario-rank-cell');
@@ -862,6 +864,8 @@ function computeScenarioScore(p) {
 
 function renderScenarioResults() {
   if (!S.scenarioMode) return;
+  // Mark existing rows as clean — will be re-marked below
+  document.querySelectorAll('#board-tbody tr.analyst-mode-row').forEach(r => r.classList.remove('analyst-mode-row'));
   const scored = S.boardData.map(p => ({
     player: p.player,
     officialRank: p.rank,
@@ -916,6 +920,7 @@ function renderScenarioResults() {
     tdSc.className = 'scenario-col scenario-rank-cell sans';
     tdSc.textContent = sRank != null ? sRank : '—';
     tr.appendChild(tdSc);
+    tr.classList.add('analyst-mode-row');
 
     // Add delta cell
     const tdDelta = document.createElement('td');
