@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.1",
+  "event": "2026 3M Open",
+  "generated_at": "2026-07-23T04:57:03.659966Z",
+  "build_steps": [
+    {
+      "step": "STEP 1 \u2014 file validation",
+      "status": "complete"
+    },
+    {
+      "step": "STEP 2 \u2014 venue summary",
+      "status": "complete"
+    },
+    {
+      "step": "STEP 3 \u2014 trait_form_matrix",
+      "status": "complete",
+      "rows": 144
+    },
+    {
+      "step": "STEP 4 \u2014 vts_full",
+      "status": "complete",
+      "rows": 144
+    },
+    {
+      "step": "STEP 5 \u2014 player_briefs",
+      "status": "complete",
+      "entries": 144
+    },
+    {
+      "step": "STEP 6 \u2014 event_payload",
+      "status": "complete"
+    },
+    {
+      "step": "STEP 7 \u2014 links",
+      "status": "stub \u2014 needs link enrichment"
+    },
+    {
+      "step": "STEP 8 \u2014 audit placeholders",
+      "status": "complete"
+    }
+  ],
+  "blockers": [],
+  "schema_mismatches": [
+    {
+      "type": "schema_mismatch",
+      "file": "dg_decomposition.csv",
+      "expected_by_build_prompt": "timingadj / sgcategoryadj / etc.",
+      "actual_headers": "timing_adj / sg_category_adj / etc.",
+      "resolution": "mapped using underscored actual headers per 04_ARTIFACT_SCHEMA.md \u00a72B"
+    }
+  ]
+}

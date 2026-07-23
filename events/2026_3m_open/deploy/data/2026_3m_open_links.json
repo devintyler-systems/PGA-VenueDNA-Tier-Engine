@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.1",
+  "event": "2026 3M Open",
+  "generated_at": "2026-07-23T04:57:03.659459Z",
+  "links": [
+    {
+      "player_name": "unknown",
+      "link_type": "official_bio",
+      "url": "unknown",
+      "label": "PGA Tour player page",
+      "source": "PGA Tour",
+      "note": "links require post-generation enrichment from PGA Tour / DataGolf API"
+    }
+  ]
+}

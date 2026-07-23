@@ -1,0 +1,4455 @@
+{
+  "schema_version": "1.1",
+  "generated_at": "2026-07-23T04:57:03.655911Z",
+  "event_metadata": {
+    "event_name": "3M Open",
+    "event_slug": "2026_3m_open",
+    "season": 2026,
+    "tour": "PGA Tour",
+    "dates": "July 23-26, 2026",
+    "purse": "unknown",
+    "field_size": 144
+  },
+  "venue_lock": {
+    "course": "TPC Twin Cities",
+    "location": "Blaine, Minnesota",
+    "par": 71,
+    "yardage": 7431,
+    "greens": "Creeping Bentgrass",
+    "fairways": "Creeping Bentgrass",
+    "rough": "Kentucky Bluegrass",
+    "primary_mechanism": "SG Approach — 6 of 7 winners since 2019 ranked T10 in approach for the week",
+    "secondary_mechanism": "Controlled total driving — water threatens 9 of 14 driving holes",
+    "tertiary_mechanism": "Par-5 conversion — H6 (594), H12 (593), H18 (596) create separation",
+    "key_pressure_holes": [
+      "H13 (par 3, 228 yds)",
+      "H16 (tightened par 4)",
+      "H17 (par 3, 202 yds)",
+      "H18 (par 5, 596 yds, enlarged lake)"
+    ],
+    "approach_distance_profile": "46% of approaches from 175+ yards — longer-skewed vs. typical birdiefest",
+    "variance_class": "medium-high"
+  },
+  "conditions": {
+    "source": "tpc_twin_cities_full_course_weather_data_2026.json",
+    "note": "Weather conditions available in venue library; specific round conditions to be loaded at tournament time"
+  },
+  "scoring_metadata": {
+    "schema_version": "1.1",
+    "official_rank_signal": "VenueDNA_final_projection (vts_final from enrich_cards.py)",
+    "score_range": "[0, 100] z-scored (mean=50, std=15)",
+    "formulas": {
+      "SG_Base_Comp": "0.20 × SG_Base_6m + 0.30 × SG_Base_12m + 0.50 × SG_Base_24m",
+      "W_h": "min(1.0, N_Sim_h / 20.0)",
+      "SG_Sim_Reg_h": "W_h × SG_Sim_h + (1 - W_h) × SG_Base_h",
+      "Delta_Fit_h": "SG_Sim_Reg_h - SG_Base_h",
+      "Delta_Fit_Comp": "clamp(0.50×D6 + 0.30×D12 + 0.20×D24, -0.50, +0.50)",
+      "VTS_Raw": "SG_Base_Comp + Delta_Fit_Comp",
+      "vts_final": "z_score(VTS_Raw, mean=50, std=15, clamp=[0,100])",
+      "trait_approach": "z_score(weighted_SG: 50-100=0.10, 100-150=0.20, 150-200=0.40, 200+=0.30)",
+      "trait_long_iron": "z_score(0.65×SG_150-200fw + 0.35×SG_200+fw)",
+      "trait_total_drv": "z_score(ott_true from dg_performance_2026)",
+      "trait_par5": "z_score(0.55×dist_adj + 0.45×approach_raw)",
+      "makeCutPct": "min(98, max(20, top20Pct × 1.25 + 10))"
+    },
+    "trait_source_map": {
+      "VenueDNA_trait_approach": "app_skill_l12_sg.csv — weighted fw SG",
+      "VenueDNA_trait_long_iron_150_225": "app_skill_l12_sg.csv — 150-200 + 200+ fw SG",
+      "VenueDNA_trait_total_driving": "dg_performance_2026.csv — ott_true",
+      "VenueDNA_trait_driving_accuracy": "dg_decomposition.csv — driving_acc_adj",
+      "VenueDNA_trait_driving_distance": "dg_decomposition.csv — driving_dist_adj",
+      "VenueDNA_trait_par5_scoring": "derived: 0.55×driving_dist_adj + 0.45×approach_raw",
+      "VenueDNA_trait_easy_green_putting": "dg_performance_2026.csv — putt_true",
+      "VenueDNA_trait_course_history": "tpc_twin_cities_CH.csv — ch_adjustment",
+      "VenueDNA_trait_closing_hole_composure": "dg_decomposition.csv — inverse(std_dev)",
+      "VenueDNA_trait_debut_adjustment": "tpc_twin_cities_CH.csv — rounds_played tier",
+      "VenueDNA_trait_recent_form_context": "pga_field_trending_table.csv — true_sg_l20"
+    }
+  },
+  "official_model": {
+    "official_rank_driver": "VenueDNA_final_projection",
+    "official_tier_driver": "VenueDNA_tier",
+    "official_ordering": "VenueDNA_rank ascending",
+    "authority": "VenueDNA — sole official ranking authority",
+    "engine": "engine/enrich_cards.py — dual-vector True SG, schema 1.1"
+  },
+  "benchmark_model": {
+    "source": "DataGolf prediction decomposition",
+    "primary_field": "DG_finalprediction_benchmark",
+    "use_restrictions": "DG fields are read-only benchmark context and do not determine official ranks, tiers, or projections",
+    "decomp_fields": [
+      "DG_drivingdistadj_benchmark",
+      "DG_timingadj_benchmark",
+      "DG_stddev_benchmark",
+      "DG_baseline_benchmark",
+      "DG_sgcategoryadj_benchmark",
+      "DG_coursehistoryadj_benchmark",
+      "DG_drivingaccadj_benchmark",
+      "DG_coursefittotaladj_benchmark",
+      "DG_finalprediction_benchmark"
+    ]
+  },
+  "five_tier_projection": {
+    "T1": {
+      "count": 5,
+      "players": [
+        {
+          "rank": 1,
+          "name": "Scheffler, Scottie",
+          "vts": 99.3,
+          "tier": "T1"
+        },
+        {
+          "rank": 2,
+          "name": "McNealy, Maverick",
+          "vts": 76.9,
+          "tier": "T1"
+        },
+        {
+          "rank": 3,
+          "name": "Koivun, Jackson",
+          "vts": 75.0,
+          "tier": "T1"
+        },
+        {
+          "rank": 4,
+          "name": "Kitayama, Kurt",
+          "vts": 72.3,
+          "tier": "T1"
+        },
+        {
+          "rank": 5,
+          "name": "Woodland, Gary",
+          "vts": 71.9,
+          "tier": "T1"
+        }
+      ]
+    },
+    "T2": {
+      "count": 7,
+      "players": [
+        {
+          "rank": 6,
+          "name": "Matsuyama, Hideki",
+          "vts": 71.3,
+          "tier": "T2"
+        },
+        {
+          "rank": 7,
+          "name": "Kim, Tom",
+          "vts": 70.3,
+          "tier": "T2"
+        },
+        {
+          "rank": 8,
+          "name": "Conners, Corey",
+          "vts": 69.7,
+          "tier": "T2"
+        },
+        {
+          "rank": 9,
+          "name": "Harman, Brian",
+          "vts": 69.6,
+          "tier": "T2"
+        },
+        {
+          "rank": 10,
+          "name": "Meissner, Mac",
+          "vts": 68.6,
+          "tier": "T2"
+        },
+        {
+          "rank": 11,
+          "name": "Smith, Jordan",
+          "vts": 68.1,
+          "tier": "T2"
+        },
+        {
+          "rank": 12,
+          "name": "Mitchell, Keith",
+          "vts": 66.5,
+          "tier": "T2"
+        }
+      ]
+    },
+    "T3": {
+      "count": 13,
+      "players": [
+        {
+          "rank": 13,
+          "name": "Knapp, Jake",
+          "vts": 64.9,
+          "tier": "T3"
+        },
+        {
+          "rank": 14,
+          "name": "Stevens, Sam",
+          "vts": 64.9,
+          "tier": "T3"
+        },
+        {
+          "rank": 15,
+          "name": "Hoey, Rico",
+          "vts": 64.3,
+          "tier": "T3"
+        },
+        {
+          "rank": 16,
+          "name": "McGreevy, Max",
+          "vts": 64.1,
+          "tier": "T3"
+        },
+        {
+          "rank": 17,
+          "name": "Yellamaraju, Sudarshan",
+          "vts": 64.1,
+          "tier": "T3"
+        },
+        {
+          "rank": 18,
+          "name": "James, Ben",
+          "vts": 63.6,
+          "tier": "T3"
+        },
+        {
+          "rank": 19,
+          "name": "Ghim, Doug",
+          "vts": 63.5,
+          "tier": "T3"
+        },
+        {
+          "rank": 20,
+          "name": "Rodgers, Patrick",
+          "vts": 63.0,
+          "tier": "T3"
+        },
+        {
+          "rank": 21,
+          "name": "McCarthy, Denny",
+          "vts": 62.8,
+          "tier": "T3"
+        },
+        {
+          "rank": 22,
+          "name": "Im, Sungjae",
+          "vts": 62.7,
+          "tier": "T3"
+        },
+        {
+          "rank": 23,
+          "name": "Putnam, Andrew",
+          "vts": 62.7,
+          "tier": "T3"
+        },
+        {
+          "rank": 24,
+          "name": "Kuchar, Matt",
+          "vts": 62.5,
+          "tier": "T3"
+        },
+        {
+          "rank": 25,
+          "name": "Mouw, William",
+          "vts": 62.5,
+          "tier": "T3"
+        }
+      ]
+    },
+    "T4": {
+      "count": 15,
+      "players": [
+        {
+          "rank": 26,
+          "name": "Brennan, Michael",
+          "vts": 61.5,
+          "tier": "T4"
+        },
+        {
+          "rank": 27,
+          "name": "Hodges, Lee",
+          "vts": 61.5,
+          "tier": "T4"
+        },
+        {
+          "rank": 28,
+          "name": "Bezuidenhout, Christiaan",
+          "vts": 61.4,
+          "tier": "T4"
+        },
+        {
+          "rank": 29,
+          "name": "Neergaard-Petersen, Rasmus",
+          "vts": 60.8,
+          "tier": "T4"
+        },
+        {
+          "rank": 30,
+          "name": "Kirk, Chris",
+          "vts": 60.3,
+          "tier": "T4"
+        },
+        {
+          "rank": 31,
+          "name": "Lipsky, David",
+          "vts": 60.3,
+          "tier": "T4"
+        },
+        {
+          "rank": 32,
+          "name": "Snedeker, Brandt",
+          "vts": 60.3,
+          "tier": "T4"
+        },
+        {
+          "rank": 33,
+          "name": "Ewart, A.J.",
+          "vts": 60.2,
+          "tier": "T4"
+        },
+        {
+          "rank": 34,
+          "name": "Hughes, Mackenzie",
+          "vts": 59.8,
+          "tier": "T4"
+        },
+        {
+          "rank": 35,
+          "name": "Castillo, Ricky",
+          "vts": 59.4,
+          "tier": "T4"
+        },
+        {
+          "rank": 36,
+          "name": "Bauchou, Zach",
+          "vts": 59.3,
+          "tier": "T4"
+        },
+        {
+          "rank": 37,
+          "name": "Ramey, Chad",
+          "vts": 59.2,
+          "tier": "T4"
+        },
+        {
+          "rank": 38,
+          "name": "Power, Seamus",
+          "vts": 59.1,
+          "tier": "T4"
+        },
+        {
+          "rank": 39,
+          "name": "Fishburn, Patrick",
+          "vts": 58.7,
+          "tier": "T4"
+        },
+        {
+          "rank": 40,
+          "name": "Homa, Max",
+          "vts": 58.7,
+          "tier": "T4"
+        }
+      ]
+    },
+    "T5": {
+      "count": 104,
+      "players": [
+        {
+          "rank": 41,
+          "name": "Blanchet, Chandler",
+          "vts": 58.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 42,
+          "name": "Grillo, Emiliano",
+          "vts": 58.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 43,
+          "name": "Fisk, Steven",
+          "vts": 58.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 44,
+          "name": "Nakajima, Keita",
+          "vts": 58.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 45,
+          "name": "Schmid, Matti",
+          "vts": 58.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 46,
+          "name": "Thompson, Davis",
+          "vts": 58.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 47,
+          "name": "Kim, Michael",
+          "vts": 57.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 48,
+          "name": "Parry, John",
+          "vts": 57.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 49,
+          "name": "Horschel, Billy",
+          "vts": 57.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 50,
+          "name": "Jarvis, Casey",
+          "vts": 57.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 51,
+          "name": "Smotherman, Austin",
+          "vts": 57.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 52,
+          "name": "Kohles, Ben",
+          "vts": 57.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 53,
+          "name": "Pendrith, Taylor",
+          "vts": 57.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 54,
+          "name": "Dumont De Chassart, Adrien",
+          "vts": 57.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 55,
+          "name": "Olesen, Thorbjorn",
+          "vts": 56.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 56,
+          "name": "Blair, Zac",
+          "vts": 55.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 57,
+          "name": "Hojgaard, Rasmus",
+          "vts": 55.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 58,
+          "name": "Coody, Pierceson",
+          "vts": 55.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 59,
+          "name": "Finau, Tony",
+          "vts": 55.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 60,
+          "name": "Dahmen, Joel",
+          "vts": 54.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 61,
+          "name": "Ventura, Kristoffer",
+          "vts": 54.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 62,
+          "name": "Pavon, Matthieu",
+          "vts": 54.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 63,
+          "name": "Jaeger, Stephan",
+          "vts": 52.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 64,
+          "name": "Greyserman, Max",
+          "vts": 52.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 65,
+          "name": "Griffin, Lanto",
+          "vts": 52.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 66,
+          "name": "Li, Haotong",
+          "vts": 52.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 67,
+          "name": "Hossler, Beau",
+          "vts": 51.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 68,
+          "name": "Garnett, Brice",
+          "vts": 51.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 69,
+          "name": "Higgo, Garrick",
+          "vts": 51.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 70,
+          "name": "Keefer, Johnny",
+          "vts": 51.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 71,
+          "name": "Stout, Preston",
+          "vts": 51.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 72,
+          "name": "Kanaya, Takumi",
+          "vts": 51.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 73,
+          "name": "Eckroat, Austin",
+          "vts": 51.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 74,
+          "name": "Potgieter, Aldrich",
+          "vts": 51.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 75,
+          "name": "Lebioda, Hank",
+          "vts": 50.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 76,
+          "name": "Moore, Taylor",
+          "vts": 50.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 77,
+          "name": "Suber, Jackson",
+          "vts": 50.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 78,
+          "name": "Svensson, Adam",
+          "vts": 50.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 79,
+          "name": "Higgs, Harry",
+          "vts": 49.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 80,
+          "name": "Cowan, Ryder",
+          "vts": 49.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 81,
+          "name": "Glover, Lucas",
+          "vts": 49.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 82,
+          "name": "Lower, Justin",
+          "vts": 49.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 83,
+          "name": "Chatfield, Davis",
+          "vts": 49.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 84,
+          "name": "Hubbard, Mark",
+          "vts": 48.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 85,
+          "name": "Silverman, Ben",
+          "vts": 48.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 86,
+          "name": "VanDerLaan, John",
+          "vts": 48.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 87,
+          "name": "Whaley, Vince",
+          "vts": 48.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 88,
+          "name": "Yu, Kevin",
+          "vts": 48.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 89,
+          "name": "Dou, Zecheng",
+          "vts": 48.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 90,
+          "name": "Shipley, Neal",
+          "vts": 48.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 91,
+          "name": "Skinns, David",
+          "vts": 47.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 92,
+          "name": "Svensson, Jesper",
+          "vts": 47.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 93,
+          "name": "Crowe, Trace",
+          "vts": 47.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 94,
+          "name": "Walker, Danny",
+          "vts": 46.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 95,
+          "name": "Roy, Kevin",
+          "vts": 46.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 96,
+          "name": "Streelman, Kevin",
+          "vts": 46.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 97,
+          "name": "Wu, Dylan",
+          "vts": 46.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 98,
+          "name": "Vilips, Karl",
+          "vts": 45.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 99,
+          "name": "Stanger, Jimmy",
+          "vts": 45.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 100,
+          "name": "Dunlap, Nick",
+          "vts": 45.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 101,
+          "name": "Hirata, Kensei",
+          "vts": 44.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 102,
+          "name": "Champ, Cameron",
+          "vts": 44.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 103,
+          "name": "Nyholm, Pontus",
+          "vts": 44.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 104,
+          "name": "Peterson, Paul",
+          "vts": 43.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 105,
+          "name": "Springer, Hayden",
+          "vts": 43.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 106,
+          "name": "Hoge, Tom",
+          "vts": 43.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 107,
+          "name": "Gomez, Fabian",
+          "vts": 43.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 108,
+          "name": "Clanton, Luke",
+          "vts": 42.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 109,
+          "name": "Van Rooyen, Erik",
+          "vts": 42.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 110,
+          "name": "Phillips, Chandler",
+          "vts": 41.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 111,
+          "name": "Wise, Aaron",
+          "vts": 41.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 112,
+          "name": "Donohue, Muzzy",
+          "vts": 41.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 113,
+          "name": "Highsmith, Joe",
+          "vts": 41.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 114,
+          "name": "Hadwin, Adam",
+          "vts": 41.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 115,
+          "name": "Kang, Jeffrey",
+          "vts": 40.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 116,
+          "name": "Campbell, Brian",
+          "vts": 40.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 117,
+          "name": "Duncan, Tyler",
+          "vts": 40.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 118,
+          "name": "Mazzoli, Stefano",
+          "vts": 40.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 119,
+          "name": "Malnati, Peter",
+          "vts": 39.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 120,
+          "name": "Tosti, Alejandro",
+          "vts": 39.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 121,
+          "name": "Rozo, Marcelo",
+          "vts": 39.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 122,
+          "name": "Villegas, Camilo",
+          "vts": 39.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 123,
+          "name": "Merritt, Troy",
+          "vts": 39.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 124,
+          "name": "Hardy, Nick",
+          "vts": 38.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 125,
+          "name": "Lamprecht, Christo",
+          "vts": 37.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 126,
+          "name": "Paul, Jeremy",
+          "vts": 36.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 127,
+          "name": "Kizzire, Patton",
+          "vts": 35.4,
+          "tier": "T5"
+        },
+        {
+          "rank": 128,
+          "name": "Martin, Ben",
+          "vts": 35.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 129,
+          "name": "Wood, Griffin",
+          "vts": 34.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 130,
+          "name": "Gordon, Will",
+          "vts": 32.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 131,
+          "name": "Davis, Cam",
+          "vts": 30.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 132,
+          "name": "Riley, Davis",
+          "vts": 30.0,
+          "tier": "T5"
+        },
+        {
+          "rank": 133,
+          "name": "Hoffman, Charley",
+          "vts": 29.9,
+          "tier": "T5"
+        },
+        {
+          "rank": 134,
+          "name": "List, Luke",
+          "vts": 29.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 135,
+          "name": "Sargent, Gordon",
+          "vts": 29.7,
+          "tier": "T5"
+        },
+        {
+          "rank": 136,
+          "name": "Schenk, Adam",
+          "vts": 29.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 137,
+          "name": "Campos, Rafael",
+          "vts": 26.6,
+          "tier": "T5"
+        },
+        {
+          "rank": 138,
+          "name": "Brehm, Ryan",
+          "vts": 19.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 139,
+          "name": "Fahrny, Brannon",
+          "vts": 19.3,
+          "tier": "T5"
+        },
+        {
+          "rank": 140,
+          "name": "Lindheim, Nicholas",
+          "vts": 14.8,
+          "tier": "T5"
+        },
+        {
+          "rank": 141,
+          "name": "Sandhu, Sihan",
+          "vts": 14.1,
+          "tier": "T5"
+        },
+        {
+          "rank": 142,
+          "name": "Sihota, Jeevan",
+          "vts": 5.2,
+          "tier": "T5"
+        },
+        {
+          "rank": 143,
+          "name": "Schultz, Cooper",
+          "vts": 4.5,
+          "tier": "T5"
+        },
+        {
+          "rank": 144,
+          "name": "Campbell, Thomas",
+          "vts": 0.0,
+          "tier": "T5"
+        }
+      ]
+    }
+  },
+  "tier_1_briefs": [
+    {
+      "player_name": "Scheffler, Scottie",
+      "VenueDNA_rank": 1,
+      "VenueDNA_tier": "T1",
+      "summary_label": "T1 — approach elite; primary VTS driver",
+      "why_it_fits_structurally": "approach SG ranks top-24th percentile in field. 150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+). total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes.",
+      "exact_mechanism": "Long-iron SG of +0.049/shot from 150-200 fw is the primary birdie creation mechanism at TPC; 46% of weekly approaches fall in this range",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "No TPC starts on record.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T1",
+        "approach_elite",
+        "long_iron_elite"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +2.827; DG_stddev: 2.742"
+    },
+    {
+      "player_name": "McNealy, Maverick",
+      "VenueDNA_rank": 2,
+      "VenueDNA_tier": "T1",
+      "summary_label": "T1 — structural flag active",
+      "why_it_fits_structurally": "similar-course delta fit of +0.098 SG/round signals positive venue-type translation. total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes.",
+      "exact_mechanism": "Similar-course delta fit (+0.098 SG/round) exceeds the field median; profile translates to courses with TPC's approach-length and water-driving profile",
+      "key_risk_vector": "driving accuracy flag active (adj -0.025); penalty exposure on 9 water-threatened driving holes is the primary downside scenario; 150-200 fw SG below neutral; weak long-iron week at TPC produces a ceiling far short of leaderboard contention; putting-reliant profile; easy bentgrass greens compress the putting edge that drives results at trickier venues; short-game-only profile; TPC does not reward scrambling over ball-striking",
+      "named_failure_condition": "Driving wayward into water threats on 9 holes cascades into penalty strokes and poor approach positions; a -4 or worse driving week eliminates contention",
+      "conviction_level": "medium",
+      "penalty_context": "4 penalty flags active. Structural concerns exist at this venue.",
+      "venue_history_context": "14 rounds at TPC Twin Cities. Course history adjustment: +0.006.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T1",
+        "venue_fit_upside",
+        "flag_accuracy_risk",
+        "flag_short_game_only",
+        "flag_putting_dependency",
+        "flag_long_iron_deficit"
+      ],
+      "anti_pattern_flags": [
+        "VenueDNA_flag_accuracy_risk",
+        "VenueDNA_flag_short_game_only",
+        "VenueDNA_flag_putting_dependency",
+        "VenueDNA_flag_long_iron_deficit"
+      ],
+      "benchmark_context": "DG_finalprediction: +1.205; DG_stddev: 2.796"
+    },
+    {
+      "player_name": "Koivun, Jackson",
+      "VenueDNA_rank": 3,
+      "VenueDNA_tier": "T1",
+      "summary_label": "T1 — structural flag active",
+      "why_it_fits_structurally": "approach SG ranks top-27th percentile in field. 150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+). similar-course delta fit of +0.315 SG/round signals positive venue-type translation. total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes.",
+      "exact_mechanism": "Long-iron SG of +0.091/shot from 150-200 fw is the primary birdie creation mechanism at TPC; 46% of weekly approaches fall in this range",
+      "key_risk_vector": "short-game-only profile; TPC does not reward scrambling over ball-striking",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "1 penalty flag active (short_game_only). Minor downside risk.",
+      "venue_history_context": "No TPC starts on record.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T1",
+        "approach_elite",
+        "long_iron_elite",
+        "venue_fit_upside",
+        "flag_short_game_only"
+      ],
+      "anti_pattern_flags": [
+        "VenueDNA_flag_short_game_only"
+      ],
+      "benchmark_context": "DG_finalprediction: +0.828; DG_stddev: 2.769"
+    },
+    {
+      "player_name": "Kitayama, Kurt",
+      "VenueDNA_rank": 4,
+      "VenueDNA_tier": "T1",
+      "summary_label": "T1 — long-iron precision upside",
+      "why_it_fits_structurally": "approach SG ranks top-28th percentile in field. 150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+). total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes. course history adjustment of +0.064 reflects above-expected TPC performance across 8 rounds.",
+      "exact_mechanism": "Long-iron SG of +0.043/shot from 150-200 fw is the primary birdie creation mechanism at TPC; 46% of weekly approaches fall in this range",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "8 rounds at TPC Twin Cities. Course history adjustment: +0.064.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T1",
+        "approach_elite",
+        "long_iron_elite"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +1.162; DG_stddev: 2.817"
+    },
+    {
+      "player_name": "Woodland, Gary",
+      "VenueDNA_rank": 5,
+      "VenueDNA_tier": "T1",
+      "summary_label": "T1 — venue-fit upside via similar-course profile",
+      "why_it_fits_structurally": "150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+). similar-course delta fit of +0.500 SG/round signals positive venue-type translation. total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes.",
+      "exact_mechanism": "Approach trait score 65/100; consistent iron play into receptive bentgrass greens creates sustainable birdie conversion without reliance on putting rescue",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "14 rounds at TPC Twin Cities. Course history adjustment: +0.028.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T1",
+        "approach_solid",
+        "venue_fit_upside"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +0.347; DG_stddev: 2.816"
+    }
+  ],
+  "tier_2_briefs": [
+    {
+      "player_name": "Matsuyama, Hideki",
+      "VenueDNA_rank": 6,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — approach elite; primary VTS driver",
+      "why_it_fits_structurally": "approach SG ranks top-24th percentile in field. 150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+).",
+      "exact_mechanism": "Elite approach SG (+0.64 per round in 2026) produces the approach volume needed in TPC's birdiefest but ball-striking-driven scoring environment",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "9 rounds at TPC Twin Cities. Course history adjustment: -0.024.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_elite",
+        "long_iron_elite"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +1.138; DG_stddev: 2.733"
+    },
+    {
+      "player_name": "Kim, Tom",
+      "VenueDNA_rank": 7,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — venue-fit upside via similar-course profile",
+      "why_it_fits_structurally": "similar-course delta fit of +0.483 SG/round signals positive venue-type translation.",
+      "exact_mechanism": "Elite approach SG (+0.68 per round in 2026) produces the approach volume needed in TPC's birdiefest but ball-striking-driven scoring environment",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "8 rounds at TPC Twin Cities. Course history adjustment: +0.011.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_solid",
+        "venue_fit_upside"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +1.120; DG_stddev: 2.751"
+    },
+    {
+      "player_name": "Conners, Corey",
+      "VenueDNA_rank": 8,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — approach elite; primary VTS driver",
+      "why_it_fits_structurally": "approach SG ranks top-23th percentile in field. 150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+). similar-course delta fit of +0.210 SG/round signals positive venue-type translation.",
+      "exact_mechanism": "Long-iron SG of +0.046/shot from 150-200 fw is the primary birdie creation mechanism at TPC; 46% of weekly approaches fall in this range",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "4 rounds at TPC Twin Cities. Course history adjustment: +0.004.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_elite",
+        "long_iron_elite",
+        "venue_fit_upside"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +0.884; DG_stddev: 2.749"
+    },
+    {
+      "player_name": "Harman, Brian",
+      "VenueDNA_rank": 9,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — venue-fit upside via similar-course profile",
+      "why_it_fits_structurally": "approach SG ranks top-33th percentile in field. similar-course delta fit of +0.411 SG/round signals positive venue-type translation.",
+      "exact_mechanism": "Approach trait score 67/100; consistent iron play into receptive bentgrass greens creates sustainable birdie conversion without reliance on putting rescue",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "8 rounds at TPC Twin Cities. Course history adjustment: +0.023.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_solid",
+        "venue_fit_upside"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +0.614; DG_stddev: 2.720"
+    },
+    {
+      "player_name": "Meissner, Mac",
+      "VenueDNA_rank": 10,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — venue-fit upside via similar-course profile",
+      "why_it_fits_structurally": "similar-course delta fit of +0.122 SG/round signals positive venue-type translation.",
+      "exact_mechanism": "Approach trait score 64/100; consistent iron play into receptive bentgrass greens creates sustainable birdie conversion without reliance on putting rescue",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "8 rounds at TPC Twin Cities. Course history adjustment: +0.016.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_solid",
+        "venue_fit_upside"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +0.778; DG_stddev: 2.681"
+    },
+    {
+      "player_name": "Smith, Jordan",
+      "VenueDNA_rank": 11,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — venue-fit upside via similar-course profile",
+      "why_it_fits_structurally": "approach SG ranks top-33th percentile in field. 150-200 fw precision aligns with TPC's longer-than-average approach distribution (46% from 175+). similar-course delta fit of +0.345 SG/round signals positive venue-type translation. total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes.",
+      "exact_mechanism": "Approach trait score 67/100; consistent iron play into receptive bentgrass greens creates sustainable birdie conversion without reliance on putting rescue",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "No TPC starts on record.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_solid",
+        "long_iron_elite",
+        "venue_fit_upside"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +0.800; DG_stddev: 2.771"
+    },
+    {
+      "player_name": "Mitchell, Keith",
+      "VenueDNA_rank": 12,
+      "VenueDNA_tier": "T2",
+      "summary_label": "T2 — strong composite; controlled approach profile",
+      "why_it_fits_structurally": "total driving efficiency supports controlled power model demanded by 9 water-threatened driving holes.",
+      "exact_mechanism": "Approach trait score 61/100; consistent iron play into receptive bentgrass greens creates sustainable birdie conversion without reliance on putting rescue",
+      "key_risk_vector": "model risk is primarily regression to mean if 150-200 fw performance falls below recent trend",
+      "named_failure_condition": "A regression in approach SG from the l12 trend — especially from 150-200 yards — converts this profile from contender to T3/T4 finisher; no short-game bailout exists at TPC",
+      "conviction_level": "high",
+      "penalty_context": "No active penalty flags.",
+      "venue_history_context": "20 rounds at TPC Twin Cities. Course history adjustment: +0.024.",
+      "debut_context": "not_applicable",
+      "official_model_status": "VenueDNA_authority",
+      "tags": [
+        "T2",
+        "approach_solid",
+        "venue_experience"
+      ],
+      "anti_pattern_flags": [],
+      "benchmark_context": "DG_finalprediction: +0.898; DG_stddev: 2.803"
+    }
+  ],
+  "anti_pattern_flags": [
+    {
+      "player": "McNealy, Maverick",
+      "VenueDNA_rank": 2,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "McNealy, Maverick",
+      "VenueDNA_rank": 2,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "McNealy, Maverick",
+      "VenueDNA_rank": 2,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "McNealy, Maverick",
+      "VenueDNA_rank": 2,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Koivun, Jackson",
+      "VenueDNA_rank": 3,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Knapp, Jake",
+      "VenueDNA_rank": 13,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Knapp, Jake",
+      "VenueDNA_rank": 13,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "McGreevy, Max",
+      "VenueDNA_rank": 16,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Yellamaraju, Sudarshan",
+      "VenueDNA_rank": 17,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ghim, Doug",
+      "VenueDNA_rank": 19,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ghim, Doug",
+      "VenueDNA_rank": 19,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Rodgers, Patrick",
+      "VenueDNA_rank": 20,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "McCarthy, Denny",
+      "VenueDNA_rank": 21,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "McCarthy, Denny",
+      "VenueDNA_rank": 21,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Im, Sungjae",
+      "VenueDNA_rank": 22,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Im, Sungjae",
+      "VenueDNA_rank": 22,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kuchar, Matt",
+      "VenueDNA_rank": 24,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kuchar, Matt",
+      "VenueDNA_rank": 24,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kuchar, Matt",
+      "VenueDNA_rank": 24,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Brennan, Michael",
+      "VenueDNA_rank": 26,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Lipsky, David",
+      "VenueDNA_rank": 31,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Snedeker, Brandt",
+      "VenueDNA_rank": 32,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Snedeker, Brandt",
+      "VenueDNA_rank": 32,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ewart, A.J.",
+      "VenueDNA_rank": 33,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ewart, A.J.",
+      "VenueDNA_rank": 33,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hughes, Mackenzie",
+      "VenueDNA_rank": 34,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hughes, Mackenzie",
+      "VenueDNA_rank": 34,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hughes, Mackenzie",
+      "VenueDNA_rank": 34,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Castillo, Ricky",
+      "VenueDNA_rank": 35,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ramey, Chad",
+      "VenueDNA_rank": 37,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ramey, Chad",
+      "VenueDNA_rank": 37,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Power, Seamus",
+      "VenueDNA_rank": 38,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Power, Seamus",
+      "VenueDNA_rank": 38,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Fishburn, Patrick",
+      "VenueDNA_rank": 39,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Homa, Max",
+      "VenueDNA_rank": 40,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Homa, Max",
+      "VenueDNA_rank": 40,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Homa, Max",
+      "VenueDNA_rank": 40,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Blanchet, Chandler",
+      "VenueDNA_rank": 41,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Fisk, Steven",
+      "VenueDNA_rank": 43,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Nakajima, Keita",
+      "VenueDNA_rank": 44,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Schmid, Matti",
+      "VenueDNA_rank": 45,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kim, Michael",
+      "VenueDNA_rank": 47,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kim, Michael",
+      "VenueDNA_rank": 47,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Pendrith, Taylor",
+      "VenueDNA_rank": 53,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Dumont De Chassart, Adrien",
+      "VenueDNA_rank": 54,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Dumont De Chassart, Adrien",
+      "VenueDNA_rank": 54,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Olesen, Thorbjorn",
+      "VenueDNA_rank": 55,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Blair, Zac",
+      "VenueDNA_rank": 56,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hojgaard, Rasmus",
+      "VenueDNA_rank": 57,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hojgaard, Rasmus",
+      "VenueDNA_rank": 57,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Coody, Pierceson",
+      "VenueDNA_rank": 58,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Finau, Tony",
+      "VenueDNA_rank": 59,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Finau, Tony",
+      "VenueDNA_rank": 59,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Dahmen, Joel",
+      "VenueDNA_rank": 60,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Ventura, Kristoffer",
+      "VenueDNA_rank": 61,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Pavon, Matthieu",
+      "VenueDNA_rank": 62,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Jaeger, Stephan",
+      "VenueDNA_rank": 63,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Jaeger, Stephan",
+      "VenueDNA_rank": 63,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Greyserman, Max",
+      "VenueDNA_rank": 64,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Greyserman, Max",
+      "VenueDNA_rank": 64,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Griffin, Lanto",
+      "VenueDNA_rank": 65,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hossler, Beau",
+      "VenueDNA_rank": 67,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hossler, Beau",
+      "VenueDNA_rank": 67,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Garnett, Brice",
+      "VenueDNA_rank": 68,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Higgo, Garrick",
+      "VenueDNA_rank": 69,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kanaya, Takumi",
+      "VenueDNA_rank": 72,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kanaya, Takumi",
+      "VenueDNA_rank": 72,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Potgieter, Aldrich",
+      "VenueDNA_rank": 74,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Lebioda, Hank",
+      "VenueDNA_rank": 75,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Moore, Taylor",
+      "VenueDNA_rank": 76,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Moore, Taylor",
+      "VenueDNA_rank": 76,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Suber, Jackson",
+      "VenueDNA_rank": 77,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Higgs, Harry",
+      "VenueDNA_rank": 79,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Higgs, Harry",
+      "VenueDNA_rank": 79,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Lower, Justin",
+      "VenueDNA_rank": 82,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Chatfield, Davis",
+      "VenueDNA_rank": 83,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Silverman, Ben",
+      "VenueDNA_rank": 85,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "VanDerLaan, John",
+      "VenueDNA_rank": 86,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Whaley, Vince",
+      "VenueDNA_rank": 87,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Whaley, Vince",
+      "VenueDNA_rank": 87,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Whaley, Vince",
+      "VenueDNA_rank": 87,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Dou, Zecheng",
+      "VenueDNA_rank": 89,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Shipley, Neal",
+      "VenueDNA_rank": 90,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Skinns, David",
+      "VenueDNA_rank": 91,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Svensson, Jesper",
+      "VenueDNA_rank": 92,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Svensson, Jesper",
+      "VenueDNA_rank": 92,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Crowe, Trace",
+      "VenueDNA_rank": 93,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Crowe, Trace",
+      "VenueDNA_rank": 93,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Walker, Danny",
+      "VenueDNA_rank": 94,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Walker, Danny",
+      "VenueDNA_rank": 94,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Roy, Kevin",
+      "VenueDNA_rank": 95,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Roy, Kevin",
+      "VenueDNA_rank": 95,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Wu, Dylan",
+      "VenueDNA_rank": 97,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Vilips, Karl",
+      "VenueDNA_rank": 98,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Vilips, Karl",
+      "VenueDNA_rank": 98,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Vilips, Karl",
+      "VenueDNA_rank": 98,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Stanger, Jimmy",
+      "VenueDNA_rank": 99,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Stanger, Jimmy",
+      "VenueDNA_rank": 99,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Dunlap, Nick",
+      "VenueDNA_rank": 100,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Dunlap, Nick",
+      "VenueDNA_rank": 100,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hirata, Kensei",
+      "VenueDNA_rank": 101,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Champ, Cameron",
+      "VenueDNA_rank": 102,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Nyholm, Pontus",
+      "VenueDNA_rank": 103,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Nyholm, Pontus",
+      "VenueDNA_rank": 103,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Peterson, Paul",
+      "VenueDNA_rank": 104,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Springer, Hayden",
+      "VenueDNA_rank": 105,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Springer, Hayden",
+      "VenueDNA_rank": 105,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hoge, Tom",
+      "VenueDNA_rank": 106,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Clanton, Luke",
+      "VenueDNA_rank": 108,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Van Rooyen, Erik",
+      "VenueDNA_rank": 109,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Van Rooyen, Erik",
+      "VenueDNA_rank": 109,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Van Rooyen, Erik",
+      "VenueDNA_rank": 109,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Phillips, Chandler",
+      "VenueDNA_rank": 110,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Phillips, Chandler",
+      "VenueDNA_rank": 110,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Wise, Aaron",
+      "VenueDNA_rank": 111,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Wise, Aaron",
+      "VenueDNA_rank": 111,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Donohue, Muzzy",
+      "VenueDNA_rank": 112,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Highsmith, Joe",
+      "VenueDNA_rank": 113,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Highsmith, Joe",
+      "VenueDNA_rank": 113,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hadwin, Adam",
+      "VenueDNA_rank": 114,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kang, Jeffrey",
+      "VenueDNA_rank": 115,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Campbell, Brian",
+      "VenueDNA_rank": 116,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Mazzoli, Stefano",
+      "VenueDNA_rank": 118,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Malnati, Peter",
+      "VenueDNA_rank": 119,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Malnati, Peter",
+      "VenueDNA_rank": 119,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Malnati, Peter",
+      "VenueDNA_rank": 119,
+      "flag": "VenueDNA_flag_putting_dependency",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Malnati, Peter",
+      "VenueDNA_rank": 119,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Tosti, Alejandro",
+      "VenueDNA_rank": 120,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Tosti, Alejandro",
+      "VenueDNA_rank": 120,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Rozo, Marcelo",
+      "VenueDNA_rank": 121,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Villegas, Camilo",
+      "VenueDNA_rank": 122,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Villegas, Camilo",
+      "VenueDNA_rank": 122,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Merritt, Troy",
+      "VenueDNA_rank": 123,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hardy, Nick",
+      "VenueDNA_rank": 124,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Lamprecht, Christo",
+      "VenueDNA_rank": 125,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Lamprecht, Christo",
+      "VenueDNA_rank": 125,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Paul, Jeremy",
+      "VenueDNA_rank": 126,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Paul, Jeremy",
+      "VenueDNA_rank": 126,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kizzire, Patton",
+      "VenueDNA_rank": 127,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kizzire, Patton",
+      "VenueDNA_rank": 127,
+      "flag": "VenueDNA_flag_short_game_only",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Kizzire, Patton",
+      "VenueDNA_rank": 127,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Martin, Ben",
+      "VenueDNA_rank": 128,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Wood, Griffin",
+      "VenueDNA_rank": 129,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Gordon, Will",
+      "VenueDNA_rank": 130,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Davis, Cam",
+      "VenueDNA_rank": 131,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Davis, Cam",
+      "VenueDNA_rank": 131,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Riley, Davis",
+      "VenueDNA_rank": 132,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Riley, Davis",
+      "VenueDNA_rank": 132,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hoffman, Charley",
+      "VenueDNA_rank": 133,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Hoffman, Charley",
+      "VenueDNA_rank": 133,
+      "flag": "VenueDNA_flag_debut_uncertainty",
+      "impact": "downgrade_confidence"
+    },
+    {
+      "player": "List, Luke",
+      "VenueDNA_rank": 134,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "List, Luke",
+      "VenueDNA_rank": 134,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Sargent, Gordon",
+      "VenueDNA_rank": 135,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Sargent, Gordon",
+      "VenueDNA_rank": 135,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Schenk, Adam",
+      "VenueDNA_rank": 136,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Schenk, Adam",
+      "VenueDNA_rank": 136,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Campos, Rafael",
+      "VenueDNA_rank": 137,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Campos, Rafael",
+      "VenueDNA_rank": 137,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Brehm, Ryan",
+      "VenueDNA_rank": 138,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Brehm, Ryan",
+      "VenueDNA_rank": 138,
+      "flag": "VenueDNA_flag_long_iron_deficit",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Fahrny, Brannon",
+      "VenueDNA_rank": 139,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Sandhu, Sihan",
+      "VenueDNA_rank": 141,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Sihota, Jeevan",
+      "VenueDNA_rank": 142,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Schultz, Cooper",
+      "VenueDNA_rank": 143,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    },
+    {
+      "player": "Campbell, Thomas",
+      "VenueDNA_rank": 144,
+      "flag": "VenueDNA_flag_accuracy_risk",
+      "impact": "structural_penalty"
+    }
+  ],
+  "risk_register": {
+    "accuracy_risk": [
+      "McNealy, Maverick",
+      "Knapp, Jake",
+      "Rodgers, Patrick",
+      "Ewart, A.J.",
+      "Hughes, Mackenzie",
+      "Fishburn, Patrick",
+      "Homa, Max",
+      "Schmid, Matti",
+      "Kim, Michael",
+      "Pendrith, Taylor",
+      "Dumont De Chassart, Adrien",
+      "Hojgaard, Rasmus",
+      "Coody, Pierceson",
+      "Finau, Tony",
+      "Jaeger, Stephan",
+      "Greyserman, Max",
+      "Higgo, Garrick",
+      "Potgieter, Aldrich",
+      "Lebioda, Hank",
+      "Moore, Taylor",
+      "Higgs, Harry",
+      "Whaley, Vince",
+      "Dou, Zecheng",
+      "Skinns, David",
+      "Svensson, Jesper",
+      "Crowe, Trace",
+      "Walker, Danny",
+      "Vilips, Karl",
+      "Stanger, Jimmy",
+      "Dunlap, Nick",
+      "Champ, Cameron",
+      "Nyholm, Pontus",
+      "Springer, Hayden",
+      "Clanton, Luke",
+      "Van Rooyen, Erik",
+      "Wise, Aaron",
+      "Donohue, Muzzy",
+      "Highsmith, Joe",
+      "Kang, Jeffrey",
+      "Mazzoli, Stefano",
+      "Malnati, Peter",
+      "Tosti, Alejandro",
+      "Villegas, Camilo",
+      "Hardy, Nick",
+      "Lamprecht, Christo",
+      "Paul, Jeremy",
+      "Kizzire, Patton",
+      "Wood, Griffin",
+      "Gordon, Will",
+      "Davis, Cam",
+      "Riley, Davis",
+      "Hoffman, Charley",
+      "List, Luke",
+      "Sargent, Gordon",
+      "Schenk, Adam",
+      "Campos, Rafael",
+      "Brehm, Ryan",
+      "Fahrny, Brannon",
+      "Sandhu, Sihan",
+      "Sihota, Jeevan",
+      "Schultz, Cooper",
+      "Campbell, Thomas"
+    ],
+    "long_iron_deficit": [
+      "McNealy, Maverick",
+      "Knapp, Jake",
+      "McGreevy, Max",
+      "Yellamaraju, Sudarshan",
+      "Ghim, Doug",
+      "McCarthy, Denny",
+      "Im, Sungjae",
+      "Kuchar, Matt",
+      "Brennan, Michael",
+      "Snedeker, Brandt",
+      "Hughes, Mackenzie",
+      "Castillo, Ricky",
+      "Ramey, Chad",
+      "Power, Seamus",
+      "Homa, Max",
+      "Blanchet, Chandler",
+      "Fisk, Steven",
+      "Nakajima, Keita",
+      "Kim, Michael",
+      "Olesen, Thorbjorn",
+      "Blair, Zac",
+      "Hojgaard, Rasmus",
+      "Dahmen, Joel",
+      "Ventura, Kristoffer",
+      "Pavon, Matthieu",
+      "Greyserman, Max",
+      "Griffin, Lanto",
+      "Hossler, Beau",
+      "Garnett, Brice",
+      "Kanaya, Takumi",
+      "Moore, Taylor",
+      "Suber, Jackson",
+      "Higgs, Harry",
+      "Lower, Justin",
+      "Chatfield, Davis",
+      "VanDerLaan, John",
+      "Whaley, Vince",
+      "Shipley, Neal",
+      "Svensson, Jesper",
+      "Crowe, Trace",
+      "Walker, Danny",
+      "Roy, Kevin",
+      "Wu, Dylan",
+      "Vilips, Karl",
+      "Stanger, Jimmy",
+      "Dunlap, Nick",
+      "Hirata, Kensei",
+      "Nyholm, Pontus",
+      "Peterson, Paul",
+      "Springer, Hayden",
+      "Hoge, Tom",
+      "Van Rooyen, Erik",
+      "Phillips, Chandler",
+      "Wise, Aaron",
+      "Highsmith, Joe",
+      "Hadwin, Adam",
+      "Campbell, Brian",
+      "Malnati, Peter",
+      "Tosti, Alejandro",
+      "Rozo, Marcelo",
+      "Villegas, Camilo",
+      "Merritt, Troy",
+      "Lamprecht, Christo",
+      "Paul, Jeremy",
+      "Kizzire, Patton",
+      "Martin, Ben",
+      "Davis, Cam",
+      "Riley, Davis",
+      "List, Luke",
+      "Sargent, Gordon",
+      "Schenk, Adam",
+      "Campos, Rafael",
+      "Brehm, Ryan"
+    ],
+    "debut_uncertainty": [
+      "Hoffman, Charley"
+    ],
+    "putting_dependency": [
+      "McNealy, Maverick",
+      "McCarthy, Denny",
+      "Kuchar, Matt",
+      "Ewart, A.J.",
+      "Ramey, Chad",
+      "Homa, Max",
+      "Hossler, Beau",
+      "Silverman, Ben",
+      "Whaley, Vince",
+      "Vilips, Karl",
+      "Van Rooyen, Erik",
+      "Malnati, Peter"
+    ],
+    "short_game_only": [
+      "McNealy, Maverick",
+      "Koivun, Jackson",
+      "Ghim, Doug",
+      "Im, Sungjae",
+      "Kuchar, Matt",
+      "Lipsky, David",
+      "Snedeker, Brandt",
+      "Hughes, Mackenzie",
+      "Power, Seamus",
+      "Dumont De Chassart, Adrien",
+      "Finau, Tony",
+      "Jaeger, Stephan",
+      "Kanaya, Takumi",
+      "Roy, Kevin",
+      "Phillips, Chandler",
+      "Malnati, Peter",
+      "Kizzire, Patton"
+    ]
+  },
+  "probability_view": {
+    "top5": [
+      {
+        "rank": 1,
+        "player": "Scheffler, Scottie",
+        "pct": 6.5
+      },
+      {
+        "rank": 2,
+        "player": "McNealy, Maverick",
+        "pct": 4.8
+      },
+      {
+        "rank": 3,
+        "player": "Koivun, Jackson",
+        "pct": 4.7
+      },
+      {
+        "rank": 4,
+        "player": "Kitayama, Kurt",
+        "pct": 4.6
+      },
+      {
+        "rank": 5,
+        "player": "Woodland, Gary",
+        "pct": 4.5
+      },
+      {
+        "rank": 6,
+        "player": "Matsuyama, Hideki",
+        "pct": 4.5
+      },
+      {
+        "rank": 7,
+        "player": "Kim, Tom",
+        "pct": 4.4
+      },
+      {
+        "rank": 8,
+        "player": "Conners, Corey",
+        "pct": 4.4
+      },
+      {
+        "rank": 9,
+        "player": "Harman, Brian",
+        "pct": 4.4
+      },
+      {
+        "rank": 10,
+        "player": "Meissner, Mac",
+        "pct": 4.3
+      },
+      {
+        "rank": 11,
+        "player": "Smith, Jordan",
+        "pct": 4.3
+      },
+      {
+        "rank": 12,
+        "player": "Mitchell, Keith",
+        "pct": 4.2
+      },
+      {
+        "rank": 13,
+        "player": "Knapp, Jake",
+        "pct": 4.1
+      },
+      {
+        "rank": 14,
+        "player": "Stevens, Sam",
+        "pct": 4.1
+      },
+      {
+        "rank": 15,
+        "player": "Hoey, Rico",
+        "pct": 4.1
+      },
+      {
+        "rank": 16,
+        "player": "McGreevy, Max",
+        "pct": 4.1
+      },
+      {
+        "rank": 17,
+        "player": "Yellamaraju, Sudarshan",
+        "pct": 4.1
+      },
+      {
+        "rank": 18,
+        "player": "James, Ben",
+        "pct": 4.1
+      },
+      {
+        "rank": 19,
+        "player": "Ghim, Doug",
+        "pct": 4.1
+      },
+      {
+        "rank": 20,
+        "player": "Rodgers, Patrick",
+        "pct": 4.0
+      }
+    ],
+    "top10": [
+      {
+        "rank": 1,
+        "player": "Scheffler, Scottie",
+        "pct": 10.9
+      },
+      {
+        "rank": 2,
+        "player": "McNealy, Maverick",
+        "pct": 8.8
+      },
+      {
+        "rank": 3,
+        "player": "Koivun, Jackson",
+        "pct": 8.7
+      },
+      {
+        "rank": 4,
+        "player": "Kitayama, Kurt",
+        "pct": 8.5
+      },
+      {
+        "rank": 5,
+        "player": "Woodland, Gary",
+        "pct": 8.4
+      },
+      {
+        "rank": 6,
+        "player": "Matsuyama, Hideki",
+        "pct": 8.4
+      },
+      {
+        "rank": 7,
+        "player": "Kim, Tom",
+        "pct": 8.3
+      },
+      {
+        "rank": 8,
+        "player": "Conners, Corey",
+        "pct": 8.3
+      },
+      {
+        "rank": 9,
+        "player": "Harman, Brian",
+        "pct": 8.3
+      },
+      {
+        "rank": 10,
+        "player": "Meissner, Mac",
+        "pct": 8.2
+      },
+      {
+        "rank": 11,
+        "player": "Smith, Jordan",
+        "pct": 8.1
+      },
+      {
+        "rank": 12,
+        "player": "Mitchell, Keith",
+        "pct": 8.0
+      },
+      {
+        "rank": 13,
+        "player": "Knapp, Jake",
+        "pct": 7.9
+      },
+      {
+        "rank": 14,
+        "player": "Stevens, Sam",
+        "pct": 7.9
+      },
+      {
+        "rank": 15,
+        "player": "Hoey, Rico",
+        "pct": 7.9
+      },
+      {
+        "rank": 16,
+        "player": "McGreevy, Max",
+        "pct": 7.8
+      },
+      {
+        "rank": 17,
+        "player": "Yellamaraju, Sudarshan",
+        "pct": 7.8
+      },
+      {
+        "rank": 18,
+        "player": "James, Ben",
+        "pct": 7.8
+      },
+      {
+        "rank": 19,
+        "player": "Ghim, Doug",
+        "pct": 7.8
+      },
+      {
+        "rank": 20,
+        "player": "Rodgers, Patrick",
+        "pct": 7.8
+      }
+    ],
+    "win": [
+      {
+        "rank": 1,
+        "player": "Scheffler, Scottie",
+        "pct": 1.7
+      },
+      {
+        "rank": 2,
+        "player": "McNealy, Maverick",
+        "pct": 1.1
+      },
+      {
+        "rank": 3,
+        "player": "Koivun, Jackson",
+        "pct": 1.1
+      },
+      {
+        "rank": 4,
+        "player": "Kitayama, Kurt",
+        "pct": 1.0
+      },
+      {
+        "rank": 5,
+        "player": "Woodland, Gary",
+        "pct": 1.0
+      },
+      {
+        "rank": 6,
+        "player": "Matsuyama, Hideki",
+        "pct": 1.0
+      },
+      {
+        "rank": 7,
+        "player": "Kim, Tom",
+        "pct": 1.0
+      },
+      {
+        "rank": 8,
+        "player": "Conners, Corey",
+        "pct": 1.0
+      },
+      {
+        "rank": 9,
+        "player": "Harman, Brian",
+        "pct": 1.0
+      },
+      {
+        "rank": 10,
+        "player": "Meissner, Mac",
+        "pct": 0.9
+      },
+      {
+        "rank": 11,
+        "player": "Smith, Jordan",
+        "pct": 0.9
+      },
+      {
+        "rank": 12,
+        "player": "Mitchell, Keith",
+        "pct": 0.9
+      },
+      {
+        "rank": 13,
+        "player": "Knapp, Jake",
+        "pct": 0.9
+      },
+      {
+        "rank": 14,
+        "player": "Stevens, Sam",
+        "pct": 0.9
+      },
+      {
+        "rank": 15,
+        "player": "Hoey, Rico",
+        "pct": 0.9
+      },
+      {
+        "rank": 16,
+        "player": "McGreevy, Max",
+        "pct": 0.9
+      },
+      {
+        "rank": 17,
+        "player": "Yellamaraju, Sudarshan",
+        "pct": 0.9
+      },
+      {
+        "rank": 18,
+        "player": "James, Ben",
+        "pct": 0.9
+      },
+      {
+        "rank": 19,
+        "player": "Ghim, Doug",
+        "pct": 0.9
+      },
+      {
+        "rank": 20,
+        "player": "Rodgers, Patrick",
+        "pct": 0.9
+      }
+    ]
+  },
+  "model_council_findings": {
+    "schema_version": "1.1",
+    "event": "2026 3M Open",
+    "council_type": "pre_tournament",
+    "generated_at": "2026-07-23T04:57:03.654398Z",
+    "objections": [
+      {
+        "player": "McNealy, Maverick",
+        "VenueDNA_rank": 2,
+        "objection": "T1 assignment with approach trait score 54/100 — approach is the primary win mechanism at TPC Twin Cities",
+        "ruling": "no_change",
+        "rationale": "VTS driven by similar-course composite and NSI; approach data may lag recent form. No hard gate triggered. Flagged for watchlist."
+      }
+    ],
+    "changes_made": [],
+    "no_change_rulings": [
+      {
+        "player": "Scheffler, Scottie",
+        "VenueDNA_rank": 1,
+        "ruling": "T1 supported — approach trait and similar-course delta confirm structural fit"
+      },
+      {
+        "player": "Koivun, Jackson",
+        "VenueDNA_rank": 3,
+        "ruling": "T1 supported — approach trait and similar-course delta confirm structural fit"
+      },
+      {
+        "player": "Kitayama, Kurt",
+        "VenueDNA_rank": 4,
+        "ruling": "T1 supported — approach trait and similar-course delta confirm structural fit"
+      },
+      {
+        "player": "Woodland, Gary",
+        "VenueDNA_rank": 5,
+        "ruling": "T1 supported — approach trait and similar-course delta confirm structural fit"
+      }
+    ],
+    "anti_pattern_review": [
+      {
+        "player": "McNealy, Maverick",
+        "VenueDNA_rank": 2,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "McNealy, Maverick",
+        "VenueDNA_rank": 2,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "McNealy, Maverick",
+        "VenueDNA_rank": 2,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "McNealy, Maverick",
+        "VenueDNA_rank": 2,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Koivun, Jackson",
+        "VenueDNA_rank": 3,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Knapp, Jake",
+        "VenueDNA_rank": 13,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Knapp, Jake",
+        "VenueDNA_rank": 13,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "McGreevy, Max",
+        "VenueDNA_rank": 16,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Yellamaraju, Sudarshan",
+        "VenueDNA_rank": 17,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ghim, Doug",
+        "VenueDNA_rank": 19,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ghim, Doug",
+        "VenueDNA_rank": 19,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Rodgers, Patrick",
+        "VenueDNA_rank": 20,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "McCarthy, Denny",
+        "VenueDNA_rank": 21,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "McCarthy, Denny",
+        "VenueDNA_rank": 21,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Im, Sungjae",
+        "VenueDNA_rank": 22,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Im, Sungjae",
+        "VenueDNA_rank": 22,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kuchar, Matt",
+        "VenueDNA_rank": 24,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kuchar, Matt",
+        "VenueDNA_rank": 24,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kuchar, Matt",
+        "VenueDNA_rank": 24,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Brennan, Michael",
+        "VenueDNA_rank": 26,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Lipsky, David",
+        "VenueDNA_rank": 31,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Snedeker, Brandt",
+        "VenueDNA_rank": 32,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Snedeker, Brandt",
+        "VenueDNA_rank": 32,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ewart, A.J.",
+        "VenueDNA_rank": 33,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ewart, A.J.",
+        "VenueDNA_rank": 33,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hughes, Mackenzie",
+        "VenueDNA_rank": 34,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hughes, Mackenzie",
+        "VenueDNA_rank": 34,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hughes, Mackenzie",
+        "VenueDNA_rank": 34,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Castillo, Ricky",
+        "VenueDNA_rank": 35,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ramey, Chad",
+        "VenueDNA_rank": 37,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ramey, Chad",
+        "VenueDNA_rank": 37,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Power, Seamus",
+        "VenueDNA_rank": 38,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Power, Seamus",
+        "VenueDNA_rank": 38,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Fishburn, Patrick",
+        "VenueDNA_rank": 39,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Homa, Max",
+        "VenueDNA_rank": 40,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Homa, Max",
+        "VenueDNA_rank": 40,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Homa, Max",
+        "VenueDNA_rank": 40,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Blanchet, Chandler",
+        "VenueDNA_rank": 41,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Fisk, Steven",
+        "VenueDNA_rank": 43,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Nakajima, Keita",
+        "VenueDNA_rank": 44,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Schmid, Matti",
+        "VenueDNA_rank": 45,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kim, Michael",
+        "VenueDNA_rank": 47,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kim, Michael",
+        "VenueDNA_rank": 47,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Pendrith, Taylor",
+        "VenueDNA_rank": 53,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Dumont De Chassart, Adrien",
+        "VenueDNA_rank": 54,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Dumont De Chassart, Adrien",
+        "VenueDNA_rank": 54,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Olesen, Thorbjorn",
+        "VenueDNA_rank": 55,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Blair, Zac",
+        "VenueDNA_rank": 56,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hojgaard, Rasmus",
+        "VenueDNA_rank": 57,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hojgaard, Rasmus",
+        "VenueDNA_rank": 57,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Coody, Pierceson",
+        "VenueDNA_rank": 58,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Finau, Tony",
+        "VenueDNA_rank": 59,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Finau, Tony",
+        "VenueDNA_rank": 59,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Dahmen, Joel",
+        "VenueDNA_rank": 60,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Ventura, Kristoffer",
+        "VenueDNA_rank": 61,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Pavon, Matthieu",
+        "VenueDNA_rank": 62,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Jaeger, Stephan",
+        "VenueDNA_rank": 63,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Jaeger, Stephan",
+        "VenueDNA_rank": 63,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Greyserman, Max",
+        "VenueDNA_rank": 64,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Greyserman, Max",
+        "VenueDNA_rank": 64,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Griffin, Lanto",
+        "VenueDNA_rank": 65,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hossler, Beau",
+        "VenueDNA_rank": 67,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hossler, Beau",
+        "VenueDNA_rank": 67,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Garnett, Brice",
+        "VenueDNA_rank": 68,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Higgo, Garrick",
+        "VenueDNA_rank": 69,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kanaya, Takumi",
+        "VenueDNA_rank": 72,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kanaya, Takumi",
+        "VenueDNA_rank": 72,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Potgieter, Aldrich",
+        "VenueDNA_rank": 74,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Lebioda, Hank",
+        "VenueDNA_rank": 75,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Moore, Taylor",
+        "VenueDNA_rank": 76,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Moore, Taylor",
+        "VenueDNA_rank": 76,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Suber, Jackson",
+        "VenueDNA_rank": 77,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Higgs, Harry",
+        "VenueDNA_rank": 79,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Higgs, Harry",
+        "VenueDNA_rank": 79,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Lower, Justin",
+        "VenueDNA_rank": 82,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Chatfield, Davis",
+        "VenueDNA_rank": 83,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Silverman, Ben",
+        "VenueDNA_rank": 85,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "VanDerLaan, John",
+        "VenueDNA_rank": 86,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Whaley, Vince",
+        "VenueDNA_rank": 87,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Whaley, Vince",
+        "VenueDNA_rank": 87,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Whaley, Vince",
+        "VenueDNA_rank": 87,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Dou, Zecheng",
+        "VenueDNA_rank": 89,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Shipley, Neal",
+        "VenueDNA_rank": 90,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Skinns, David",
+        "VenueDNA_rank": 91,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Svensson, Jesper",
+        "VenueDNA_rank": 92,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Svensson, Jesper",
+        "VenueDNA_rank": 92,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Crowe, Trace",
+        "VenueDNA_rank": 93,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Crowe, Trace",
+        "VenueDNA_rank": 93,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Walker, Danny",
+        "VenueDNA_rank": 94,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Walker, Danny",
+        "VenueDNA_rank": 94,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Roy, Kevin",
+        "VenueDNA_rank": 95,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Roy, Kevin",
+        "VenueDNA_rank": 95,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Wu, Dylan",
+        "VenueDNA_rank": 97,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Vilips, Karl",
+        "VenueDNA_rank": 98,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Vilips, Karl",
+        "VenueDNA_rank": 98,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Vilips, Karl",
+        "VenueDNA_rank": 98,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Stanger, Jimmy",
+        "VenueDNA_rank": 99,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Stanger, Jimmy",
+        "VenueDNA_rank": 99,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Dunlap, Nick",
+        "VenueDNA_rank": 100,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Dunlap, Nick",
+        "VenueDNA_rank": 100,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hirata, Kensei",
+        "VenueDNA_rank": 101,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Champ, Cameron",
+        "VenueDNA_rank": 102,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Nyholm, Pontus",
+        "VenueDNA_rank": 103,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Nyholm, Pontus",
+        "VenueDNA_rank": 103,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Peterson, Paul",
+        "VenueDNA_rank": 104,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Springer, Hayden",
+        "VenueDNA_rank": 105,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Springer, Hayden",
+        "VenueDNA_rank": 105,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hoge, Tom",
+        "VenueDNA_rank": 106,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Clanton, Luke",
+        "VenueDNA_rank": 108,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Van Rooyen, Erik",
+        "VenueDNA_rank": 109,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Van Rooyen, Erik",
+        "VenueDNA_rank": 109,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Van Rooyen, Erik",
+        "VenueDNA_rank": 109,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Phillips, Chandler",
+        "VenueDNA_rank": 110,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Phillips, Chandler",
+        "VenueDNA_rank": 110,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Wise, Aaron",
+        "VenueDNA_rank": 111,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Wise, Aaron",
+        "VenueDNA_rank": 111,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Donohue, Muzzy",
+        "VenueDNA_rank": 112,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Highsmith, Joe",
+        "VenueDNA_rank": 113,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Highsmith, Joe",
+        "VenueDNA_rank": 113,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hadwin, Adam",
+        "VenueDNA_rank": 114,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kang, Jeffrey",
+        "VenueDNA_rank": 115,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Campbell, Brian",
+        "VenueDNA_rank": 116,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Mazzoli, Stefano",
+        "VenueDNA_rank": 118,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Malnati, Peter",
+        "VenueDNA_rank": 119,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Malnati, Peter",
+        "VenueDNA_rank": 119,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Malnati, Peter",
+        "VenueDNA_rank": 119,
+        "flag": "VenueDNA_flag_putting_dependency",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Malnati, Peter",
+        "VenueDNA_rank": 119,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Tosti, Alejandro",
+        "VenueDNA_rank": 120,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Tosti, Alejandro",
+        "VenueDNA_rank": 120,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Rozo, Marcelo",
+        "VenueDNA_rank": 121,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Villegas, Camilo",
+        "VenueDNA_rank": 122,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Villegas, Camilo",
+        "VenueDNA_rank": 122,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Merritt, Troy",
+        "VenueDNA_rank": 123,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hardy, Nick",
+        "VenueDNA_rank": 124,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Lamprecht, Christo",
+        "VenueDNA_rank": 125,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Lamprecht, Christo",
+        "VenueDNA_rank": 125,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Paul, Jeremy",
+        "VenueDNA_rank": 126,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Paul, Jeremy",
+        "VenueDNA_rank": 126,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kizzire, Patton",
+        "VenueDNA_rank": 127,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kizzire, Patton",
+        "VenueDNA_rank": 127,
+        "flag": "VenueDNA_flag_short_game_only",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Kizzire, Patton",
+        "VenueDNA_rank": 127,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Martin, Ben",
+        "VenueDNA_rank": 128,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Wood, Griffin",
+        "VenueDNA_rank": 129,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Gordon, Will",
+        "VenueDNA_rank": 130,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Davis, Cam",
+        "VenueDNA_rank": 131,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Davis, Cam",
+        "VenueDNA_rank": 131,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Riley, Davis",
+        "VenueDNA_rank": 132,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Riley, Davis",
+        "VenueDNA_rank": 132,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hoffman, Charley",
+        "VenueDNA_rank": 133,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Hoffman, Charley",
+        "VenueDNA_rank": 133,
+        "flag": "VenueDNA_flag_debut_uncertainty",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "List, Luke",
+        "VenueDNA_rank": 134,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "List, Luke",
+        "VenueDNA_rank": 134,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Sargent, Gordon",
+        "VenueDNA_rank": 135,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Sargent, Gordon",
+        "VenueDNA_rank": 135,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Schenk, Adam",
+        "VenueDNA_rank": 136,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Schenk, Adam",
+        "VenueDNA_rank": 136,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Campos, Rafael",
+        "VenueDNA_rank": 137,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Campos, Rafael",
+        "VenueDNA_rank": 137,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Brehm, Ryan",
+        "VenueDNA_rank": 138,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Brehm, Ryan",
+        "VenueDNA_rank": 138,
+        "flag": "VenueDNA_flag_long_iron_deficit",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Fahrny, Brannon",
+        "VenueDNA_rank": 139,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Sandhu, Sihan",
+        "VenueDNA_rank": 141,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Sihota, Jeevan",
+        "VenueDNA_rank": 142,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Schultz, Cooper",
+        "VenueDNA_rank": 143,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      },
+      {
+        "player": "Campbell, Thomas",
+        "VenueDNA_rank": 144,
+        "flag": "VenueDNA_flag_accuracy_risk",
+        "venue_mechanism": "see venue profile",
+        "ruling": "confirmed"
+      }
+    ],
+    "dg_disagreements": [
+      {
+        "player": "Woodland, Gary",
+        "VenueDNA_rank": 5,
+        "DG_rank_implied": 35,
+        "rank_gap": 30,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Hoey, Rico",
+        "VenueDNA_rank": 15,
+        "DG_rank_implied": 44,
+        "rank_gap": 29,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Yellamaraju, Sudarshan",
+        "VenueDNA_rank": 17,
+        "DG_rank_implied": 40,
+        "rank_gap": 23,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Rodgers, Patrick",
+        "VenueDNA_rank": 20,
+        "DG_rank_implied": 82,
+        "rank_gap": 62,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Kuchar, Matt",
+        "VenueDNA_rank": 24,
+        "DG_rank_implied": 52,
+        "rank_gap": 28,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Mouw, William",
+        "VenueDNA_rank": 25,
+        "DG_rank_implied": 43,
+        "rank_gap": 18,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Hodges, Lee",
+        "VenueDNA_rank": 27,
+        "DG_rank_implied": 45,
+        "rank_gap": 18,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Kirk, Chris",
+        "VenueDNA_rank": 30,
+        "DG_rank_implied": 63,
+        "rank_gap": 33,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Lipsky, David",
+        "VenueDNA_rank": 31,
+        "DG_rank_implied": 77,
+        "rank_gap": 46,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Snedeker, Brandt",
+        "VenueDNA_rank": 32,
+        "DG_rank_implied": 50,
+        "rank_gap": 18,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Ewart, A.J.",
+        "VenueDNA_rank": 33,
+        "DG_rank_implied": 67,
+        "rank_gap": 34,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Ramey, Chad",
+        "VenueDNA_rank": 37,
+        "DG_rank_implied": 76,
+        "rank_gap": 39,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Fishburn, Patrick",
+        "VenueDNA_rank": 39,
+        "DG_rank_implied": 78,
+        "rank_gap": 39,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Homa, Max",
+        "VenueDNA_rank": 40,
+        "DG_rank_implied": 18,
+        "rank_gap": 22,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Blanchet, Chandler",
+        "VenueDNA_rank": 41,
+        "DG_rank_implied": 93,
+        "rank_gap": 52,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Kim, Michael",
+        "VenueDNA_rank": 47,
+        "DG_rank_implied": 25,
+        "rank_gap": 22,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Horschel, Billy",
+        "VenueDNA_rank": 49,
+        "DG_rank_implied": 72,
+        "rank_gap": 23,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Jarvis, Casey",
+        "VenueDNA_rank": 50,
+        "DG_rank_implied": 19,
+        "rank_gap": 31,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Kohles, Ben",
+        "VenueDNA_rank": 52,
+        "DG_rank_implied": 13,
+        "rank_gap": 39,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Dumont De Chassart, Adrien",
+        "VenueDNA_rank": 54,
+        "DG_rank_implied": 81,
+        "rank_gap": 27,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Blair, Zac",
+        "VenueDNA_rank": 56,
+        "DG_rank_implied": 29,
+        "rank_gap": 27,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Hojgaard, Rasmus",
+        "VenueDNA_rank": 57,
+        "DG_rank_implied": 74,
+        "rank_gap": 17,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Coody, Pierceson",
+        "VenueDNA_rank": 58,
+        "DG_rank_implied": 20,
+        "rank_gap": 38,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Finau, Tony",
+        "VenueDNA_rank": 59,
+        "DG_rank_implied": 30,
+        "rank_gap": 29,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Pavon, Matthieu",
+        "VenueDNA_rank": 62,
+        "DG_rank_implied": 83,
+        "rank_gap": 21,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Greyserman, Max",
+        "VenueDNA_rank": 64,
+        "DG_rank_implied": 36,
+        "rank_gap": 28,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Griffin, Lanto",
+        "VenueDNA_rank": 65,
+        "DG_rank_implied": 84,
+        "rank_gap": 19,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Hossler, Beau",
+        "VenueDNA_rank": 67,
+        "DG_rank_implied": 32,
+        "rank_gap": 35,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Keefer, Johnny",
+        "VenueDNA_rank": 70,
+        "DG_rank_implied": 26,
+        "rank_gap": 44,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Kanaya, Takumi",
+        "VenueDNA_rank": 72,
+        "DG_rank_implied": 51,
+        "rank_gap": 21,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Lebioda, Hank",
+        "VenueDNA_rank": 75,
+        "DG_rank_implied": 100,
+        "rank_gap": 25,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Moore, Taylor",
+        "VenueDNA_rank": 76,
+        "DG_rank_implied": 54,
+        "rank_gap": 22,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Suber, Jackson",
+        "VenueDNA_rank": 77,
+        "DG_rank_implied": 21,
+        "rank_gap": 56,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Higgs, Harry",
+        "VenueDNA_rank": 79,
+        "DG_rank_implied": 108,
+        "rank_gap": 29,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Cowan, Ryder",
+        "VenueDNA_rank": 80,
+        "DG_rank_implied": 105,
+        "rank_gap": 25,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Glover, Lucas",
+        "VenueDNA_rank": 81,
+        "DG_rank_implied": 48,
+        "rank_gap": 33,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Lower, Justin",
+        "VenueDNA_rank": 82,
+        "DG_rank_implied": 106,
+        "rank_gap": 24,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "VanDerLaan, John",
+        "VenueDNA_rank": 86,
+        "DG_rank_implied": 110,
+        "rank_gap": 24,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Whaley, Vince",
+        "VenueDNA_rank": 87,
+        "DG_rank_implied": 104,
+        "rank_gap": 17,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Yu, Kevin",
+        "VenueDNA_rank": 88,
+        "DG_rank_implied": 47,
+        "rank_gap": 41,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Dou, Zecheng",
+        "VenueDNA_rank": 89,
+        "DG_rank_implied": 56,
+        "rank_gap": 33,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Svensson, Jesper",
+        "VenueDNA_rank": 92,
+        "DG_rank_implied": 62,
+        "rank_gap": 30,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Walker, Danny",
+        "VenueDNA_rank": 94,
+        "DG_rank_implied": 130,
+        "rank_gap": 36,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Roy, Kevin",
+        "VenueDNA_rank": 95,
+        "DG_rank_implied": 55,
+        "rank_gap": 40,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Stanger, Jimmy",
+        "VenueDNA_rank": 99,
+        "DG_rank_implied": 118,
+        "rank_gap": 19,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Champ, Cameron",
+        "VenueDNA_rank": 102,
+        "DG_rank_implied": 124,
+        "rank_gap": 22,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Peterson, Paul",
+        "VenueDNA_rank": 104,
+        "DG_rank_implied": 75,
+        "rank_gap": 29,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Hoge, Tom",
+        "VenueDNA_rank": 106,
+        "DG_rank_implied": 64,
+        "rank_gap": 42,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Phillips, Chandler",
+        "VenueDNA_rank": 110,
+        "DG_rank_implied": 80,
+        "rank_gap": 30,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Wise, Aaron",
+        "VenueDNA_rank": 111,
+        "DG_rank_implied": 91,
+        "rank_gap": 20,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Donohue, Muzzy",
+        "VenueDNA_rank": 112,
+        "DG_rank_implied": 144,
+        "rank_gap": 32,
+        "direction": "VenueDNA above DG",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Hadwin, Adam",
+        "VenueDNA_rank": 114,
+        "DG_rank_implied": 90,
+        "rank_gap": 24,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "Davis, Cam",
+        "VenueDNA_rank": 131,
+        "DG_rank_implied": 114,
+        "rank_gap": 17,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      },
+      {
+        "player": "List, Luke",
+        "VenueDNA_rank": 134,
+        "DG_rank_implied": 117,
+        "rank_gap": 17,
+        "direction": "DG above VenueDNA",
+        "ruling": "VenueDNA_supported",
+        "note": "DG benchmark does not determine official rank. Disagreement logged for monitoring."
+      }
+    ],
+    "final_synthesis": "Pre-tournament council complete. 5 T1 assignments reviewed. 1 formal objections raised; all resulted in no_change rulings (no hard gates triggered). 165 anti-pattern flag instances confirmed. 54 DG vs. VenueDNA disagreements > 15 ranks logged as watchlist. VenueDNA_final_projection remains the sole official ranking authority.",
+    "council_sign_off": "pre_tournament_complete"
+  },
+  "source_manifest": {
+    "pga_field.csv": "EXISTS",
+    "dg_decomposition.csv": "EXISTS",
+    "datagolf.csv": "EXISTS",
+    "dg_course_table.csv": "EXISTS",
+    "dg_performance_2026.csv": "EXISTS",
+    "pga_field_trending_table.csv": "EXISTS",
+    "app_skill_l12_sg.csv": "EXISTS",
+    "app_skill_l12_gh.csv": "EXISTS",
+    "app_skill_l12_bad.csv": "EXISTS",
+    "app_skill_l12_great.csv": "EXISTS",
+    "app_skill_l12_prox.csv": "EXISTS",
+    "tpc_twin_cities_CH.csv": "EXISTS",
+    "pga_sg_query_allcourses_l6.csv": "EXISTS",
+    "pga_sg_query_allcourses_l12.csv": "EXISTS",
+    "pga_sg_query_allcourses_l24.csv": "EXISTS",
+    "pga_sg_query_2026_3m_open_similar_l6.csv": "EXISTS",
+    "pga_sg_query_2026_3m_open_similar_l12.csv": "EXISTS",
+    "pga_sg_query_2026_3m_open_similar_l24.csv": "EXISTS"
+  },
+  "deploy_manifest": {
+    "board_export.json": "deploy/data/board_export.json",
+    "2026_3m_open_event_payload.json": "deploy/data/2026_3m_open_event_payload.json",
+    "2026_3m_open_vts_full.csv": "deploy/data/2026_3m_open_vts_full.csv",
+    "2026_3m_open_player_briefs.json": "deploy/data/2026_3m_open_player_briefs.json",
+    "2026_3m_open_links.json": "deploy/data/2026_3m_open_links.json"
+  },
+  "blockers": []
+}

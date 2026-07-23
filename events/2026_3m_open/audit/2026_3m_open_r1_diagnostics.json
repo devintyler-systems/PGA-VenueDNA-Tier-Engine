@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.1",
+  "event": "2026 3M Open",
+  "round": 1,
+  "status": "pending",
+  "generated_at": "2026-07-23T04:57:03.659966Z",
+  "note": "Placeholder \u2014 populate after R1 scorecards are available via build_round_analysis.py",
+  "spearman_rho": null,
+  "trait_validation": {},
+  "board": []
+}
