@@ -23,6 +23,11 @@ const S = {
   filterRules:          [],
   glossaryModalOpen:    false,
   pmData:               null,
+  scenarioMode:         false,
+  scenarioWeights:      {},
+  favorites:            new Set(),
+  chartHighlightFlags:  false,
+  chartHighlightDebut:  false,
 };
 
 // ── Filter field definitions ──────────────────────────────────────────────────
@@ -206,13 +211,103 @@ function bindEvents() {
       updateRuleVal(parseInt(rule.dataset.idx), e.target.value);
     }
   });
+
+  // Theme toggle
+  document.getElementById('btn-theme')?.addEventListener('click', toggleTheme);
+
+  // Reset all
+  document.getElementById('btn-reset')?.addEventListener('click', clearFilters);
+
+  // Glossary open
+  document.getElementById('btn-glossary')?.addEventListener('click', openGlossary);
+  document.getElementById('glossary-modal-close')?.addEventListener('click', closeGlossary);
+  document.getElementById('glossary-modal-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'glossary-modal-overlay') closeGlossary();
+  });
+
+  // Modal overlay click-outside close
+  document.getElementById('modal-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+
+  // Search clear
+  const srchClear = document.getElementById('search-clear');
+  if (srchClear) {
+    srchClear.addEventListener('click', () => {
+      const inp = document.getElementById('player-search');
+      if (inp) { inp.value = ''; S.searchQuery = ''; applyVisibility(); }
+      srchClear.style.display = 'none';
+    });
+  }
+  const playerSearch = document.getElementById('player-search');
+  if (playerSearch) {
+    playerSearch.addEventListener('input', e => {
+      const clr = document.getElementById('search-clear');
+      if (clr) clr.style.display = e.target.value ? 'block' : 'none';
+    });
+  }
+
+  // Presets dropdown toggle
+  const btnPresets = document.getElementById('btn-presets');
+  const presetDd   = document.getElementById('preset-dropdown');
+  if (btnPresets && presetDd) {
+    btnPresets.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = presetDd.style.display === 'block';
+      presetDd.style.display = open ? 'none' : 'block';
+    });
+    document.addEventListener('click', () => { presetDd.style.display = 'none'; });
+    presetDd.querySelectorAll('.preset-item[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyPreset(btn.dataset.preset);
+        presetDd.style.display = 'none';
+      });
+    });
+  }
+
+  // Favorites filter
+  document.getElementById('btn-favonly')?.addEventListener('click', () => {
+    const btn = document.getElementById('btn-favonly');
+    if (S.currentFilter === 'favonly') {
+      S.currentFilter = 'all';
+      btn?.classList.remove('active');
+    } else {
+      S.currentFilter = 'favonly';
+      btn?.classList.add('active');
+    }
+    applyVisibility();
+  });
+
+  // Scenario button
+  document.getElementById('btn-scenario')?.addEventListener('click', toggleScenarioPanel);
+
+  // Scenario reset/exit
+  document.getElementById('scenario-reset')?.addEventListener('click', resetScenario);
+  document.getElementById('scenario-exit')?.addEventListener('click', exitScenario);
+
+  // Contention chart toggles
+  document.getElementById('chart-toggle-flags')?.addEventListener('click', () => {
+    S.chartHighlightFlags = !S.chartHighlightFlags;
+    document.getElementById('chart-toggle-flags')?.classList.toggle('active', S.chartHighlightFlags);
+    renderContentionChart();
+  });
+  document.getElementById('chart-toggle-debut')?.addEventListener('click', () => {
+    S.chartHighlightDebut = !S.chartHighlightDebut;
+    document.getElementById('chart-toggle-debut')?.classList.toggle('active', S.chartHighlightDebut);
+    renderContentionChart();
+  });
+
+  // Flag tooltip (event delegation)
+  bindFlagTooltip();
 }
 
 // ── Render orchestration ───────────────────────────────────────────────────────
 function renderAll() {
   renderSpotlight();
   renderTable();
+  renderCards();
   renderIntel();
+  renderContentionChart();
 }
 
 // ── Spotlight — T1/T2 cards ────────────────────────────────────────────────────
@@ -328,6 +423,47 @@ function renderTable() {
 
   applyVisibility();
   updateSortArrows();
+  if (S.scenarioMode) renderScenarioResults();
+}
+
+// ── Mobile card view — same source as table; shown on narrow viewports ────────
+function renderCards() {
+  const container = document.getElementById('player-cards');
+  if (!container) return;
+  const sorted = [...S.boardData].sort((a, b) => {
+    const { key, dir } = S.sort;
+    if (key === 'player') return dir * (a.player || '').localeCompare(b.player || '');
+    return dir * ((a[key] || 0) - (b[key] || 0));
+  });
+  container.innerHTML = sorted.map(p => {
+    const tColor = { T1:'var(--t1-t)', T2:'var(--t2-t)', T3:'var(--t3-t)', T4:'var(--t4-t)', T5:'var(--t5-t)' }[p.tier] || '';
+    const tBg    = { T1:'var(--t1-bg)', T2:'var(--t2-bg)', T3:'var(--t3-bg)', T4:'var(--t4-bg)', T5:'var(--t5-bg)' }[p.tier] || '';
+    const flagStr = (p._flags || []).join(',');
+    return `<div class="player-card" data-player="${esc(p.player)}" data-tier="${p.tier}" data-flags="${flagStr}" data-vts="${p.vts_final ?? ''}" data-nsi="${p.neutralSkillIndex ?? ''}" data-win="${p.winPct ?? ''}">
+      <div class="pc-top">
+        <div class="pc-rank sans" style="background:${tBg};color:${tColor};border:1px solid ${tColor}">${p.rank}</div>
+        <div class="pc-name">
+          ${p.player}
+          <span class="tier-badge sans" style="background:${tBg};color:${tColor};border:1px solid ${tColor};margin-left:.35rem;">${p.tier}</span>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="pc-vts sans">${f2(p.vts_final)}</div>
+          <div class="pc-vts-lbl sans">VTS</div>
+        </div>
+      </div>
+      <div class="pc-metrics">
+        <div class="pc-metric"><div class="pc-metric-lbl sans">NSI</div><div class="pc-metric-val sans">${f1(p.neutralSkillIndex)}</div></div>
+        <div class="pc-metric"><div class="pc-metric-lbl sans">Win%</div><div class="pc-metric-val sans">${pct(p.winPct)}</div></div>
+        <div class="pc-metric" style="color:${(p.delta_fit||0)>=0?'var(--green-ok)':'var(--accent)'}"><div class="pc-metric-lbl sans">Δ Fit</div><div class="pc-metric-val sans">${sgSign(p.delta_fit)}</div></div>
+      </div>
+      ${p._flags.length ? `<div class="pc-flags">${p._flags.map(f => flag(f)).join('')}</div>` : ''}
+      ${p.tierReason ? `<div class="pc-reason">${esc(p.tierReason)}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.player-card[data-player]').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.player));
+  });
 }
 
 // ── Named rule engine — evaluates S.filterRules against one player record ─────
@@ -376,6 +512,7 @@ function applyVisibility() {
         case 'flagged': if (!flags.length) show = false; break;
         case 'nopen':   if (flags.length)  show = false; break;
         case 't1t2':    if (tier !== 'T1' && tier !== 'T2') show = false; break;
+        case 'favonly': if (!S.favorites?.has(tr.dataset.player)) show = false; break;
       }
     }
 
@@ -394,6 +531,34 @@ function applyVisibility() {
 
     tr.classList.toggle('hidden', !show);
     if (show) shown++;
+  });
+
+  // Sync mobile cards with same filter logic
+  document.querySelectorAll('#player-cards .player-card[data-player]').forEach(card => {
+    const tier  = card.dataset.tier;
+    const flags = card.dataset.flags ? card.dataset.flags.split(',').filter(Boolean) : [];
+    const name  = normName(card.dataset.player);
+    let showCard = true;
+    if (S.currentTier !== 'all' && tier !== S.currentTier) showCard = false;
+    if (showCard) {
+      switch (S.currentFilter) {
+        case 'flagged': if (!flags.length) showCard = false; break;
+        case 'nopen':   if (flags.length)  showCard = false; break;
+        case 't1t2':    if (tier !== 'T1' && tier !== 'T2') showCard = false; break;
+        case 'favonly': if (!S.favorites?.has(card.dataset.player)) showCard = false; break;
+      }
+    }
+    if (showCard && q) {
+      const matchName = name.includes(q);
+      const matchFlag = flags.some(f => f.toLowerCase().includes(q));
+      if (!matchName && !matchFlag) showCard = false;
+    }
+    if (showCard && hasRuleFilter) {
+      const pData = S.boardData.find(x => x.player === card.dataset.player);
+      const br    = pData ? (S.briefsByName[normName(pData.player)] || {}) : {};
+      if (!applyLeaderboardFilters(pData || {}, br)) showCard = false;
+    }
+    card.classList.toggle('hidden', !showCard);
   });
 
   setResultCount(shown);
@@ -477,6 +642,292 @@ function renderIntel() {
   });
 }
 
+
+// ── Contention map — NSI vs VTS bubble chart ──────────────────────────────────
+let _contentionChart = null;
+
+function renderContentionChart() {
+  const canvas = document.getElementById('contention-canvas');
+  if (!canvas || !window.Chart || !S.boardData.length) return;
+
+  const TIER_COLORS = {
+    T1: { bg: 'rgba(22,163,74,.75)',  border: '#16a34a' },
+    T2: { bg: 'rgba(37,99,235,.75)',  border: '#2563eb' },
+    T3: { bg: 'rgba(124,58,237,.75)', border: '#7c3aed' },
+    T4: { bg: 'rgba(234,88,12,.75)',  border: '#ea580c' },
+    T5: { bg: 'rgba(220,38,38,.6)',   border: '#dc2626' },
+  };
+
+  const players = S.boardData.filter(p => p.vts_final != null && p.neutralSkillIndex != null);
+
+  const datasets = ['T1','T2','T3','T4','T5'].map(tier => {
+    const tp = players.filter(p => p.tier === tier);
+    const cols = TIER_COLORS[tier];
+    return {
+      label: tier,
+      data: tp.map(p => {
+        const hasFlag  = (p._flags || []).length > 0;
+        const isDebut  = (p.data_depth || '').toUpperCase() === 'DEBUT';
+        const highlight = (S.chartHighlightFlags && hasFlag) || (S.chartHighlightDebut && isDebut);
+        return {
+          x: p.neutralSkillIndex,
+          y: p.vts_final,
+          r: Math.max(4, Math.min(24, (p.winPct || 0.5) * 3.5)),
+          player: p.player,
+          tier,
+          winPct: p.winPct,
+          nsi: p.neutralSkillIndex,
+          vts: p.vts_final,
+          hasFlag,
+          isDebut,
+          highlight,
+        };
+      }),
+      backgroundColor: tp.map(p => {
+        const isDebut  = (p.data_depth || '').toUpperCase() === 'DEBUT';
+        const hasFlag  = (p._flags || []).length > 0;
+        if (S.chartHighlightDebut && isDebut) return 'rgba(251,191,36,.85)';
+        if (S.chartHighlightFlags && hasFlag)  return 'rgba(239,68,68,.85)';
+        return cols.bg;
+      }),
+      borderColor: cols.border,
+      borderWidth: 1.5,
+      hoverBorderWidth: 2.5,
+    };
+  });
+
+  const chartConfig = {
+    type: 'bubble',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: window.innerWidth < 640 ? 1.2 : 2.2,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { color: '#7a8fa6', font: { size: 11 }, boxWidth: 12, padding: 10 },
+        },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const d = ctx.raw;
+              const lines = [`${d.player}  (${d.tier})`, `NSI: ${f1(d.nsi)} · VTS: ${f2(d.vts)} · Win: ${pct(d.winPct)}`];
+              if (d.isDebut) lines.push('⚑ Course Debut');
+              if (d.hasFlag) lines.push('⚑ Has Flags');
+              return lines;
+            },
+          },
+          backgroundColor: '#161d27',
+          borderColor: '#2a3a4a',
+          borderWidth: 1,
+          padding: 8,
+          titleColor: '#c9a84c',
+          bodyColor: '#b8c4cc',
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Neutral Skill Index (NSI)', color: '#7a8fa6', font: { size: 11 } },
+          ticks: { color: '#7a8fa6', font: { size: 10 } },
+          grid:  { color: 'rgba(42,58,74,.4)' },
+          min: 20, max: 105,
+        },
+        y: {
+          title: { display: true, text: 'VTS Score', color: '#7a8fa6', font: { size: 11 } },
+          ticks: { color: '#7a8fa6', font: { size: 10 } },
+          grid:  { color: 'rgba(42,58,74,.4)' },
+          min: 20, max: 105,
+        },
+      },
+      onClick(evt, elements) {
+        if (!elements.length) return;
+        const el    = elements[0];
+        const ds    = datasets[el.datasetIndex];
+        const point = ds.data[el.index];
+        if (point?.player) {
+          scrollToPlayer(point.player);
+          openModal(point.player);
+        }
+      },
+    },
+  };
+
+  if (_contentionChart) {
+    _contentionChart.destroy();
+    _contentionChart = null;
+  }
+  _contentionChart = new Chart(canvas, chartConfig);
+}
+
+// ── Scenario builder ──────────────────────────────────────────────────────────
+const SCENARIO_TRAITS = [
+  { key: 'app_150_200',   label: 'App 150–200 yd',   defaultWeight: 0.25 },
+  { key: 'ott_accuracy',  label: 'OTT Accuracy',      defaultWeight: 0.15 },
+  { key: 'ott_positional',label: 'OTT Positional',    defaultWeight: 0.12 },
+  { key: 'app_overall',   label: 'App Overall',        defaultWeight: 0.20 },
+  { key: 'sg_putt',       label: 'SG: Putting',       defaultWeight: 0.10 },
+  { key: 'sg_arg',        label: 'SG: ARG',           defaultWeight: 0.10 },
+  { key: 'par5_scoring',  label: 'Par-5 Scoring',     defaultWeight: 0.08 },
+];
+
+function getDefaultWeights() {
+  const dw = {};
+  for (const t of SCENARIO_TRAITS) dw[t.key] = t.defaultWeight;
+  return dw;
+}
+
+function toggleScenarioPanel() {
+  const panel = document.getElementById('scenario-panel');
+  if (!panel) return;
+  const isHidden = panel.classList.contains('hidden');
+  if (isHidden) {
+    panel.classList.remove('hidden');
+    if (!Object.keys(S.scenarioWeights).length) S.scenarioWeights = getDefaultWeights();
+    renderScenarioSliders();
+    enterScenarioMode();
+  } else {
+    exitScenario();
+  }
+}
+
+function enterScenarioMode() {
+  S.scenarioMode = true;
+  const btn = document.getElementById('btn-scenario');
+  if (btn) { btn.style.borderColor = 'var(--gold)'; btn.style.color = 'var(--gold)'; btn.textContent = '⊡ Scenario ON'; }
+  renderScenarioResults();
+}
+
+function exitScenario() {
+  S.scenarioMode = false;
+  document.getElementById('scenario-panel')?.classList.add('hidden');
+  const btn = document.getElementById('btn-scenario');
+  if (btn) { btn.style.borderColor = 'var(--gold-dim)'; btn.style.color = 'var(--gold-dim)'; btn.textContent = '⊡ Scenario'; }
+  // Remove scenario rank column
+  document.querySelectorAll('#board-tbody tr[data-player]').forEach(tr => {
+    const sc = tr.querySelector('.scenario-rank-cell');
+    if (sc) sc.remove();
+  });
+  document.querySelectorAll('#board-table th.scenario-col').forEach(th => th.remove());
+  document.getElementById('board-sub-scenario')?.remove();
+  S.scenarioWeights = {};
+}
+
+function resetScenario() {
+  S.scenarioWeights = getDefaultWeights();
+  renderScenarioSliders();
+  renderScenarioResults();
+}
+
+function renderScenarioSliders() {
+  const container = document.getElementById('scenario-sliders');
+  if (!container) return;
+  container.innerHTML = SCENARIO_TRAITS.map(t => {
+    const w = (S.scenarioWeights[t.key] ?? t.defaultWeight);
+    return `<div class="slider-wrap">
+      <div class="slider-label">
+        <span>${t.label}</span>
+        <span><span class="slider-default">default ${Math.round(t.defaultWeight*100)}%</span> → <span class="slider-current" id="sw-val-${t.key}">${Math.round(w*100)}%</span></span>
+      </div>
+      <input type="range" min="0" max="50" step="1" value="${Math.round(w*100)}"
+        data-trait="${t.key}"
+        oninput="onScenarioSlider('${t.key}', this.value)">
+    </div>`;
+  }).join('');
+}
+
+function onScenarioSlider(traitKey, rawVal) {
+  S.scenarioWeights[traitKey] = parseFloat(rawVal) / 100;
+  const valEl = document.getElementById('sw-val-' + traitKey);
+  if (valEl) valEl.textContent = rawVal + '%';
+  renderScenarioResults();
+}
+
+function computeScenarioScore(p) {
+  const br = S.briefsByName[normName(p.player)] || {};
+  const ts = (br.trait_scores || []);
+  let sum = 0; let wSum = 0;
+  for (const t of SCENARIO_TRAITS) {
+    const w = S.scenarioWeights[t.key] ?? t.defaultWeight;
+    if (w === 0) continue;
+    const entry = ts.find(x => resolveCumKey(x.label) === t.key);
+    const score = entry != null ? (entry.score || 50) : 50;
+    sum  += w * score;
+    wSum += w;
+  }
+  return wSum > 0 ? sum / wSum : p.vts_final;
+}
+
+function renderScenarioResults() {
+  if (!S.scenarioMode) return;
+  const scored = S.boardData.map(p => ({
+    player: p.player,
+    officialRank: p.rank,
+    scenarioScore: computeScenarioScore(p),
+  })).sort((a, b) => b.scenarioScore - a.scenarioScore);
+
+  const scenarioRankMap = {};
+  scored.forEach((s, i) => { scenarioRankMap[s.player] = i + 1; });
+
+  // Remove old scenario columns first
+  document.querySelectorAll('#board-table th.scenario-col').forEach(th => th.remove());
+  document.getElementById('board-sub-scenario')?.remove();
+
+  // Add header columns if not present
+  const thead = document.querySelector('#board-table thead tr');
+  if (thead && !thead.querySelector('.scenario-col')) {
+    const thSc = document.createElement('th');
+    thSc.className = 'scenario-col sans';
+    thSc.style.cssText = 'color:var(--gold);font-weight:700;';
+    thSc.textContent = '⊡ Sc.Rank';
+    const thDelta = document.createElement('th');
+    thDelta.className = 'scenario-col sans';
+    thDelta.textContent = 'Δ';
+    thead.appendChild(thSc);
+    thead.appendChild(thDelta);
+  }
+
+  // Add scenario-unofficial banner
+  const boardSection = document.getElementById('sec-board');
+  if (boardSection && !document.getElementById('board-sub-scenario')) {
+    const banner = document.createElement('div');
+    banner.id = 'board-sub-scenario';
+    banner.className = 'scenario-unofficial-tag';
+    banner.style.cssText = 'display:inline-block;margin-bottom:.5rem;';
+    banner.textContent = '⚠ UNOFFICIAL SCENARIO — Rankings below are NOT official VenueDNA outputs';
+    boardSection.insertBefore(banner, boardSection.querySelector('.table-container'));
+  }
+
+  // Update each row
+  document.querySelectorAll('#board-tbody tr[data-player]').forEach(tr => {
+    const pName = tr.dataset.player;
+    const sRank = scenarioRankMap[pName];
+    const pData = S.boardData.find(x => x.player === pName);
+    const oRank = pData?.rank;
+    const delta = oRank != null && sRank != null ? oRank - sRank : null;
+
+    // Remove old scenario cells
+    tr.querySelectorAll('td.scenario-col').forEach(td => td.remove());
+
+    // Add scenario rank cell
+    const tdSc = document.createElement('td');
+    tdSc.className = 'scenario-col scenario-rank-cell sans';
+    tdSc.textContent = sRank != null ? sRank : '—';
+    tr.appendChild(tdSc);
+
+    // Add delta cell
+    const tdDelta = document.createElement('td');
+    tdDelta.className = 'scenario-col sans';
+    if (delta == null || delta === 0) {
+      tdDelta.className += ' scenario-delta-zero'; tdDelta.textContent = '—';
+    } else if (delta > 0) {
+      tdDelta.className += ' scenario-delta-pos'; tdDelta.textContent = `▲${delta}`;
+    } else {
+      tdDelta.className += ' scenario-delta-neg'; tdDelta.textContent = `▼${Math.abs(delta)}`;
+    }
+    tr.appendChild(tdDelta);
+  });
+}
 
 // ── Modal helpers ──────────────────────────────────────────────────────────────
 function traitFillCls(score) {
@@ -796,6 +1247,35 @@ function openModal(name) {
         <div class="modal-note sans" style="margin-top:6px">data depth: <b>${p.data_depth || '—'}</b></div>
       </div>
 
+      <!-- §11 — VTS SPARKLINE HISTORY -->
+      <div class="modal-sec">
+        <div class="modal-sec-title sans">VTS Journey — Similar-Course History</div>
+        ${(() => {
+          const ts = (br.trait_scores || []);
+          const history = S.cumulativeLearning?.cumulative_signals?.app_overall?.signal_history
+                       || S.cumulativeLearning?.cumulative_signals?.app_150_200?.signal_history;
+          if (!history || !history.length) {
+            return `<div class="sparkline-wrap"><div class="sparkline-empty">Tournament in progress — cross-event VTS history will populate after Round 1 analysis.</div>
+              <div style="margin-top:.5rem;font-size:.7rem;color:var(--muted)">Current: VTS <b style="color:var(--gold)">${f2(p.vts_final)}</b> · NSI <b>${f1(p.neutralSkillIndex)}</b> · Δ Fit <b style="color:${(p.delta_fit||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgSign(p.delta_fit)}</b></div></div>`;
+          }
+          const pts = history.map((v,i) => ({ i, v }));
+          const vals = pts.map(pt => pt.v === 'validated' ? 3 : pt.v === 'mixed' ? 2 : pt.v === 'weak' ? 1 : 0);
+          const mx = Math.max(...vals, 1);
+          const W = 200; const H = 40; const pad = 4;
+          const iw = W - pad*2; const ih = H - pad*2;
+          const px = (i) => pad + (i / Math.max(pts.length-1,1)) * iw;
+          const py = (v) => pad + ih - (v / mx) * ih;
+          const pathD = vals.map((v,i) => (i === 0 ? 'M' : 'L') + px(i).toFixed(1) + ' ' + py(v).toFixed(1)).join(' ');
+          const lastX = px(vals.length-1); const lastY = py(vals[vals.length-1]);
+          return `<div class="sparkline-wrap"><svg class="sparkline-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="Trait signal trajectory">
+            <path d="${pathD}" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>
+            <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3" fill="var(--gold)" stroke="var(--surface2)" stroke-width="1"/>
+            ${vals.map((v,i) => `<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="2" fill="${v>=3?'#4ade80':v>=2?'#fbbf24':'#f87171'}" opacity=".8"/>`).join('')}
+          </svg>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:.2rem;">Trait consensus trajectory · ${pts.length} signal points · current event marked gold</div></div>`;
+        })()}
+      </div>
+
     </div>`;
 
   document.getElementById('modal-overlay').classList.add('open');
@@ -860,10 +1340,70 @@ const FM = {
   'VenueDNA_flag_ott_accuracy':       { lbl:'OTT',   cls:'flag-warn',   full:'OTT accuracy concern — driving accuracy penalty applied' },
 };
 
-function flag(code) {
+function flag(code, penMag) {
   const m = FM[code];
-  if (!m) return `<span class="flag sans">${esc(code.replace(/^VenueDNA_flag_/, ''))}</span>`;
-  return `<span class="flag ${m.cls} sans" title="${esc(m.full)}">${m.lbl}</span>`;
+  if (!m) return `<span class="flag sans" data-fc="${esc(code)}" data-ft-lbl="${esc(code.replace(/^VenueDNA_flag_/, '').replace(/_/g,' '))}" data-ft-full="No description available.">${esc(code.replace(/^VenueDNA_flag_/, ''))}</span>`;
+  const penAttr = penMag != null ? ` data-ft-pen="Penalty applied: ${penMag}"` : '';
+  return `<span class="flag ${m.cls} sans" data-fc="${esc(code)}" data-ft-cls="${m.cls}" data-ft-lbl="${esc(m.lbl)}" data-ft-full="${esc(m.full)}"${penAttr}>${m.lbl}</span>`;
+}
+
+// ── Flag tooltip system — custom hover/tap tooltips for flag badges ──────────
+function bindFlagTooltip() {
+  const tip = document.getElementById('flag-tooltip');
+  if (!tip) return;
+
+  function showTip(el, x, y) {
+    const fc  = el.dataset.fc;
+    const lbl = el.dataset.ftLbl || (fc || '').replace(/^VenueDNA_flag_/, '').replace(/_/g,' ');
+    const full = el.dataset.ftFull || '';
+    const pen  = el.dataset.ftPen || null;
+    const cls  = el.dataset.ftCls || '';
+    document.getElementById('ft-code').textContent  = fc ? fc.replace(/^VenueDNA_/,'') : '';
+    document.getElementById('ft-label').textContent = lbl;
+    document.getElementById('ft-full').textContent  = full;
+    const penEl = document.getElementById('ft-penalty');
+    if (pen) { penEl.textContent = pen; penEl.style.display = 'block'; } else { penEl.style.display = 'none'; }
+    tip.className = `flag-tooltip${cls.includes('warn') ? ' ft-warn' : cls.includes('danger') ? ' ft-danger' : cls.includes('info') ? ' ft-info' : ''}`;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let left = x + 12;
+    let top  = y + 10;
+    tip.classList.remove('hidden');
+    const tw = tip.offsetWidth || 200;
+    const th = tip.offsetHeight || 80;
+    if (left + tw > vw - 8) left = x - tw - 12;
+    if (top  + th > vh - 8) top  = y - th - 10;
+    tip.style.left = Math.max(4, left) + 'px';
+    tip.style.top  = Math.max(4, top)  + 'px';
+  }
+
+  function hideTip() {
+    tip.classList.add('hidden');
+  }
+
+  document.addEventListener('mouseover', e => {
+    const fl = e.target.closest('.flag[data-fc]');
+    if (fl) { showTip(fl, e.clientX, e.clientY); } else { hideTip(); }
+  });
+  document.addEventListener('mousemove', e => {
+    if (!tip.classList.contains('hidden')) {
+      const fl = e.target.closest('.flag[data-fc]');
+      if (fl) { showTip(fl, e.clientX, e.clientY); }
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    if (!e.target.closest('.flag[data-fc]')) hideTip();
+  });
+  document.addEventListener('touchstart', e => {
+    const fl = e.target.closest('.flag[data-fc]');
+    if (fl) {
+      const t = e.touches[0];
+      showTip(fl, t.clientX, t.clientY);
+      e.preventDefault();
+    } else {
+      hideTip();
+    }
+  }, { passive: false });
 }
 
 // ── Resolve a trait label string to a cumulative_signals key ──────────────────

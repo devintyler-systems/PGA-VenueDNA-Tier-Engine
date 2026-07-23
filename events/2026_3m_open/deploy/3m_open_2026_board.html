@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
 <style>
 :root {
   --bg:#0f1419;--surface:#161d27;--surface2:#1e2936;--border:#2a3a4a;--border-2:#3a4f62;
@@ -378,6 +379,7 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
     </div>
     <button class="ctrl-btn ctrl-btn-muted" id="btn-glossary">? Glossary</button>
     <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
+    <button class="ctrl-btn" id="btn-scenario" style="border-color:var(--gold-dim);color:var(--gold-dim);">⊡ Scenario</button>
   </div>
   <div class="chip-bar" style="padding:0 0 .3rem;">
     <button class="ctrl-btn chip active" data-f="all" onclick="setChip('all')">All</button>
@@ -440,7 +442,38 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
     <div>No players match your filters.</div>
     <button id="empty-reset" onclick="clearFilters()">Reset filters</button>
   </div>
+  <!-- Mobile card view — same source data as table; shown only on mobile -->
+  <div id="player-cards" class="player-cards-grid"></div>
 </section>
+
+<!-- ══ CONTENTION CHART ════════════════════════════════════════════════════════ -->
+<section class="nav-section" id="sec-contention" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;">Contention Map</h2>
+    <span style="font-size:.75rem;color:var(--muted);">NSI vs VTS · bubble = Win%</span>
+    <div style="margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap;">
+      <button class="ctrl-btn" id="chart-toggle-flags" style="font-size:.72rem;">Highlight Flags</button>
+      <button class="ctrl-btn" id="chart-toggle-debut" style="font-size:.72rem;">Highlight Debuts</button>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow:hidden;">
+    <canvas id="contention-canvas" style="max-height:400px;"></canvas>
+  </div>
+</section>
+
+<!-- ══ SCENARIO PANEL ═══════════════════════════════════════════════════════════ -->
+<div id="scenario-panel" class="hidden" style="max-width:1400px;margin:.5rem auto;padding:0 1rem;">
+  <div style="background:#0a1520;border:2px solid var(--gold-dim);border-radius:var(--radius);padding:1rem 1.2rem;">
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;flex-wrap:wrap;">
+      <span style="font-weight:700;color:var(--gold);font-size:.9rem;">Scenario Builder</span>
+      <span class="scenario-unofficial-tag">⚠ UNOFFICIAL — Scenario Mode Active</span>
+      <button class="ctrl-btn" id="scenario-reset" style="font-size:.72rem;margin-left:auto;">Reset to Defaults</button>
+      <button class="ctrl-btn" id="scenario-exit" style="font-size:.72rem;border-color:var(--gold);color:var(--gold);">✕ Exit Scenario Mode</button>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.65rem;">Adjust trait weights to explore how rankings shift. Results are not official VenueDNA outputs.</div>
+    <div id="scenario-sliders" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;"></div>
+  </div>
+</div>
 
 <!-- ══ TIER INTEL ════════════════════════════════════════════════════════════ -->
 <section class="intel-section nav-section" id="sec-intel">
@@ -490,6 +523,14 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
   </div>
 </div>
 
+<!-- ══ FLAG TOOLTIP ════════════════════════════════════════════════════════ -->
+<div id="flag-tooltip" class="flag-tooltip hidden" role="tooltip" aria-hidden="true">
+  <div class="ft-code" id="ft-code"></div>
+  <div class="ft-label" id="ft-label"></div>
+  <div class="ft-full" id="ft-full"></div>
+  <div class="ft-penalty" id="ft-penalty" style="display:none"></div>
+</div>
+
 <!-- ══ GLOSSARY MODAL ════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="glossary-modal-overlay">
   <div class="modal">
@@ -536,6 +577,7 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
   TPC Twin Cities · Pre-tournament baseline · <span style="color:var(--accent)">Not betting advice</span>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
