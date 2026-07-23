@@ -23,6 +23,7 @@ const S = {
   filterRules:          [],
   glossaryModalOpen:    false,
   pmData:               null,
+  currentView:          'table',
   scenarioMode:         false,
   scenarioWeights:      {},
   favorites:            new Set(),
@@ -265,6 +266,12 @@ function bindEvents() {
         presetDd.style.display = 'none';
       });
     });
+    presetDd.querySelectorAll('.view-mode-item[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchView(btn.dataset.view);
+        presetDd.style.display = 'none';
+      });
+    });
   }
 
   // Favorites filter
@@ -310,6 +317,33 @@ function renderAll() {
   renderCards();
   renderIntel();
   renderContentionChart();
+}
+
+// ── Views system ───────────────────────────────────────────────────────────────
+const VIEW_SECTIONS = {
+  table:      ['sec-spotlight','sec-board','sec-intel','sec-method','sec-contention'],
+  cards:      ['sec-spotlight','sec-board','sec-intel'],
+  map:        ['sec-contention'],
+  storylines: ['sec-storylines'],
+};
+
+function switchView(view) {
+  S.currentView = view;
+  const allManaged = [...new Set(Object.values(VIEW_SECTIONS).flat())];
+  allManaged.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('hidden', !VIEW_SECTIONS[view]?.includes(id));
+  });
+  const cardsGrid = document.getElementById('player-cards');
+  if (cardsGrid) cardsGrid.style.display = view === 'cards' ? 'grid' : '';
+  const primary = VIEW_SECTIONS[view]?.[0];
+  if (primary) document.getElementById(primary)?.scrollIntoView({ behavior:'smooth', block:'start' });
+  if (view === 'storylines') renderStorylines();
+  document.querySelectorAll('.view-mode-item[data-view]').forEach(btn => {
+    btn.style.color = btn.dataset.view === view ? 'var(--gold)' : '';
+    btn.style.fontWeight = btn.dataset.view === view ? '700' : '';
+  });
 }
 
 // ── Spotlight — T1/T2 cards ────────────────────────────────────────────────────
@@ -644,6 +678,54 @@ function renderIntel() {
   });
 }
 
+
+// ── Storylines module — read-only narrative strip ────────────────────────────
+function renderStorylines() {
+  const grid = document.getElementById('storylines-grid');
+  if (!grid || !S.boardData.length) return;
+
+  const byVFS = [...S.boardData].filter(p => p.delta_fit != null).sort((a, b) => b.delta_fit - a.delta_fit);
+  const topVFS = byVFS[0];
+  const topContender = S.boardData.find(p => (p.tier === 'T1' || p.tier === 'T2') && (p.delta_fit || 0) >= 0);
+  const risers = S.boardData.map(p => {
+    const br = S.briefsByName[normName(p.player)] || {};
+    return { player: p.player, tier: p.tier, vsBaselineL20: br.vsBaselineL20 != null ? Number(br.vsBaselineL20) : null };
+  }).filter(x => x.vsBaselineL20 != null && x.vsBaselineL20 > 0).sort((a, b) => b.vsBaselineL20 - a.vsBaselineL20);
+  const topRiser = risers[0];
+  const darkHorse = S.boardData.find(p => (p.tier === 'T3' || p.tier === 'T4') && (p.delta_fit || 0) > 0.1);
+
+  function storylineCard(icon, label, playerObj, narrative, tierColor) {
+    if (!playerObj) return '';
+    const pName = playerObj.player || playerObj;
+    const br    = S.briefsByName[normName(pName)] || {};
+    const txt   = narrative || br.convictionStatement || br.conviction_statement || br.why_it_fits_structurally || '';
+    const tc    = tierColor || 'var(--gold)';
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;" data-player="${esc(pName)}">
+      <div style="font-size:.65rem;color:${tc};font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;font-family:'Inter',sans-serif;">${icon} ${esc(label)}</div>
+      <div style="font-weight:700;font-size:.9rem;color:var(--text);margin-bottom:.3rem;">${esc(pName)}</div>
+      <div style="font-size:.73rem;color:var(--text-2);line-height:1.45;">${esc(txt.slice(0, 180))}${txt.length > 180 ? '…' : ''}</div>
+    </div>`;
+  }
+
+  grid.innerHTML = [
+    storylineCard('◈', 'Top Venue Fit', topVFS,
+      topVFS ? `Δ Fit: ${sgSign(topVFS.delta_fit)} — highest venue fit delta in the field.` : '',
+      'var(--t1-t)'),
+    storylineCard('▲', 'Structural Contender', topContender, null, 'var(--t2-t)'),
+    topRiser ? storylineCard('📈', 'Form Riser',
+      { player: topRiser.player },
+      `vs. Baseline L20: ${topRiser.vsBaselineL20 >= 0 ? '+' : ''}${topRiser.vsBaselineL20.toFixed(2)} SG — trending above baseline.`,
+      'var(--green-ok)') : '',
+    darkHorse ? storylineCard('◎', 'Dark Horse',
+      darkHorse,
+      (S.briefsByName[normName(darkHorse.player)] || {}).dark_horse_thesis || '',
+      'var(--t3-t)') : '',
+  ].filter(Boolean).join('');
+
+  grid.querySelectorAll('[data-player]').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.player));
+  });
+}
 
 // ── Contention map — NSI vs VTS bubble chart ──────────────────────────────────
 let _contentionChart = null;

@@ -367,6 +367,12 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
     <div class="preset-wrap">
       <button class="ctrl-btn" id="btn-presets">Views ▾</button>
       <div class="preset-dropdown" id="preset-dropdown">
+        <button class="preset-item view-mode-item" data-view="table">⊞ Table View (default)</button>
+        <button class="preset-item view-mode-item" data-view="cards">⊟ Card View</button>
+        <button class="preset-item view-mode-item" data-view="map">◎ Contention Map</button>
+        <button class="preset-item view-mode-item" data-view="storylines">◈ Storylines</button>
+        <div class="preset-divider"></div>
+        <div style="padding:.3rem .9rem;font-size:.68rem;color:var(--muted)">Filter Presets</div>
         <button class="preset-item" data-preset="venue-fits">Venue Fits (Δ Fit ≥ +0.08)</button>
         <button class="preset-item" data-preset="high-base">High Base (SG Base ≥ 1.50)</button>
         <div class="preset-divider"></div>
@@ -487,6 +493,15 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
 <section class="intel-section nav-section" id="sec-intel">
   <h2>Tier Intelligence</h2>
   <div id="tier-intel"></div>
+</section>
+
+<!-- ══ STORYLINES ═══════════════════════════════════════════════════════════ -->
+<section class="nav-section hidden" id="sec-storylines" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;">Storylines</h2>
+    <span style="font-size:.75rem;color:var(--muted);">Key narratives for 3M Open 2026</span>
+  </div>
+  <div id="storylines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem;"></div>
 </section>
 
 <!-- ══ LIVE ROUND ════════════════════════════════════════════════════════════ -->
