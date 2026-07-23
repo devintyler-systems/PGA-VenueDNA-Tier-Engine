@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>VenueDNA — 3M Open 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0f1419;--surface:#161d27;--surface2:#1e2936;--border:#2a3a4a;
+  --text:#e8e0d4;--muted:#7a8fa6;--gold:#c9a84c;--gold-dim:#8a6e30;
+  --green-ok:#16a34a;--accent:#dc2626;
+  --navy:#1d4ed8;
+  --t1:#16a34a;--t2:#2563eb;--t3:#7c3aed;--t4:#ea580c;--t5:#dc2626;
+  --t1-t:#4ade80;--t2-t:#93c5fd;--t3-t:#c4b5fd;--t4-t:#fdba74;--t5-t:#fca5a5;
+  --t1-bg:#052e16;--t2-bg:#1e3a5f;--t3-bg:#2e1065;--t4-bg:#431407;--t5-bg:#450a0a;
+  --radius:8px;--shadow:0 2px 16px rgba(0,0,0,.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+h1,h2,h3{font-family:'Playfair Display',serif;}
+a{color:var(--gold);text-decoration:none;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;}
+.hidden{display:none!important;}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,#0d1a24 0%,#1a2d3f 100%);border-bottom:2px solid var(--gold-dim);padding:1.5rem 1.2rem 1.2rem;}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+.header h1{font-size:clamp(1.3rem,3vw,2rem);color:var(--gold);letter-spacing:.02em;}
+.header h1 span{color:#fff;}
+.header-sub{font-size:.82rem;color:var(--muted);margin-top:.3rem;}
+.header-stats{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:.9rem;}
+.stat-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.22rem .75rem;font-size:.75rem;color:var(--text);}
+.stat-pill span{color:var(--gold);font-weight:700;margin-left:.25rem;}
+.header-actions{display:flex;gap:.5rem;align-items:center;flex-shrink:0;}
+.theme-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.35rem .7rem;font-size:.78rem;color:var(--text);}
+
+/* ── Controls ── */
+.controls-sticky{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);padding:.55rem 1rem;}
+.controls-bar{max-width:1400px;margin:0 auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:340px;}
+.search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.38rem .9rem .38rem 2rem;color:var(--text);font-size:.82rem;outline:none;}
+.search-wrap input:focus{border-color:var(--gold-dim);}
+.search-icon{position:absolute;left:.65rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none;}
+.search-clear{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;background:none;border:none;cursor:pointer;display:none;}
+.ctrl-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.38rem .75rem;font-size:.78rem;color:var(--text);transition:border-color .15s,background .15s;white-space:nowrap;}
+.ctrl-btn:hover{border-color:var(--gold-dim);}
+.ctrl-btn.active{border-color:var(--gold);color:var(--gold);}
+.ctrl-btn-muted{color:var(--muted);}
+.fav-count{color:var(--gold);font-weight:700;}
+.filter-badge{background:var(--gold);color:#000;border-radius:10px;padding:0 .45rem;font-size:.67rem;font-weight:700;margin-left:.3rem;}
+.preset-wrap{position:relative;}
+.preset-dropdown{position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);z-index:100;min-width:200px;box-shadow:var(--shadow);display:none;}
+.preset-item{display:block;width:100%;text-align:left;padding:.5rem .9rem;font-size:.78rem;color:var(--text);border-bottom:1px solid var(--border);cursor:pointer;}
+.preset-item:hover{background:var(--surface2);color:var(--gold);}
+.preset-divider{height:1px;background:var(--border);}
+.active-pills{max-width:1400px;margin:.3rem auto 0;display:flex;flex-wrap:wrap;gap:.3rem;}
+.chip-bar{max-width:1400px;margin:.4rem auto 0;padding:0;display:flex;gap:.35rem;flex-wrap:wrap;}
+.chip{font-size:.75rem;}
+
+/* ── Filter Drawer ── */
+.filter-drawer{max-width:1400px;margin:.5rem auto;padding:0 1rem;}
+.filter-drawer-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;}
+#adv-filter-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;max-width:1400px;margin:.5rem auto;}
+.active-filters-zone{max-width:1400px;margin:.3rem auto 0;display:flex;flex-wrap:wrap;gap:.3rem;}
+
+/* ── Spotlight ── */
+.spotlight-section{max-width:1400px;margin:1.2rem auto;padding:0 1rem;}
+.spotlight-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+.spotlight-header h2{color:var(--gold);font-size:1.1rem;}
+.spotlight-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.65rem;}
+.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;}
+.spotlight-card:hover{border-color:var(--gold-dim);transform:translateY(-1px);}
+
+/* ── Board Table ── */
+.board-section{max-width:1400px;margin:1.5rem auto;padding:0 1rem;}
+.board-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;}
+.board-header h2{color:var(--gold);font-size:1.1rem;}
+.board-meta{font-size:.78rem;color:var(--muted);}
+.table-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;max-height:70vh;}
+table.board-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+table.board-table thead{position:sticky;top:0;z-index:10;background:var(--surface2);}
+table.board-table th{padding:.5rem .6rem;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+table.board-table th:hover{color:var(--text);}
+table.board-table td{padding:.45rem .6rem;border-bottom:1px solid rgba(42,58,74,.5);color:var(--text);white-space:nowrap;}
+table.board-table tr:hover td{background:var(--surface2);}
+.sort-arrow{font-size:.6rem;margin-left:.25rem;color:var(--muted);}
+.sort-arrow.asc::after{content:'▲';color:var(--gold);}
+.sort-arrow.desc::after{content:'▼';color:var(--gold);}
+.sort-arrow.idle::after{content:'⇅';}
+.sort-active{color:var(--gold)!important;}
+.rank-num{display:inline-block;padding:.1rem .45rem;border-radius:4px;font-size:.7rem;font-weight:700;}
+.player-name-cell{display:flex;flex-direction:column;gap:.1rem;}
+.vts-cell{font-weight:700;}
+.tier-badge{padding:.08rem .35rem;border-radius:4px;font-size:.6rem;font-weight:700;}
+.sans{font-family:'Inter',sans-serif;}
+.left{text-align:left;}
+
+/* ── Tier Intel ── */
+.intel-section{max-width:1400px;margin:1.5rem auto;padding:0 1rem;}
+.intel-section h2{color:var(--gold);font-size:1.1rem;margin-bottom:.75rem;}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:720px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 48px rgba(0,0,0,.6);}
+.modal-close{color:var(--muted);font-size:1.2rem;padding:.2rem .4rem;border-radius:4px;}
+.modal-close:hover{color:var(--gold);}
+.modal-body{overflow-y:auto;padding:1.1rem 1.2rem;flex:1;}
+.modal-sec{margin-bottom:1rem;}
+.modal-sec-title{font-size:.8rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:1px solid var(--border);}
+.modal-layers{display:flex;flex-direction:column;gap:.4rem;}
+.layer-row{display:flex;align-items:center;gap:.6rem;}
+.layer-lbl{font-size:.72rem;color:var(--muted);width:70px;flex-shrink:0;}
+.layer-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.layer-fill{height:100%;border-radius:4px;transition:width .3s;}
+.layer-val{font-size:.72rem;font-weight:600;width:40px;text-align:right;flex-shrink:0;}
+.modal-note{font-size:.72rem;color:var(--muted);}
+.diverg-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;position:relative;overflow:hidden;}
+.diverg-mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--border);z-index:1;}
+.diverg-fill{position:absolute;top:0;height:100%;transition:width .3s;}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem;}
+.metric-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.55rem .7rem;}
+.metric-label{font-size:.65rem;color:var(--muted);margin-bottom:.2rem;}
+.metric-val{font-size:1rem;font-weight:700;color:var(--text);}
+.section-title{font-size:.8rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:.9rem 0 .45rem;border-bottom:1px solid var(--border);padding-bottom:.3rem;}
+.trait-bars{display:flex;flex-direction:column;gap:.45rem;}
+.trait-bar-row{display:flex;align-items:center;gap:.6rem;}
+.trait-bar-label{font-size:.72rem;color:var(--muted);width:160px;flex-shrink:0;}
+.trait-bar-outer{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.trait-bar-inner{height:100%;border-radius:4px;}
+.trait-bar-inner.high{background:#2563eb;}
+.trait-bar-inner.mid{background:#16a34a;}
+.trait-bar-inner.low{background:#dc2626;}
+.trait-bar-val{font-size:.72rem;color:var(--text);font-weight:600;width:32px;text-align:right;flex-shrink:0;}
+.sg-block{display:flex;flex-direction:column;gap:.35rem;}
+.sg-row{display:flex;align-items:center;gap:.6rem;}
+.sg-label{font-size:.72rem;color:var(--muted);width:100px;flex-shrink:0;}
+.sg-bar-outer{flex:1;position:relative;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.sg-bar-fill{position:absolute;left:50%;top:0;height:100%;border-radius:3px;}
+.sg-bar-zero{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--border);}
+.sg-val{font-size:.72rem;color:var(--text);font-weight:600;width:40px;text-align:right;flex-shrink:0;}
+.betting-path{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;}
+.lane-label{font-size:.85rem;font-weight:700;color:var(--text);}
+.viability-tag{padding:.15rem .6rem;border-radius:10px;font-size:.68rem;font-weight:700;}
+.viability-winner{background:#16a34a22;border:1px solid #16a34a;color:#16a34a;}
+.viability-top5{background:#2563eb22;border:1px solid #2563eb;color:#6ea8fe;}
+.viability-top10{background:#7c3aed22;border:1px solid #7c3aed;color:#a78bfa;}
+.viability-top20{background:#ea580c22;border:1px solid #ea580c;color:#fb923c;}
+.viability-cut{background:#6b728022;border:1px solid #6b7280;color:#9ca3af;}
+.viability-pass{background:#dc262622;border:1px solid #dc2626;color:#f87171;}
+.wc-section{margin:.5rem 0;}
+.wc-q{font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:3px;display:inline-block;margin-bottom:.2rem;}
+.wc-p{font-size:.78rem;color:var(--text);line-height:1.4;}
+.win-case-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;}
+.db-metrics{display:flex;flex-wrap:wrap;gap:.4rem;}
+.db-metric{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.25rem .5rem;}
+.db-metric-key{font-size:.62rem;color:var(--muted);}
+.db-metric-val{font-size:.78rem;font-weight:700;color:var(--text);}
+.badge{display:inline-block;padding:.1rem .4rem;border-radius:10px;font-size:.6rem;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+.bar-nsi{background:var(--navy);}
+.bar-vfs{background:var(--green-ok);}
+.bar-pen{background:var(--accent);}
+.pill{background:var(--surface2);border:1px solid var(--gold-dim);border-radius:14px;padding:.18rem .6rem;font-size:.72rem;color:var(--gold);display:inline-flex;align-items:center;gap:.3rem;}
+.pill button{color:var(--muted);font-size:.75rem;line-height:1;}
+/* Spotlight card styles */
+.sc-top{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.5rem;}
+.sc-rank{font-size:1.1rem;font-weight:700;color:var(--muted);min-width:24px;}
+.sc-name{font-weight:700;font-size:.87rem;color:var(--text);}
+.sc-vts{font-size:1rem;font-weight:700;color:var(--gold);}
+.sc-vts-lbl{font-size:.6rem;color:var(--muted);text-align:right;}
+.sc-bars{display:flex;flex-direction:column;gap:.3rem;margin:.5rem 0;}
+.sc-bar-row{display:flex;align-items:center;gap:.5rem;}
+.sc-bar-lbl{font-size:.65rem;color:var(--muted);width:48px;flex-shrink:0;}
+.sc-bar-outer{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.sc-bar-fill{height:100%;border-radius:3px;}
+.sc-bar-val{font-size:.65rem;color:var(--text);width:36px;text-align:right;flex-shrink:0;}
+.sc-stats{display:flex;gap:.5rem;justify-content:space-between;margin:.5rem 0;}
+.sc-stat-box{text-align:center;}
+.sc-stat-val{font-size:.82rem;font-weight:700;color:var(--text);}
+.sc-stat-lbl{font-size:.6rem;color:var(--muted);}
+.sc-flags{display:flex;flex-wrap:wrap;gap:.2rem;margin:.3rem 0;}
+.sc-reason{font-size:.72rem;color:var(--muted);margin-top:.3rem;font-style:italic;}
+.sc-analyst{margin-top:.5rem;}
+.sc-analyst-row{margin-bottom:.3rem;}
+.sc-analyst-lbl{font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;}
+.sc-analyst-txt{font-size:.72rem;color:var(--text);line-height:1.4;}
+/* Tier intel */
+.tier-row{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;}
+.tier-header-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--surface2);border-radius:var(--radius);cursor:pointer;}
+.tier-badge-lbl{font-size:.78rem;font-weight:700;color:var(--text);}
+.tier-badge-ct{font-size:.72rem;color:var(--muted);}
+.tier-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.4rem;}
+/* Round tabs */
+.round-tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.round-tab{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.3rem .65rem;font-size:.75rem;color:var(--muted);}
+.round-tab.active{border-color:var(--gold);color:var(--gold);}
+/* Live section */
+.loading-blur{filter:blur(2px);pointer-events:none;opacity:.5;}
+/* Empty / scroll-top */
+.empty-state{text-align:center;padding:3rem;color:var(--muted);}
+#scroll-top{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface2);border:1px solid var(--gold-dim);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.9rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s;}
+#scroll-top.visible{opacity:1;pointer-events:auto;}
+/* Trait track */
+.trait-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.trait-fill-hi{height:100%;background:#2563eb;border-radius:3px;}
+.trait-fill-mid{height:100%;background:#16a34a;border-radius:3px;}
+.trait-fill-lo{height:100%;background:#f59e0b;border-radius:3px;}
+.trait-fill-weak{height:100%;background:#dc2626;border-radius:3px;}
+/* Glossary */
+.gloss-section{margin-bottom:.75rem;}
+.gloss-section-title{font-size:.75rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem;}
+.gloss-item{display:flex;flex-direction:column;gap:.1rem;padding:.35rem 0;border-bottom:1px solid rgba(42,58,74,.4);}
+.gi-term{font-size:.78rem;font-weight:700;color:var(--text);}
+.gi-def{font-size:.73rem;color:var(--muted);}
+/* Post-mortem */
+#sec-pm{padding:1.2rem;}
+/* Footer */
+footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border-top:1px solid var(--border);margin-top:2rem;}
+/* Spotlight container anim */
+#spotlight-container{transition:opacity .2s;}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ════════════════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <h1><span>VenueDNA</span> — 3M Open 2026</h1>
+      <div class="header-sub">TPC Twin Cities · Par 71 · 7,431 yds · July 23–26, 2026 · Blaine, MN</div>
+      <div class="header-stats">
+        <span class="stat-pill">Players <span id="result-ct">—</span></span>
+        <span class="stat-pill" id="wx-badge">Wind —</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="btn-theme"><span id="theme-icon">☽</span> <span id="theme-label">Dark</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ STICKY CONTROLS ════════════════════════════════════════════════════════ -->
+<div class="controls-sticky" id="controls-sticky">
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="player-search" placeholder="Search player…" autocomplete="off"/>
+      <button class="search-clear" id="search-clear">✕</button>
+    </div>
+    <button class="ctrl-btn" id="adv-toggle">Filters <span class="filter-badge" id="filter-badge" style="display:none">0</span></button>
+    <button class="ctrl-btn" id="btn-favonly">★ Favorites (<span class="fav-count" id="fav-count">0</span>)</button>
+    <div class="preset-wrap">
+      <button class="ctrl-btn" id="btn-presets">Views ▾</button>
+      <div class="preset-dropdown" id="preset-dropdown">
+        <button class="preset-item" data-preset="venue-fits">Venue Fits (Δ Fit ≥ +0.08)</button>
+        <button class="preset-item" data-preset="high-base">High Base (SG Base ≥ 1.50)</button>
+        <div class="preset-divider"></div>
+        <button class="preset-item" data-preset="long-iron-fits">Long Iron Fits</button>
+        <button class="preset-item" data-preset="safe-cut-makers">Safe Cut Makers</button>
+        <button class="preset-item" data-preset="ceiling-plays">Ceiling Plays</button>
+        <div class="preset-divider"></div>
+        <button class="preset-item" data-preset="favorites">My Card ★</button>
+      </div>
+    </div>
+    <button class="ctrl-btn ctrl-btn-muted" id="btn-glossary">? Glossary</button>
+    <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
+  </div>
+  <div class="chip-bar" style="padding:0 0 .3rem;">
+    <button class="ctrl-btn chip active" data-f="all" onclick="setChip('all')">All</button>
+    <button class="ctrl-btn chip" data-f="t1t2" onclick="setChip('t1t2')">T1+T2</button>
+    <button class="ctrl-btn chip" data-f="nopen" onclick="setChip('nopen')">Clean</button>
+  </div>
+  <div class="active-pills" id="active-pills" style="display:none"></div>
+</div>
+
+<!-- ══ ADVANCED FILTER PANEL ════════════════════════════════════════════════ -->
+<div id="adv-filter-panel" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+    <span style="font-weight:700;color:var(--gold);font-size:.85rem;">Advanced Filters</span>
+    <button id="clear-filters-btn" class="ctrl-btn ctrl-btn-muted" style="font-size:.72rem;">Clear all</button>
+  </div>
+  <div id="active-filters-zone"></div>
+  <button id="rfb-add-rule" class="ctrl-btn" style="margin-top:.5rem;font-size:.75rem;">+ Add filter rule</button>
+</div>
+
+<!-- ══ SPOTLIGHT ═════════════════════════════════════════════════════════════ -->
+<section class="spotlight-section nav-section" id="sec-spotlight">
+  <div class="spotlight-header">
+    <h2>Spotlight — Top Contenders</h2>
+    <button class="ctrl-btn ctrl-btn-muted" id="spotlight-toggle" style="font-size:.75rem;">Hide ▴</button>
+  </div>
+  <div id="spotlight-container">
+    <div id="spotlight-grid" class="spotlight-container"></div>
+  </div>
+</section>
+
+<!-- ══ BOARD TABLE ═══════════════════════════════════════════════════════════ -->
+<section class="board-section nav-section" id="sec-board">
+  <div class="board-header">
+    <h2>Field Explorer</h2>
+    <span class="board-meta" id="board-sub">Loading… · TPC Twin Cities VTS</span>
+  </div>
+  <div class="table-container">
+    <table class="board-table" id="board-table">
+      <thead>
+        <tr>
+          <th onclick="doSort('rank')">Rank<span id="sa-rank" class="sort-arrow asc active"></span></th>
+          <th onclick="doSort('player')">Player<span id="sa-player" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('vts_final')">VTS<span id="sa-vts_final" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('neutralSkillIndex')">NSI<span id="sa-neutralSkillIndex" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('sg_base_composite')">SG Base<span id="sa-sg_base_composite" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('sg_similar_composite')">SG Sim<span id="sa-sg_similar_composite" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('delta_fit')">Δ Fit<span id="sa-delta_fit" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('winPct')">Win%<span id="sa-winPct" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('top10Pct')">Top10%<span id="sa-top10Pct" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('makeCutPct')">Cut%<span id="sa-makeCutPct" class="sort-arrow idle"></span></th>
+        </tr>
+      </thead>
+      <tbody id="board-tbody">
+        <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:2rem">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div style="font-size:2rem;margin-bottom:.5rem;">⌕</div>
+    <div>No players match your filters.</div>
+    <button id="empty-reset" onclick="clearFilters()">Reset filters</button>
+  </div>
+</section>
+
+<!-- ══ TIER INTEL ════════════════════════════════════════════════════════════ -->
+<section class="intel-section nav-section" id="sec-intel">
+  <h2>Tier Intelligence</h2>
+  <div id="tier-intel"></div>
+</section>
+
+<!-- ══ LIVE ROUND ════════════════════════════════════════════════════════════ -->
+<section class="nav-section hidden" id="sec-live">
+  <div class="round-tabs" id="round-tabs">
+    <button class="round-tab" data-round="1">R1</button>
+    <button class="round-tab" data-round="2">R2</button>
+    <button class="round-tab" data-round="3">R3</button>
+    <button class="round-tab" data-round="4">R4</button>
+  </div>
+  <div id="live-pending" style="padding:1rem;color:var(--muted);font-size:.82rem;">Round data loading…</div>
+  <div id="live-content"></div>
+</section>
+
+<!-- ══ POST-MORTEM ═══════════════════════════════════════════════════════════ -->
+<section class="nav-section hidden" id="sec-pm"></section>
+
+<!-- ══ METHOD NOTE ═══════════════════════════════════════════════════════════ -->
+<section class="nav-section" id="sec-method" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <h2 style="color:var(--gold);font-size:1.1rem;margin-bottom:.75rem;">Methodology</h2>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;">
+    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;">
+      <b style="color:var(--text);">Dual-Vector True SG</b> — Separates All Courses baseline (SG Base) from Top-20 Similar Courses performance (SG Sim) with sample-weighted regression. <b style="color:var(--text);">Delta Fit</b> measures TPC Twin Cities-specific uplift vs. general skill. Decay weights: Base stability-heavy [6m:20%, 12m:30%, 24m:50%]; Delta recency-heavy [6m:50%, 12m:30%, 24m:20%]. Clamped to ±0.50 SG/round. VTS z-scored to mean=50, std=15.
+    </p>
+    <div id="engine-version-badge" style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">schema: 3m-dual-vector-v1.0</div>
+  </div>
+</section>
+
+<!-- ══ WEATHER FORECAST BLOCK ════════════════════════════════════════════════ -->
+<div style="display:none" id="wx-forecast-block">
+  <span id="fb-wind-rating"></span><span id="fb-wind-detail"></span>
+  <span id="fb-tide-rating"></span><span id="fb-tide-detail"></span>
+  <span id="fb-wave-rating"></span><span id="fb-wave-detail"></span>
+  <span id="fb-overall-rating"></span><span id="fb-overall-detail"></span>
+  <span id="wx-wave-note"></span>
+</div>
+
+<!-- ══ PLAYER MODAL ═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ══ GLOSSARY MODAL ════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="glossary-modal-overlay">
+  <div class="modal">
+    <div style="padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <h2 style="color:var(--gold);font-size:1.1rem;">Glossary — 3M Open 2026</h2>
+      <button class="modal-close" id="glossary-modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="gloss-section">
+        <div class="gloss-section-title">Score Components</div>
+        <div class="gloss-item"><span class="gi-term">VTS 0–100</span><div class="gi-def">Venue Tier Score: z-scored composite of SG Similar Composite across the full field (mean=50, std=15)</div></div>
+        <div class="gloss-item"><span class="gi-term">NSI 0–100</span><div class="gi-def">Neutral Skill Index: z-scored SG Base Composite — general skill ranking independent of venue fit</div></div>
+        <div class="gloss-item"><span class="gi-term">SG Base</span><div class="gi-def">Baseline skill across all courses — stability-weighted composite (6m:20%, 12m:30%, 24m:50%)</div></div>
+        <div class="gloss-item"><span class="gi-term">SG Sim</span><div class="gi-def">Similar-course strokes gained — sample-weighted regression using Top-20 courses most similar to TPC Twin Cities</div></div>
+        <div class="gloss-item"><span class="gi-term">Δ Fit</span><div class="gi-def">Delta between SG Sim and SG Base — TPC Twin Cities venue fit signal; positive = course specialist upside; clamped ±0.50</div></div>
+      </div>
+      <div class="gloss-section">
+        <div class="gloss-section-title">Probability Outputs</div>
+        <div class="gloss-item"><span class="gi-term">Win%</span><div class="gi-def">Tempered softmax win probability (T=3.5); field sums to ~100%</div></div>
+        <div class="gloss-item"><span class="gi-term">Top10%</span><div class="gi-def">Tempered softmax Top-10 probability (T=7.0); field sums to ~1000%</div></div>
+        <div class="gloss-item"><span class="gi-term">Cut%</span><div class="gi-def">Estimated make-cut probability derived from Top-20% rate: min(98, max(20, Top20% × 1.25 + 10))</div></div>
+      </div>
+      <div class="gloss-section">
+        <div class="gloss-section-title">Tiers</div>
+        <div class="gloss-item"><span class="gi-term">T1</span><div class="gi-def">Ranks 1–5 · Elite contenders</div></div>
+        <div class="gloss-item"><span class="gi-term">T2</span><div class="gi-def">Ranks 6–12 · Strong contenders</div></div>
+        <div class="gloss-item"><span class="gi-term">T3</span><div class="gi-def">Ranks 13–25 · Mid-tier plays</div></div>
+        <div class="gloss-item"><span class="gi-term">T4</span><div class="gi-def">Ranks 26–40 · Value tier</div></div>
+        <div class="gloss-item"><span class="gi-term">T5</span><div class="gi-def">Ranks 41+ · Long-shots and cut riskers</div></div>
+      </div>
+      <div class="gloss-section">
+        <div class="gloss-section-title">Data</div>
+        <div class="gloss-item"><span class="gi-term">FULL</span><div class="gi-def">Player has at least one similar-course round on record</div></div>
+        <div class="gloss-item"><span class="gi-term">DEBUT</span><div class="gi-def">No similar-course history — SG Sim regressed entirely to SG Base; Δ Fit = 0</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+<footer>VenueDNA v3 · 3M Open 2026 · TPC Twin Cities · Pre-tournament baseline · Not betting advice</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
