@@ -306,6 +306,36 @@ function bindEvents() {
 
   // Flag tooltip (event delegation)
   bindFlagTooltip();
+
+  bindSectionNav();
+}
+
+// ── Section Nav ────────────────────────────────────────────────────────────────
+function bindSectionNav() {
+  document.querySelectorAll('.snav-tab[data-snav]').forEach(btn => {
+    if (btn.disabled) return;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      const snav = btn.dataset.snav;
+      if (snav === 'pre') {
+        switchView('table');
+      } else {
+        // R1–R4, Final: will be wired in T8 for dynamic fetch
+        // For now, just show a "Round data not yet available" note
+        const note = document.getElementById('round-pending-note');
+        if (!note) {
+          const div = document.createElement('div');
+          div.id = 'round-pending-note';
+          div.style.cssText = 'max-width:1400px;margin:1rem auto;padding:0 1rem;font-size:.82rem;color:var(--muted);';
+          div.textContent = `${btn.textContent.trim()} — Round data not yet available.`;
+          document.getElementById('section-nav')?.insertAdjacentElement('afterend', div);
+        } else {
+          note.textContent = `${btn.textContent.trim()} — Round data not yet available.`;
+        }
+      }
+    });
+  });
 }
 
 // ── Render orchestration ───────────────────────────────────────────────────────

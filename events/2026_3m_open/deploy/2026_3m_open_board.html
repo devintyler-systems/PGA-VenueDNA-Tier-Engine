@@ -348,6 +348,15 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
 .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:none;cursor:pointer;}
 .drawer-backdrop.open{display:block;}
 body.drawer-open{overflow:hidden;}
+
+/* ── Section Nav ── */
+.section-nav{position:sticky;top:53px;z-index:49;background:var(--surface2);border-bottom:1px solid var(--border);padding:0 1rem;}
+.section-nav-inner{max-width:1400px;margin:0 auto;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.section-nav-inner::-webkit-scrollbar{display:none;}
+.snav-tab{padding:.5rem .9rem;font-size:.78rem;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0;}
+.snav-tab:hover:not(:disabled){color:var(--text-1);}
+.snav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.snav-placeholder{opacity:.4;cursor:default;}
 </style>
 </head>
 <body>
@@ -578,6 +587,18 @@ body.drawer-open{overflow:hidden;}
   </div>
   <div class="active-pills" id="active-pills" style="display:none"></div>
 </div>
+
+<!-- ══ SECTION NAV ═══════════════════════════════════════════════════════════ -->
+<nav class="section-nav" id="section-nav">
+  <div class="section-nav-inner">
+    <button class="snav-tab active" data-snav="pre">Pre-Tournament</button>
+    <button class="snav-tab" data-snav="r1">Rd 1</button>
+    <button class="snav-tab" data-snav="r2">Rd 2</button>
+    <button class="snav-tab" data-snav="r3">Rd 3</button>
+    <button class="snav-tab" data-snav="final">Final</button>
+    <button class="snav-tab snav-placeholder" data-snav="tee-times" disabled>Tee-Times ◌</button>
+  </div>
+</nav>
 
 <!-- ══ ADVANCED FILTER PANEL ════════════════════════════════════════════════ -->
 <div id="adv-filter-panel" class="hidden">
