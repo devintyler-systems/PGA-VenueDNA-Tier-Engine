@@ -112,7 +112,10 @@ function canonName(rawName) {
 }
 
 // ── Derive audit flags from board row ─────────────────────────────────────────
-function buildFlags(_p) { return []; }
+function buildFlags(p) {
+  const br = S.briefsByName[normName(p.player)] || {};
+  return [...(br.anti_pattern_flags || [])];
+}
 
 // ── Initialisation ─────────────────────────────────────────────────────────────
 async function init() {
@@ -123,16 +126,26 @@ async function init() {
     const [boardJson, analysisJson, briefsJson] = await Promise.all([
       fetch('data/board_export.json').then(r => r.json()),
       fetch('data/final_analysis.json').then(r => r.json()).catch(() => ({})),
-      fetch('data/player_briefs.json').then(r => r.json()).catch(() => ({ players: [] })),
+      fetch('data/2026_3m_open_player_briefs.json').then(r => r.json()).catch(() => ({})),
     ]);
 
     S.analysis = analysisJson;
 
-    // Build normalised brief lookup: "first last" → brief object
+    // Build normalised brief lookup — handles flat {"Last, First": {...}} shape from 3M brief export
     S.briefsByName = {};
-    for (const b of (briefsJson.players || [])) {
-      const key = normName(`${b.first_name} ${b.last_name}`);
-      S.briefsByName[key] = b;
+    const _bEntries = Array.isArray(briefsJson.players)
+      ? briefsJson.players
+      : Object.values(briefsJson).filter(b => b && typeof b === 'object' && b.player_name);
+    for (const b of _bEntries) {
+      const _bKey = b.player_name || `${b.last_name || ''}, ${b.first_name || ''}`.trim();
+      // Map 3M brief schema fields → modal-expected field names
+      if (!b.scoring_thesis)        b.scoring_thesis        = b.exact_mechanism || b.why_it_fits_structurally || '';
+      if (!b.failure_condition)     b.failure_condition     = b.named_failure_condition || '';
+      if (!b.risk_vector)           b.risk_vector           = b.key_risk_vector || '';
+      if (!b.conviction_statement)  b.conviction_statement  = b.why_it_fits_structurally || '';
+      if (!b.anti_pattern_summary)  b.anti_pattern_summary  = b.penalty_context || '';
+      if (!b.venue_history_summary) b.venue_history_summary = b.venue_history_context || '';
+      S.briefsByName[normName(_bKey)] = b;
     }
 
     S.boardData = (boardJson.players || []).map(p => ({ ...p, _flags: buildFlags(p) }));
@@ -833,10 +846,24 @@ function vhd(v) { if (v == null) return '—'; return (v > 0 ? '+' : '') + Numbe
 function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v || 0)); }
 function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+// ── Flag metadata — code → {lbl, cls, full} ───────────────────────────────────
+const FM = {
+  'VenueDNA_flag_accuracy_risk':      { lbl:'ACC',   cls:'flag-warn',   full:'Driving accuracy risk — penalty exposure on water-threatened holes' },
+  'VenueDNA_flag_short_game_only':    { lbl:'SGO',   cls:'flag-warn',   full:'Short-game-only profile — TPC does not reward scrambling over ball-striking' },
+  'VenueDNA_flag_putting_dependency': { lbl:'PUTT',  cls:'flag-warn',   full:'Putting-reliant profile — easy bentgrass greens compress putting advantage' },
+  'VenueDNA_flag_long_iron_deficit':  { lbl:'LI-',   cls:'flag-warn',   full:'Long-iron deficit — 150-200 fw SG below neutral, limiting primary birdie creation' },
+  'VenueDNA_flag_distance_cap':       { lbl:'DIST',  cls:'flag-info',   full:'Distance ceiling — limited upside on longer par 4s and reachable par 5s' },
+  'VenueDNA_flag_course_debut':       { lbl:'DEB',   cls:'flag-info',   full:'TPC Twin Cities debut — no course history adjustment available' },
+  'VenueDNA_flag_limited_history':    { lbl:'LTD',   cls:'flag-info',   full:'Limited course history — fewer than 4 starts at TPC Twin Cities' },
+  'VenueDNA_flag_high_variance':      { lbl:'VAR',   cls:'flag-warn',   full:'High variance profile — wide outcome range; ceiling and floor both elevated' },
+  'VenueDNA_flag_form_concern':       { lbl:'FORM',  cls:'flag-danger', full:'Recent form concern — performance below recent-season baseline' },
+  'VenueDNA_flag_ott_accuracy':       { lbl:'OTT',   cls:'flag-warn',   full:'OTT accuracy concern — driving accuracy penalty applied' },
+};
+
 function flag(code) {
   const m = FM[code];
-  if (!m) return `<span class="flag sans">${code}</span>`;
-  return `<span class="flag ${m.cls} sans" title="${m.full}">${m.lbl}</span>`;
+  if (!m) return `<span class="flag sans">${esc(code.replace(/^VenueDNA_flag_/, ''))}</span>`;
+  return `<span class="flag ${m.cls} sans" title="${esc(m.full)}">${m.lbl}</span>`;
 }
 
 // ── Resolve a trait label string to a cumulative_signals key ──────────────────
