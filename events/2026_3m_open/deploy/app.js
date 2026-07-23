@@ -902,6 +902,7 @@ function exitScenario() {
   document.querySelectorAll('#board-table th.scenario-col').forEach(th => th.remove());
   document.getElementById('board-sub-scenario')?.remove();
   S.scenarioWeights = {};
+  document.querySelectorAll('#board-tbody tr.analyst-mode-row').forEach(r => r.classList.remove('analyst-mode-row'));
 }
 
 function resetScenario() {
