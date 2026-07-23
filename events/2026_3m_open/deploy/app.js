@@ -1487,10 +1487,16 @@ function onGlossaryOverlayClick(e) {
 
 // ── Theme toggle ───────────────────────────────────────────────────────────────
 function toggleTheme() {
-  const isDark = document.documentElement.dataset.theme === 'dark';
-  document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
-  document.getElementById('theme-icon').textContent  = isDark ? '☽' : '☀';
-  document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('theme-icon').textContent = '☽';
+    document.getElementById('theme-label').textContent = 'Dark';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('theme-icon').textContent = '☀';
+    document.getElementById('theme-label').textContent = 'Light';
+  }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
