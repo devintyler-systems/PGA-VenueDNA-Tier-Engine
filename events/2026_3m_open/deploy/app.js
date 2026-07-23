@@ -755,13 +755,14 @@ function renderContentionChart() {
         const highlight = (S.chartHighlightFlags && hasFlag) || (S.chartHighlightDebut && isDebut);
         return {
           x: p.neutralSkillIndex,
-          y: p.vts_final,
+          y: p.delta_fit != null ? p.delta_fit : 0,
           r: Math.max(4, Math.min(24, (p.winPct || 0.5) * 3.5)),
           player: p.player,
           tier,
           winPct: p.winPct,
           nsi: p.neutralSkillIndex,
           vts: p.vts_final,
+          vfs: p.delta_fit != null ? p.delta_fit : 0,
           hasFlag,
           isDebut,
           highlight,
@@ -796,7 +797,7 @@ function renderContentionChart() {
           callbacks: {
             label(ctx) {
               const d = ctx.raw;
-              const lines = [`${d.player}  (${d.tier})`, `NSI: ${f1(d.nsi)} · VTS: ${f2(d.vts)} · Win: ${pct(d.winPct)}`];
+              const lines = [`${d.player}  (${d.tier})`, `NSI: ${f1(d.nsi)} · Δ Fit: ${sgSign(d.vfs)} · Win: ${pct(d.winPct)}`];
               if (d.isDebut) lines.push('⚑ Course Debut');
               if (d.hasFlag) lines.push('⚑ Has Flags');
               return lines;
@@ -818,10 +819,10 @@ function renderContentionChart() {
           min: 20, max: 105,
         },
         y: {
-          title: { display: true, text: 'VTS Score', color: '#7a8fa6', font: { size: 11 } },
-          ticks: { color: '#7a8fa6', font: { size: 10 } },
+          title: { display: true, text: 'Venue Fit Δ (SG/round)', color: '#7a8fa6', font: { size: 11 } },
+          ticks: { color: '#7a8fa6', font: { size: 10 }, callback: v => (v >= 0 ? '+' : '') + Number(v).toFixed(2) },
           grid:  { color: 'rgba(42,58,74,.4)' },
-          min: 20, max: 105,
+          min: -0.55, max: 0.55,
         },
       },
       onClick(evt, elements) {
