@@ -134,6 +134,11 @@ body{font-family:'Georgia','Times New Roman',serif;background:var(--bg);color:va
 .t3 .tier-badge{background:var(--t3-bg);color:var(--t3-t);border:1px solid var(--t3-b)}
 .t4 .tier-badge{background:var(--t4-bg);color:var(--t4-t);border:1px solid var(--t4-b)}
 .t5 .tier-badge{background:var(--t5-bg);color:var(--t5-t);border:1px solid var(--t5-b)}
+.pm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px}
+.pm-card-label{font-family:-apple-system,sans-serif;font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.pm-card-value{font-family:-apple-system,sans-serif;font-size:26px;font-weight:700;margin:4px 0 2px;line-height:1}
+.pm-card-sub{font-family:-apple-system,sans-serif;font-size:11px;color:var(--text-2)}
+.pm-cut-row td{opacity:.45}
 .sc-vts{font-family:-apple-system,sans-serif;font-size:22px;font-weight:800;margin-left:auto;color:var(--text)}
 .sc-vts-lbl{font-size:9px;letter-spacing:.08em;color:var(--text-3);text-align:right}
 .sc-bars{display:flex;flex-direction:column;gap:6px;margin-bottom:13px}
@@ -559,6 +564,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
       <button class="round-tab sans" data-round="2">R2 Live</button>
       <button class="round-tab sans" data-round="3">R3 Live</button>
       <button class="round-tab sans" data-round="4">R4 Final</button>
+      <button class="round-tab sans" data-round="pm">Post-Mortem</button>
     </div>
   </div>
 </div>
@@ -634,6 +640,8 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:18px
     </div>
     <div id="live-content" class="hidden"></div>
   </section>
+
+  <section class="section hidden" id="sec-pm"></section>
 
   <section class="section" id="sec-spotlight">
     <div class="section-header">
