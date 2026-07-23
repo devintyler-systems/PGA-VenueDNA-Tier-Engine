@@ -23,6 +23,7 @@ const S = {
   cumulativeLearning: null,
   filterRules:          [],
   glossaryModalOpen:    false,
+  pmData:               null,
 };
 
 // ── Audit rule metadata ────────────────────────────────────────────────────────
@@ -1101,10 +1102,31 @@ async function switchRound(r) {
     document.getElementById('sec-live')?.classList.remove('loading-blur');
     PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
     document.getElementById('sec-live')?.classList.add('hidden');
+    document.getElementById('sec-pm')?.classList.add('hidden');
+    return;
+  }
+
+  if (r === 'pm') {
+    PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    document.getElementById('sec-live')?.classList.add('hidden');
+    const pmSection = document.getElementById('sec-pm');
+    if (!pmSection) return;
+    pmSection.classList.remove('hidden');
+    if (S.pmData) { renderPostMortemView(S.pmData); return; }
+    pmSection.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-3);font-family:-apple-system,sans-serif">Loading post-mortem…</div>';
+    try {
+      const resp = await fetch('data/post_mortem_analysis.json');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      S.pmData = await resp.json();
+      renderPostMortemView(S.pmData);
+    } catch (e) {
+      pmSection.innerHTML = '<div style="text-align:center;padding:48px;color:var(--accent);font-family:-apple-system,sans-serif">Post-Mortem data not yet available.</div>';
+    }
     return;
   }
 
   PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+  document.getElementById('sec-pm')?.classList.add('hidden');
   const liveSection = document.getElementById('sec-live');
   const pending     = document.getElementById('live-pending');
   const content     = document.getElementById('live-content');
@@ -1428,6 +1450,133 @@ function renderCumulativeAnalysis() {
     + rows
     + '</div>';
   liveContent.appendChild(el);
+}
+
+// ── Post-Mortem renderer ───────────────────────────────────────────────────────
+function renderPostMortemView(data) {
+  const el = document.getElementById('sec-pm');
+  if (!el) return;
+
+  const rho      = data.spearman_rho;
+  const thr      = data.tier_hit_rates || {};
+  const t1       = thr.T1 || {};
+  const t2       = thr.T2 || {};
+  const traits   = data.trait_audit || [];
+  const srvi     = data.single_round_volatility || {};
+  const spikes   = srvi.spikes || [];
+  const winner   = spikes.find(s => s.winner) || null;
+  const waveCorr = data.wave_penalty_correlation || {};
+  const appTrait = traits.find(t => t.trait === 'app_overall') || {};
+  const players  = data.player_comparison || [];
+  const spikeSet = new Set(spikes.map(s => s.player));
+
+  const sgFmt    = v  => v != null ? (v > 0 ? '+' : '') + Number(v).toFixed(2) : '—';
+  const pctFmt   = v  => v != null ? Math.round(v * 100) + '%' : '—';
+  const rhoColor = r  => r > 0.3 ? 'var(--green-ok)' : r > 0.1 ? '#f59e0b' : 'var(--accent)';
+  const statusColor = s => ({ validated: 'var(--green-ok)', mixed: '#f59e0b', neutral: 'var(--text-3)', weak: 'var(--accent)' }[s] || 'var(--text-3)');
+
+  const t12n    = (t1.player_count || 0) + (t2.player_count || 0);
+  const t12top20 = t12n > 0
+    ? Math.round(((t1.top20_count || 0) + (t2.top20_count || 0)) / t12n * 100) + '%'
+    : '—';
+
+  el.innerHTML = `
+<div style="padding:24px 0 8px">
+  <div class="section-header">
+    <h2 class="section-title sans">Post-Mortem &amp; Model Calibration</h2>
+    <span class="section-sub sans">${data.event_slug || ''} &middot; Generated ${data.generated_at || ''}</span>
+  </div>
+
+  ${winner ? `
+  <div style="display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#0f172a,#1e293b);border:2px solid var(--accent);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px">
+    <span style="font-size:28px;flex-shrink:0">&#9889;</span>
+    <div>
+      <div class="sans" style="font-size:10px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;font-weight:700">Volatility Spike Winner</div>
+      <div class="sans" style="font-size:15px;color:#f1f5f9;font-weight:700;margin-top:3px">${winner.player} &mdash; R${winner.round} (+${winner.sg.toFixed(2)} SG)</div>
+      <div class="sans" style="font-size:12px;color:var(--text-2);margin-top:4px">Win driven by a single outlier round exceeding ${srvi.threshold} SG. Multi-round consistency supported model ranking.</div>
+    </div>
+  </div>` : ''}
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px">
+    <div class="pm-card">
+      <div class="pm-card-label">Overall Spearman &rho;</div>
+      <div class="pm-card-value" style="color:${rho != null ? rhoColor(Math.abs(rho)) : 'var(--text-2)'}">${rho != null ? rho.toFixed(3) : '—'}</div>
+      <div class="pm-card-sub">rank vs. final position</div>
+    </div>
+    <div class="pm-card">
+      <div class="pm-card-label">T1/T2 Top-20 Hit Rate</div>
+      <div class="pm-card-value" style="color:var(--green-ok)">${t12top20}</div>
+      <div class="pm-card-sub">T1: ${pctFmt(t1.top20_pct)} &middot; T2: ${pctFmt(t2.top20_pct)}</div>
+    </div>
+    <div class="pm-card">
+      <div class="pm-card-label">Approach Signal</div>
+      <div class="pm-card-value" style="color:${statusColor(appTrait.status)};font-size:18px">${(appTrait.status || '—').toUpperCase()}</div>
+      <div class="pm-card-sub">&rho; = ${appTrait.spearman_rho != null ? appTrait.spearman_rho.toFixed(3) : '—'}</div>
+    </div>
+    <div class="pm-card">
+      <div class="pm-card-label">Wave Penalty Corr</div>
+      <div class="pm-card-value" style="color:${Math.abs(waveCorr.correlation ?? 0) > 0.1 ? '#f59e0b' : 'var(--text-3)'};font-size:22px">${waveCorr.correlation != null ? waveCorr.correlation.toFixed(3) : '—'}</div>
+      <div class="pm-card-sub">${waveCorr.favored_wave ? 'favored: ' + waveCorr.favored_wave : '—'}</div>
+    </div>
+  </div>
+
+  <div class="sans" style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Trait Audit Validation</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:24px">
+    ${traits.map(t => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px">
+      <div class="sans" style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em">${t.label}</div>
+      <div class="sans" style="font-size:12px;font-weight:700;color:${statusColor(t.status)};margin-top:4px">${(t.status || '').toUpperCase()}</div>
+      <div class="sans" style="font-size:11px;color:var(--text-2)">&rho; ${t.spearman_rho != null ? t.spearman_rho.toFixed(3) : '—'}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="sans" style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Model vs. Actual &mdash; Full Field</div>
+  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow);margin-bottom:24px">
+    <table class="live-table">
+      <thead><tr>
+        <th class="sans">PT RANK</th>
+        <th class="sans">Player</th>
+        <th class="sans">TIER</th>
+        <th class="sans">FINAL POS</th>
+        <th class="sans">TOTAL SG</th>
+        <th class="sans">SG:APP</th>
+        <th class="sans">SG:PUTT</th>
+        <th class="sans">PRED &Delta;</th>
+      </tr></thead>
+      <tbody>
+        ${players.map(r => {
+          const d = r.prediction_delta;
+          const dHtml = d == null ? '—'
+            : d > 0  ? `<span style="color:var(--green-ok)">&#9650;${d}</span>`
+            : d < 0  ? `<span style="color:var(--accent)">&#9660;${Math.abs(d)}</span>`
+            : '<span style="color:var(--text-3)">—</span>';
+          const isSpike = spikeSet.has(r.player_name);
+          return `<tr class="${r.cut_status === 'cut' ? 'pm-cut-row' : ''}">
+            <td class="sans" style="font-weight:700;color:var(--text-1)">${r.pt_rank ?? '—'}</td>
+            <td class="sans">${r.player_name}${isSpike ? ' <span style="color:var(--accent);font-size:10px">&#9889;</span>' : ''}</td>
+            <td class="sans"><span class="tier-badge ${(r.pt_tier || '').toLowerCase()}">${r.pt_tier ?? '—'}</span></td>
+            <td class="sans" style="font-weight:700">${r.final_pos || 'CUT'}</td>
+            <td class="sans">${sgFmt(r.total_sg)}</td>
+            <td class="sans">${sgFmt(r.sg_app)}</td>
+            <td class="sans">${sgFmt(r.sg_putt)}</td>
+            <td class="sans">${dHtml}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  ${spikes.length > 0 ? `
+  <div class="sans" style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Single-Round Volatility Spikes (&ge;${srvi.threshold} SG)</div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+    ${spikes.map(s => `
+    <div style="background:var(--surface);border:1px solid ${s.winner ? 'var(--accent)' : 'var(--border)'};border-radius:var(--radius);padding:10px 14px;min-width:180px">
+      <div class="sans" style="font-size:13px;font-weight:700;color:var(--text-1)">${s.player}</div>
+      <div class="sans" style="font-size:11px;color:var(--text-2);margin-top:2px">R${s.round} &middot; +${s.sg.toFixed(2)} SG &middot; Finished ${s.final_pos}</div>
+      ${s.badge ? `<div class="sans" style="font-size:10px;color:var(--accent);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;font-weight:700">${s.badge}</div>` : ''}
+    </div>`).join('')}
+  </div>` : ''}
+</div>`;
 }
 
 // ── Spotlight toggle ───────────────────────────────────────────────────────────
