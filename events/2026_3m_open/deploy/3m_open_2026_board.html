@@ -520,6 +520,145 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
 <!-- ══ POST-MORTEM ═══════════════════════════════════════════════════════════ -->
 <section class="nav-section hidden" id="sec-pm"></section>
 
+<!-- ══ VENUE DNA ══════════════════════════════════════════════════════════════ -->
+<section class="nav-section" id="sec-venue-dna" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;margin:0;">What Wins Here</h2>
+    <span style="font-size:.75rem;color:var(--muted);">TPC Twin Cities · Venue DNA</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;">
+
+    <!-- Win Mechanism -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Winning Mechanism</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;">
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">SG: Approach rank — winners 2019–2025</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">6 of 7 finished top 10 in SG:App</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">Cumulative SG:App since 2019 (all Tour events)</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">+53.42 — highest of any PGA Tour event</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">Approach distribution skew</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">46% of approaches from 175+ yards</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">2025 champion — Kitayama SG:App</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">+9.67 for the week (career best)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trait Priority -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Trait Priority (model weights)</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">App 150–200 yd</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">25%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:100%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">App Overall</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">20%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:80%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">OTT Accuracy</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">15%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:60%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">OTT Positional</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">12%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:48%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">SG: Putting</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">10%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:40%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">SG: ARG</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">10%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:40%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">Par-5 Scoring</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">8%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:32%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Who Struggles Here -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Who Struggles Here</div>
+      <div style="display:flex;flex-direction:column;gap:.55rem;">
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Erratic bombers</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Water threatens 9 of 14 driving holes — raw distance without accuracy creates penalty exposure</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Short-game-only specialists</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Receptive bentgrass greens reduce the scrambling edge; ball-striking is the differentiator</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Putting-reliant profiles</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Easy greens compress putting edge — hot putting rarely produces the win profile without approach support</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Weak long-iron players</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">46% of approaches from 175+ yards creates recurring pressure from mid-to-long irons</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 <!-- ══ METHOD NOTE ═══════════════════════════════════════════════════════════ -->
 <section class="nav-section" id="sec-method" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
   <h2 style="color:var(--gold);font-size:1.1rem;margin-bottom:.75rem;">Methodology</h2>

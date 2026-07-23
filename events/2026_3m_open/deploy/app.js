@@ -321,7 +321,7 @@ function renderAll() {
 
 // ── Views system ───────────────────────────────────────────────────────────────
 const VIEW_SECTIONS = {
-  table:      ['sec-spotlight','sec-board','sec-intel','sec-method','sec-contention'],
+  table:      ['sec-spotlight','sec-board','sec-intel','sec-venue-dna','sec-method','sec-contention'],
   cards:      ['sec-spotlight','sec-board','sec-intel'],
   map:        ['sec-contention'],
   storylines: ['sec-storylines'],
