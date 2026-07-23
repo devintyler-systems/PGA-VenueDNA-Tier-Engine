@@ -429,3 +429,27 @@ footer { text-align: center; padding: 2rem; font-size: .72rem; color: var(--mute
 .cf-bar-ticks { display: flex; justify-content: space-between;
                 font-size: 10px; color: var(--text-3); margin-top: 5px; }
 
+/* ── Player Drawer ── */
+.player-drawer {
+  position: fixed;
+  top: 0; right: -100%;
+  width: min(480px, 100vw);
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 9999;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 32px rgba(0,0,0,.6);
+  transition: right 0.3s ease;
+}
+.player-drawer.open { right: 0; }
+.drawer-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 9998;
+  display: none;
+  cursor: pointer;
+}
+.drawer-backdrop.open { display: block; }
+body.drawer-open { overflow: hidden; }
+

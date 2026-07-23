@@ -228,10 +228,8 @@ function bindEvents() {
     if (e.target.id === 'glossary-modal-overlay') closeGlossary();
   });
 
-  // Modal overlay click-outside close
-  document.getElementById('modal-overlay')?.addEventListener('click', e => {
-    if (e.target.id === 'modal-overlay') closeModal();
-  });
+  // Drawer backdrop click-outside close
+  document.getElementById('drawer-backdrop')?.addEventListener('click', closeModal);
 
   // Search clear
   const srchClear = document.getElementById('search-clear');
@@ -1435,19 +1433,21 @@ function openModal(name) {
 
     </div>`;
 
-  document.getElementById('modal-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.getElementById('player-drawer')?.classList.add('open');
+  document.getElementById('drawer-backdrop')?.classList.add('open');
+  document.body.classList.add('drawer-open');
   requestAnimationFrame(() => drawProbDials(wPct, t5Pct, t10Pct, mcPct));
 }
 
 function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.body.style.overflow = '';
+  document.getElementById('player-drawer')?.classList.remove('open');
+  document.getElementById('drawer-backdrop')?.classList.remove('open');
+  document.body.classList.remove('drawer-open');
   S.activePlayer = null;
 }
 
 function onOverlayClick(e) {
-  if (e.target.id === 'modal-overlay') closeModal();
+  if (e.target.id === 'drawer-backdrop') closeModal();
 }
 
 // ── Glossary modal ─────────────────────────────────────────────────────────────
