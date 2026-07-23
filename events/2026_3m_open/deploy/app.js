@@ -1223,7 +1223,6 @@ function openModal(name) {
           ${br.hew_score  != null ? `<div class="db-metric"><div class="db-metric-key">HEW (BallStr)</div><div class="db-metric-val" style="color:${br.hew_score  >= 0 ? 'var(--green-ok)' : 'var(--accent)'}">${sgSign(br.hew_score)}</div></div>`  : ''}
           ${br.brie_score != null ? `<div class="db-metric"><div class="db-metric-key">BRIE (APP)</div><div class="db-metric-val" style="color:${br.brie_score >= 0 ? 'var(--green-ok)' : 'var(--accent)'}">${sgSign(br.brie_score)}</div></div>` : ''}
           ${br.vfr_score  != null ? `<div class="db-metric"><div class="db-metric-key">VFR (ARG)</div><div class="db-metric-val" style="color:${br.vfr_score  >= 0 ? 'var(--green-ok)' : 'var(--accent)'}">${sgSign(br.vfr_score)}</div></div>`  : ''}
-          ${br.links_signal_score != null ? `<div class="db-metric"><div class="db-metric-key">FW-SG Links</div><div class="db-metric-val" style="color:${br.links_signal_score >= 0 ? 'var(--green-ok)' : 'var(--accent)'}">${sgSign(br.links_signal_score)}</div></div>` : ''}
         </div>
       </div>` : ''}
 
