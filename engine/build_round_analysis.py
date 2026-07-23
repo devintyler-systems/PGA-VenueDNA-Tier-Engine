@@ -241,6 +241,11 @@ CI_TRAIT_MAP = cfg["ci_trait_map"]
 COURSE_KEY  = cfg.get("course_key", "")
 FAVORED_WAVE = cfg.get("favored_wave", "late_early")
 
+_CANONICAL_TRAITS = [
+    "app_wedge", "app_100_150", "app_150_200", "ott_accuracy", "ott_distance",
+    "putt_short_conv", "putt_lag", "arg_rough", "arg_bunker", "par5_scoring",
+]
+
 # Locate event directory
 event_glob = cfg.get("event_dir_glob", f"events/*{EVENT_SLUG}*")
 _event_candidates = sorted(_ROOT.glob(event_glob))
@@ -1109,6 +1114,29 @@ for tk in trait_audit:
         tk, trait_audit[tk]["signal"], trait_audit[tk].get("enrichment")
     )
 
+# ── Canonical 10-trait enforcement (Schema v1.1) ──────────────────────────────
+# Evict legacy / non-canonical keys that predate schema v1.1
+for _nck in [tk for tk in list(trait_audit.keys()) if tk not in _CANONICAL_TRAITS]:
+    del trait_audit[_nck]
+# Pad any canonical traits absent from the event config with zeroed placeholders
+for _ct in _CANONICAL_TRAITS:
+    if _ct not in trait_audit:
+        trait_audit[_ct] = {
+            "venue_weight":    0.00,
+            "top10_trait_avg": None,
+            "field_trait_avg": None,
+            "trait_delta":     None,
+            "sg_proxy":        None,
+            "sg_top10":        None,
+            "sg_field":        None,
+            "sg_delta":        None,
+            "signal":          "not_testable",
+            "sample_n_top10":  0,
+            "sample_n_field":  0,
+            "source_confidence": "not-testable",
+            "enrichment": {"available": False, "reason": "trait_not_in_event_config"},
+        }
+
 # ── Rank deltas ───────────────────────────────────────────────────────────────
 by_delta = sorted([r for r in matched if r.get("pt_rank")], key=lambda x: -x["rank_delta"])
 
@@ -1311,11 +1339,12 @@ lean_up = _FF_LEAN + [
      "confidence": trait_audit[tk].get("source_confidence", "proxy-confirmed"),
      "enr_signal": (trait_audit[tk].get("enrichment") or {}).get("enrichment_signal")}
     for tk in TRAIT_COLS
-    if trait_audit[tk]["signal"] == "validated"
+    if tk in trait_audit and trait_audit[tk]["signal"] == "validated"
     and tk not in _ff_lean_keys
 ]
 lean_down = [{"trait": tk, "delta": trait_audit[tk].get("trait_delta")}
-             for tk in TRAIT_COLS if trait_audit[tk]["signal"] in ("weak", "not_testable")]
+             for tk in TRAIT_COLS
+             if tk in trait_audit and trait_audit[tk]["signal"] in ("weak", "not_testable")]
 
 rho_note = (
     f"R{ROUND} rho={spearman_rho} — tournament complete." if IS_FINAL
@@ -1388,7 +1417,7 @@ else:
                 "consensus":          None,
                 "consensus_confidence": None,
             }
-            for tk in TRAIT_COLS
+            for tk in _CANONICAL_TRAITS
         },
     }
 
@@ -1810,7 +1839,11 @@ if DRY_RUN:
         raise SystemExit(1)
 
     print("\n[dry-run] VALIDATION PASSED - schema v1.1 | snake_case keys | probability monotonicity OK")
-    _cleanup_paths = list(_DRY_RUN_CREATED) + [dep_path, CUM_DEP, out_path, CUM_OUT]
+    _dep_dir = DEP.resolve()
+    _cleanup_paths = [
+        p for p in (list(_DRY_RUN_CREATED) + [out_path, CUM_OUT])
+        if not Path(p).resolve().is_relative_to(_dep_dir)
+    ]
     for _cp in _cleanup_paths:
         try:
             Path(_cp).unlink(missing_ok=True)

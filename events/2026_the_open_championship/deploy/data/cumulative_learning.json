@@ -5,7 +5,7 @@
   "per_round": {
     "1": {
       "round": 1,
-      "generated_at": "2026-07-16",
+      "generated_at": "2026-07-17",
       "spearman_rho": 0.203,
       "trait_signals": {
         "app_150_200": {
@@ -22,33 +22,61 @@
           "sg_delta": 0.708,
           "enrichment_signal": "not_available"
         },
-        "ott_positional": {
-          "signal": "mixed",
-          "source_confidence": "weak-proxy",
-          "trait_delta": 3.2,
-          "sg_delta": 0.708,
-          "enrichment_signal": "not_available"
-        },
-        "app_overall": {
-          "signal": "mixed",
-          "source_confidence": "weak-proxy",
-          "trait_delta": 3.3,
-          "sg_delta": 1.471,
-          "enrichment_signal": "not_available"
-        },
-        "sg_putt": {
-          "signal": "mixed",
-          "source_confidence": "weak-proxy",
-          "trait_delta": 3.5,
-          "sg_delta": 1.832,
+        "app_wedge": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
           "enrichment_signal": null
         },
-        "sg_arg": {
-          "signal": "mixed",
-          "source_confidence": "weak-proxy",
-          "trait_delta": 3.6,
-          "sg_delta": 0.757,
-          "enrichment_signal": "not_available"
+        "app_100_150": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "ott_distance": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "putt_short_conv": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "putt_lag": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "arg_rough": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "arg_bunker": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "par5_scoring": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
         }
       },
       "model_hits": {
@@ -69,7 +97,7 @@
         "Pierceson Coody",
         "Ryo Hisatsune"
       ],
-      "wave_annotation_n": 0
+      "wave_annotation_n": 76
     },
     "2": {
       "round": 2,
@@ -258,11 +286,139 @@
       ],
       "consensus": "validated",
       "consensus_confidence": "not-testable"
+    },
+    "app_wedge": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "app_100_150": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "ott_distance": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "putt_short_conv": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "putt_lag": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "arg_rough": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "arg_bunker": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "par5_scoring": {
+      "rounds_observed": [
+        1
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
     }
   },
   "last_updated": "2026-07-17",
-  "updated_at": "2026-07-17T17:04:02",
-  "rounds_completed": 2,
+  "updated_at": "2026-07-17T19:06:51",
+  "rounds_completed": 1,
   "is_final": false,
   "rounds_present": [
     1,
