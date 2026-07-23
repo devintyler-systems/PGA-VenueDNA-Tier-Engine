@@ -146,8 +146,10 @@ async function init() {
       // Map 3M brief schema fields → modal-expected field names
       if (!b.scoring_thesis)        b.scoring_thesis        = b.exact_mechanism || b.why_it_fits_structurally || '';
       if (!b.failure_condition)     b.failure_condition     = b.named_failure_condition || '';
-      if (!b.risk_vector)           b.risk_vector           = b.key_risk_vector || '';
-      if (!b.conviction_statement)  b.conviction_statement  = b.why_it_fits_structurally || '';
+      if (!b.risk_vector)           b.risk_vector           = b.card_risk_vector || b.key_risk_vector || '';
+      if (!b.conviction_statement)  b.conviction_statement  = b.convictionStatement || b.why_it_fits_structurally || '';
+      if (!b.neutral_skill_summary) b.neutral_skill_summary = b.neutral_skill_summary || b.why_it_fits_structurally || '';
+      if (!b.form_summary)          b.form_summary          = b.form_summary || '';
       if (!b.anti_pattern_summary)  b.anti_pattern_summary  = b.penalty_context || '';
       if (!b.venue_history_summary) b.venue_history_summary = b.venue_history_context || '';
       S.briefsByName[normName(_bKey)] = b;
@@ -972,7 +974,7 @@ function buildWinCase(p, br, tier) {
     return `<div class="modal-sec">
       <div class="modal-sec-title sans">Dark Horse Thesis</div>
       <div class="win-case-card t3">
-        ${br.structural_note ? `<div class="wc-q t3c">Ceiling Mechanism</div><div class="wc-p">${br.structural_note}</div>` : ''}
+        ${(br.dark_horse_thesis || br.structural_note) ? `<div class="wc-q t3c">Win Case</div><div class="wc-p">${br.dark_horse_thesis || br.structural_note}</div>` : ''}
         ${(br.drag_traits && br.drag_traits.length) ? `<div class="wc-q t3c">What Must Spike</div><div class="wc-p">Drag traits: ${br.drag_traits.join(', ')}.</div>` : ''}
         ${br.bet_path_note ? `<div class="wc-q t3c">Betting Verdict</div><div class="wc-p">${br.bet_path_note}</div>` : ''}
       </div>
@@ -1148,6 +1150,10 @@ function openModal(name) {
           ${br.venue_history_summary ? `<div class="analysis-block"><div class="analysis-block-lbl">Course History</div><div class="analysis-block-text">${br.venue_history_summary}</div></div>` : ''}
           ${br.form_summary          ? `<div class="analysis-block"><div class="analysis-block-lbl">Form</div><div class="analysis-block-text">${br.form_summary}</div></div>` : ''}
         </div>
+        ${(br.strengthTags?.length || br.weaknessTags?.length) ? `<div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem;">
+          ${(br.strengthTags||[]).map(t=>`<span style="background:#052e16;border:1px solid #16a34a55;color:#4ade80;padding:.1rem .4rem;border-radius:4px;font-size:.68rem;font-family:'Inter',sans-serif">+${t}</span>`).join('')}
+          ${(br.weaknessTags||[]).map(t=>`<span style="background:#450a0a;border:1px solid #dc262655;color:#fca5a5;padding:.1rem .4rem;border-radius:4px;font-size:.68rem;font-family:'Inter',sans-serif">–${t}</span>`).join('')}
+        </div>` : ''}
       </div>` : ''}
 
       <!-- §5 — TRAIT PROFILE -->
