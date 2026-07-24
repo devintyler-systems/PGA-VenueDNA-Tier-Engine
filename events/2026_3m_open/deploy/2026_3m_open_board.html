@@ -636,6 +636,8 @@ body.drawer-open{overflow:hidden;}
           <th onclick="doSort('sg_base_composite')">SG Base<span id="sa-sg_base_composite" class="sort-arrow idle"></span></th>
           <th onclick="doSort('sg_similar_composite')">SG Sim<span id="sa-sg_similar_composite" class="sort-arrow idle"></span></th>
           <th onclick="doSort('delta_fit')">Δ Fit<span id="sa-delta_fit" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('r1_score')" title="Round 1 score / position">R1<span id="sa-r1_score" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('vts_delta')" title="Live VTS minus pre-tournament VTS — is this player playing to, above, or below their projection?">vs Proj<span id="sa-vts_delta" class="sort-arrow idle"></span></th>
           <th onclick="doSort('winPct')">Win%<span id="sa-winPct" class="sort-arrow idle"></span></th>
           <th onclick="doSort('top10Pct')">Top10%<span id="sa-top10Pct" class="sort-arrow idle"></span></th>
           <th onclick="doSort('makeCutPct')">Cut%<span id="sa-makeCutPct" class="sort-arrow idle"></span></th>
@@ -643,7 +645,7 @@ body.drawer-open{overflow:hidden;}
         </tr>
       </thead>
       <tbody id="board-tbody">
-        <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:2rem">Loading…</td></tr>
+        <tr><td colspan="13" style="text-align:center;color:var(--muted);padding:2rem">Loading…</td></tr>
       </tbody>
     </table>
   </div>

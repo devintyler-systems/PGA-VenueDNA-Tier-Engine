@@ -142,7 +142,7 @@ function buildFlags(p) {
 // ── Initialisation ─────────────────────────────────────────────────────────────
 async function init() {
   const tbody = document.getElementById('board-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="11" class="no-results sans">Loading…</td></tr>';
+  if (tbody) tbody.innerHTML = '<tr><td colspan="13" class="no-results sans">Loading…</td></tr>';
 
   try {
     const [boardJson, analysisJson, briefsJson] = await Promise.all([
@@ -185,7 +185,7 @@ async function init() {
   } catch (err) {
     console.error('[VenueDNA]', err);
     if (tbody) tbody.innerHTML =
-      `<tr><td colspan="11" class="no-results sans">Load failed — serve via http://localhost (not file://). ${err.message}</td></tr>`;
+      `<tr><td colspan="13" class="no-results sans">Load failed — serve via http://localhost (not file://). ${err.message}</td></tr>`;
   }
 }
 
@@ -545,6 +545,8 @@ function renderTable() {
       <td class="sans">${sgSign(p.sg_base_composite)}</td>
       <td class="sans">${sgSign(p.sg_similar_composite)}</td>
       <td class="sans" style="color:${(p.delta_fit||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgSign(p.delta_fit)}</td>
+      <td class="sans" title="${p.r1_position ? 'Pos ' + p.r1_position + (p.r1_thru ? ', thru ' + p.r1_thru : '') : ''}">${r1Cell(p)}</td>
+      <td class="sans" style="color:${vtsDeltaColor(p.vts_delta)}">${vtsDeltaCell(p)}</td>
       <td class="sans">${pct(p.winPct)}</td>
       <td class="sans">${pct(p.top10Pct)}</td>
       <td class="sans">${pct(p.makeCutPct)}</td>
@@ -746,7 +748,7 @@ function updateSortArrows() {
   const el = document.getElementById('sa-' + S.sort.key);
   if (el) el.className = 'sort-arrow ' + (S.sort.dir > 0 ? 'asc' : 'desc') + ' active';
   document.querySelectorAll('.board-table th').forEach(th => th.classList.remove('sort-active'));
-  const keyMap = ['rank','player','vts_final','neutralSkillIndex','sg_base_composite','sg_similar_composite','delta_fit','winPct','top10Pct','makeCutPct'];
+  const keyMap = ['rank','player','vts_final','neutralSkillIndex','sg_base_composite','sg_similar_composite','delta_fit','r1_score','vts_delta','winPct','top10Pct','makeCutPct'];
   const idx = keyMap.indexOf(S.sort.key);
   const ths = document.querySelectorAll('.board-table th');
   if (idx >= 0 && ths[idx]) ths[idx].classList.add('sort-active');
@@ -1649,6 +1651,32 @@ function toggleTheme() {
 function f1(v)  { return v != null ? Number(v).toFixed(1) : '—'; }
 function f2(v)  { return v != null ? Number(v).toFixed(2) : '—'; }
 function pct(v) { return v != null ? Number(v).toFixed(1) + '%' : '—'; }
+
+// ── Live Round 1 cell helpers — show real score/position, blank pre-tournament ─
+function r1Cell(p) {
+  if (p.r1_to_par == null) return '—';
+  const raw = String(p.r1_to_par).trim();
+  let disp;
+  if (raw === 'E') disp = 'E';
+  else {
+    const n = Number(raw);
+    if (isNaN(n)) return '—'; // malformed source row (e.g. amateur-marker column shift) — don't guess
+    disp = n > 0 ? '+' + n : String(n);
+  }
+  return `${disp}<span style="color:var(--muted);font-size:.72em;margin-left:.2rem">(${p.r1_position ?? ''})</span>`;
+}
+function vtsDeltaColor(v) {
+  if (v == null) return 'var(--muted)';
+  if (v >= 3) return 'var(--green-ok)';
+  if (v <= -3) return 'var(--accent)';
+  return 'var(--muted)';
+}
+function vtsDeltaCell(p) {
+  const v = p.vts_delta;
+  if (v == null) return '—';
+  const arrow = v >= 3 ? '▲' : (v <= -3 ? '▼' : '');
+  return `${sgSign(v)} ${arrow}`;
+}
 function fairOdds(v) {
   if (v == null || Number(v) <= 0) return null;
   const p  = Number(v);
@@ -1789,9 +1817,13 @@ function bindFlagTooltip() {
 
 // ── Resolve a trait label string to a cumulative_signals key ──────────────────
 function resolveCumKey(label) {
-  if (!S.cumulativeLearning) return null;
-  const signals = S.cumulativeLearning.cumulative_signals || {};
   const l = (label || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  // NOTE: cumulative_signals lookup only applies when live-round learning data
+  // has been loaded (S.cumulativeLearning). This is NOT required for the
+  // canonical rules below — do not early-return null here, or every trait
+  // label falls through to the flat score=50 fallback in computeScenarioScore(),
+  // making every player's scenario score identical (Analyst Mode delta always '—').
+  const signals = (S.cumulativeLearning || {}).cumulative_signals || {};
   for (const k of Object.keys(signals)) {
     if (l.includes(k.replace(/_/g, '')) || k.replace(/_/g, '').includes(l)) return k;
   }
