@@ -19,7 +19,37 @@
       "long_iron_elite"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +2.827; DG_stddev: 2.742"
+    "benchmark_context": "DG_finalprediction: +2.827; DG_stddev: 2.742",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 72.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 71.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 86.8
+      },
+      {
+        "label": "App Overall",
+        "score": 75.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 73.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 98.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.8
+      }
+    ]
   },
   "McNealy, Maverick": {
     "player_name": "McNealy, Maverick",
@@ -49,7 +79,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +1.205; DG_stddev: 2.796"
+    "benchmark_context": "DG_finalprediction: +1.205; DG_stddev: 2.796",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 64.5
+      },
+      {
+        "label": "App Overall",
+        "score": 54.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 75.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 75.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.0
+      }
+    ]
   },
   "Koivun, Jackson": {
     "player_name": "Koivun, Jackson",
@@ -75,7 +135,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: +0.828; DG_stddev: 2.769"
+    "benchmark_context": "DG_finalprediction: +0.828; DG_stddev: 2.769",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 84.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 61.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 62.8
+      },
+      {
+        "label": "App Overall",
+        "score": 72.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 52.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 67.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 49.5
+      }
+    ]
   },
   "Kitayama, Kurt": {
     "player_name": "Kitayama, Kurt",
@@ -97,7 +187,37 @@
       "long_iron_elite"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +1.162; DG_stddev: 2.817"
+    "benchmark_context": "DG_finalprediction: +1.162; DG_stddev: 2.817",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 73.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 70.7
+      },
+      {
+        "label": "App Overall",
+        "score": 71.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 73.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.8
+      }
+    ]
   },
   "Woodland, Gary": {
     "player_name": "Woodland, Gary",
@@ -119,7 +239,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.347; DG_stddev: 2.816"
+    "benchmark_context": "DG_finalprediction: +0.347; DG_stddev: 2.816",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 67.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 80.2
+      },
+      {
+        "label": "App Overall",
+        "score": 64.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 61.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 56.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.2
+      }
+    ]
   },
   "Matsuyama, Hideki": {
     "player_name": "Matsuyama, Hideki",
@@ -141,7 +291,37 @@
       "long_iron_elite"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +1.138; DG_stddev: 2.733"
+    "benchmark_context": "DG_finalprediction: +1.138; DG_stddev: 2.733",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 71.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.4
+      },
+      {
+        "label": "App Overall",
+        "score": 75.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 59.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 71.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 56.3
+      }
+    ]
   },
   "Kim, Tom": {
     "player_name": "Kim, Tom",
@@ -163,7 +343,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +1.120; DG_stddev: 2.751"
+    "benchmark_context": "DG_finalprediction: +1.120; DG_stddev: 2.751",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 61.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.1
+      },
+      {
+        "label": "App Overall",
+        "score": 63.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 81.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.3
+      }
+    ]
   },
   "Conners, Corey": {
     "player_name": "Conners, Corey",
@@ -186,7 +396,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.884; DG_stddev: 2.749"
+    "benchmark_context": "DG_finalprediction: +0.884; DG_stddev: 2.749",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 74.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 67.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.9
+      },
+      {
+        "label": "App Overall",
+        "score": 77.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 43.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 57.4
+      }
+    ]
   },
   "Harman, Brian": {
     "player_name": "Harman, Brian",
@@ -208,7 +448,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.614; DG_stddev: 2.720"
+    "benchmark_context": "DG_finalprediction: +0.614; DG_stddev: 2.720",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 65.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.9
+      },
+      {
+        "label": "App Overall",
+        "score": 67.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.2
+      }
+    ]
   },
   "Meissner, Mac": {
     "player_name": "Meissner, Mac",
@@ -230,7 +500,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.778; DG_stddev: 2.681"
+    "benchmark_context": "DG_finalprediction: +0.778; DG_stddev: 2.681",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 64.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.0
+      },
+      {
+        "label": "App Overall",
+        "score": 64.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 64.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 67.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 51.3
+      }
+    ]
   },
   "Smith, Jordan": {
     "player_name": "Smith, Jordan",
@@ -253,7 +553,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.800; DG_stddev: 2.771"
+    "benchmark_context": "DG_finalprediction: +0.800; DG_stddev: 2.771",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 70.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 72.1
+      },
+      {
+        "label": "App Overall",
+        "score": 66.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 61.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.0
+      }
+    ]
   },
   "Mitchell, Keith": {
     "player_name": "Mitchell, Keith",
@@ -275,7 +605,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.898; DG_stddev: 2.803"
+    "benchmark_context": "DG_finalprediction: +0.898; DG_stddev: 2.803",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 61.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 47.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 80.7
+      },
+      {
+        "label": "App Overall",
+        "score": 61.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 48.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 70.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.2
+      }
+    ]
   },
   "Knapp, Jake": {
     "player_name": "Knapp, Jake",
@@ -301,7 +661,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.555; DG_stddev: 2.855"
+    "benchmark_context": "DG_finalprediction: +0.555; DG_stddev: 2.855",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 57.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 67.4
+      },
+      {
+        "label": "App Overall",
+        "score": 56.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 76.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 31.6
+      }
+    ]
   },
   "Stevens, Sam": {
     "player_name": "Stevens, Sam",
@@ -322,7 +712,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.673; DG_stddev: 2.750"
+    "benchmark_context": "DG_finalprediction: +0.673; DG_stddev: 2.750",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 69.5
+      },
+      {
+        "label": "App Overall",
+        "score": 50.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 41.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.7
+      }
+    ]
   },
   "Hoey, Rico": {
     "player_name": "Hoey, Rico",
@@ -345,7 +765,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.241; DG_stddev: 2.803"
+    "benchmark_context": "DG_finalprediction: +0.241; DG_stddev: 2.803",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 71.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 57.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 67.1
+      },
+      {
+        "label": "App Overall",
+        "score": 63.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "McGreevy, Max": {
     "player_name": "McGreevy, Max",
@@ -370,7 +820,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.540; DG_stddev: 2.705"
+    "benchmark_context": "DG_finalprediction: +0.540; DG_stddev: 2.705",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 58.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 57.1
+      },
+      {
+        "label": "App Overall",
+        "score": 59.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 34.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 63.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.5
+      }
+    ]
   },
   "Yellamaraju, Sudarshan": {
     "player_name": "Yellamaraju, Sudarshan",
@@ -395,7 +875,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.271; DG_stddev: 2.798"
+    "benchmark_context": "DG_finalprediction: +0.271; DG_stddev: 2.798",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 68.5
+      },
+      {
+        "label": "App Overall",
+        "score": 59.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.7
+      }
+    ]
   },
   "James, Ben": {
     "player_name": "James, Ben",
@@ -418,7 +928,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.650; DG_stddev: 2.760"
+    "benchmark_context": "DG_finalprediction: +0.650; DG_stddev: 2.760",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 74.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 62.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.0
+      },
+      {
+        "label": "App Overall",
+        "score": 63.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 65.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.7
+      }
+    ]
   },
   "Ghim, Doug": {
     "player_name": "Ghim, Doug",
@@ -445,7 +985,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.881; DG_stddev: 2.724"
+    "benchmark_context": "DG_finalprediction: +0.881; DG_stddev: 2.724",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 66.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 73.1
+      },
+      {
+        "label": "App Overall",
+        "score": 50.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 45.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 71.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 46.0
+      }
+    ]
   },
   "Rodgers, Patrick": {
     "player_name": "Rodgers, Patrick",
@@ -470,7 +1040,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.295; DG_stddev: 2.802"
+    "benchmark_context": "DG_finalprediction: -0.295; DG_stddev: 2.802",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.7
+      },
+      {
+        "label": "App Overall",
+        "score": 47.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 65.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.6
+      }
+    ]
   },
   "McCarthy, Denny": {
     "player_name": "McCarthy, Denny",
@@ -495,7 +1095,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.381; DG_stddev: 2.651"
+    "benchmark_context": "DG_finalprediction: +0.381; DG_stddev: 2.651",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 37.9
+      },
+      {
+        "label": "App Overall",
+        "score": 53.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 72.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 58.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.8
+      }
+    ]
   },
   "Im, Sungjae": {
     "player_name": "Im, Sungjae",
@@ -521,7 +1151,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.733; DG_stddev: 2.786"
+    "benchmark_context": "DG_finalprediction: +0.733; DG_stddev: 2.786",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 31.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 60.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 65.3
+      },
+      {
+        "label": "App Overall",
+        "score": 34.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 61.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.0
+      }
+    ]
   },
   "Putnam, Andrew": {
     "player_name": "Putnam, Andrew",
@@ -543,7 +1203,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.413; DG_stddev: 2.633"
+    "benchmark_context": "DG_finalprediction: +0.413; DG_stddev: 2.633",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 57.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 78.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 30.2
+      },
+      {
+        "label": "App Overall",
+        "score": 57.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 62.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 83.3
+      }
+    ]
   },
   "Kuchar, Matt": {
     "player_name": "Kuchar, Matt",
@@ -571,7 +1261,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.084; DG_stddev: 2.620"
+    "benchmark_context": "DG_finalprediction: +0.084; DG_stddev: 2.620",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 38.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 27.9
+      },
+      {
+        "label": "App Overall",
+        "score": 44.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 77.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 63.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 73.8
+      }
+    ]
   },
   "Mouw, William": {
     "player_name": "Mouw, William",
@@ -593,7 +1313,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.242; DG_stddev: 2.795"
+    "benchmark_context": "DG_finalprediction: +0.242; DG_stddev: 2.795",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.8
+      },
+      {
+        "label": "App Overall",
+        "score": 61.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 43.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 45.0
+      }
+    ]
   },
   "Brennan, Michael": {
     "player_name": "Brennan, Michael",
@@ -617,7 +1367,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.426; DG_stddev: 2.865"
+    "benchmark_context": "DG_finalprediction: +0.426; DG_stddev: 2.865",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 87.1
+      },
+      {
+        "label": "App Overall",
+        "score": 62.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 35.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 61.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 25.9
+      }
+    ]
   },
   "Hodges, Lee": {
     "player_name": "Hodges, Lee",
@@ -639,7 +1419,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.222; DG_stddev: 2.733"
+    "benchmark_context": "DG_finalprediction: +0.222; DG_stddev: 2.733",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 70.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 61.0
+      },
+      {
+        "label": "App Overall",
+        "score": 61.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.6
+      }
+    ]
   },
   "Bezuidenhout, Christiaan": {
     "player_name": "Bezuidenhout, Christiaan",
@@ -660,7 +1470,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.672; DG_stddev: 2.647"
+    "benchmark_context": "DG_finalprediction: +0.672; DG_stddev: 2.647",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 63.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 35.8
+      },
+      {
+        "label": "App Overall",
+        "score": 60.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 67.4
+      }
+    ]
   },
   "Neergaard-Petersen, Rasmus": {
     "player_name": "Neergaard-Petersen, Rasmus",
@@ -680,7 +1520,37 @@
       "T4"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.536; DG_stddev: 2.782"
+    "benchmark_context": "DG_finalprediction: +0.536; DG_stddev: 2.782",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 63.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.7
+      },
+      {
+        "label": "App Overall",
+        "score": 52.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 65.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 42.6
+      }
+    ]
   },
   "Kirk, Chris": {
     "player_name": "Kirk, Chris",
@@ -702,7 +1572,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.047; DG_stddev: 2.760"
+    "benchmark_context": "DG_finalprediction: -0.047; DG_stddev: 2.760",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 61.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.0
+      },
+      {
+        "label": "App Overall",
+        "score": 70.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 25.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.9
+      }
+    ]
   },
   "Lipsky, David": {
     "player_name": "Lipsky, David",
@@ -727,7 +1627,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: -0.186; DG_stddev: 2.741"
+    "benchmark_context": "DG_finalprediction: -0.186; DG_stddev: 2.741",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 58.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 39.0
+      },
+      {
+        "label": "App Overall",
+        "score": 58.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.8
+      }
+    ]
   },
   "Snedeker, Brandt": {
     "player_name": "Snedeker, Brandt",
@@ -753,7 +1683,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.096; DG_stddev: 2.652"
+    "benchmark_context": "DG_finalprediction: +0.096; DG_stddev: 2.652",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 75.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 26.1
+      },
+      {
+        "label": "App Overall",
+        "score": 49.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 79.7
+      }
+    ]
   },
   "Ewart, A.J.": {
     "player_name": "Ewart, A.J.",
@@ -780,7 +1740,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_putting_dependency"
     ],
-    "benchmark_context": "DG_finalprediction: -0.087; DG_stddev: 2.769"
+    "benchmark_context": "DG_finalprediction: -0.087; DG_stddev: 2.769",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.0
+      },
+      {
+        "label": "App Overall",
+        "score": 55.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 70.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.0
+      }
+    ]
   },
   "Hughes, Mackenzie": {
     "player_name": "Hughes, Mackenzie",
@@ -809,7 +1799,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.277; DG_stddev: 2.762"
+    "benchmark_context": "DG_finalprediction: +0.277; DG_stddev: 2.762",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 43.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.6
+      },
+      {
+        "label": "App Overall",
+        "score": 39.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 68.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.9
+      }
+    ]
   },
   "Castillo, Ricky": {
     "player_name": "Castillo, Ricky",
@@ -832,7 +1852,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.315; DG_stddev: 2.745"
+    "benchmark_context": "DG_finalprediction: +0.315; DG_stddev: 2.745",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 37.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.9
+      },
+      {
+        "label": "App Overall",
+        "score": 31.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 55.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.6
+      }
+    ]
   },
   "Bauchou, Zach": {
     "player_name": "Bauchou, Zach",
@@ -854,7 +1904,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.350; DG_stddev: 2.732"
+    "benchmark_context": "DG_finalprediction: +0.350; DG_stddev: 2.732",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 47.2
+      },
+      {
+        "label": "App Overall",
+        "score": 65.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 56.0
+      }
+    ]
   },
   "Ramey, Chad": {
     "player_name": "Ramey, Chad",
@@ -880,7 +1960,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.176; DG_stddev: 2.746"
+    "benchmark_context": "DG_finalprediction: -0.176; DG_stddev: 2.746",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 39.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 50.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.7
+      },
+      {
+        "label": "App Overall",
+        "score": 42.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 68.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.6
+      }
+    ]
   },
   "Power, Seamus": {
     "player_name": "Power, Seamus",
@@ -906,7 +2016,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.082; DG_stddev: 2.742"
+    "benchmark_context": "DG_finalprediction: +0.082; DG_stddev: 2.742",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 57.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.0
+      },
+      {
+        "label": "App Overall",
+        "score": 48.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.5
+      }
+    ]
   },
   "Fishburn, Patrick": {
     "player_name": "Fishburn, Patrick",
@@ -931,7 +2071,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.236; DG_stddev: 2.817"
+    "benchmark_context": "DG_finalprediction: -0.236; DG_stddev: 2.817",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 61.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.9
+      },
+      {
+        "label": "App Overall",
+        "score": 57.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 43.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.5
+      }
+    ]
   },
   "Homa, Max": {
     "player_name": "Homa, Max",
@@ -959,7 +2129,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.597; DG_stddev: 2.800"
+    "benchmark_context": "DG_finalprediction: +0.597; DG_stddev: 2.800",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 46.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.8
+      },
+      {
+        "label": "App Overall",
+        "score": 56.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 69.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 76.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 45.7
+      }
+    ]
   },
   "Blanchet, Chandler": {
     "player_name": "Blanchet, Chandler",
@@ -984,7 +2184,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.480; DG_stddev: 2.835"
+    "benchmark_context": "DG_finalprediction: -0.480; DG_stddev: 2.835",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 72.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.2
+      },
+      {
+        "label": "App Overall",
+        "score": 57.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 31.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 33.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.8
+      }
+    ]
   },
   "Grillo, Emiliano": {
     "player_name": "Grillo, Emiliano",
@@ -1007,7 +2237,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.266; DG_stddev: 2.733"
+    "benchmark_context": "DG_finalprediction: +0.266; DG_stddev: 2.733",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 62.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 73.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.2
+      },
+      {
+        "label": "App Overall",
+        "score": 61.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 42.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 69.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.7
+      }
+    ]
   },
   "Fisk, Steven": {
     "player_name": "Fisk, Steven",
@@ -1031,7 +2291,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.201; DG_stddev: 2.767"
+    "benchmark_context": "DG_finalprediction: +0.201; DG_stddev: 2.767",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.7
+      },
+      {
+        "label": "App Overall",
+        "score": 52.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 64.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.2
+      }
+    ]
   },
   "Nakajima, Keita": {
     "player_name": "Nakajima, Keita",
@@ -1056,7 +2346,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.251; DG_stddev: 2.767"
+    "benchmark_context": "DG_finalprediction: +0.251; DG_stddev: 2.767",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.0
+      },
+      {
+        "label": "App Overall",
+        "score": 58.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 70.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.9
+      }
+    ]
   },
   "Schmid, Matti": {
     "player_name": "Schmid, Matti",
@@ -1080,7 +2400,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.007; DG_stddev: 2.846"
+    "benchmark_context": "DG_finalprediction: +0.007; DG_stddev: 2.846",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 52.6
+      },
+      {
+        "label": "App Overall",
+        "score": 51.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 59.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 56.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.1
+      }
+    ]
   },
   "Thompson, Davis": {
     "player_name": "Thompson, Davis",
@@ -1101,7 +2451,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.324; DG_stddev: 2.760"
+    "benchmark_context": "DG_finalprediction: +0.324; DG_stddev: 2.760",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.0
+      },
+      {
+        "label": "App Overall",
+        "score": 55.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 38.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.1
+      }
+    ]
   },
   "Kim, Michael": {
     "player_name": "Kim, Michael",
@@ -1126,7 +2506,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.489; DG_stddev: 2.757"
+    "benchmark_context": "DG_finalprediction: +0.489; DG_stddev: 2.757",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 41.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 39.6
+      },
+      {
+        "label": "App Overall",
+        "score": 51.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 57.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 52.2
+      }
+    ]
   },
   "Parry, John": {
     "player_name": "Parry, John",
@@ -1147,7 +2557,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.370; DG_stddev: 2.677"
+    "benchmark_context": "DG_finalprediction: +0.370; DG_stddev: 2.677",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 66.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 64.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 45.5
+      },
+      {
+        "label": "App Overall",
+        "score": 62.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 42.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.8
+      }
+    ]
   },
   "Horschel, Billy": {
     "player_name": "Horschel, Billy",
@@ -1169,7 +2609,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.153; DG_stddev: 2.764"
+    "benchmark_context": "DG_finalprediction: -0.153; DG_stddev: 2.764",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 63.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.3
+      },
+      {
+        "label": "App Overall",
+        "score": 65.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.0
+      }
+    ]
   },
   "Jarvis, Casey": {
     "player_name": "Jarvis, Casey",
@@ -1190,7 +2660,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.591; DG_stddev: 2.793"
+    "benchmark_context": "DG_finalprediction: +0.591; DG_stddev: 2.793",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 65.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 60.3
+      },
+      {
+        "label": "App Overall",
+        "score": 65.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 48.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.9
+      }
+    ]
   },
   "Smotherman, Austin": {
     "player_name": "Smotherman, Austin",
@@ -1213,7 +2713,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.011; DG_stddev: 2.806"
+    "benchmark_context": "DG_finalprediction: +0.011; DG_stddev: 2.806",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 70.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 70.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 64.9
+      },
+      {
+        "label": "App Overall",
+        "score": 74.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 31.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.2
+      }
+    ]
   },
   "Kohles, Ben": {
     "player_name": "Kohles, Ben",
@@ -1234,7 +2764,37 @@
       "approach_elite"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.705; DG_stddev: 2.668"
+    "benchmark_context": "DG_finalprediction: +0.705; DG_stddev: 2.668",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 64.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 85.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.9
+      },
+      {
+        "label": "App Overall",
+        "score": 72.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 75.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 70.9
+      }
+    ]
   },
   "Pendrith, Taylor": {
     "player_name": "Pendrith, Taylor",
@@ -1257,7 +2817,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.163; DG_stddev: 2.781"
+    "benchmark_context": "DG_finalprediction: +0.163; DG_stddev: 2.781",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 41.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 67.9
+      },
+      {
+        "label": "App Overall",
+        "score": 54.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 38.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.9
+      }
+    ]
   },
   "Dumont De Chassart, Adrien": {
     "player_name": "Dumont De Chassart, Adrien",
@@ -1284,7 +2874,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: -0.290; DG_stddev: 2.802"
+    "benchmark_context": "DG_finalprediction: -0.290; DG_stddev: 2.802",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 63.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 27.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 34.5
+      },
+      {
+        "label": "App Overall",
+        "score": 57.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 60.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 42.4
+      }
+    ]
   },
   "Olesen, Thorbjorn": {
     "player_name": "Olesen, Thorbjorn",
@@ -1308,7 +2928,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.061; DG_stddev: 2.772"
+    "benchmark_context": "DG_finalprediction: -0.061; DG_stddev: 2.772",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.9
+      },
+      {
+        "label": "App Overall",
+        "score": 55.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 45.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.0
+      }
+    ]
   },
   "Blair, Zac": {
     "player_name": "Blair, Zac",
@@ -1332,7 +2982,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.391; DG_stddev: 2.634"
+    "benchmark_context": "DG_finalprediction: +0.391; DG_stddev: 2.634",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 73.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 26.8
+      },
+      {
+        "label": "App Overall",
+        "score": 72.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 68.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 81.5
+      }
+    ]
   },
   "Hojgaard, Rasmus": {
     "player_name": "Hojgaard, Rasmus",
@@ -1357,7 +3037,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.162; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.162; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 61.1
+      },
+      {
+        "label": "App Overall",
+        "score": 53.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 62.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 27.2
+      }
+    ]
   },
   "Coody, Pierceson": {
     "player_name": "Coody, Pierceson",
@@ -1381,7 +3091,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.580; DG_stddev: 2.789"
+    "benchmark_context": "DG_finalprediction: +0.580; DG_stddev: 2.789",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 46.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.0
+      },
+      {
+        "label": "App Overall",
+        "score": 59.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 63.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 33.1
+      }
+    ]
   },
   "Finau, Tony": {
     "player_name": "Finau, Tony",
@@ -1407,7 +3147,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: +0.387; DG_stddev: 2.830"
+    "benchmark_context": "DG_finalprediction: +0.387; DG_stddev: 2.830",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 47.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 37.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.7
+      },
+      {
+        "label": "App Overall",
+        "score": 43.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 52.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 33.5
+      }
+    ]
   },
   "Dahmen, Joel": {
     "player_name": "Dahmen, Joel",
@@ -1432,7 +3202,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.005; DG_stddev: 2.755"
+    "benchmark_context": "DG_finalprediction: -0.005; DG_stddev: 2.755",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 76.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.4
+      },
+      {
+        "label": "App Overall",
+        "score": 58.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 23.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 51.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.0
+      }
+    ]
   },
   "Ventura, Kristoffer": {
     "player_name": "Ventura, Kristoffer",
@@ -1455,7 +3255,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.056; DG_stddev: 2.812"
+    "benchmark_context": "DG_finalprediction: -0.056; DG_stddev: 2.812",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 50.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 69.1
+      },
+      {
+        "label": "App Overall",
+        "score": 37.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.9
+      }
+    ]
   },
   "Pavon, Matthieu": {
     "player_name": "Pavon, Matthieu",
@@ -1479,7 +3309,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.335; DG_stddev: 2.801"
+    "benchmark_context": "DG_finalprediction: -0.335; DG_stddev: 2.801",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 41.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 56.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 57.6
+      },
+      {
+        "label": "App Overall",
+        "score": 36.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.7
+      }
+    ]
   },
   "Jaeger, Stephan": {
     "player_name": "Jaeger, Stephan",
@@ -1504,7 +3364,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: -0.031; DG_stddev: 2.831"
+    "benchmark_context": "DG_finalprediction: -0.031; DG_stddev: 2.831",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 27.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.1
+      },
+      {
+        "label": "App Overall",
+        "score": 44.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.2
+      }
+    ]
   },
   "Greyserman, Max": {
     "player_name": "Greyserman, Max",
@@ -1529,7 +3419,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.331; DG_stddev: 2.833"
+    "benchmark_context": "DG_finalprediction: +0.331; DG_stddev: 2.833",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 37.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.2
+      },
+      {
+        "label": "App Overall",
+        "score": 48.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 55.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 34.9
+      }
+    ]
   },
   "Griffin, Lanto": {
     "player_name": "Griffin, Lanto",
@@ -1552,7 +3472,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.355; DG_stddev: 2.743"
+    "benchmark_context": "DG_finalprediction: -0.355; DG_stddev: 2.743",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 49.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.3
+      },
+      {
+        "label": "App Overall",
+        "score": 41.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 42.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.5
+      }
+    ]
   },
   "Li, Haotong": {
     "player_name": "Li, Haotong",
@@ -1572,7 +3522,37 @@
       "T5"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.159; DG_stddev: 2.846"
+    "benchmark_context": "DG_finalprediction: -0.159; DG_stddev: 2.846",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 66.7
+      },
+      {
+        "label": "App Overall",
+        "score": 49.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 48.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 44.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.4
+      }
+    ]
   },
   "Hossler, Beau": {
     "player_name": "Hossler, Beau",
@@ -1598,7 +3578,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.372; DG_stddev: 2.762"
+    "benchmark_context": "DG_finalprediction: +0.372; DG_stddev: 2.762",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 36.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.3
+      },
+      {
+        "label": "App Overall",
+        "score": 36.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 70.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.6
+      }
+    ]
   },
   "Garnett, Brice": {
     "player_name": "Garnett, Brice",
@@ -1623,7 +3633,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.151; DG_stddev: 2.743"
+    "benchmark_context": "DG_finalprediction: -0.151; DG_stddev: 2.743",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 73.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.0
+      },
+      {
+        "label": "App Overall",
+        "score": 49.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 66.5
+      }
+    ]
   },
   "Higgo, Garrick": {
     "player_name": "Higgo, Garrick",
@@ -1646,7 +3686,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.247; DG_stddev: 2.835"
+    "benchmark_context": "DG_finalprediction: -0.247; DG_stddev: 2.835",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 41.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.0
+      },
+      {
+        "label": "App Overall",
+        "score": 50.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 47.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.1
+      }
+    ]
   },
   "Keefer, Johnny": {
     "player_name": "Keefer, Johnny",
@@ -1667,7 +3737,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.466; DG_stddev: 2.816"
+    "benchmark_context": "DG_finalprediction: +0.466; DG_stddev: 2.816",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.3
+      },
+      {
+        "label": "App Overall",
+        "score": 62.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 33.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 70.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.7
+      }
+    ]
   },
   "Stout, Preston": {
     "player_name": "Stout, Preston",
@@ -1688,7 +3788,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.093; DG_stddev: 2.821"
+    "benchmark_context": "DG_finalprediction: -0.093; DG_stddev: 2.821",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 62.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.3
+      },
+      {
+        "label": "App Overall",
+        "score": 59.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 32.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.3
+      }
+    ]
   },
   "Kanaya, Takumi": {
     "player_name": "Kanaya, Takumi",
@@ -1713,7 +3843,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.094; DG_stddev: 2.721"
+    "benchmark_context": "DG_finalprediction: +0.094; DG_stddev: 2.721",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 27.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 70.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.6
+      },
+      {
+        "label": "App Overall",
+        "score": 32.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.2
+      }
+    ]
   },
   "Eckroat, Austin": {
     "player_name": "Eckroat, Austin",
@@ -1734,7 +3894,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.092; DG_stddev: 2.764"
+    "benchmark_context": "DG_finalprediction: -0.092; DG_stddev: 2.764",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 69.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.8
+      },
+      {
+        "label": "App Overall",
+        "score": 64.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 54.1
+      }
+    ]
   },
   "Potgieter, Aldrich": {
     "player_name": "Potgieter, Aldrich",
@@ -1758,7 +3948,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.001; DG_stddev: 2.900"
+    "benchmark_context": "DG_finalprediction: -0.001; DG_stddev: 2.900",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 77.9
+      },
+      {
+        "label": "App Overall",
+        "score": 56.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 46.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 15.7
+      }
+    ]
   },
   "Lebioda, Hank": {
     "player_name": "Lebioda, Hank",
@@ -1784,7 +4004,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.543; DG_stddev: 2.808"
+    "benchmark_context": "DG_finalprediction: -0.543; DG_stddev: 2.808",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 63.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 43.1
+      },
+      {
+        "label": "App Overall",
+        "score": 62.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 31.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 28.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.2
+      }
+    ]
   },
   "Moore, Taylor": {
     "player_name": "Moore, Taylor",
@@ -1809,7 +4059,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.074; DG_stddev: 2.811"
+    "benchmark_context": "DG_finalprediction: +0.074; DG_stddev: 2.811",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 68.8
+      },
+      {
+        "label": "App Overall",
+        "score": 42.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 56.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.5
+      }
+    ]
   },
   "Suber, Jackson": {
     "player_name": "Suber, Jackson",
@@ -1833,7 +4113,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.578; DG_stddev: 2.824"
+    "benchmark_context": "DG_finalprediction: +0.578; DG_stddev: 2.824",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.7
+      },
+      {
+        "label": "App Overall",
+        "score": 55.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 76.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 45.3
+      }
+    ]
   },
   "Svensson, Adam": {
     "player_name": "Svensson, Adam",
@@ -1856,7 +4166,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.360; DG_stddev: 2.758"
+    "benchmark_context": "DG_finalprediction: -0.360; DG_stddev: 2.758",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 62.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 58.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 35.6
+      },
+      {
+        "label": "App Overall",
+        "score": 59.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 29.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.5
+      }
+    ]
   },
   "Higgs, Harry": {
     "player_name": "Higgs, Harry",
@@ -1882,7 +4222,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.837"
+    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.837",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 45.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.2
+      },
+      {
+        "label": "App Overall",
+        "score": 45.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 36.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.3
+      }
+    ]
   },
   "Cowan, Ryder": {
     "player_name": "Cowan, Ryder",
@@ -1903,7 +4273,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.654; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.654; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 47.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.3
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Glover, Lucas": {
     "player_name": "Glover, Lucas",
@@ -1924,7 +4324,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.180; DG_stddev: 2.711"
+    "benchmark_context": "DG_finalprediction: +0.180; DG_stddev: 2.711",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 79.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.4
+      },
+      {
+        "label": "App Overall",
+        "score": 55.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 24.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 65.7
+      }
+    ]
   },
   "Lower, Justin": {
     "player_name": "Lower, Justin",
@@ -1948,7 +4378,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.668; DG_stddev: 2.820"
+    "benchmark_context": "DG_finalprediction: -0.668; DG_stddev: 2.820",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 37.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 62.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.7
+      },
+      {
+        "label": "App Overall",
+        "score": 36.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.5
+      }
+    ]
   },
   "Chatfield, Davis": {
     "player_name": "Chatfield, Davis",
@@ -1973,7 +4433,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.141; DG_stddev: 2.672"
+    "benchmark_context": "DG_finalprediction: -0.141; DG_stddev: 2.672",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 79.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 37.1
+      },
+      {
+        "label": "App Overall",
+        "score": 56.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 45.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 80.9
+      }
+    ]
   },
   "Hubbard, Mark": {
     "player_name": "Hubbard, Mark",
@@ -1994,7 +4484,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.428; DG_stddev: 2.795"
+    "benchmark_context": "DG_finalprediction: -0.428; DG_stddev: 2.795",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.6
+      },
+      {
+        "label": "App Overall",
+        "score": 60.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 23.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 43.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.8
+      }
+    ]
   },
   "Silverman, Ben": {
     "player_name": "Silverman, Ben",
@@ -2018,7 +4538,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_putting_dependency"
     ],
-    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.747"
+    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.747",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 59.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 38.7
+      },
+      {
+        "label": "App Overall",
+        "score": 42.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 70.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.0
+      }
+    ]
   },
   "VanDerLaan, John": {
     "player_name": "VanDerLaan, John",
@@ -2042,7 +4592,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.726; DG_stddev: 2.892"
+    "benchmark_context": "DG_finalprediction: -0.726; DG_stddev: 2.892",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 34.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 47.5
+      },
+      {
+        "label": "App Overall",
+        "score": 34.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 41.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.4
+      }
+    ]
   },
   "Whaley, Vince": {
     "player_name": "Whaley, Vince",
@@ -2069,7 +4649,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.621; DG_stddev: 2.754"
+    "benchmark_context": "DG_finalprediction: -0.621; DG_stddev: 2.754",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 25.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 27.8
+      },
+      {
+        "label": "App Overall",
+        "score": 30.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 83.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.4
+      }
+    ]
   },
   "Yu, Kevin": {
     "player_name": "Yu, Kevin",
@@ -2090,7 +4700,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.190; DG_stddev: 2.768"
+    "benchmark_context": "DG_finalprediction: +0.190; DG_stddev: 2.768",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.8
+      },
+      {
+        "label": "App Overall",
+        "score": 59.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 36.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.6
+      }
+    ]
   },
   "Dou, Zecheng": {
     "player_name": "Dou, Zecheng",
@@ -2115,7 +4755,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.024; DG_stddev: 2.797"
+    "benchmark_context": "DG_finalprediction: +0.024; DG_stddev: 2.797",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 70.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.4
+      },
+      {
+        "label": "App Overall",
+        "score": 70.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.8
+      }
+    ]
   },
   "Shipley, Neal": {
     "player_name": "Shipley, Neal",
@@ -2139,7 +4809,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.867"
+    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.867",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 60.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 79.3
+      },
+      {
+        "label": "App Overall",
+        "score": 54.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 24.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Skinns, David": {
     "player_name": "Skinns, David",
@@ -2162,7 +4862,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.392; DG_stddev: 2.812"
+    "benchmark_context": "DG_finalprediction: -0.392; DG_stddev: 2.812",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.6
+      },
+      {
+        "label": "App Overall",
+        "score": 53.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 51.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.1
+      }
+    ]
   },
   "Svensson, Jesper": {
     "player_name": "Svensson, Jesper",
@@ -2187,7 +4917,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.046; DG_stddev: 2.910"
+    "benchmark_context": "DG_finalprediction: -0.046; DG_stddev: 2.910",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 72.6
+      },
+      {
+        "label": "App Overall",
+        "score": 41.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 49.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 25.3
+      }
+    ]
   },
   "Crowe, Trace": {
     "player_name": "Crowe, Trace",
@@ -2212,7 +4972,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.434; DG_stddev: 2.816"
+    "benchmark_context": "DG_finalprediction: -0.434; DG_stddev: 2.816",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 45.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 36.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.4
+      },
+      {
+        "label": "App Overall",
+        "score": 48.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.5
+      }
+    ]
   },
   "Walker, Danny": {
     "player_name": "Walker, Danny",
@@ -2238,7 +5028,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.258; DG_stddev: 2.982"
+    "benchmark_context": "DG_finalprediction: -1.258; DG_stddev: 2.982",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 32.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 27.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 37.2
+      },
+      {
+        "label": "App Overall",
+        "score": 29.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 24.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 18.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.8
+      }
+    ]
   },
   "Roy, Kevin": {
     "player_name": "Roy, Kevin",
@@ -2263,7 +5083,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.057; DG_stddev: 2.804"
+    "benchmark_context": "DG_finalprediction: +0.057; DG_stddev: 2.804",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 41.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.1
+      },
+      {
+        "label": "App Overall",
+        "score": 42.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 55.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 43.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.3
+      }
+    ]
   },
   "Streelman, Kevin": {
     "player_name": "Streelman, Kevin",
@@ -2284,7 +5134,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.695; DG_stddev: 2.804"
+    "benchmark_context": "DG_finalprediction: -0.695; DG_stddev: 2.804",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 58.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.1
+      },
+      {
+        "label": "App Overall",
+        "score": 52.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 44.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.4
+      }
+    ]
   },
   "Wu, Dylan": {
     "player_name": "Wu, Dylan",
@@ -2308,7 +5188,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.526; DG_stddev: 2.728"
+    "benchmark_context": "DG_finalprediction: -0.526; DG_stddev: 2.728",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 32.8
+      },
+      {
+        "label": "App Overall",
+        "score": 55.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 38.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 40.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 57.0
+      }
+    ]
   },
   "Vilips, Karl": {
     "player_name": "Vilips, Karl",
@@ -2336,7 +5246,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.357; DG_stddev: 2.807"
+    "benchmark_context": "DG_finalprediction: -0.357; DG_stddev: 2.807",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 55.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 33.4
+      },
+      {
+        "label": "App Overall",
+        "score": 61.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 71.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.5
+      }
+    ]
   },
   "Stanger, Jimmy": {
     "player_name": "Stanger, Jimmy",
@@ -2362,7 +5302,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.922; DG_stddev: 2.877"
+    "benchmark_context": "DG_finalprediction: -0.922; DG_stddev: 2.877",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 0.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.0
+      },
+      {
+        "label": "App Overall",
+        "score": 0.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 49.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 25.2
+      }
+    ]
   },
   "Dunlap, Nick": {
     "player_name": "Dunlap, Nick",
@@ -2388,7 +5358,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.481; DG_stddev: 2.799"
+    "benchmark_context": "DG_finalprediction: -0.481; DG_stddev: 2.799",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 55.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 18.2
+      },
+      {
+        "label": "App Overall",
+        "score": 52.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.2
+      }
+    ]
   },
   "Hirata, Kensei": {
     "player_name": "Hirata, Kensei",
@@ -2412,7 +5412,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.574; DG_stddev: 2.829"
+    "benchmark_context": "DG_finalprediction: -0.574; DG_stddev: 2.829",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 72.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.5
+      },
+      {
+        "label": "App Overall",
+        "score": 36.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 39.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 33.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.3
+      }
+    ]
   },
   "Champ, Cameron": {
     "player_name": "Champ, Cameron",
@@ -2437,7 +5467,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -1.018; DG_stddev: 2.954"
+    "benchmark_context": "DG_finalprediction: -1.018; DG_stddev: 2.954",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 43.7
+      },
+      {
+        "label": "App Overall",
+        "score": 38.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 20.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 22.6
+      }
+    ]
   },
   "Nyholm, Pontus": {
     "player_name": "Nyholm, Pontus",
@@ -2462,7 +5522,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.752; DG_stddev: 2.879"
+    "benchmark_context": "DG_finalprediction: -0.752; DG_stddev: 2.879",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 36.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 24.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.4
+      },
+      {
+        "label": "App Overall",
+        "score": 36.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 38.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 28.2
+      }
+    ]
   },
   "Peterson, Paul": {
     "player_name": "Peterson, Paul",
@@ -2486,7 +5576,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.165; DG_stddev: 2.638"
+    "benchmark_context": "DG_finalprediction: -0.165; DG_stddev: 2.638",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 81.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 23.0
+      },
+      {
+        "label": "App Overall",
+        "score": 58.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 42.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 86.6
+      }
+    ]
   },
   "Springer, Hayden": {
     "player_name": "Springer, Hayden",
@@ -2511,7 +5631,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.848"
+    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.848",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 34.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 34.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.9
+      },
+      {
+        "label": "App Overall",
+        "score": 34.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 61.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 41.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.7
+      }
+    ]
   },
   "Hoge, Tom": {
     "player_name": "Hoge, Tom",
@@ -2536,7 +5686,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.049; DG_stddev: 2.792"
+    "benchmark_context": "DG_finalprediction: -0.049; DG_stddev: 2.792",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 50.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 34.6
+      },
+      {
+        "label": "App Overall",
+        "score": 58.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 45.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 61.3
+      }
+    ]
   },
   "Gomez, Fabian": {
     "player_name": "Gomez, Fabian",
@@ -2556,7 +5736,37 @@
       "T5"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.461; DG_stddev: 2.718"
+    "benchmark_context": "DG_finalprediction: -0.461; DG_stddev: 2.718",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 72.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 60.9
+      },
+      {
+        "label": "App Overall",
+        "score": 50.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 70.1
+      }
+    ]
   },
   "Clanton, Luke": {
     "player_name": "Clanton, Luke",
@@ -2580,7 +5790,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.545; DG_stddev: 2.830"
+    "benchmark_context": "DG_finalprediction: -0.545; DG_stddev: 2.830",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 28.8
+      },
+      {
+        "label": "App Overall",
+        "score": 56.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 30.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 46.4
+      }
+    ]
   },
   "Van Rooyen, Erik": {
     "player_name": "Van Rooyen, Erik",
@@ -2607,7 +5847,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.502; DG_stddev: 2.796"
+    "benchmark_context": "DG_finalprediction: -0.502; DG_stddev: 2.796",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 22.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.6
+      },
+      {
+        "label": "App Overall",
+        "score": 26.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 78.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 62.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.4
+      }
+    ]
   },
   "Phillips, Chandler": {
     "player_name": "Phillips, Chandler",
@@ -2632,7 +5902,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.263; DG_stddev: 2.740"
+    "benchmark_context": "DG_finalprediction: -0.263; DG_stddev: 2.740",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 25.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.5
+      },
+      {
+        "label": "App Overall",
+        "score": 30.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 64.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 51.9
+      }
+    ]
   },
   "Wise, Aaron": {
     "player_name": "Wise, Aaron",
@@ -2657,7 +5957,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.445; DG_stddev: 2.803"
+    "benchmark_context": "DG_finalprediction: -0.445; DG_stddev: 2.803",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 33.5
+      },
+      {
+        "label": "App Overall",
+        "score": 34.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.8
+      }
+    ]
   },
   "Donohue, Muzzy": {
     "player_name": "Donohue, Muzzy",
@@ -2680,7 +6010,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -6.220; DG_stddev: 3.350"
+    "benchmark_context": "DG_finalprediction: -6.220; DG_stddev: 3.350",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 25.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 56.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 100.0
+      }
+    ]
   },
   "Highsmith, Joe": {
     "player_name": "Highsmith, Joe",
@@ -2706,7 +6066,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.529; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.529; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 34.9
+      },
+      {
+        "label": "App Overall",
+        "score": 51.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 34.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 49.5
+      }
+    ]
   },
   "Hadwin, Adam": {
     "player_name": "Hadwin, Adam",
@@ -2730,7 +6120,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.444; DG_stddev: 2.833"
+    "benchmark_context": "DG_finalprediction: -0.444; DG_stddev: 2.833",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.1
+      },
+      {
+        "label": "App Overall",
+        "score": 47.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.0
+      }
+    ]
   },
   "Kang, Jeffrey": {
     "player_name": "Kang, Jeffrey",
@@ -2753,7 +6173,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.823; DG_stddev: 2.846"
+    "benchmark_context": "DG_finalprediction: -0.823; DG_stddev: 2.846",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 38.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 34.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 28.0
+      },
+      {
+        "label": "App Overall",
+        "score": 34.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 34.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 45.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.2
+      }
+    ]
   },
   "Campbell, Brian": {
     "player_name": "Campbell, Brian",
@@ -2776,7 +6226,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.818; DG_stddev: 2.793"
+    "benchmark_context": "DG_finalprediction: -0.818; DG_stddev: 2.793",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 24.4
+      },
+      {
+        "label": "App Overall",
+        "score": 45.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 31.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 77.7
+      }
+    ]
   },
   "Duncan, Tyler": {
     "player_name": "Duncan, Tyler",
@@ -2798,7 +6278,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.547; DG_stddev: 2.792"
+    "benchmark_context": "DG_finalprediction: -0.547; DG_stddev: 2.792",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 75.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.8
+      },
+      {
+        "label": "App Overall",
+        "score": 64.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 41.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 68.0
+      }
+    ]
   },
   "Mazzoli, Stefano": {
     "player_name": "Mazzoli, Stefano",
@@ -2821,7 +6331,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.727; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.727; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.0
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 62.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 57.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Malnati, Peter": {
     "player_name": "Malnati, Peter",
@@ -2851,7 +6391,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.958; DG_stddev: 2.834"
+    "benchmark_context": "DG_finalprediction: -0.958; DG_stddev: 2.834",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 32.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 23.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 15.5
+      },
+      {
+        "label": "App Overall",
+        "score": 28.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 72.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 40.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 52.4
+      }
+    ]
   },
   "Tosti, Alejandro": {
     "player_name": "Tosti, Alejandro",
@@ -2877,7 +6447,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.939; DG_stddev: 2.980"
+    "benchmark_context": "DG_finalprediction: -0.939; DG_stddev: 2.980",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 8.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 62.1
+      },
+      {
+        "label": "App Overall",
+        "score": 18.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 16.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 40.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 27.4
+      }
+    ]
   },
   "Rozo, Marcelo": {
     "player_name": "Rozo, Marcelo",
@@ -2901,7 +6501,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.127; DG_stddev: 2.864"
+    "benchmark_context": "DG_finalprediction: -1.127; DG_stddev: 2.864",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.3
+      },
+      {
+        "label": "App Overall",
+        "score": 44.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 0.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.9
+      }
+    ]
   },
   "Villegas, Camilo": {
     "player_name": "Villegas, Camilo",
@@ -2927,7 +6557,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.959; DG_stddev: 2.832"
+    "benchmark_context": "DG_finalprediction: -0.959; DG_stddev: 2.832",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 30.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 36.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 20.9
+      },
+      {
+        "label": "App Overall",
+        "score": 39.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 47.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 63.0
+      }
+    ]
   },
   "Merritt, Troy": {
     "player_name": "Merritt, Troy",
@@ -2952,7 +6612,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.945; DG_stddev: 2.837"
+    "benchmark_context": "DG_finalprediction: -0.945; DG_stddev: 2.837",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.3
+      },
+      {
+        "label": "App Overall",
+        "score": 47.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.9
+      }
+    ]
   },
   "Hardy, Nick": {
     "player_name": "Hardy, Nick",
@@ -2976,7 +6666,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.764; DG_stddev: 2.796"
+    "benchmark_context": "DG_finalprediction: -0.764; DG_stddev: 2.796",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 45.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.9
+      },
+      {
+        "label": "App Overall",
+        "score": 37.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 42.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.3
+      }
+    ]
   },
   "Lamprecht, Christo": {
     "player_name": "Lamprecht, Christo",
@@ -3001,7 +6721,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.879; DG_stddev: 3.059"
+    "benchmark_context": "DG_finalprediction: -1.879; DG_stddev: 3.059",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 0.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 17.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 47.9
+      },
+      {
+        "label": "App Overall",
+        "score": 0.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 11.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 9.8
+      }
+    ]
   },
   "Paul, Jeremy": {
     "player_name": "Paul, Jeremy",
@@ -3026,7 +6776,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.449; DG_stddev: 2.897"
+    "benchmark_context": "DG_finalprediction: -1.449; DG_stddev: 2.897",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 21.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 33.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.4
+      },
+      {
+        "label": "App Overall",
+        "score": 19.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 19.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 42.8
+      }
+    ]
   },
   "Kizzire, Patton": {
     "player_name": "Kizzire, Patton",
@@ -3054,7 +6834,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.240; DG_stddev: 2.864"
+    "benchmark_context": "DG_finalprediction: -1.240; DG_stddev: 2.864",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 37.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 38.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 5.7
+      },
+      {
+        "label": "App Overall",
+        "score": 42.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 35.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 11.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.9
+      }
+    ]
   },
   "Martin, Ben": {
     "player_name": "Martin, Ben",
@@ -3078,7 +6888,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.132; DG_stddev: 2.800"
+    "benchmark_context": "DG_finalprediction: -1.132; DG_stddev: 2.800",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 57.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.4
+      },
+      {
+        "label": "App Overall",
+        "score": 58.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 29.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.5
+      }
+    ]
   },
   "Wood, Griffin": {
     "player_name": "Wood, Griffin",
@@ -3101,7 +6941,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -3.243; DG_stddev: 3.241"
+    "benchmark_context": "DG_finalprediction: -3.243; DG_stddev: 3.241",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 2.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 27.5
+      }
+    ]
   },
   "Gordon, Will": {
     "player_name": "Gordon, Will",
@@ -3124,7 +6994,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.969; DG_stddev: 2.896"
+    "benchmark_context": "DG_finalprediction: -0.969; DG_stddev: 2.896",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 42.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.2
+      },
+      {
+        "label": "App Overall",
+        "score": 43.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 38.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.9
+      }
+    ]
   },
   "Davis, Cam": {
     "player_name": "Davis, Cam",
@@ -3150,7 +7050,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.792; DG_stddev: 2.945"
+    "benchmark_context": "DG_finalprediction: -0.792; DG_stddev: 2.945",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 25.1
+      },
+      {
+        "label": "App Overall",
+        "score": 38.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 42.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Riley, Davis": {
     "player_name": "Riley, Davis",
@@ -3175,7 +7105,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.084; DG_stddev: 2.977"
+    "benchmark_context": "DG_finalprediction: -1.084; DG_stddev: 2.977",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 31.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 22.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 9.3
+      },
+      {
+        "label": "App Overall",
+        "score": 33.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 68.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 37.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.7
+      }
+    ]
   },
   "Hoffman, Charley": {
     "player_name": "Hoffman, Charley",
@@ -3202,7 +7162,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_debut_uncertainty"
     ],
-    "benchmark_context": "DG_finalprediction: -1.748; DG_stddev: 2.950"
+    "benchmark_context": "DG_finalprediction: -1.748; DG_stddev: 2.950",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.5
+      },
+      {
+        "label": "App Overall",
+        "score": 31.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 19.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 21.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.2
+      }
+    ]
   },
   "List, Luke": {
     "player_name": "List, Luke",
@@ -3227,7 +7217,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.896; DG_stddev: 2.899"
+    "benchmark_context": "DG_finalprediction: -0.896; DG_stddev: 2.899",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 43.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 64.9
+      },
+      {
+        "label": "App Overall",
+        "score": 38.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 39.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 43.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.3
+      }
+    ]
   },
   "Sargent, Gordon": {
     "player_name": "Sargent, Gordon",
@@ -3252,7 +7272,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.268; DG_stddev: 2.987"
+    "benchmark_context": "DG_finalprediction: -1.268; DG_stddev: 2.987",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 1.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 26.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.4
+      },
+      {
+        "label": "App Overall",
+        "score": 5.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 46.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 13.8
+      }
+    ]
   },
   "Schenk, Adam": {
     "player_name": "Schenk, Adam",
@@ -3278,7 +7328,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.129; DG_stddev: 2.918"
+    "benchmark_context": "DG_finalprediction: -1.129; DG_stddev: 2.918",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 41.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 38.3
+      },
+      {
+        "label": "App Overall",
+        "score": 39.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 29.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 28.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.2
+      }
+    ]
   },
   "Campos, Rafael": {
     "player_name": "Campos, Rafael",
@@ -3303,7 +7383,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.340; DG_stddev: 2.890"
+    "benchmark_context": "DG_finalprediction: -1.340; DG_stddev: 2.890",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 37.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 33.7
+      },
+      {
+        "label": "App Overall",
+        "score": 35.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 33.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.6
+      }
+    ]
   },
   "Brehm, Ryan": {
     "player_name": "Brehm, Ryan",
@@ -3329,7 +7439,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -2.332; DG_stddev: 3.099"
+    "benchmark_context": "DG_finalprediction: -2.332; DG_stddev: 3.099",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 29.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 46.1
+      },
+      {
+        "label": "App Overall",
+        "score": 28.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 7.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 35.4
+      }
+    ]
   },
   "Fahrny, Brannon": {
     "player_name": "Fahrny, Brannon",
@@ -3352,7 +7492,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -2.734; DG_stddev: 3.097"
+    "benchmark_context": "DG_finalprediction: -2.734; DG_stddev: 3.097",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 70.0
+      }
+    ]
   },
   "Lindheim, Nicholas": {
     "player_name": "Lindheim, Nicholas",
@@ -3372,7 +7542,37 @@
       "T5"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -1.706; DG_stddev: 2.921"
+    "benchmark_context": "DG_finalprediction: -1.706; DG_stddev: 2.921",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 63.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.1
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 49.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 71.7
+      }
+    ]
   },
   "Sandhu, Sihan": {
     "player_name": "Sandhu, Sihan",
@@ -3395,7 +7595,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -2.611; DG_stddev: 3.098"
+    "benchmark_context": "DG_finalprediction: -2.611; DG_stddev: 3.098",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 11.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 69.4
+      }
+    ]
   },
   "Sihota, Jeevan": {
     "player_name": "Sihota, Jeevan",
@@ -3418,7 +7648,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -3.926; DG_stddev: 3.450"
+    "benchmark_context": "DG_finalprediction: -3.926; DG_stddev: 3.450",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 26.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.4
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 52.4
+      }
+    ]
   },
   "Schultz, Cooper": {
     "player_name": "Schultz, Cooper",
@@ -3441,7 +7701,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -2.888; DG_stddev: 3.143"
+    "benchmark_context": "DG_finalprediction: -2.888; DG_stddev: 3.143",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.9
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 71.4
+      }
+    ]
   },
   "Campbell, Thomas": {
     "player_name": "Campbell, Thomas",
@@ -3464,6 +7754,36 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -3.305; DG_stddev: 3.233"
+    "benchmark_context": "DG_finalprediction: -3.305; DG_stddev: 3.233",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.2
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 78.4
+      }
+    ]
   }
 }

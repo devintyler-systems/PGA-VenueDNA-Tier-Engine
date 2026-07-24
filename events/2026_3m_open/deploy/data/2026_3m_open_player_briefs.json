@@ -20,27 +20,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +2.827; DG_stddev: 2.742",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Scottie Scheffler brings a baseline of 2.698 SG with a modeled 3M Open projection of 2.827. The venue fit sits near neutral at +0.058, so this week leans more on execution than on receiving free structural help from the course. Best signals: driving accuracy (+0.072), approach-zone scoring (+0.072), secondary fit traits (+0.032). Main leaks: distance leverage (-0.072), course-history calibration (-0.046).",
-    "form_summary": "Recent form: Travelers Championship 2; Genesis Scottish Open CUT; The Open Championship T4. His last-20 true SG is 2.70, and he is cooling off versus baseline (-0.41).",
-    "scoring_thesis": "Scottie Scheffler's win path is built on driving accuracy (+0.072); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Scottie Scheffler's win path is built on driving accuracy (+0.072); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Scottie Scheffler's soft spots are distance leverage (-0.072), course-history calibration (-0.046), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "driving accuracy (+0.072)",
-      "approach-zone scoring (+0.072)",
-      "secondary fit traits (+0.032)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.072)",
-      "course-history calibration (-0.046)"
-    ],
-    "venuefitdelta": 0.058,
-    "neutralskillsg": 2.698,
-    "projectedsg": 2.827,
-    "recentTrueSGL20": 2.7,
-    "vsBaselineL20": -0.41,
-    "rawRecentStarts": "pga-the memorial tournament presented by workday-T12_major-u.s. open-T4_pga-travelers championship-2_pga-genesis scottish open-CUT_major-the open championship-T4"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 72.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 71.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 86.8
+      },
+      {
+        "label": "App Overall",
+        "score": 75.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 73.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 98.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.8
+      }
+    ]
   },
   "McNealy, Maverick": {
     "player_name": "McNealy, Maverick",
@@ -71,26 +80,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +1.205; DG_stddev: 2.796",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Maverick McNealy brings a baseline of 1.169 SG with a modeled 3M Open projection of 1.205. The venue fit sits near neutral at -0.032, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.074), course-history calibration (+0.047). Main leaks: distance leverage (-0.057), driving accuracy (-0.025).",
-    "form_summary": "Recent form: U.s. Open T32; Travelers Championship T55; The Open Championship CUT. His last-20 true SG is 1.32, and he is holding neutral versus baseline (-0.04).",
-    "scoring_thesis": "Maverick McNealy's win path is built on timing signal (+0.074); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Maverick McNealy's win path is built on timing signal (+0.074); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Maverick McNealy's soft spots are distance leverage (-0.057), driving accuracy (-0.025), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.074)",
-      "course-history calibration (+0.047)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.057)",
-      "driving accuracy (-0.025)"
-    ],
-    "venuefitdelta": -0.032,
-    "neutralskillsg": 1.169,
-    "projectedsg": 1.205,
-    "recentTrueSGL20": 1.32,
-    "vsBaselineL20": -0.04,
-    "rawRecentStarts": "major-pga championship-T18_pga-the memorial tournament presented by workday-T10_major-u.s. open-T32_pga-travelers championship-T55_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 64.5
+      },
+      {
+        "label": "App Overall",
+        "score": 54.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 75.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 75.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.0
+      }
+    ]
   },
   "Koivun, Jackson": {
     "player_name": "Koivun, Jackson",
@@ -117,26 +136,36 @@
       "VenueDNA_flag_short_game_only"
     ],
     "benchmark_context": "DG_finalprediction: +0.828; DG_stddev: 2.769",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Jackson Koivun brings a baseline of 0.785 SG with a modeled 3M Open projection of 0.828. The venue fit sits near neutral at -0.039, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.051), driving accuracy (+0.034). Main leaks: course-history calibration (-0.046), distance leverage (-0.030).",
-    "form_summary": "Recent form: U.s. Open T23; John Deere Classic CUT; Isco Championship T10. His last-20 true SG is 0.79, and he is cooling off versus baseline (-0.31).",
-    "scoring_thesis": "Jackson Koivun's win path is built on timing signal (+0.051); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Jackson Koivun's win path is built on timing signal (+0.051); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Jackson Koivun's soft spots are course-history calibration (-0.046), distance leverage (-0.030), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.051)",
-      "driving accuracy (+0.034)"
-    ],
-    "weaknessTags": [
-      "course-history calibration (-0.046)",
-      "distance leverage (-0.030)"
-    ],
-    "venuefitdelta": -0.039,
-    "neutralskillsg": 0.785,
-    "projectedsg": 0.828,
-    "recentTrueSGL20": 0.79,
-    "vsBaselineL20": -0.31,
-    "rawRecentStarts": "am-ncaa athens regional-T10_am-ncaa di men's national championship stroke play-T10_major-u.s. open-T23_pga-john deere classic-CUT_pga-isco championship-T10"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 84.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 61.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 62.8
+      },
+      {
+        "label": "App Overall",
+        "score": 72.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 52.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 67.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 49.5
+      }
+    ]
   },
   "Kitayama, Kurt": {
     "player_name": "Kitayama, Kurt",
@@ -159,26 +188,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +1.162; DG_stddev: 2.817",
-    "convictionStatement": "Course Comfort, Structural Friction",
-    "neutral_skill_summary": "Kurt Kitayama brings a baseline of 1.096 SG with a modeled 3M Open projection of 1.162. The venue fit sits near neutral at -0.003, so this week leans more on execution than on receiving free structural help from the course. Best signals: course-history calibration (+0.071), timing signal (+0.036), secondary fit traits (+0.019). Main leaks: distance leverage (-0.092).",
-    "form_summary": "Recent form: Travelers Championship T25; Genesis Scottish Open T44; The Open Championship T40. His last-20 true SG is 1.15, and he is holding neutral versus baseline (-0.06).",
-    "scoring_thesis": "Kurt Kitayama's win path is built on course-history calibration (+0.071); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Kurt Kitayama's win path is built on course-history calibration (+0.071); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Kurt Kitayama's soft spots are distance leverage (-0.092), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "course-history calibration (+0.071)",
-      "timing signal (+0.036)",
-      "secondary fit traits (+0.019)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.092)"
-    ],
-    "venuefitdelta": -0.003,
-    "neutralskillsg": 1.096,
-    "projectedsg": 1.162,
-    "recentTrueSGL20": 1.15,
-    "vsBaselineL20": -0.06,
-    "rawRecentStarts": "pga-the memorial tournament presented by workday-T22_major-u.s. open-T53_pga-travelers championship-T25_pga-genesis scottish open-T44_major-the open championship-T40"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 73.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 70.7
+      },
+      {
+        "label": "App Overall",
+        "score": 71.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 73.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.8
+      }
+    ]
   },
   "Woodland, Gary": {
     "player_name": "Woodland, Gary",
@@ -200,7 +239,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.347; DG_stddev: 2.816"
+    "benchmark_context": "DG_finalprediction: +0.347; DG_stddev: 2.816",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 67.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 80.2
+      },
+      {
+        "label": "App Overall",
+        "score": 64.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 61.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 56.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.2
+      }
+    ]
   },
   "Matsuyama, Hideki": {
     "player_name": "Matsuyama, Hideki",
@@ -223,23 +292,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +1.138; DG_stddev: 2.733",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Hideki Matsuyama brings a baseline of 1.056 SG with a modeled 3M Open projection of 1.138. The venue fit sits near neutral at +0.046, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.086), approach-zone scoring (+0.026).",
-    "form_summary": "Recent form: U.s. Open T65; Travelers Championship T14; The Open Championship T14. His last-20 true SG is 1.03, and he is cooling off versus baseline (-0.21).",
-    "scoring_thesis": "Hideki Matsuyama's win path is built on timing signal (+0.086); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Hideki Matsuyama's win path is built on timing signal (+0.086); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: there is no giant red flag, but the profile does not have much margin for a flat putting week.",
-    "strengthTags": [
-      "timing signal (+0.086)",
-      "approach-zone scoring (+0.026)"
-    ],
-    "weaknessTags": [],
-    "venuefitdelta": 0.046,
-    "neutralskillsg": 1.056,
-    "projectedsg": 1.138,
-    "recentTrueSGL20": 1.03,
-    "vsBaselineL20": -0.21,
-    "rawRecentStarts": "pga-charles schwab challenge-T13_pga-the memorial tournament presented by workday-T43_major-u.s. open-T65_pga-travelers championship-T14_major-the open championship-T14"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 71.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.4
+      },
+      {
+        "label": "App Overall",
+        "score": 75.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 59.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 71.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 56.3
+      }
+    ]
   },
   "Kim, Tom": {
     "player_name": "Kim, Tom",
@@ -262,24 +344,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +1.120; DG_stddev: 2.751",
-    "convictionStatement": "Hot Form, Exact Fit",
-    "neutral_skill_summary": "Tom Kim brings a baseline of 0.794 SG with a modeled 3M Open projection of 1.120. This is a positive TPC Twin Cities build: the course-fit delta is +0.184, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: timing signal (+0.110), approach-zone scoring (+0.088), driving accuracy (+0.036).",
-    "form_summary": "Recent form: John Deere Classic T46; Genesis Scottish Open 1; The Open Championship CUT. His last-20 true SG is 1.68, and he is heating up versus baseline (+1.24).",
-    "scoring_thesis": "Tom Kim's win path is built on timing signal (+0.110); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Tom Kim's win path is built on timing signal (+0.110); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: there is no giant red flag, but the profile does not have much margin for a flat putting week.",
-    "strengthTags": [
-      "timing signal (+0.110)",
-      "approach-zone scoring (+0.088)",
-      "driving accuracy (+0.036)"
-    ],
-    "weaknessTags": [],
-    "venuefitdelta": 0.184,
-    "neutralskillsg": 0.794,
-    "projectedsg": 1.12,
-    "recentTrueSGL20": 1.68,
-    "vsBaselineL20": 1.24,
-    "rawRecentStarts": "pga-rbc canadian open-T15_major-u.s. open-3_pga-john deere classic-T46_pga-genesis scottish open-1_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 61.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.1
+      },
+      {
+        "label": "App Overall",
+        "score": 63.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 81.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.3
+      }
+    ]
   },
   "Conners, Corey": {
     "player_name": "Conners, Corey",
@@ -303,26 +397,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.884; DG_stddev: 2.749",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Corey Conners brings a baseline of 0.758 SG with a modeled 3M Open projection of 0.884. The venue fit sits near neutral at +0.055, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.119), driving accuracy (+0.056), secondary fit traits (+0.018). Main leaks: approach-zone scoring (-0.023).",
-    "form_summary": "Recent form: Travelers Championship T7; Genesis Scottish Open T52; The Open Championship T14. His last-20 true SG is 0.61, and he is holding neutral versus baseline (-0.04).",
-    "scoring_thesis": "Corey Conners's win path is built on timing signal (+0.119); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Corey Conners's win path is built on timing signal (+0.119); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Corey Conners's soft spots are approach-zone scoring (-0.023), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.119)",
-      "driving accuracy (+0.056)",
-      "secondary fit traits (+0.018)"
-    ],
-    "weaknessTags": [
-      "approach-zone scoring (-0.023)"
-    ],
-    "venuefitdelta": 0.055,
-    "neutralskillsg": 0.758,
-    "projectedsg": 0.884,
-    "recentTrueSGL20": 0.61,
-    "vsBaselineL20": -0.04,
-    "rawRecentStarts": "pga-rbc canadian open-CUT_major-u.s. open-T23_pga-travelers championship-T7_pga-genesis scottish open-T52_major-the open championship-T14"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 74.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 67.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.9
+      },
+      {
+        "label": "App Overall",
+        "score": 77.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 43.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 57.4
+      }
+    ]
   },
   "Harman, Brian": {
     "player_name": "Harman, Brian",
@@ -345,24 +449,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.614; DG_stddev: 2.720",
-    "convictionStatement": "Fairway-First Birdie Profile",
-    "neutral_skill_summary": "Brian Harman brings a baseline of 0.532 SG with a modeled 3M Open projection of 0.614. This is a positive TPC Twin Cities build: the course-fit delta is +0.161, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: distance leverage (+0.074), driving accuracy (+0.051), course-history calibration (+0.031).",
-    "form_summary": "Recent form: Travelers Championship T25; Genesis Scottish Open T36; The Open Championship CUT. His last-20 true SG is 0.60, and he is holding neutral versus baseline (+0.03).",
-    "scoring_thesis": "Brian Harman's win path is built on distance leverage (+0.074); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Brian Harman's win path is built on distance leverage (+0.074); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: there is no giant red flag, but the profile does not have much margin for a flat putting week.",
-    "strengthTags": [
-      "distance leverage (+0.074)",
-      "driving accuracy (+0.051)",
-      "course-history calibration (+0.031)"
-    ],
-    "weaknessTags": [],
-    "venuefitdelta": 0.161,
-    "neutralskillsg": 0.532,
-    "projectedsg": 0.614,
-    "recentTrueSGL20": 0.6,
-    "vsBaselineL20": 0.03,
-    "rawRecentStarts": "pga-the memorial tournament presented by workday-CUT_major-u.s. open-T32_pga-travelers championship-T25_pga-genesis scottish open-T36_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 65.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.9
+      },
+      {
+        "label": "App Overall",
+        "score": 67.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.2
+      }
+    ]
   },
   "Meissner, Mac": {
     "player_name": "Meissner, Mac",
@@ -385,25 +501,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.778; DG_stddev: 2.681",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Mac Meissner brings a baseline of 0.784 SG with a modeled 3M Open projection of 0.778. This is a structural fight: the course-fit delta is -0.080, so the venue is asking for more precision than his usual profile naturally supplies. Best signals: course-history calibration (+0.024). Main leaks: approach-zone scoring (-0.097), timing signal (-0.066).",
-    "form_summary": "Recent form: Travelers Championship T44; John Deere Classic T6; Genesis Scottish Open T30. His last-20 true SG is 0.82, and he is holding neutral versus baseline (-0.09).",
-    "scoring_thesis": "Mac Meissner's win path is built on course-history calibration (+0.024); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Mac Meissner's win path is built on course-history calibration (+0.024); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Mac Meissner's soft spots are approach-zone scoring (-0.097), timing signal (-0.066), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "course-history calibration (+0.024)"
-    ],
-    "weaknessTags": [
-      "approach-zone scoring (-0.097)",
-      "timing signal (-0.066)"
-    ],
-    "venuefitdelta": -0.08,
-    "neutralskillsg": 0.784,
-    "projectedsg": 0.778,
-    "recentTrueSGL20": 0.82,
-    "vsBaselineL20": -0.09,
-    "rawRecentStarts": "pga-the memorial tournament presented by workday-T46_pga-rbc canadian open-CUT_pga-travelers championship-T44_pga-john deere classic-T6_pga-genesis scottish open-T30"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 64.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.0
+      },
+      {
+        "label": "App Overall",
+        "score": 64.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 64.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 67.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 51.3
+      }
+    ]
   },
   "Smith, Jordan": {
     "player_name": "Smith, Jordan",
@@ -427,27 +554,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.800; DG_stddev: 2.771",
-    "convictionStatement": "Fairway-First Birdie Profile",
-    "neutral_skill_summary": "Jordan Smith brings a baseline of 0.553 SG with a modeled 3M Open projection of 0.800. This is a positive TPC Twin Cities build: the course-fit delta is +0.136, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: approach-zone scoring (+0.139), timing signal (+0.084), driving accuracy (+0.066). Main leaks: course-history calibration (-0.046), distance leverage (-0.037).",
-    "form_summary": "Recent form: Rbc Canadian Open CUT; Genesis Scottish Open T21; The Open Championship T18. His last-20 true SG is 0.43, and he is holding neutral versus baseline (-0.03).",
-    "scoring_thesis": "Jordan Smith's win path is built on approach-zone scoring (+0.139); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Jordan Smith's win path is built on approach-zone scoring (+0.139); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Jordan Smith's soft spots are course-history calibration (-0.046), distance leverage (-0.037), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "approach-zone scoring (+0.139)",
-      "timing signal (+0.084)",
-      "driving accuracy (+0.066)"
-    ],
-    "weaknessTags": [
-      "course-history calibration (-0.046)",
-      "distance leverage (-0.037)"
-    ],
-    "venuefitdelta": 0.136,
-    "neutralskillsg": 0.553,
-    "projectedsg": 0.8,
-    "recentTrueSGL20": 0.43,
-    "vsBaselineL20": -0.03,
-    "rawRecentStarts": "pga-the cj cup byron nelson-T59_pga-charles schwab challenge-T13_pga-rbc canadian open-CUT_pga-genesis scottish open-T21_major-the open championship-T18"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 70.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 72.1
+      },
+      {
+        "label": "App Overall",
+        "score": 66.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 61.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.0
+      }
+    ]
   },
   "Mitchell, Keith": {
     "player_name": "Mitchell, Keith",
@@ -470,27 +606,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.898; DG_stddev: 2.803",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Keith Mitchell brings a baseline of 0.849 SG with a modeled 3M Open projection of 0.898. The venue fit sits near neutral at +0.036, so this week leans more on execution than on receiving free structural help from the course. Best signals: course-history calibration (+0.098), approach-zone scoring (+0.043), timing signal (+0.018). Main leaks: distance leverage (-0.099), driving accuracy (-0.017).",
-    "form_summary": "Recent form: Travelers Championship T22; John Deere Classic T51; The Open Championship CUT. His last-20 true SG is 0.97, and he is heating up versus baseline (+0.22).",
-    "scoring_thesis": "Keith Mitchell's win path is built on course-history calibration (+0.098); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Keith Mitchell's win path is built on course-history calibration (+0.098); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Keith Mitchell's soft spots are distance leverage (-0.099), driving accuracy (-0.017), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "course-history calibration (+0.098)",
-      "approach-zone scoring (+0.043)",
-      "timing signal (+0.018)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.099)",
-      "driving accuracy (-0.017)"
-    ],
-    "venuefitdelta": 0.036,
-    "neutralskillsg": 0.849,
-    "projectedsg": 0.898,
-    "recentTrueSGL20": 0.97,
-    "vsBaselineL20": 0.22,
-    "rawRecentStarts": "pga-rbc canadian open-T29_major-u.s. open-T4_pga-travelers championship-T22_pga-john deere classic-T51_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 61.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 47.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 80.7
+      },
+      {
+        "label": "App Overall",
+        "score": 61.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 48.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 70.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.2
+      }
+    ]
   },
   "Knapp, Jake": {
     "player_name": "Knapp, Jake",
@@ -517,24 +662,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.555; DG_stddev: 2.855",
-    "convictionStatement": "Power Profile, Wrong Week",
-    "neutral_skill_summary": "Jake Knapp brings a baseline of 0.845 SG with a modeled 3M Open projection of 0.555. This is a structural fight: the course-fit delta is -0.224, so the venue is asking for more precision than his usual profile naturally supplies. Main leaks: timing signal (-0.149), distance leverage (-0.122), approach-zone scoring (-0.065).",
-    "form_summary": "Recent form: Travelers Championship T55; Genesis Scottish Open CUT; The Open Championship CUT. His last-20 true SG is 0.38, and he is cooling off versus baseline (-0.88).",
-    "scoring_thesis": "Jake Knapp's win path is built on baseline ball-striking; if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Jake Knapp's win path is built on baseline ball-striking; if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Jake Knapp's soft spots are timing signal (-0.149), distance leverage (-0.122), approach-zone scoring (-0.065), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [],
-    "weaknessTags": [
-      "timing signal (-0.149)",
-      "distance leverage (-0.122)",
-      "approach-zone scoring (-0.065)"
-    ],
-    "venuefitdelta": -0.224,
-    "neutralskillsg": 0.845,
-    "projectedsg": 0.555,
-    "recentTrueSGL20": 0.38,
-    "vsBaselineL20": -0.88,
-    "rawRecentStarts": "pga-rbc heritage-T74_major-u.s. open-CUT_pga-travelers championship-T55_pga-genesis scottish open-CUT_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 57.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 67.4
+      },
+      {
+        "label": "App Overall",
+        "score": 56.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 76.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 31.6
+      }
+    ]
   },
   "Stevens, Sam": {
     "player_name": "Stevens, Sam",
@@ -556,26 +713,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.673; DG_stddev: 2.750",
-    "convictionStatement": "Approach-Led Scoring Path",
-    "neutral_skill_summary": "Sam Stevens brings a baseline of 0.307 SG with a modeled 3M Open projection of 0.673. This is a positive TPC Twin Cities build: the course-fit delta is +0.276, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: approach-zone scoring (+0.239), course-history calibration (+0.076), timing signal (+0.043). Main leaks: distance leverage (-0.059).",
-    "form_summary": "Recent form: Travelers Championship T62; Genesis Scottish Open CUT; The Open Championship CUT. His last-20 true SG is -0.11, and he is cooling off versus baseline (-0.56).",
-    "scoring_thesis": "Sam Stevens's win path is built on approach-zone scoring (+0.239); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Sam Stevens's win path is built on approach-zone scoring (+0.239); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Sam Stevens's soft spots are distance leverage (-0.059), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "approach-zone scoring (+0.239)",
-      "course-history calibration (+0.076)",
-      "timing signal (+0.043)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.059)"
-    ],
-    "venuefitdelta": 0.276,
-    "neutralskillsg": 0.307,
-    "projectedsg": 0.673,
-    "recentTrueSGL20": -0.11,
-    "vsBaselineL20": -0.56,
-    "rawRecentStarts": "pga-the memorial tournament presented by workday-CUT_major-u.s. open-T7_pga-travelers championship-T62_pga-genesis scottish open-CUT_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 69.5
+      },
+      {
+        "label": "App Overall",
+        "score": 50.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 41.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.7
+      }
+    ]
   },
   "Hoey, Rico": {
     "player_name": "Hoey, Rico",
@@ -598,7 +765,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.241; DG_stddev: 2.803"
+    "benchmark_context": "DG_finalprediction: +0.241; DG_stddev: 2.803",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 71.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 57.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 67.1
+      },
+      {
+        "label": "App Overall",
+        "score": 63.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "McGreevy, Max": {
     "player_name": "McGreevy, Max",
@@ -624,24 +821,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.540; DG_stddev: 2.705",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Max McGreevy brings a baseline of 0.379 SG with a modeled 3M Open projection of 0.540. This is a positive TPC Twin Cities build: the course-fit delta is +0.120, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: driving accuracy (+0.064), distance leverage (+0.055), timing signal (+0.041).",
-    "form_summary": "Recent form: John Deere Classic T51; Genesis Scottish Open CUT; Corales Puntacana Championship T11. His last-20 true SG is 0.53, and he is holding neutral versus baseline (+0.06).",
-    "scoring_thesis": "Max McGreevy's win path is built on driving accuracy (+0.064); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Max McGreevy's win path is built on driving accuracy (+0.064); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: there is no giant red flag, but the profile does not have much margin for a flat putting week.",
-    "strengthTags": [
-      "driving accuracy (+0.064)",
-      "distance leverage (+0.055)",
-      "timing signal (+0.041)"
-    ],
-    "weaknessTags": [],
-    "venuefitdelta": 0.12,
-    "neutralskillsg": 0.379,
-    "projectedsg": 0.54,
-    "recentTrueSGL20": 0.53,
-    "vsBaselineL20": 0.06,
-    "rawRecentStarts": "pga-rbc canadian open-T51_major-u.s. open-T32_pga-john deere classic-T51_pga-genesis scottish open-CUT_pga-corales puntacana championship-T11"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 58.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 57.1
+      },
+      {
+        "label": "App Overall",
+        "score": 59.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 34.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 63.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.5
+      }
+    ]
   },
   "Yellamaraju, Sudarshan": {
     "player_name": "Yellamaraju, Sudarshan",
@@ -666,7 +875,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.271; DG_stddev: 2.798"
+    "benchmark_context": "DG_finalprediction: +0.271; DG_stddev: 2.798",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 68.5
+      },
+      {
+        "label": "App Overall",
+        "score": 59.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.7
+      }
+    ]
   },
   "James, Ben": {
     "player_name": "James, Ben",
@@ -690,26 +929,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.650; DG_stddev: 2.760",
-    "convictionStatement": "Hot Form, Exact Fit",
-    "neutral_skill_summary": "Ben James brings a baseline of 0.348 SG with a modeled 3M Open projection of 0.650. This is a positive TPC Twin Cities build: the course-fit delta is +0.121, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: timing signal (+0.136), approach-zone scoring (+0.125), driving accuracy (+0.038). Main leaks: course-history calibration (-0.044).",
-    "form_summary": "Recent form: Travelers Championship T62; Isco Championship T15; Corales Puntacana Championship T4. His last-20 true SG is 0.69, and he is heating up versus baseline (+0.21).",
-    "scoring_thesis": "Ben James's win path is built on timing signal (+0.136); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Ben James's win path is built on timing signal (+0.136); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Ben James's soft spots are course-history calibration (-0.044), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.136)",
-      "approach-zone scoring (+0.125)",
-      "driving accuracy (+0.038)"
-    ],
-    "weaknessTags": [
-      "course-history calibration (-0.044)"
-    ],
-    "venuefitdelta": 0.121,
-    "neutralskillsg": 0.348,
-    "projectedsg": 0.65,
-    "recentTrueSGL20": 0.69,
-    "vsBaselineL20": 0.21,
-    "rawRecentStarts": "pga-rbc canadian open-T54_major-u.s. open-T23_pga-travelers championship-T62_pga-isco championship-T15_pga-corales puntacana championship-T4"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 74.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 62.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.0
+      },
+      {
+        "label": "App Overall",
+        "score": 63.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 65.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.7
+      }
+    ]
   },
   "Ghim, Doug": {
     "player_name": "Ghim, Doug",
@@ -737,27 +986,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.881; DG_stddev: 2.724",
-    "convictionStatement": "Hot Form, Exact Fit",
-    "neutral_skill_summary": "Doug Ghim brings a baseline of 0.551 SG with a modeled 3M Open projection of 0.881. This is a positive TPC Twin Cities build: the course-fit delta is +0.379, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: approach-zone scoring (+0.211), course-history calibration (+0.123), driving accuracy (+0.055). Main leaks: timing signal (-0.046), distance leverage (-0.019).",
-    "form_summary": "Recent form: Rbc Canadian Open T15; John Deere Classic T6; Genesis Scottish Open CUT. His last-20 true SG is 1.07, and he is heating up versus baseline (+0.70).",
-    "scoring_thesis": "Doug Ghim's win path is built on approach-zone scoring (+0.211); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Doug Ghim's win path is built on approach-zone scoring (+0.211); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Doug Ghim's soft spots are timing signal (-0.046), distance leverage (-0.019), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "approach-zone scoring (+0.211)",
-      "course-history calibration (+0.123)",
-      "driving accuracy (+0.055)"
-    ],
-    "weaknessTags": [
-      "timing signal (-0.046)",
-      "distance leverage (-0.019)"
-    ],
-    "venuefitdelta": 0.379,
-    "neutralskillsg": 0.551,
-    "projectedsg": 0.881,
-    "recentTrueSGL20": 1.07,
-    "vsBaselineL20": 0.7,
-    "rawRecentStarts": "pga-the cj cup byron nelson-T31_pga-charles schwab challenge-T28_pga-rbc canadian open-T15_pga-john deere classic-T6_pga-genesis scottish open-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 66.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 73.1
+      },
+      {
+        "label": "App Overall",
+        "score": 50.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 45.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 71.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 46.0
+      }
+    ]
   },
   "Rodgers, Patrick": {
     "player_name": "Rodgers, Patrick",
@@ -782,7 +1040,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.295; DG_stddev: 2.802"
+    "benchmark_context": "DG_finalprediction: -0.295; DG_stddev: 2.802",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.7
+      },
+      {
+        "label": "App Overall",
+        "score": 47.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 65.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.6
+      }
+    ]
   },
   "McCarthy, Denny": {
     "player_name": "McCarthy, Denny",
@@ -807,7 +1095,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.381; DG_stddev: 2.651"
+    "benchmark_context": "DG_finalprediction: +0.381; DG_stddev: 2.651",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 37.9
+      },
+      {
+        "label": "App Overall",
+        "score": 53.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 72.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 58.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.8
+      }
+    ]
   },
   "Im, Sungjae": {
     "player_name": "Im, Sungjae",
@@ -834,24 +1152,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.733; DG_stddev: 2.786",
-    "convictionStatement": "Approach-Led Scoring Path",
-    "neutral_skill_summary": "Sungjae Im brings a baseline of 0.304 SG with a modeled 3M Open projection of 0.733. This is a positive TPC Twin Cities build: the course-fit delta is +0.277, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: approach-zone scoring (+0.208), timing signal (+0.110), driving accuracy (+0.033).",
-    "form_summary": "Recent form: John Deere Classic T71; Genesis Scottish Open CUT; The Open Championship T14. His last-20 true SG is 0.30, and he is holding neutral versus baseline (+0.06).",
-    "scoring_thesis": "Sungjae Im's win path is built on approach-zone scoring (+0.208); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Sungjae Im's win path is built on approach-zone scoring (+0.208); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: there is no giant red flag, but the profile does not have much margin for a flat putting week.",
-    "strengthTags": [
-      "approach-zone scoring (+0.208)",
-      "timing signal (+0.110)",
-      "driving accuracy (+0.033)"
-    ],
-    "weaknessTags": [],
-    "venuefitdelta": 0.277,
-    "neutralskillsg": 0.304,
-    "projectedsg": 0.733,
-    "recentTrueSGL20": 0.3,
-    "vsBaselineL20": 0.06,
-    "rawRecentStarts": "major-u.s. open-T43_pga-travelers championship-T30_pga-john deere classic-T71_pga-genesis scottish open-CUT_major-the open championship-T14"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 31.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 60.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 65.3
+      },
+      {
+        "label": "App Overall",
+        "score": 34.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 61.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.0
+      }
+    ]
   },
   "Putnam, Andrew": {
     "player_name": "Putnam, Andrew",
@@ -874,27 +1204,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.413; DG_stddev: 2.633",
-    "convictionStatement": "Fairway-First Birdie Profile",
-    "neutral_skill_summary": "Andrew Putnam brings a baseline of 0.360 SG with a modeled 3M Open projection of 0.413. This is a positive TPC Twin Cities build: the course-fit delta is +0.209, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: distance leverage (+0.214), driving accuracy (+0.101), course-history calibration (+0.027). Main leaks: approach-zone scoring (-0.135), timing signal (-0.062).",
-    "form_summary": "Recent form: U.s. Open T65; John Deere Classic T51; Genesis Scottish Open T52. His last-20 true SG is -0.06, and he is cooling off versus baseline (-0.27).",
-    "scoring_thesis": "Andrew Putnam's win path is built on distance leverage (+0.214); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Andrew Putnam's win path is built on distance leverage (+0.214); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Andrew Putnam's soft spots are approach-zone scoring (-0.135), timing signal (-0.062), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "distance leverage (+0.214)",
-      "driving accuracy (+0.101)",
-      "course-history calibration (+0.027)"
-    ],
-    "weaknessTags": [
-      "approach-zone scoring (-0.135)",
-      "timing signal (-0.062)"
-    ],
-    "venuefitdelta": 0.209,
-    "neutralskillsg": 0.36,
-    "projectedsg": 0.413,
-    "recentTrueSGL20": -0.06,
-    "vsBaselineL20": -0.27,
-    "rawRecentStarts": "pga-charles schwab challenge-T17_pga-rbc canadian open-CUT_major-u.s. open-T65_pga-john deere classic-T51_pga-genesis scottish open-T52"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 57.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 78.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 30.2
+      },
+      {
+        "label": "App Overall",
+        "score": 57.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 62.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 83.3
+      }
+    ]
   },
   "Kuchar, Matt": {
     "player_name": "Kuchar, Matt",
@@ -922,7 +1261,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.084; DG_stddev: 2.620"
+    "benchmark_context": "DG_finalprediction: +0.084; DG_stddev: 2.620",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 38.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 27.9
+      },
+      {
+        "label": "App Overall",
+        "score": 44.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 77.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 63.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 73.8
+      }
+    ]
   },
   "Mouw, William": {
     "player_name": "Mouw, William",
@@ -944,7 +1313,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.242; DG_stddev: 2.795"
+    "benchmark_context": "DG_finalprediction: +0.242; DG_stddev: 2.795",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.8
+      },
+      {
+        "label": "App Overall",
+        "score": 61.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 43.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 45.0
+      }
+    ]
   },
   "Brennan, Michael": {
     "player_name": "Brennan, Michael",
@@ -969,26 +1368,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.426; DG_stddev: 2.865",
-    "convictionStatement": "Approach-Led Scoring Path",
-    "neutral_skill_summary": "Michael Brennan brings a baseline of 0.370 SG with a modeled 3M Open projection of 0.426. The venue fit sits near neutral at -0.066, so this week leans more on execution than on receiving free structural help from the course. Best signals: approach-zone scoring (+0.154), timing signal (+0.023). Main leaks: distance leverage (-0.168), course-history calibration (-0.046).",
-    "form_summary": "Recent form: John Deere Classic T33; Genesis Scottish Open T52; The Open Championship T53. His last-20 true SG is 0.46, and he is holding neutral versus baseline (-0.02).",
-    "scoring_thesis": "Michael Brennan's win path is built on approach-zone scoring (+0.154); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Michael Brennan's win path is built on approach-zone scoring (+0.154); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Michael Brennan's soft spots are distance leverage (-0.168), course-history calibration (-0.046), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "approach-zone scoring (+0.154)",
-      "timing signal (+0.023)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.168)",
-      "course-history calibration (-0.046)"
-    ],
-    "venuefitdelta": -0.066,
-    "neutralskillsg": 0.37,
-    "projectedsg": 0.426,
-    "recentTrueSGL20": 0.46,
-    "vsBaselineL20": -0.02,
-    "rawRecentStarts": "pga-rbc canadian open-CUT_major-u.s. open-T43_pga-john deere classic-T33_pga-genesis scottish open-T52_major-the open championship-T53"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 87.1
+      },
+      {
+        "label": "App Overall",
+        "score": 62.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 35.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 61.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 25.9
+      }
+    ]
   },
   "Hodges, Lee": {
     "player_name": "Hodges, Lee",
@@ -1010,7 +1419,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.222; DG_stddev: 2.733"
+    "benchmark_context": "DG_finalprediction: +0.222; DG_stddev: 2.733",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 70.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 61.0
+      },
+      {
+        "label": "App Overall",
+        "score": 61.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.6
+      }
+    ]
   },
   "Bezuidenhout, Christiaan": {
     "player_name": "Bezuidenhout, Christiaan",
@@ -1032,26 +1471,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.672; DG_stddev: 2.647",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Christiaan Bezuidenhout brings a baseline of 0.479 SG with a modeled 3M Open projection of 0.672. This is a positive TPC Twin Cities build: the course-fit delta is +0.124, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: distance leverage (+0.105), timing signal (+0.047), driving accuracy (+0.042). Main leaks: approach-zone scoring (-0.028).",
-    "form_summary": "Recent form: John Deere Classic T12; Isco Championship T21; Corales Puntacana Championship T69. His last-20 true SG is 0.29, and he is cooling off versus baseline (-0.34).",
-    "scoring_thesis": "Christiaan Bezuidenhout's win path is built on distance leverage (+0.105); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Christiaan Bezuidenhout's win path is built on distance leverage (+0.105); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Christiaan Bezuidenhout's soft spots are approach-zone scoring (-0.028), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "distance leverage (+0.105)",
-      "timing signal (+0.047)",
-      "driving accuracy (+0.042)"
-    ],
-    "weaknessTags": [
-      "approach-zone scoring (-0.028)"
-    ],
-    "venuefitdelta": 0.124,
-    "neutralskillsg": 0.479,
-    "projectedsg": 0.672,
-    "recentTrueSGL20": 0.29,
-    "vsBaselineL20": -0.34,
-    "rawRecentStarts": "pga-charles schwab challenge-T32_pga-rbc canadian open-T54_pga-john deere classic-T12_pga-isco championship-T21_pga-corales puntacana championship-T69"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 63.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 35.8
+      },
+      {
+        "label": "App Overall",
+        "score": 60.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 67.4
+      }
+    ]
   },
   "Neergaard-Petersen, Rasmus": {
     "player_name": "Neergaard-Petersen, Rasmus",
@@ -1072,27 +1521,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.536; DG_stddev: 2.782",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Rasmus Neergaard-Petersen brings a baseline of 0.407 SG with a modeled 3M Open projection of 0.536. The venue fit sits near neutral at +0.016, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.066), approach-zone scoring (+0.058), driving accuracy (+0.042). Main leaks: course-history calibration (-0.046), distance leverage (-0.043).",
-    "form_summary": "Recent form: Bmw International Open 56; Genesis Scottish Open T36; The Open Championship T9. His last-20 true SG is 0.67, and he is heating up versus baseline (+0.28).",
-    "scoring_thesis": "Rasmus Neergaard-Petersen's win path is built on timing signal (+0.066); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Rasmus Neergaard-Petersen's win path is built on timing signal (+0.066); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Rasmus Neergaard-Petersen's soft spots are course-history calibration (-0.046), distance leverage (-0.043), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.066)",
-      "approach-zone scoring (+0.058)",
-      "driving accuracy (+0.042)"
-    ],
-    "weaknessTags": [
-      "course-history calibration (-0.046)",
-      "distance leverage (-0.043)"
-    ],
-    "venuefitdelta": 0.016,
-    "neutralskillsg": 0.407,
-    "projectedsg": 0.536,
-    "recentTrueSGL20": 0.67,
-    "vsBaselineL20": 0.28,
-    "rawRecentStarts": "pga-charles schwab challenge-T42_pga-rbc canadian open-39_euro-bmw international open-56_pga-genesis scottish open-T36_major-the open championship-T9"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 63.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.7
+      },
+      {
+        "label": "App Overall",
+        "score": 52.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 65.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 42.6
+      }
+    ]
   },
   "Kirk, Chris": {
     "player_name": "Kirk, Chris",
@@ -1114,7 +1572,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.047; DG_stddev: 2.760"
+    "benchmark_context": "DG_finalprediction: -0.047; DG_stddev: 2.760",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 61.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.0
+      },
+      {
+        "label": "App Overall",
+        "score": 70.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 25.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.9
+      }
+    ]
   },
   "Lipsky, David": {
     "player_name": "Lipsky, David",
@@ -1139,7 +1627,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: -0.186; DG_stddev: 2.741"
+    "benchmark_context": "DG_finalprediction: -0.186; DG_stddev: 2.741",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 58.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 39.0
+      },
+      {
+        "label": "App Overall",
+        "score": 58.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.8
+      }
+    ]
   },
   "Snedeker, Brandt": {
     "player_name": "Snedeker, Brandt",
@@ -1165,7 +1683,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.096; DG_stddev: 2.652"
+    "benchmark_context": "DG_finalprediction: +0.096; DG_stddev: 2.652",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 75.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 26.1
+      },
+      {
+        "label": "App Overall",
+        "score": 49.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 79.7
+      }
+    ]
   },
   "Ewart, A.J.": {
     "player_name": "Ewart, A.J.",
@@ -1192,7 +1740,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_putting_dependency"
     ],
-    "benchmark_context": "DG_finalprediction: -0.087; DG_stddev: 2.769"
+    "benchmark_context": "DG_finalprediction: -0.087; DG_stddev: 2.769",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.0
+      },
+      {
+        "label": "App Overall",
+        "score": 55.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 70.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.0
+      }
+    ]
   },
   "Hughes, Mackenzie": {
     "player_name": "Hughes, Mackenzie",
@@ -1221,7 +1799,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.277; DG_stddev: 2.762"
+    "benchmark_context": "DG_finalprediction: +0.277; DG_stddev: 2.762",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 43.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.6
+      },
+      {
+        "label": "App Overall",
+        "score": 39.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 68.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.9
+      }
+    ]
   },
   "Castillo, Ricky": {
     "player_name": "Castillo, Ricky",
@@ -1244,7 +1852,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.315; DG_stddev: 2.745"
+    "benchmark_context": "DG_finalprediction: +0.315; DG_stddev: 2.745",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 37.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.9
+      },
+      {
+        "label": "App Overall",
+        "score": 31.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 55.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.6
+      }
+    ]
   },
   "Bauchou, Zach": {
     "player_name": "Bauchou, Zach",
@@ -1266,7 +1904,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.350; DG_stddev: 2.732"
+    "benchmark_context": "DG_finalprediction: +0.350; DG_stddev: 2.732",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 47.2
+      },
+      {
+        "label": "App Overall",
+        "score": 65.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 56.0
+      }
+    ]
   },
   "Ramey, Chad": {
     "player_name": "Ramey, Chad",
@@ -1292,7 +1960,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.176; DG_stddev: 2.746"
+    "benchmark_context": "DG_finalprediction: -0.176; DG_stddev: 2.746",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 39.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 50.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.7
+      },
+      {
+        "label": "App Overall",
+        "score": 42.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 68.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.6
+      }
+    ]
   },
   "Power, Seamus": {
     "player_name": "Power, Seamus",
@@ -1318,7 +2016,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.082; DG_stddev: 2.742"
+    "benchmark_context": "DG_finalprediction: +0.082; DG_stddev: 2.742",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 57.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.0
+      },
+      {
+        "label": "App Overall",
+        "score": 48.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.5
+      }
+    ]
   },
   "Fishburn, Patrick": {
     "player_name": "Fishburn, Patrick",
@@ -1343,7 +2071,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.236; DG_stddev: 2.817"
+    "benchmark_context": "DG_finalprediction: -0.236; DG_stddev: 2.817",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 61.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.9
+      },
+      {
+        "label": "App Overall",
+        "score": 57.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 43.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.5
+      }
+    ]
   },
   "Homa, Max": {
     "player_name": "Homa, Max",
@@ -1372,27 +2130,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.597; DG_stddev: 2.800",
-    "convictionStatement": "Trending Up at the Right Time",
-    "neutral_skill_summary": "Max Homa brings a baseline of 0.625 SG with a modeled 3M Open projection of 0.597. The venue fit sits near neutral at -0.078, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.112), course-history calibration (+0.046). Main leaks: approach-zone scoring (-0.078), distance leverage (-0.029), driving accuracy (-0.020).",
-    "form_summary": "Recent form: John Deere Classic 2; Isco Championship T39; The Open Championship T28. His last-20 true SG is 1.35, and he is heating up versus baseline (+0.76).",
-    "scoring_thesis": "Max Homa's win path is built on timing signal (+0.112); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Max Homa's win path is built on timing signal (+0.112); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Max Homa's soft spots are approach-zone scoring (-0.078), distance leverage (-0.029), driving accuracy (-0.020), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.112)",
-      "course-history calibration (+0.046)"
-    ],
-    "weaknessTags": [
-      "approach-zone scoring (-0.078)",
-      "distance leverage (-0.029)",
-      "driving accuracy (-0.020)"
-    ],
-    "venuefitdelta": -0.078,
-    "neutralskillsg": 0.625,
-    "projectedsg": 0.597,
-    "recentTrueSGL20": 1.35,
-    "vsBaselineL20": 0.76,
-    "rawRecentStarts": "pga-charles schwab challenge-T22_pga-rbc canadian open-T20_pga-john deere classic-2_pga-isco championship-T39_major-the open championship-T28"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 46.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.8
+      },
+      {
+        "label": "App Overall",
+        "score": 56.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 69.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 76.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 45.7
+      }
+    ]
   },
   "Blanchet, Chandler": {
     "player_name": "Blanchet, Chandler",
@@ -1417,7 +2184,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.480; DG_stddev: 2.835"
+    "benchmark_context": "DG_finalprediction: -0.480; DG_stddev: 2.835",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 72.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.2
+      },
+      {
+        "label": "App Overall",
+        "score": 57.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 31.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 33.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.8
+      }
+    ]
   },
   "Grillo, Emiliano": {
     "player_name": "Grillo, Emiliano",
@@ -1440,7 +2237,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.266; DG_stddev: 2.733"
+    "benchmark_context": "DG_finalprediction: +0.266; DG_stddev: 2.733",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 62.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 73.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.2
+      },
+      {
+        "label": "App Overall",
+        "score": 61.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 42.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 69.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.7
+      }
+    ]
   },
   "Fisk, Steven": {
     "player_name": "Fisk, Steven",
@@ -1464,7 +2291,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.201; DG_stddev: 2.767"
+    "benchmark_context": "DG_finalprediction: +0.201; DG_stddev: 2.767",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.7
+      },
+      {
+        "label": "App Overall",
+        "score": 52.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 64.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.2
+      }
+    ]
   },
   "Nakajima, Keita": {
     "player_name": "Nakajima, Keita",
@@ -1489,7 +2346,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.251; DG_stddev: 2.767"
+    "benchmark_context": "DG_finalprediction: +0.251; DG_stddev: 2.767",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.0
+      },
+      {
+        "label": "App Overall",
+        "score": 58.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 70.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.9
+      }
+    ]
   },
   "Schmid, Matti": {
     "player_name": "Schmid, Matti",
@@ -1513,7 +2400,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.007; DG_stddev: 2.846"
+    "benchmark_context": "DG_finalprediction: +0.007; DG_stddev: 2.846",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 52.6
+      },
+      {
+        "label": "App Overall",
+        "score": 51.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 59.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 56.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.1
+      }
+    ]
   },
   "Thompson, Davis": {
     "player_name": "Thompson, Davis",
@@ -1534,7 +2451,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.324; DG_stddev: 2.760"
+    "benchmark_context": "DG_finalprediction: +0.324; DG_stddev: 2.760",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 58.0
+      },
+      {
+        "label": "App Overall",
+        "score": 55.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 38.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.1
+      }
+    ]
   },
   "Kim, Michael": {
     "player_name": "Kim, Michael",
@@ -1560,26 +2507,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.489; DG_stddev: 2.757",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Michael Kim brings a baseline of 0.400 SG with a modeled 3M Open projection of 0.489. The venue fit sits near neutral at +0.073, so this week leans more on execution than on receiving free structural help from the course. Best signals: course-history calibration (+0.042), approach-zone scoring (+0.041), distance leverage (+0.021). Main leaks: driving accuracy (-0.039).",
-    "form_summary": "Recent form: John Deere Classic CUT; Genesis Scottish Open CUT; The Open Championship CUT. His last-20 true SG is 0.17, and he is cooling off versus baseline (-0.25).",
-    "scoring_thesis": "Michael Kim's win path is built on course-history calibration (+0.042); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Michael Kim's win path is built on course-history calibration (+0.042); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Michael Kim's soft spots are driving accuracy (-0.039), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "course-history calibration (+0.042)",
-      "approach-zone scoring (+0.041)",
-      "distance leverage (+0.021)"
-    ],
-    "weaknessTags": [
-      "driving accuracy (-0.039)"
-    ],
-    "venuefitdelta": 0.073,
-    "neutralskillsg": 0.4,
-    "projectedsg": 0.489,
-    "recentTrueSGL20": 0.17,
-    "vsBaselineL20": -0.25,
-    "rawRecentStarts": "major-u.s. open-T43_pga-travelers championship-T30_pga-john deere classic-CUT_pga-genesis scottish open-CUT_major-the open championship-CUT"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 41.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 39.6
+      },
+      {
+        "label": "App Overall",
+        "score": 51.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 57.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 52.2
+      }
+    ]
   },
   "Parry, John": {
     "player_name": "Parry, John",
@@ -1600,7 +2557,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.370; DG_stddev: 2.677"
+    "benchmark_context": "DG_finalprediction: +0.370; DG_stddev: 2.677",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 66.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 64.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 45.5
+      },
+      {
+        "label": "App Overall",
+        "score": 62.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 42.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.8
+      }
+    ]
   },
   "Horschel, Billy": {
     "player_name": "Horschel, Billy",
@@ -1622,7 +2609,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.153; DG_stddev: 2.764"
+    "benchmark_context": "DG_finalprediction: -0.153; DG_stddev: 2.764",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 63.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.3
+      },
+      {
+        "label": "App Overall",
+        "score": 65.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.0
+      }
+    ]
   },
   "Jarvis, Casey": {
     "player_name": "Jarvis, Casey",
@@ -1644,26 +2661,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.591; DG_stddev: 2.793",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Casey Jarvis brings a baseline of 0.537 SG with a modeled 3M Open projection of 0.591. This is a positive TPC Twin Cities build: the course-fit delta is +0.114, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: approach-zone scoring (+0.079), driving accuracy (+0.049), distance leverage (+0.022). Main leaks: course-history calibration (-0.046).",
-    "form_summary": "Recent form: Bmw International Open T38; Genesis Scottish Open T21; The Open Championship T6. His last-20 true SG is 0.32, and he is holding neutral versus baseline (+0.10).",
-    "scoring_thesis": "Casey Jarvis's win path is built on approach-zone scoring (+0.079); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Casey Jarvis's win path is built on approach-zone scoring (+0.079); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Casey Jarvis's soft spots are course-history calibration (-0.046), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "approach-zone scoring (+0.079)",
-      "driving accuracy (+0.049)",
-      "distance leverage (+0.022)"
-    ],
-    "weaknessTags": [
-      "course-history calibration (-0.046)"
-    ],
-    "venuefitdelta": 0.114,
-    "neutralskillsg": 0.537,
-    "projectedsg": 0.591,
-    "recentTrueSGL20": 0.32,
-    "vsBaselineL20": 0.1,
-    "rawRecentStarts": "euro-klm open-CUT_euro-ds automobiles 83° open d’italia-CUT_euro-bmw international open-T38_pga-genesis scottish open-T21_major-the open championship-T6"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 65.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 60.3
+      },
+      {
+        "label": "App Overall",
+        "score": 65.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 48.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 55.9
+      }
+    ]
   },
   "Smotherman, Austin": {
     "player_name": "Smotherman, Austin",
@@ -1686,7 +2713,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.011; DG_stddev: 2.806"
+    "benchmark_context": "DG_finalprediction: +0.011; DG_stddev: 2.806",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 70.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 70.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 64.9
+      },
+      {
+        "label": "App Overall",
+        "score": 74.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 31.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.2
+      }
+    ]
   },
   "Kohles, Ben": {
     "player_name": "Kohles, Ben",
@@ -1708,26 +2765,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.705; DG_stddev: 2.668",
-    "convictionStatement": "Hot Form, Exact Fit",
-    "neutral_skill_summary": "Ben Kohles brings a baseline of 0.462 SG with a modeled 3M Open projection of 0.705. This is a positive TPC Twin Cities build: the course-fit delta is +0.330, so his profile lines up with the birdie-heavy Twin Cities recipe more than field average. Best signals: driving accuracy (+0.127), distance leverage (+0.109), course-history calibration (+0.049). Main leaks: timing signal (-0.042).",
-    "form_summary": "Recent form: Memorial Health Championship Presented By Lrs T19; John Deere Classic T3; Isco Championship T15. His last-20 true SG is 1.28, and he is heating up versus baseline (+1.14).",
-    "scoring_thesis": "Ben Kohles's win path is built on driving accuracy (+0.127); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Ben Kohles's win path is built on driving accuracy (+0.127); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Ben Kohles's soft spots are timing signal (-0.042), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "driving accuracy (+0.127)",
-      "distance leverage (+0.109)",
-      "course-history calibration (+0.049)"
-    ],
-    "weaknessTags": [
-      "timing signal (-0.042)"
-    ],
-    "venuefitdelta": 0.33,
-    "neutralskillsg": 0.462,
-    "projectedsg": 0.705,
-    "recentTrueSGL20": 1.28,
-    "vsBaselineL20": 1.14,
-    "rawRecentStarts": "pga-rbc canadian open-T29_major-u.s. open-T23_kft-memorial health championship presented by lrs-T19_pga-john deere classic-T3_pga-isco championship-T15"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 64.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 85.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.9
+      },
+      {
+        "label": "App Overall",
+        "score": 72.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 75.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 70.9
+      }
+    ]
   },
   "Pendrith, Taylor": {
     "player_name": "Pendrith, Taylor",
@@ -1750,7 +2817,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.163; DG_stddev: 2.781"
+    "benchmark_context": "DG_finalprediction: +0.163; DG_stddev: 2.781",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 41.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 67.9
+      },
+      {
+        "label": "App Overall",
+        "score": 54.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 38.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.9
+      }
+    ]
   },
   "Dumont De Chassart, Adrien": {
     "player_name": "Dumont De Chassart, Adrien",
@@ -1777,7 +2874,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: -0.290; DG_stddev: 2.802"
+    "benchmark_context": "DG_finalprediction: -0.290; DG_stddev: 2.802",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 63.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 27.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 34.5
+      },
+      {
+        "label": "App Overall",
+        "score": 57.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 60.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 42.4
+      }
+    ]
   },
   "Olesen, Thorbjorn": {
     "player_name": "Olesen, Thorbjorn",
@@ -1801,7 +2928,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.061; DG_stddev: 2.772"
+    "benchmark_context": "DG_finalprediction: -0.061; DG_stddev: 2.772",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.9
+      },
+      {
+        "label": "App Overall",
+        "score": 55.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 45.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.0
+      }
+    ]
   },
   "Blair, Zac": {
     "player_name": "Blair, Zac",
@@ -1825,7 +2982,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.391; DG_stddev: 2.634"
+    "benchmark_context": "DG_finalprediction: +0.391; DG_stddev: 2.634",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 65.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 73.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 26.8
+      },
+      {
+        "label": "App Overall",
+        "score": 72.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 68.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 81.5
+      }
+    ]
   },
   "Hojgaard, Rasmus": {
     "player_name": "Hojgaard, Rasmus",
@@ -1850,7 +3037,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.162; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.162; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 61.1
+      },
+      {
+        "label": "App Overall",
+        "score": 53.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 62.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 27.2
+      }
+    ]
   },
   "Coody, Pierceson": {
     "player_name": "Coody, Pierceson",
@@ -1875,27 +3092,36 @@
       "VenueDNA_flag_accuracy_risk"
     ],
     "benchmark_context": "DG_finalprediction: +0.580; DG_stddev: 2.789",
-    "convictionStatement": "Balanced Profile, Thin Edge",
-    "neutral_skill_summary": "Pierceson Coody brings a baseline of 0.589 SG with a modeled 3M Open projection of 0.580. This is a structural fight: the course-fit delta is -0.145, so the venue is asking for more precision than his usual profile naturally supplies. Best signals: timing signal (+0.042), course-history calibration (+0.023). Main leaks: distance leverage (-0.116), approach-zone scoring (-0.037), driving accuracy (-0.021).",
-    "form_summary": "Recent form: John Deere Classic T39; Genesis Scottish Open CUT; The Open Championship T28. His last-20 true SG is 0.56, and he is holding neutral versus baseline (+0.07).",
-    "scoring_thesis": "Pierceson Coody's win path is built on timing signal (+0.042); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Pierceson Coody's win path is built on timing signal (+0.042); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Pierceson Coody's soft spots are distance leverage (-0.116), approach-zone scoring (-0.037), driving accuracy (-0.021), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.042)",
-      "course-history calibration (+0.023)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.116)",
-      "approach-zone scoring (-0.037)",
-      "driving accuracy (-0.021)"
-    ],
-    "venuefitdelta": -0.145,
-    "neutralskillsg": 0.589,
-    "projectedsg": 0.58,
-    "recentTrueSGL20": 0.56,
-    "vsBaselineL20": 0.07,
-    "rawRecentStarts": "pga-the memorial tournament presented by workday-CUT_major-u.s. open-T23_pga-john deere classic-T39_pga-genesis scottish open-CUT_major-the open championship-T28"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 46.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.0
+      },
+      {
+        "label": "App Overall",
+        "score": 59.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 63.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 33.1
+      }
+    ]
   },
   "Finau, Tony": {
     "player_name": "Finau, Tony",
@@ -1921,7 +3147,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: +0.387; DG_stddev: 2.830"
+    "benchmark_context": "DG_finalprediction: +0.387; DG_stddev: 2.830",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 47.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 37.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.7
+      },
+      {
+        "label": "App Overall",
+        "score": 43.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 52.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 60.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 33.5
+      }
+    ]
   },
   "Dahmen, Joel": {
     "player_name": "Dahmen, Joel",
@@ -1946,7 +3202,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.005; DG_stddev: 2.755"
+    "benchmark_context": "DG_finalprediction: -0.005; DG_stddev: 2.755",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 76.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.4
+      },
+      {
+        "label": "App Overall",
+        "score": 58.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 23.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 51.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.0
+      }
+    ]
   },
   "Ventura, Kristoffer": {
     "player_name": "Ventura, Kristoffer",
@@ -1969,7 +3255,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.056; DG_stddev: 2.812"
+    "benchmark_context": "DG_finalprediction: -0.056; DG_stddev: 2.812",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 50.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 69.1
+      },
+      {
+        "label": "App Overall",
+        "score": 37.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 63.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.9
+      }
+    ]
   },
   "Pavon, Matthieu": {
     "player_name": "Pavon, Matthieu",
@@ -1993,7 +3309,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.335; DG_stddev: 2.801"
+    "benchmark_context": "DG_finalprediction: -0.335; DG_stddev: 2.801",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 41.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 56.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 57.6
+      },
+      {
+        "label": "App Overall",
+        "score": 36.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.7
+      }
+    ]
   },
   "Jaeger, Stephan": {
     "player_name": "Jaeger, Stephan",
@@ -2018,7 +3364,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_short_game_only"
     ],
-    "benchmark_context": "DG_finalprediction: -0.031; DG_stddev: 2.831"
+    "benchmark_context": "DG_finalprediction: -0.031; DG_stddev: 2.831",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 27.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.1
+      },
+      {
+        "label": "App Overall",
+        "score": 44.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 58.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 39.2
+      }
+    ]
   },
   "Greyserman, Max": {
     "player_name": "Greyserman, Max",
@@ -2043,7 +3419,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.331; DG_stddev: 2.833"
+    "benchmark_context": "DG_finalprediction: +0.331; DG_stddev: 2.833",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 37.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.2
+      },
+      {
+        "label": "App Overall",
+        "score": 48.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 55.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 34.9
+      }
+    ]
   },
   "Griffin, Lanto": {
     "player_name": "Griffin, Lanto",
@@ -2066,7 +3472,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.355; DG_stddev: 2.743"
+    "benchmark_context": "DG_finalprediction: -0.355; DG_stddev: 2.743",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 49.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.3
+      },
+      {
+        "label": "App Overall",
+        "score": 41.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 42.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.5
+      }
+    ]
   },
   "Li, Haotong": {
     "player_name": "Li, Haotong",
@@ -2086,7 +3522,37 @@
       "T5"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.159; DG_stddev: 2.846"
+    "benchmark_context": "DG_finalprediction: -0.159; DG_stddev: 2.846",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 66.7
+      },
+      {
+        "label": "App Overall",
+        "score": 49.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 48.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 44.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.4
+      }
+    ]
   },
   "Hossler, Beau": {
     "player_name": "Hossler, Beau",
@@ -2112,7 +3578,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.372; DG_stddev: 2.762"
+    "benchmark_context": "DG_finalprediction: +0.372; DG_stddev: 2.762",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 36.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.3
+      },
+      {
+        "label": "App Overall",
+        "score": 36.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 70.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.6
+      }
+    ]
   },
   "Garnett, Brice": {
     "player_name": "Garnett, Brice",
@@ -2137,7 +3633,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.151; DG_stddev: 2.743"
+    "benchmark_context": "DG_finalprediction: -0.151; DG_stddev: 2.743",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 73.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.0
+      },
+      {
+        "label": "App Overall",
+        "score": 49.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 66.5
+      }
+    ]
   },
   "Higgo, Garrick": {
     "player_name": "Higgo, Garrick",
@@ -2160,7 +3686,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.247; DG_stddev: 2.835"
+    "benchmark_context": "DG_finalprediction: -0.247; DG_stddev: 2.835",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 53.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 41.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.0
+      },
+      {
+        "label": "App Overall",
+        "score": 50.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 47.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.1
+      }
+    ]
   },
   "Keefer, Johnny": {
     "player_name": "Keefer, Johnny",
@@ -2182,26 +3738,36 @@
     ],
     "anti_pattern_flags": [],
     "benchmark_context": "DG_finalprediction: +0.466; DG_stddev: 2.816",
-    "convictionStatement": "Trending Up at the Right Time",
-    "neutral_skill_summary": "Johnny Keefer brings a baseline of 0.442 SG with a modeled 3M Open projection of 0.466. This is a structural fight: the course-fit delta is -0.098, so the venue is asking for more precision than his usual profile naturally supplies. Best signals: timing signal (+0.056), approach-zone scoring (+0.042). Main leaks: distance leverage (-0.098), course-history calibration (-0.046).",
-    "form_summary": "Recent form: John Deere Classic CUT; Genesis Scottish Open T3; The Open Championship T59. His last-20 true SG is 1.01, and he is heating up versus baseline (+0.80).",
-    "scoring_thesis": "Johnny Keefer's win path is built on timing signal (+0.056); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Johnny Keefer's win path is built on timing signal (+0.056); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Johnny Keefer's soft spots are distance leverage (-0.098), course-history calibration (-0.046), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.056)",
-      "approach-zone scoring (+0.042)"
-    ],
-    "weaknessTags": [
-      "distance leverage (-0.098)",
-      "course-history calibration (-0.046)"
-    ],
-    "venuefitdelta": -0.098,
-    "neutralskillsg": 0.442,
-    "projectedsg": 0.466,
-    "recentTrueSGL20": 1.01,
-    "vsBaselineL20": 0.8,
-    "rawRecentStarts": "pga-rbc canadian open-T51_major-u.s. open-T39_pga-john deere classic-CUT_pga-genesis scottish open-T3_major-the open championship-T59"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.3
+      },
+      {
+        "label": "App Overall",
+        "score": 62.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 33.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 70.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.7
+      }
+    ]
   },
   "Stout, Preston": {
     "player_name": "Stout, Preston",
@@ -2222,7 +3788,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.093; DG_stddev: 2.821"
+    "benchmark_context": "DG_finalprediction: -0.093; DG_stddev: 2.821",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 62.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.3
+      },
+      {
+        "label": "App Overall",
+        "score": 59.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 32.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.3
+      }
+    ]
   },
   "Kanaya, Takumi": {
     "player_name": "Kanaya, Takumi",
@@ -2247,7 +3843,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.094; DG_stddev: 2.721"
+    "benchmark_context": "DG_finalprediction: +0.094; DG_stddev: 2.721",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 27.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 70.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.6
+      },
+      {
+        "label": "App Overall",
+        "score": 32.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 67.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 59.2
+      }
+    ]
   },
   "Eckroat, Austin": {
     "player_name": "Eckroat, Austin",
@@ -2268,7 +3894,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.092; DG_stddev: 2.764"
+    "benchmark_context": "DG_finalprediction: -0.092; DG_stddev: 2.764",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 69.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.8
+      },
+      {
+        "label": "App Overall",
+        "score": 64.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 54.1
+      }
+    ]
   },
   "Potgieter, Aldrich": {
     "player_name": "Potgieter, Aldrich",
@@ -2292,7 +3948,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.001; DG_stddev: 2.900"
+    "benchmark_context": "DG_finalprediction: -0.001; DG_stddev: 2.900",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 59.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 77.9
+      },
+      {
+        "label": "App Overall",
+        "score": 56.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 46.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 64.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 15.7
+      }
+    ]
   },
   "Lebioda, Hank": {
     "player_name": "Lebioda, Hank",
@@ -2318,7 +4004,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.543; DG_stddev: 2.808"
+    "benchmark_context": "DG_finalprediction: -0.543; DG_stddev: 2.808",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 63.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 43.1
+      },
+      {
+        "label": "App Overall",
+        "score": 62.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 31.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 28.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.2
+      }
+    ]
   },
   "Moore, Taylor": {
     "player_name": "Moore, Taylor",
@@ -2343,7 +4059,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.074; DG_stddev: 2.811"
+    "benchmark_context": "DG_finalprediction: +0.074; DG_stddev: 2.811",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 68.8
+      },
+      {
+        "label": "App Overall",
+        "score": 42.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 56.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.5
+      }
+    ]
   },
   "Suber, Jackson": {
     "player_name": "Suber, Jackson",
@@ -2368,25 +4114,36 @@
       "VenueDNA_flag_long_iron_deficit"
     ],
     "benchmark_context": "DG_finalprediction: +0.578; DG_stddev: 2.824",
-    "convictionStatement": "Trending Up at the Right Time",
-    "neutral_skill_summary": "Jackson Suber brings a baseline of 0.451 SG with a modeled 3M Open projection of 0.578. The venue fit sits near neutral at -0.066, so this week leans more on execution than on receiving free structural help from the course. Best signals: timing signal (+0.129). Main leaks: course-history calibration (-0.034), distance leverage (-0.030).",
-    "form_summary": "Recent form: Travelers Championship T30; John Deere Classic T6; The Open Championship T28. His last-20 true SG is 1.34, and he is heating up versus baseline (+1.24).",
-    "scoring_thesis": "Jackson Suber's win path is built on timing signal (+0.129); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "dark_horse_thesis": "Jackson Suber's win path is built on timing signal (+0.129); if that travels for four rounds and the putter stays neutral, he has a real contention mechanism instead of just a hot-week hope.",
-    "card_risk_vector": "Main risk: Jackson Suber's soft spots are course-history calibration (-0.034), distance leverage (-0.030), and that is where Twin Cities can expose him if the birdie pace gets aggressive.",
-    "strengthTags": [
-      "timing signal (+0.129)"
-    ],
-    "weaknessTags": [
-      "course-history calibration (-0.034)",
-      "distance leverage (-0.030)"
-    ],
-    "venuefitdelta": -0.066,
-    "neutralskillsg": 0.451,
-    "projectedsg": 0.578,
-    "recentTrueSGL20": 1.34,
-    "vsBaselineL20": 1.24,
-    "rawRecentStarts": "pga-rbc canadian open-T4_major-u.s. open-CUT_pga-travelers championship-T30_pga-john deere classic-T6_major-the open championship-T28"
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.7
+      },
+      {
+        "label": "App Overall",
+        "score": 55.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 76.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 45.3
+      }
+    ]
   },
   "Svensson, Adam": {
     "player_name": "Svensson, Adam",
@@ -2409,7 +4166,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.360; DG_stddev: 2.758"
+    "benchmark_context": "DG_finalprediction: -0.360; DG_stddev: 2.758",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 62.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 58.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 35.6
+      },
+      {
+        "label": "App Overall",
+        "score": 59.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 29.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 64.5
+      }
+    ]
   },
   "Higgs, Harry": {
     "player_name": "Higgs, Harry",
@@ -2435,7 +4222,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.837"
+    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.837",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 45.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.2
+      },
+      {
+        "label": "App Overall",
+        "score": 45.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 36.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 49.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.3
+      }
+    ]
   },
   "Cowan, Ryder": {
     "player_name": "Cowan, Ryder",
@@ -2456,7 +4273,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.654; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.654; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 47.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.3
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Glover, Lucas": {
     "player_name": "Glover, Lucas",
@@ -2477,7 +4324,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.180; DG_stddev: 2.711"
+    "benchmark_context": "DG_finalprediction: +0.180; DG_stddev: 2.711",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 79.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.4
+      },
+      {
+        "label": "App Overall",
+        "score": 55.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 24.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 65.7
+      }
+    ]
   },
   "Lower, Justin": {
     "player_name": "Lower, Justin",
@@ -2501,7 +4378,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.668; DG_stddev: 2.820"
+    "benchmark_context": "DG_finalprediction: -0.668; DG_stddev: 2.820",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 37.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 62.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.7
+      },
+      {
+        "label": "App Overall",
+        "score": 36.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 44.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.5
+      }
+    ]
   },
   "Chatfield, Davis": {
     "player_name": "Chatfield, Davis",
@@ -2526,7 +4433,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.141; DG_stddev: 2.672"
+    "benchmark_context": "DG_finalprediction: -0.141; DG_stddev: 2.672",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 79.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 37.1
+      },
+      {
+        "label": "App Overall",
+        "score": 56.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 45.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 80.9
+      }
+    ]
   },
   "Hubbard, Mark": {
     "player_name": "Hubbard, Mark",
@@ -2547,7 +4484,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.428; DG_stddev: 2.795"
+    "benchmark_context": "DG_finalprediction: -0.428; DG_stddev: 2.795",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 52.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.6
+      },
+      {
+        "label": "App Overall",
+        "score": 60.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 23.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 43.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.8
+      }
+    ]
   },
   "Silverman, Ben": {
     "player_name": "Silverman, Ben",
@@ -2571,7 +4538,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_putting_dependency"
     ],
-    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.747"
+    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.747",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 59.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 38.7
+      },
+      {
+        "label": "App Overall",
+        "score": 42.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 70.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.0
+      }
+    ]
   },
   "VanDerLaan, John": {
     "player_name": "VanDerLaan, John",
@@ -2595,7 +4592,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.726; DG_stddev: 2.892"
+    "benchmark_context": "DG_finalprediction: -0.726; DG_stddev: 2.892",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 34.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 47.5
+      },
+      {
+        "label": "App Overall",
+        "score": 34.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 41.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.4
+      }
+    ]
   },
   "Whaley, Vince": {
     "player_name": "Whaley, Vince",
@@ -2622,7 +4649,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.621; DG_stddev: 2.754"
+    "benchmark_context": "DG_finalprediction: -0.621; DG_stddev: 2.754",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 25.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 27.8
+      },
+      {
+        "label": "App Overall",
+        "score": 30.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 83.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.7
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.4
+      }
+    ]
   },
   "Yu, Kevin": {
     "player_name": "Yu, Kevin",
@@ -2643,7 +4700,37 @@
       "approach_solid"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: +0.190; DG_stddev: 2.768"
+    "benchmark_context": "DG_finalprediction: +0.190; DG_stddev: 2.768",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 60.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 49.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.8
+      },
+      {
+        "label": "App Overall",
+        "score": 59.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 36.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 59.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.6
+      }
+    ]
   },
   "Dou, Zecheng": {
     "player_name": "Dou, Zecheng",
@@ -2668,7 +4755,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: +0.024; DG_stddev: 2.797"
+    "benchmark_context": "DG_finalprediction: +0.024; DG_stddev: 2.797",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 70.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.4
+      },
+      {
+        "label": "App Overall",
+        "score": 70.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 54.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.8
+      }
+    ]
   },
   "Shipley, Neal": {
     "player_name": "Shipley, Neal",
@@ -2692,7 +4809,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.867"
+    "benchmark_context": "DG_finalprediction: -0.482; DG_stddev: 2.867",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 60.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 79.3
+      },
+      {
+        "label": "App Overall",
+        "score": 54.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 24.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 48.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Skinns, David": {
     "player_name": "Skinns, David",
@@ -2715,7 +4862,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.392; DG_stddev: 2.812"
+    "benchmark_context": "DG_finalprediction: -0.392; DG_stddev: 2.812",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 56.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.6
+      },
+      {
+        "label": "App Overall",
+        "score": 53.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 51.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.1
+      }
+    ]
   },
   "Svensson, Jesper": {
     "player_name": "Svensson, Jesper",
@@ -2740,7 +4917,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.046; DG_stddev: 2.910"
+    "benchmark_context": "DG_finalprediction: -0.046; DG_stddev: 2.910",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 72.6
+      },
+      {
+        "label": "App Overall",
+        "score": 41.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 49.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 55.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 25.3
+      }
+    ]
   },
   "Crowe, Trace": {
     "player_name": "Crowe, Trace",
@@ -2765,7 +4972,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.434; DG_stddev: 2.816"
+    "benchmark_context": "DG_finalprediction: -0.434; DG_stddev: 2.816",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 45.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 36.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.4
+      },
+      {
+        "label": "App Overall",
+        "score": 48.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.5
+      }
+    ]
   },
   "Walker, Danny": {
     "player_name": "Walker, Danny",
@@ -2791,7 +5028,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.258; DG_stddev: 2.982"
+    "benchmark_context": "DG_finalprediction: -1.258; DG_stddev: 2.982",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 32.4
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 27.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 37.2
+      },
+      {
+        "label": "App Overall",
+        "score": 29.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 24.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 18.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.8
+      }
+    ]
   },
   "Roy, Kevin": {
     "player_name": "Roy, Kevin",
@@ -2816,7 +5083,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: +0.057; DG_stddev: 2.804"
+    "benchmark_context": "DG_finalprediction: +0.057; DG_stddev: 2.804",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 41.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 53.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.1
+      },
+      {
+        "label": "App Overall",
+        "score": 42.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 55.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 43.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.3
+      }
+    ]
   },
   "Streelman, Kevin": {
     "player_name": "Streelman, Kevin",
@@ -2837,7 +5134,37 @@
       "venue_fit_upside"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.695; DG_stddev: 2.804"
+    "benchmark_context": "DG_finalprediction: -0.695; DG_stddev: 2.804",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 58.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.1
+      },
+      {
+        "label": "App Overall",
+        "score": 52.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 51.9
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 44.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.4
+      }
+    ]
   },
   "Wu, Dylan": {
     "player_name": "Wu, Dylan",
@@ -2861,7 +5188,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.526; DG_stddev: 2.728"
+    "benchmark_context": "DG_finalprediction: -0.526; DG_stddev: 2.728",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 48.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 32.8
+      },
+      {
+        "label": "App Overall",
+        "score": 55.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 38.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 40.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 57.0
+      }
+    ]
   },
   "Vilips, Karl": {
     "player_name": "Vilips, Karl",
@@ -2889,7 +5246,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.357; DG_stddev: 2.807"
+    "benchmark_context": "DG_finalprediction: -0.357; DG_stddev: 2.807",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 55.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 33.4
+      },
+      {
+        "label": "App Overall",
+        "score": 61.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 71.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 53.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.5
+      }
+    ]
   },
   "Stanger, Jimmy": {
     "player_name": "Stanger, Jimmy",
@@ -2915,7 +5302,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.922; DG_stddev: 2.877"
+    "benchmark_context": "DG_finalprediction: -0.922; DG_stddev: 2.877",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 0.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 71.0
+      },
+      {
+        "label": "App Overall",
+        "score": 0.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 49.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 25.2
+      }
+    ]
   },
   "Dunlap, Nick": {
     "player_name": "Dunlap, Nick",
@@ -2941,7 +5358,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.481; DG_stddev: 2.799"
+    "benchmark_context": "DG_finalprediction: -0.481; DG_stddev: 2.799",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 55.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 28.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 18.2
+      },
+      {
+        "label": "App Overall",
+        "score": 52.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 56.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 46.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.2
+      }
+    ]
   },
   "Hirata, Kensei": {
     "player_name": "Hirata, Kensei",
@@ -2965,7 +5412,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.574; DG_stddev: 2.829"
+    "benchmark_context": "DG_finalprediction: -0.574; DG_stddev: 2.829",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 72.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.5
+      },
+      {
+        "label": "App Overall",
+        "score": 36.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 39.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 33.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.3
+      }
+    ]
   },
   "Champ, Cameron": {
     "player_name": "Champ, Cameron",
@@ -2990,7 +5467,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -1.018; DG_stddev: 2.954"
+    "benchmark_context": "DG_finalprediction: -1.018; DG_stddev: 2.954",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 43.7
+      },
+      {
+        "label": "App Overall",
+        "score": 38.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 20.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 22.6
+      }
+    ]
   },
   "Nyholm, Pontus": {
     "player_name": "Nyholm, Pontus",
@@ -3015,7 +5522,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.752; DG_stddev: 2.879"
+    "benchmark_context": "DG_finalprediction: -0.752; DG_stddev: 2.879",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 36.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 24.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.4
+      },
+      {
+        "label": "App Overall",
+        "score": 36.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 53.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 38.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 28.2
+      }
+    ]
   },
   "Peterson, Paul": {
     "player_name": "Peterson, Paul",
@@ -3039,7 +5576,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.165; DG_stddev: 2.638"
+    "benchmark_context": "DG_finalprediction: -0.165; DG_stddev: 2.638",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 81.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 23.0
+      },
+      {
+        "label": "App Overall",
+        "score": 58.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 42.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 86.6
+      }
+    ]
   },
   "Springer, Hayden": {
     "player_name": "Springer, Hayden",
@@ -3064,7 +5631,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.848"
+    "benchmark_context": "DG_finalprediction: -0.677; DG_stddev: 2.848",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 34.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 34.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.9
+      },
+      {
+        "label": "App Overall",
+        "score": 34.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 61.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 41.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 36.7
+      }
+    ]
   },
   "Hoge, Tom": {
     "player_name": "Hoge, Tom",
@@ -3089,7 +5686,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.049; DG_stddev: 2.792"
+    "benchmark_context": "DG_finalprediction: -0.049; DG_stddev: 2.792",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 50.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 34.6
+      },
+      {
+        "label": "App Overall",
+        "score": 58.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 45.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 61.3
+      }
+    ]
   },
   "Gomez, Fabian": {
     "player_name": "Gomez, Fabian",
@@ -3109,7 +5736,37 @@
       "T5"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.461; DG_stddev: 2.718"
+    "benchmark_context": "DG_finalprediction: -0.461; DG_stddev: 2.718",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 72.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 60.9
+      },
+      {
+        "label": "App Overall",
+        "score": 50.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 70.1
+      }
+    ]
   },
   "Clanton, Luke": {
     "player_name": "Clanton, Luke",
@@ -3133,7 +5790,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.545; DG_stddev: 2.830"
+    "benchmark_context": "DG_finalprediction: -0.545; DG_stddev: 2.830",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 52.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 28.8
+      },
+      {
+        "label": "App Overall",
+        "score": 56.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 30.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 46.4
+      }
+    ]
   },
   "Van Rooyen, Erik": {
     "player_name": "Van Rooyen, Erik",
@@ -3160,7 +5847,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.502; DG_stddev: 2.796"
+    "benchmark_context": "DG_finalprediction: -0.502; DG_stddev: 2.796",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 22.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.6
+      },
+      {
+        "label": "App Overall",
+        "score": 26.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 78.8
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 62.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 41.4
+      }
+    ]
   },
   "Phillips, Chandler": {
     "player_name": "Phillips, Chandler",
@@ -3185,7 +5902,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.263; DG_stddev: 2.740"
+    "benchmark_context": "DG_finalprediction: -0.263; DG_stddev: 2.740",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 25.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.5
+      },
+      {
+        "label": "App Overall",
+        "score": 30.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 64.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 51.9
+      }
+    ]
   },
   "Wise, Aaron": {
     "player_name": "Wise, Aaron",
@@ -3210,7 +5957,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.445; DG_stddev: 2.803"
+    "benchmark_context": "DG_finalprediction: -0.445; DG_stddev: 2.803",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 40.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 33.5
+      },
+      {
+        "label": "App Overall",
+        "score": 34.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 52.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.8
+      }
+    ]
   },
   "Donohue, Muzzy": {
     "player_name": "Donohue, Muzzy",
@@ -3233,7 +6010,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -6.220; DG_stddev: 3.350"
+    "benchmark_context": "DG_finalprediction: -6.220; DG_stddev: 3.350",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 25.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 56.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 100.0
+      }
+    ]
   },
   "Highsmith, Joe": {
     "player_name": "Highsmith, Joe",
@@ -3259,7 +6066,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.529; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.529; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 46.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 45.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 34.9
+      },
+      {
+        "label": "App Overall",
+        "score": 51.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 34.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 49.5
+      }
+    ]
   },
   "Hadwin, Adam": {
     "player_name": "Hadwin, Adam",
@@ -3283,7 +6120,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.444; DG_stddev: 2.833"
+    "benchmark_context": "DG_finalprediction: -0.444; DG_stddev: 2.833",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 42.1
+      },
+      {
+        "label": "App Overall",
+        "score": 47.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 53.0
+      }
+    ]
   },
   "Kang, Jeffrey": {
     "player_name": "Kang, Jeffrey",
@@ -3306,7 +6173,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.823; DG_stddev: 2.846"
+    "benchmark_context": "DG_finalprediction: -0.823; DG_stddev: 2.846",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 38.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 34.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 28.0
+      },
+      {
+        "label": "App Overall",
+        "score": 34.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 34.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 45.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 50.2
+      }
+    ]
   },
   "Campbell, Brian": {
     "player_name": "Campbell, Brian",
@@ -3329,7 +6226,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.818; DG_stddev: 2.793"
+    "benchmark_context": "DG_finalprediction: -0.818; DG_stddev: 2.793",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 48.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 24.4
+      },
+      {
+        "label": "App Overall",
+        "score": 45.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 54.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 31.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 77.7
+      }
+    ]
   },
   "Duncan, Tyler": {
     "player_name": "Duncan, Tyler",
@@ -3351,7 +6278,37 @@
       "venue_experience"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -0.547; DG_stddev: 2.792"
+    "benchmark_context": "DG_finalprediction: -0.547; DG_stddev: 2.792",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 54.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 75.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.8
+      },
+      {
+        "label": "App Overall",
+        "score": 64.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 41.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 68.0
+      }
+    ]
   },
   "Mazzoli, Stefano": {
     "player_name": "Mazzoli, Stefano",
@@ -3374,7 +6331,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.727; DG_stddev: 2.853"
+    "benchmark_context": "DG_finalprediction: -0.727; DG_stddev: 2.853",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.0
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 62.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 57.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Malnati, Peter": {
     "player_name": "Malnati, Peter",
@@ -3404,7 +6391,37 @@
       "VenueDNA_flag_putting_dependency",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.958; DG_stddev: 2.834"
+    "benchmark_context": "DG_finalprediction: -0.958; DG_stddev: 2.834",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 32.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 23.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 15.5
+      },
+      {
+        "label": "App Overall",
+        "score": 28.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 72.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 40.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 52.4
+      }
+    ]
   },
   "Tosti, Alejandro": {
     "player_name": "Tosti, Alejandro",
@@ -3430,7 +6447,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.939; DG_stddev: 2.980"
+    "benchmark_context": "DG_finalprediction: -0.939; DG_stddev: 2.980",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 8.8
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 62.1
+      },
+      {
+        "label": "App Overall",
+        "score": 18.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 16.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 40.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 27.4
+      }
+    ]
   },
   "Rozo, Marcelo": {
     "player_name": "Rozo, Marcelo",
@@ -3454,7 +6501,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.127; DG_stddev: 2.864"
+    "benchmark_context": "DG_finalprediction: -1.127; DG_stddev: 2.864",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 69.1
+      },
+      {
+        "label": "OTT Overall",
+        "score": 50.3
+      },
+      {
+        "label": "App Overall",
+        "score": 44.2
+      },
+      {
+        "label": "SG: Putting",
+        "score": 0.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.9
+      }
+    ]
   },
   "Villegas, Camilo": {
     "player_name": "Villegas, Camilo",
@@ -3480,7 +6557,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.959; DG_stddev: 2.832"
+    "benchmark_context": "DG_finalprediction: -0.959; DG_stddev: 2.832",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 30.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 36.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 20.9
+      },
+      {
+        "label": "App Overall",
+        "score": 39.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 47.7
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 39.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 63.0
+      }
+    ]
   },
   "Merritt, Troy": {
     "player_name": "Merritt, Troy",
@@ -3505,7 +6612,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.945; DG_stddev: 2.837"
+    "benchmark_context": "DG_finalprediction: -0.945; DG_stddev: 2.837",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 51.4
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.3
+      },
+      {
+        "label": "App Overall",
+        "score": 47.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 47.6
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 60.9
+      }
+    ]
   },
   "Hardy, Nick": {
     "player_name": "Hardy, Nick",
@@ -3529,7 +6666,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.764; DG_stddev: 2.796"
+    "benchmark_context": "DG_finalprediction: -0.764; DG_stddev: 2.796",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 45.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.9
+      },
+      {
+        "label": "App Overall",
+        "score": 37.9
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.2
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 42.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 40.3
+      }
+    ]
   },
   "Lamprecht, Christo": {
     "player_name": "Lamprecht, Christo",
@@ -3554,7 +6721,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.879; DG_stddev: 3.059"
+    "benchmark_context": "DG_finalprediction: -1.879; DG_stddev: 3.059",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 0.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 17.6
+      },
+      {
+        "label": "OTT Overall",
+        "score": 47.9
+      },
+      {
+        "label": "App Overall",
+        "score": 0.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 37.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 11.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 9.8
+      }
+    ]
   },
   "Paul, Jeremy": {
     "player_name": "Paul, Jeremy",
@@ -3579,7 +6776,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.449; DG_stddev: 2.897"
+    "benchmark_context": "DG_finalprediction: -1.449; DG_stddev: 2.897",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 21.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 33.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 49.4
+      },
+      {
+        "label": "App Overall",
+        "score": 19.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 19.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 42.8
+      }
+    ]
   },
   "Kizzire, Patton": {
     "player_name": "Kizzire, Patton",
@@ -3607,7 +6834,37 @@
       "VenueDNA_flag_short_game_only",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.240; DG_stddev: 2.864"
+    "benchmark_context": "DG_finalprediction: -1.240; DG_stddev: 2.864",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 37.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 38.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 5.7
+      },
+      {
+        "label": "App Overall",
+        "score": 42.5
+      },
+      {
+        "label": "SG: Putting",
+        "score": 35.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 11.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 58.9
+      }
+    ]
   },
   "Martin, Ben": {
     "player_name": "Martin, Ben",
@@ -3631,7 +6888,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.132; DG_stddev: 2.800"
+    "benchmark_context": "DG_finalprediction: -1.132; DG_stddev: 2.800",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 57.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 54.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 55.4
+      },
+      {
+        "label": "App Overall",
+        "score": 58.7
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 29.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 62.5
+      }
+    ]
   },
   "Wood, Griffin": {
     "player_name": "Wood, Griffin",
@@ -3654,7 +6941,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -3.243; DG_stddev: 3.241"
+    "benchmark_context": "DG_finalprediction: -3.243; DG_stddev: 3.241",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 2.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 40.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 27.5
+      }
+    ]
   },
   "Gordon, Will": {
     "player_name": "Gordon, Will",
@@ -3677,7 +6994,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -0.969; DG_stddev: 2.896"
+    "benchmark_context": "DG_finalprediction: -0.969; DG_stddev: 2.896",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 51.3
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 42.7
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.2
+      },
+      {
+        "label": "App Overall",
+        "score": 43.3
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 38.3
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.9
+      }
+    ]
   },
   "Davis, Cam": {
     "player_name": "Davis, Cam",
@@ -3703,7 +7050,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.792; DG_stddev: 2.945"
+    "benchmark_context": "DG_finalprediction: -0.792; DG_stddev: 2.945",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.7
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 35.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 25.1
+      },
+      {
+        "label": "App Overall",
+        "score": 38.1
+      },
+      {
+        "label": "SG: Putting",
+        "score": 42.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 35.9
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.2
+      }
+    ]
   },
   "Riley, Davis": {
     "player_name": "Riley, Davis",
@@ -3728,7 +7105,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.084; DG_stddev: 2.977"
+    "benchmark_context": "DG_finalprediction: -1.084; DG_stddev: 2.977",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 31.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 22.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 9.3
+      },
+      {
+        "label": "App Overall",
+        "score": 33.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 68.3
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 37.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 43.7
+      }
+    ]
   },
   "Hoffman, Charley": {
     "player_name": "Hoffman, Charley",
@@ -3755,7 +7162,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_debut_uncertainty"
     ],
-    "benchmark_context": "DG_finalprediction: -1.748; DG_stddev: 2.950"
+    "benchmark_context": "DG_finalprediction: -1.748; DG_stddev: 2.950",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 44.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 44.5
+      },
+      {
+        "label": "App Overall",
+        "score": 31.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 19.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 21.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 47.2
+      }
+    ]
   },
   "List, Luke": {
     "player_name": "List, Luke",
@@ -3780,7 +7217,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -0.896; DG_stddev: 2.899"
+    "benchmark_context": "DG_finalprediction: -0.896; DG_stddev: 2.899",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 43.6
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 64.9
+      },
+      {
+        "label": "App Overall",
+        "score": 38.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 39.5
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 43.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 38.3
+      }
+    ]
   },
   "Sargent, Gordon": {
     "player_name": "Sargent, Gordon",
@@ -3805,7 +7272,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.268; DG_stddev: 2.987"
+    "benchmark_context": "DG_finalprediction: -1.268; DG_stddev: 2.987",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 1.1
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 26.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 59.4
+      },
+      {
+        "label": "App Overall",
+        "score": 5.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 46.1
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.5
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 13.8
+      }
+    ]
   },
   "Schenk, Adam": {
     "player_name": "Schenk, Adam",
@@ -3831,7 +7328,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.129; DG_stddev: 2.918"
+    "benchmark_context": "DG_finalprediction: -1.129; DG_stddev: 2.918",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 41.9
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 38.3
+      },
+      {
+        "label": "App Overall",
+        "score": 39.8
+      },
+      {
+        "label": "SG: Putting",
+        "score": 29.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 28.2
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 48.2
+      }
+    ]
   },
   "Campos, Rafael": {
     "player_name": "Campos, Rafael",
@@ -3856,7 +7383,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -1.340; DG_stddev: 2.890"
+    "benchmark_context": "DG_finalprediction: -1.340; DG_stddev: 2.890",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 42.5
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 37.9
+      },
+      {
+        "label": "OTT Overall",
+        "score": 33.7
+      },
+      {
+        "label": "App Overall",
+        "score": 35.6
+      },
+      {
+        "label": "SG: Putting",
+        "score": 33.6
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 30.8
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 44.6
+      }
+    ]
   },
   "Brehm, Ryan": {
     "player_name": "Brehm, Ryan",
@@ -3882,7 +7439,37 @@
       "VenueDNA_flag_accuracy_risk",
       "VenueDNA_flag_long_iron_deficit"
     ],
-    "benchmark_context": "DG_finalprediction: -2.332; DG_stddev: 3.099"
+    "benchmark_context": "DG_finalprediction: -2.332; DG_stddev: 3.099",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 35.2
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 29.2
+      },
+      {
+        "label": "OTT Overall",
+        "score": 46.1
+      },
+      {
+        "label": "App Overall",
+        "score": 28.4
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 7.4
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 35.4
+      }
+    ]
   },
   "Fahrny, Brannon": {
     "player_name": "Fahrny, Brannon",
@@ -3905,7 +7492,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -2.734; DG_stddev: 3.097"
+    "benchmark_context": "DG_finalprediction: -2.734; DG_stddev: 3.097",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 70.0
+      }
+    ]
   },
   "Lindheim, Nicholas": {
     "player_name": "Lindheim, Nicholas",
@@ -3925,7 +7542,37 @@
       "T5"
     ],
     "anti_pattern_flags": [],
-    "benchmark_context": "DG_finalprediction: -1.706; DG_stddev: 2.921"
+    "benchmark_context": "DG_finalprediction: -1.706; DG_stddev: 2.921",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 63.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 41.1
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 49.4
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 71.7
+      }
+    ]
   },
   "Sandhu, Sihan": {
     "player_name": "Sandhu, Sihan",
@@ -3948,7 +7595,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -2.611; DG_stddev: 3.098"
+    "benchmark_context": "DG_finalprediction: -2.611; DG_stddev: 3.098",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 44.3
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.7
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 11.1
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 69.4
+      }
+    ]
   },
   "Sihota, Jeevan": {
     "player_name": "Sihota, Jeevan",
@@ -3971,7 +7648,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -3.926; DG_stddev: 3.450"
+    "benchmark_context": "DG_finalprediction: -3.926; DG_stddev: 3.450",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 26.8
+      },
+      {
+        "label": "OTT Overall",
+        "score": 48.4
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 52.4
+      }
+    ]
   },
   "Schultz, Cooper": {
     "player_name": "Schultz, Cooper",
@@ -3994,7 +7701,37 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -2.888; DG_stddev: 3.143"
+    "benchmark_context": "DG_finalprediction: -2.888; DG_stddev: 3.143",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 43.5
+      },
+      {
+        "label": "OTT Overall",
+        "score": 53.9
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 71.4
+      }
+    ]
   },
   "Campbell, Thomas": {
     "player_name": "Campbell, Thomas",
@@ -4017,6 +7754,36 @@
     "anti_pattern_flags": [
       "VenueDNA_flag_accuracy_risk"
     ],
-    "benchmark_context": "DG_finalprediction: -3.305; DG_stddev: 3.233"
+    "benchmark_context": "DG_finalprediction: -3.305; DG_stddev: 3.233",
+    "trait_scores": [
+      {
+        "label": "App 150–200 yd",
+        "score": 50.0
+      },
+      {
+        "label": "OTT Accuracy",
+        "score": 39.0
+      },
+      {
+        "label": "OTT Overall",
+        "score": 54.2
+      },
+      {
+        "label": "App Overall",
+        "score": 50.0
+      },
+      {
+        "label": "SG: Putting",
+        "score": 50.0
+      },
+      {
+        "label": "Recent Form (L20)",
+        "score": 50.0
+      },
+      {
+        "label": "Par-5 Scoring",
+        "score": 78.4
+      }
+    ]
   }
 }

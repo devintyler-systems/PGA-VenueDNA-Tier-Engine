@@ -90,7 +90,10 @@ def weighted_mean(pairs: list[tuple[float, float]]) -> float | None:
 # ── Loaders ───────────────────────────────────────────────────────────────────
 
 def load_board_export(deploy_dir: Path) -> dict:
-    p = deploy_dir / "data" / "board_export.json"
+    slug = deploy_dir.parent.name
+    p = deploy_dir / "data" / f"{slug}_board_export.json"
+    if not p.exists():
+        p = deploy_dir / "data" / "board_export.json"
     if not p.exists():
         sys.exit(f"[build_event_package] board_export.json missing — run enrich_cards.py first")
     data = json.loads(p.read_text(encoding="utf-8"))
@@ -768,6 +771,10 @@ def main():
     briefs_map    = {}
     blockers      = []
 
+    def _ts(v):
+        # z-scores are 0-100 (mean=50, std=15); unknown/None defaults to neutral 50
+        return round(50.0 if (v is None or v == "unknown") else float(v), 1)
+
     for idx, name in enumerate(names):
         b       = board[name]
         pga_row = pga.get(name, {})
@@ -808,6 +815,16 @@ def main():
 
         # Narrative brief
         brief = make_brief(name, b, traits, flags2, ch_data, dgd_row, pf_row, tr_row)
+        # Labels must match resolveCumKey() mappings in app.js so computeScenarioScore() finds them
+        brief["trait_scores"] = [
+            {"label": "App 150–200 yd",   "score": _ts(traits.get("long_iron_z"))},
+            {"label": "OTT Accuracy",      "score": _ts(traits.get("driving_acc_z"))},
+            {"label": "OTT Overall",       "score": _ts(traits.get("total_driving_z"))},
+            {"label": "App Overall",       "score": _ts(traits.get("approach_z"))},
+            {"label": "SG: Putting",       "score": _ts(traits.get("putting_z"))},
+            {"label": "Recent Form (L20)", "score": _ts(traits.get("form_z"))},
+            {"label": "Par-5 Scoring",     "score": _ts(traits.get("par5_z"))},
+        ]
         briefs_map[name] = brief
 
         # DG benchmark fields
@@ -1282,7 +1299,7 @@ Top 10 gaps:
 
     import shutil
     for src_name in [
-        f"{slug}_event_payload.json",
+        # NOTE: {slug}_event_payload.json is owned by enrich_cards.py — do NOT copy here
         f"{slug}_vts_full.csv",
         f"{slug}_player_briefs.json",
         f"{slug}_links.json",
