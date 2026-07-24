@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>VenueDNA — EVENT_NAME_PLACEHOLDER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+:root {
+  --bg:#0f1419;--surface:#161d27;--surface2:#1e2936;--border:#2a3a4a;--border-2:#3a4f62;
+  --text:#e8e0d4;--text-1:#e8e0d4;--text-2:#b8c4cc;--text-3:#7a8fa6;
+  --muted:#7a8fa6;--gold:#c9a84c;--gold-dim:#8a6e30;
+  --green-ok:#16a34a;--accent:#dc2626;
+  --navy:#1d4ed8;
+  --t1:#16a34a;--t2:#2563eb;--t3:#7c3aed;--t4:#ea580c;--t5:#dc2626;
+  --t1-t:#4ade80;--t2-t:#93c5fd;--t3-t:#c4b5fd;--t4-t:#fdba74;--t5-t:#fca5a5;
+  --t1-bg:#052e16;--t2-bg:#1e3a5f;--t3-bg:#2e1065;--t4-bg:#431407;--t5-bg:#450a0a;
+  --t1-b:#16a34a55;--t2-b:#2563eb55;--t3-b:#7c3aed55;--t4-b:#ea580c55;--t5-b:#dc262655;
+  --radius:8px;--shadow:0 2px 16px rgba(0,0,0,.45);
+}
+[data-theme="light"] {
+  --bg:#f5f0e8;--surface:#ffffff;--surface2:#ede8de;--border:#d4c8b0;--border-2:#b8a88c;
+  --text:#1a1610;--text-1:#1a1610;--text-2:#3d342a;--text-3:#7a6e5c;
+  --muted:#8a7c6a;--gold:#8a6e30;--gold-dim:#c9a84c;
+  --green-ok:#15803d;--accent:#b91c1c;
+  --navy:#1d4ed8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+h1,h2,h3{font-family:'Playfair Display',serif;}
+a{color:var(--gold);text-decoration:none;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;}
+.hidden{display:none!important;}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,#0d1a24 0%,#1a2d3f 100%);border-bottom:2px solid var(--gold-dim);padding:1.5rem 1.2rem 1.2rem;}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+.header h1{font-size:clamp(1.3rem,3vw,2rem);color:var(--gold);letter-spacing:.02em;}
+.header h1 span{color:#fff;}
+.header-sub{font-size:.82rem;color:var(--muted);margin-top:.3rem;}
+.header-stats{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:.9rem;}
+.stat-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.22rem .75rem;font-size:.75rem;color:var(--text);}
+.stat-pill span{color:var(--gold);font-weight:700;margin-left:.25rem;}
+.header-actions{display:flex;gap:.5rem;align-items:center;flex-shrink:0;}
+.theme-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.35rem .7rem;font-size:.78rem;color:var(--text);}
+
+/* ── Controls ── */
+.controls-sticky{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);padding:.55rem 1rem;}
+.controls-bar{max-width:1400px;margin:0 auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:340px;}
+.search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.38rem .9rem .38rem 2rem;color:var(--text);font-size:.82rem;outline:none;}
+.search-wrap input:focus{border-color:var(--gold-dim);}
+.search-icon{position:absolute;left:.65rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none;}
+.search-clear{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;background:none;border:none;cursor:pointer;display:none;}
+.ctrl-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.38rem .75rem;font-size:.78rem;color:var(--text);transition:border-color .15s,background .15s;white-space:nowrap;}
+.ctrl-btn:hover{border-color:var(--gold-dim);}
+.ctrl-btn.active{border-color:var(--gold);color:var(--gold);}
+.ctrl-btn-muted{color:var(--muted);}
+.fav-count{color:var(--gold);font-weight:700;}
+.filter-badge{background:var(--gold);color:#000;border-radius:10px;padding:0 .45rem;font-size:.67rem;font-weight:700;margin-left:.3rem;}
+.preset-wrap{position:relative;}
+.preset-dropdown{position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);z-index:100;min-width:200px;box-shadow:var(--shadow);display:none;}
+.preset-item{display:block;width:100%;text-align:left;padding:.5rem .9rem;font-size:.78rem;color:var(--text);border-bottom:1px solid var(--border);cursor:pointer;}
+.preset-item:hover{background:var(--surface2);color:var(--gold);}
+.preset-divider{height:1px;background:var(--border);}
+.active-pills{max-width:1400px;margin:.3rem auto 0;display:flex;flex-wrap:wrap;gap:.3rem;}
+.chip-bar{max-width:1400px;margin:.4rem auto 0;padding:0;display:flex;gap:.35rem;flex-wrap:wrap;}
+.chip{font-size:.75rem;}
+
+/* ── Filter Drawer ── */
+.filter-drawer{max-width:1400px;margin:.5rem auto;padding:0 1rem;}
+.filter-drawer-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;}
+#adv-filter-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;max-width:1400px;margin:.5rem auto;}
+.active-filters-zone{max-width:1400px;margin:.3rem auto 0;display:flex;flex-wrap:wrap;gap:.3rem;}
+
+/* ── Spotlight ── */
+.spotlight-section{max-width:1400px;margin:1.2rem auto;padding:0 1rem;}
+.spotlight-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+.spotlight-header h2{color:var(--gold);font-size:1.1rem;}
+.spotlight-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.65rem;}
+.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;justify-content:space-between;}
+.spotlight-card:hover{border-color:var(--gold-dim);transform:translateY(-1px);}
+
+/* ── Board Table ── */
+.board-section{max-width:1400px;margin:1.5rem auto;padding:0 1rem;}
+.board-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;}
+.board-header h2{color:var(--gold);font-size:1.1rem;}
+.board-meta{font-size:.78rem;color:var(--muted);}
+.table-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;max-height:70vh;}
+table.board-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+table.board-table thead{position:sticky;top:0;z-index:10;background:var(--surface2);}
+table.board-table th{padding:.5rem .6rem;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+table.board-table th:hover{color:var(--text);}
+table.board-table td{padding:.45rem .6rem;border-bottom:1px solid rgba(42,58,74,.5);color:var(--text);white-space:nowrap;}
+table.board-table tr:hover td{background:var(--surface2);}
+.sort-arrow{font-size:.6rem;margin-left:.25rem;color:var(--muted);}
+.sort-arrow.asc::after{content:'▲';color:var(--gold);}
+.sort-arrow.desc::after{content:'▼';color:var(--gold);}
+.sort-arrow.idle::after{content:'⇅';}
+.sort-active{color:var(--gold)!important;}
+.rank-num{display:inline-block;padding:.1rem .45rem;border-radius:4px;font-size:.7rem;font-weight:700;}
+.player-name-cell{display:flex;flex-direction:column;gap:.1rem;}
+.vts-cell{font-weight:700;}
+.tier-badge{padding:.08rem .35rem;border-radius:4px;font-size:.6rem;font-weight:700;}
+.sans{font-family:'Inter',sans-serif;}
+.left{text-align:left;}
+
+/* ── Tier Intel ── */
+.intel-section{max-width:1400px;margin:1.5rem auto;padding:0 1rem;}
+.intel-section h2{color:var(--gold);font-size:1.1rem;margin-bottom:.75rem;}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:720px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 48px rgba(0,0,0,.6);}
+.modal-close{color:var(--muted);font-size:1.2rem;padding:.2rem .4rem;border-radius:4px;}
+.modal-close:hover{color:var(--gold);}
+.modal-body{overflow-y:auto;padding:1.1rem 1.2rem;flex:1;}
+.modal-sec{margin-bottom:1rem;}
+.modal-sec-title{font-size:.8rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:1px solid var(--border);}
+.modal-layers{display:flex;flex-direction:column;gap:.4rem;}
+.layer-row{display:flex;align-items:center;gap:.6rem;}
+.layer-lbl{font-size:.72rem;color:var(--muted);width:70px;flex-shrink:0;}
+.layer-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.layer-fill{height:100%;border-radius:4px;transition:width .3s;}
+.layer-val{font-size:.72rem;font-weight:600;width:40px;text-align:right;flex-shrink:0;}
+.modal-note{font-size:.72rem;color:var(--muted);}
+.diverg-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;position:relative;overflow:hidden;}
+.diverg-mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--border);z-index:1;}
+.diverg-fill{position:absolute;top:0;height:100%;transition:width .3s;}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem;}
+.metric-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.55rem .7rem;}
+.metric-label{font-size:.65rem;color:var(--muted);margin-bottom:.2rem;}
+.metric-val{font-size:1rem;font-weight:700;color:var(--text);}
+.section-title{font-size:.8rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:.9rem 0 .45rem;border-bottom:1px solid var(--border);padding-bottom:.3rem;}
+.trait-bars{display:flex;flex-direction:column;gap:.45rem;}
+.trait-bar-row{display:flex;align-items:center;gap:.6rem;}
+.trait-bar-label{font-size:.72rem;color:var(--muted);width:160px;flex-shrink:0;}
+.trait-bar-outer{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.trait-bar-inner{height:100%;border-radius:4px;}
+.trait-bar-inner.high{background:#2563eb;}
+.trait-bar-inner.mid{background:#16a34a;}
+.trait-bar-inner.low{background:#dc2626;}
+.trait-bar-val{font-size:.72rem;color:var(--text);font-weight:600;width:32px;text-align:right;flex-shrink:0;}
+.sg-block{display:flex;flex-direction:column;gap:.35rem;}
+.sg-row{display:flex;align-items:center;gap:.6rem;}
+.sg-label{font-size:.72rem;color:var(--muted);width:100px;flex-shrink:0;}
+.sg-bar-outer{flex:1;position:relative;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.sg-bar-fill{position:absolute;left:50%;top:0;height:100%;border-radius:3px;}
+.sg-bar-zero{position:absolute;left:50%;top:0;width:1px;height:100%;background:var(--border);}
+.sg-val{font-size:.72rem;color:var(--text);font-weight:600;width:40px;text-align:right;flex-shrink:0;}
+.betting-path{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;}
+.lane-label{font-size:.85rem;font-weight:700;color:var(--text);}
+.viability-tag{padding:.15rem .6rem;border-radius:10px;font-size:.68rem;font-weight:700;}
+.viability-winner{background:#16a34a22;border:1px solid #16a34a;color:#16a34a;}
+.viability-top5{background:#2563eb22;border:1px solid #2563eb;color:#6ea8fe;}
+.viability-top10{background:#7c3aed22;border:1px solid #7c3aed;color:#a78bfa;}
+.viability-top20{background:#ea580c22;border:1px solid #ea580c;color:#fb923c;}
+.viability-cut{background:#6b728022;border:1px solid #6b7280;color:#9ca3af;}
+.viability-pass{background:#dc262622;border:1px solid #dc2626;color:#f87171;}
+.wc-section{margin:.5rem 0;}
+.wc-q{font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:3px;display:inline-block;margin-bottom:.2rem;}
+.wc-p{font-size:.78rem;color:var(--text);line-height:1.4;}
+.win-case-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;}
+.db-metrics{display:flex;flex-wrap:wrap;gap:.4rem;}
+.db-metric{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.25rem .5rem;}
+.db-metric-key{font-size:.62rem;color:var(--muted);}
+.db-metric-val{font-size:.78rem;font-weight:700;color:var(--text);}
+.badge{display:inline-block;padding:.1rem .4rem;border-radius:10px;font-size:.6rem;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+.bar-nsi{background:var(--navy);}
+.bar-vfs{background:var(--green-ok);}
+.bar-pen{background:var(--accent);}
+.pill{background:var(--surface2);border:1px solid var(--gold-dim);border-radius:14px;padding:.18rem .6rem;font-size:.72rem;color:var(--gold);display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;transition:border-color .15s;}
+.pill:hover{border-color:var(--gold);}
+.pill button{color:var(--muted);font-size:.75rem;line-height:1;}
+.badge-strength,.badge-weakness,.tier-badge{cursor:pointer;transition:transform 0.1s ease,filter 0.1s ease;}
+.badge-strength:hover{filter:brightness(1.25);transform:scale(1.03);}
+.badge-weakness:hover{filter:brightness(1.25);transform:scale(1.03);}
+.tier-badge:hover{filter:brightness(1.15);transform:scale(1.02);}
+/* Spotlight card styles */
+.sc-top{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.5rem;}
+.sc-rank{font-size:1.1rem;font-weight:700;color:var(--muted);min-width:24px;}
+.sc-name{font-weight:700;font-size:.87rem;color:var(--text);}
+.sc-vts{font-size:1rem;font-weight:700;color:var(--gold);}
+.sc-vts-lbl{font-size:.6rem;color:var(--muted);text-align:right;}
+.sc-bars{display:flex;flex-direction:column;gap:.3rem;margin:.5rem 0;}
+.sc-bar-row{display:flex;align-items:center;gap:.5rem;}
+.sc-bar-lbl{font-size:.65rem;color:var(--muted);width:48px;flex-shrink:0;}
+.sc-bar-outer{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.sc-bar-fill{height:100%;border-radius:3px;}
+.sc-bar-val{font-size:.65rem;color:var(--text);width:36px;text-align:right;flex-shrink:0;}
+.sc-stats{display:flex;gap:.5rem;justify-content:space-between;margin:.5rem 0;}
+.sc-stat-box{text-align:center;}
+.sc-stat-val{font-size:.82rem;font-weight:700;color:var(--text);}
+.sc-stat-lbl{font-size:.6rem;color:var(--muted);}
+.sc-flags{display:flex;flex-wrap:wrap;gap:.2rem;margin:.3rem 0;}
+.sc-reason{font-size:.72rem;color:var(--muted);margin-top:.3rem;font-style:italic;}
+.sc-analyst{margin-top:.5rem;}
+.sc-analyst-row{margin-bottom:.3rem;}
+.sc-analyst-lbl{font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;}
+.sc-analyst-txt{font-size:.72rem;color:var(--text);line-height:1.4;}
+/* Tier intel */
+.tier-row{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;}
+.tier-header-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--surface2);border-radius:var(--radius);cursor:pointer;}
+.tier-badge-lbl{font-size:.78rem;font-weight:700;color:var(--text);}
+.tier-badge-ct{font-size:.72rem;color:var(--muted);}
+.tier-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.4rem;}
+/* Round tabs */
+.round-tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.round-tab{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.3rem .65rem;font-size:.75rem;color:var(--muted);}
+.round-tab.active{border-color:var(--gold);color:var(--gold);}
+/* Live section */
+.loading-blur{filter:blur(2px);pointer-events:none;opacity:.5;}
+/* Empty / scroll-top */
+.empty-state{text-align:center;padding:3rem;color:var(--muted);}
+#scroll-top{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface2);border:1px solid var(--gold-dim);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.9rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s;}
+#scroll-top.visible{opacity:1;pointer-events:auto;}
+/* Trait track */
+.trait-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.trait-fill-hi{height:100%;background:#2563eb;border-radius:3px;}
+.trait-fill-mid{height:100%;background:#16a34a;border-radius:3px;}
+.trait-fill-lo{height:100%;background:#f59e0b;border-radius:3px;}
+.trait-fill-weak{height:100%;background:#dc2626;border-radius:3px;}
+/* Glossary */
+.gloss-section{margin-bottom:.75rem;}
+.gloss-section-title{font-size:.75rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem;}
+.gloss-item{display:flex;flex-direction:column;gap:.1rem;padding:.35rem 0;border-bottom:1px solid rgba(42,58,74,.4);}
+.gi-term{font-size:.78rem;font-weight:700;color:var(--text);}
+.gi-def{font-size:.73rem;color:var(--muted);}
+/* Post-mortem */
+#sec-pm{padding:1.2rem;}
+/* Footer */
+footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border-top:1px solid var(--border);margin-top:2rem;}
+/* Spotlight container anim */
+#spotlight-container{transition:opacity .2s;}
+
+/* ── Flag pills ── */
+.flag{display:inline-block;padding:.08rem .32rem;border-radius:3px;font-size:.58rem;font-weight:700;cursor:default;text-transform:uppercase;letter-spacing:.04em;margin:1px;}
+.flag-warn{background:#431407;color:#fdba74;border:1px solid #ea580c55;}
+.flag-info{background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb55;}
+.flag-danger{background:#450a0a;color:#fca5a5;border:1px solid #dc262655;}
+
+/* ── Tier border variables ── */
+:root{--t1-b:#16a34a55;--t2-b:#2563eb55;--t3-b:#7c3aed55;--t4-b:#ea580c55;--t5-b:#dc262655;}
+
+/* ── Spotlight bar rows ── */
+.bar-row{display:flex;align-items:center;gap:.5rem;margin:.15rem 0;}
+.bar-lbl{font-size:.65rem;color:var(--muted);width:44px;flex-shrink:0;}
+.bar-track{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .3s;}
+.bar-val{font-size:.65rem;font-weight:600;color:var(--text);width:42px;text-align:right;flex-shrink:0;}
+
+/* ── Modal header / probs / trait profile ── */
+.modal-header{display:flex;align-items:flex-start;gap:.75rem;padding:1rem 1.2rem;border-bottom:1px solid var(--border);background:var(--surface2);}
+.modal-rank{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.95rem;font-weight:700;flex-shrink:0;}
+.modal-name{font-size:1rem;font-weight:700;color:var(--text);}
+.modal-badges{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem;}
+.modal-vts{text-align:right;flex-shrink:0;}
+.modal-vts-val{font-size:1.3rem;font-weight:700;color:var(--gold);}
+.modal-vts-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.modal-band-row{margin-top:.35rem;}
+.modal-band-pill{display:inline-block;padding:.1rem .5rem;border-radius:10px;font-size:.64rem;font-weight:700;border:1px solid;}
+.modal-probs{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-bottom:.5rem;}
+.prob-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.45rem;text-align:center;}
+.prob-val{font-size:.95rem;font-weight:700;color:var(--text);}
+.prob-lbl{font-size:.6rem;color:var(--muted);margin-top:.1rem;}
+.prob-odds{font-size:.58rem;color:var(--muted);margin-top:.1rem;font-family:'Inter',sans-serif;}
+.latent-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;}
+.latent-pill{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .5rem;text-align:center;min-width:44px;}
+.latent-val{font-size:.82rem;font-weight:700;color:var(--text);}
+.latent-lbl{font-size:.58rem;color:var(--muted);}
+.trait-rows{display:flex;flex-direction:column;gap:.4rem;}
+.trait-row{background:var(--surface2);border-radius:4px;padding:.35rem .5rem;}
+.trait-meta-row{display:flex;align-items:center;gap:.5rem;}
+.trait-lbl{flex:1;font-size:.72rem;color:var(--text);}
+.trait-wt{font-size:.62rem;color:var(--muted);width:28px;text-align:right;flex-shrink:0;}
+.trait-score{font-size:.72rem;font-weight:700;color:var(--text);width:32px;text-align:right;flex-shrink:0;}
+.trait-history-text{font-size:.62rem;color:var(--muted);margin-top:.2rem;letter-spacing:.01em;}
+.trait-drivers{display:flex;flex-direction:column;gap:.3rem;}
+.trait-driver{display:flex;align-items:flex-start;gap:.4rem;font-size:.75rem;color:var(--text);}
+.trait-check{color:var(--green-ok);font-size:.8rem;flex-shrink:0;}
+.analyst-brief{font-size:.78rem;color:var(--text);line-height:1.55;background:var(--surface2);border-left:3px solid var(--gold-dim);border-radius:0 var(--radius) var(--radius) 0;padding:.55rem .75rem;}
+.analysis-blocks{display:flex;flex-direction:column;gap:.5rem;}
+.analysis-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .7rem;}
+.analysis-block-lbl{font-size:.6rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;}
+.analysis-block-text{font-size:.75rem;color:var(--text);line-height:1.45;}
+.db-metrics-row{display:flex;flex-wrap:wrap;gap:.4rem;}
+.win-case-card.t1{border-left:3px solid var(--t1);}
+.win-case-card.t2{border-left:3px solid var(--t2);}
+.win-case-card.t3{border-left:3px solid var(--t3);}
+.win-case-card.t4{border-left:3px solid var(--t4);}
+.win-case-card.t5{border-left:3px solid var(--t5);}
+
+/* ── Tier intel blocks ── */
+.tier-intel{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.65rem;}
+.tier-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem;}
+.tier-block-header{display:flex;justify-content:space-between;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.4rem;padding-bottom:.3rem;border-bottom:1px solid var(--border);}
+.t1-bl .tier-block-header{color:var(--t1-t);}
+.t2-bl .tier-block-header{color:var(--t2-t);}
+.t3-bl .tier-block-header{color:var(--t3-t);}
+.t4-bl .tier-block-header{color:var(--t4-t);}
+.t5-bl .tier-block-header{color:var(--t5-t);}
+.tier-block-player{padding:.3rem 0;border-bottom:1px solid rgba(42,58,74,.4);}
+.tier-block-player:last-child{border-bottom:none;}
+.tbp-name{font-size:.73rem;font-weight:600;color:var(--text);}
+.tbp-vals{font-size:.65rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.1rem;}
+
+/* ── Filter rule builder ── */
+.rfb-empty{font-size:.75rem;color:var(--muted);padding:.4rem 0;}
+.rfb-rule{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;}
+.rfb-select,.rfb-op{background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.75rem;padding:.25rem .4rem;}
+.rfb-input{background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.75rem;padding:.25rem .4rem;width:80px;}
+.rfb-remove{color:var(--muted);font-size:.8rem;padding:.2rem .35rem;border-radius:3px;}
+.rfb-remove:hover{color:var(--accent);}
+.no-results{text-align:center;color:var(--muted);padding:2rem;font-size:.82rem;}
+
+/* ── Live section supporting styles ── */
+.putt-caution-banner{background:#431407;border:1px solid #ea580c;border-radius:var(--radius);padding:.65rem .9rem;font-size:.75rem;color:#fdba74;margin-bottom:.75rem;}
+.live-sub-header{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.65rem;}
+.live-sub-title{font-size:.88rem;font-weight:700;color:var(--text);}
+.live-sub-note{font-size:.72rem;color:var(--muted);}
+.rho-badge{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.15rem .55rem;font-size:.68rem;color:var(--gold);}
+.live-table{width:100%;border-collapse:collapse;font-size:.75rem;}
+.live-table th{padding:.4rem .55rem;color:var(--muted);font-weight:600;font-size:.68rem;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;cursor:pointer;}
+.live-table td{padding:.38rem .55rem;border-bottom:1px solid rgba(42,58,74,.4);white-space:nowrap;}
+.live-table tr:hover td{background:var(--surface2);}
+.lean-pill{display:inline-block;padding:.08rem .35rem;border-radius:10px;font-size:.6rem;font-weight:700;}
+.lean-pill.pos{background:#05200c;color:#4ade80;border:1px solid #16a34a55;}
+.lean-pill.neg{background:#450a0a;color:#fca5a5;border:1px solid #dc262655;}
+.lean-pill.neutral{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+
+/* ── Mobile responsive ── */
+@media(max-width:640px){
+  .header-inner{flex-direction:column;}
+  .controls-bar{gap:.35rem;}
+  .search-wrap{max-width:100%;flex:1 1 100%;}
+  .modal-probs{grid-template-columns:repeat(2,1fr);}
+  .table-container{max-height:60vh;}
+  table.board-table{font-size:.7rem;}
+  table.board-table th,table.board-table td{padding:.35rem .4rem;}
+  .spotlight-container{grid-template-columns:1fr;}
+  .tier-intel{grid-template-columns:1fr;}
+  .modal{margin:.25rem;max-height:95vh;}
+  .modal-header{flex-wrap:wrap;}
+}
+
+/* ── Player Drawer ── */
+.player-drawer{position:fixed;top:0;right:-100%;width:min(480px,100vw);height:100vh;overflow-y:auto;z-index:9999;background:var(--surface);border-left:1px solid var(--border);box-shadow:-4px 0 32px rgba(0,0,0,.6);transition:right 0.3s ease;}
+.player-drawer.open{right:0;}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:none;cursor:pointer;}
+.drawer-backdrop.open{display:block;}
+body.drawer-open{overflow:hidden;}
+
+/* ── Section Nav ── */
+.section-nav{position:sticky;top:53px;z-index:49;background:var(--surface2);border-bottom:1px solid var(--border);padding:0 1rem;}
+.section-nav-inner{max-width:1400px;margin:0 auto;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.section-nav-inner::-webkit-scrollbar{display:none;}
+.snav-tab{padding:.5rem .9rem;font-size:.78rem;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0;}
+.snav-tab:hover:not(:disabled){color:var(--text-1);}
+.snav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.snav-placeholder{opacity:.4;cursor:default;}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ════════════════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <h1><span>VenueDNA</span> — EVENT_NAME_PLACEHOLDER</h1>
+      <div class="header-sub">VENUE_NAME_PLACEHOLDER · COURSE_META_PLACEHOLDER</div>
+      <div class="header-stats">
+        <span class="stat-pill">Players <span id="result-ct">—</span></span>
+        <span class="stat-pill" id="wx-badge">Wind —</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="btn-theme"><span id="theme-icon">☽</span> <span id="theme-label">Dark</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ VENUE DNA ══════════════════════════════════════════════════════════════ -->
+<section class="nav-section" id="sec-venue-dna" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;margin:0;">What Wins Here</h2>
+    <span style="font-size:.75rem;color:var(--muted);">VENUE_NAME_PLACEHOLDER · Venue DNA</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;align-items:stretch;">
+
+    <!-- Win Mechanism -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Winning Mechanism</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;">
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">SG: Approach rank — winners 2019–2025</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">6 of 7 finished top 10 in SG:App</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">Cumulative SG:App since 2019 (all Tour events)</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">+53.42 — highest of any PGA Tour event</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">Approach distribution skew</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">46% of approaches from 175+ yards</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">2025 champion — Kitayama SG:App</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">+9.67 for the week (career best)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trait Priority -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Trait Priority (model weights)</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">App 150–200 yd</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">25%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:100%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">App Overall</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">20%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:80%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">OTT Accuracy</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">15%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:60%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">OTT Positional</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">12%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:48%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">SG: Putting</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">10%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:40%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">SG: ARG</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">10%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:40%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">Par-5 Scoring</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">8%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:32%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Who Struggles Here -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Who Struggles Here</div>
+      <div style="display:flex;flex-direction:column;gap:.55rem;">
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Erratic bombers</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Water threatens 9 of 14 driving holes — raw distance without accuracy creates penalty exposure</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Short-game-only specialists</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Receptive bentgrass greens reduce the scrambling edge; ball-striking is the differentiator</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Putting-reliant profiles</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Easy greens compress putting edge — hot putting rarely produces the win profile without approach support</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Weak long-iron players</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">46% of approaches from 175+ yards creates recurring pressure from mid-to-long irons</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Outlook — populated by renderWeather() -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">
+        Weather Outlook
+        <span id="wx-badge-inline" style="margin-left:.5rem;font-size:.6rem;font-weight:600;padding:.08rem .32rem;border-radius:3px;background:var(--surface2);color:var(--muted);text-transform:none;letter-spacing:0;vertical-align:middle;">—</span>
+      </div>
+      <div id="wx-round-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem;align-items:stretch;">
+        <div style="font-size:.68rem;color:var(--muted);grid-column:1/-1;">Loading forecast…</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ SPOTLIGHT ═════════════════════════════════════════════════════════════ -->
+<section class="spotlight-section nav-section" id="sec-spotlight">
+  <div class="spotlight-header">
+    <h2>Spotlight — Top Contenders</h2>
+    <button class="ctrl-btn ctrl-btn-muted" id="spotlight-toggle" style="font-size:.75rem;">Hide ▴</button>
+  </div>
+  <div id="spotlight-container">
+    <div id="spotlight-grid" class="spotlight-container"></div>
+  </div>
+</section>
+
+<!-- ══ FIELD EXPLORER HEADING ════════════════════════════════════════════════ -->
+<div style="max-width:1400px;margin:1.5rem auto .25rem;padding:0 1rem;">
+  <div class="board-header" style="margin-bottom:0;">
+    <h2>Field Explorer</h2>
+    <span class="board-meta" id="board-sub">Loading… · VENUE_NAME_PLACEHOLDER VTS</span>
+  </div>
+</div>
+
+<!-- ══ STICKY CONTROLS ════════════════════════════════════════════════════════ -->
+<div class="controls-sticky" id="controls-sticky">
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="player-search" placeholder="Search player…" autocomplete="off"/>
+      <button class="search-clear" id="search-clear">✕</button>
+    </div>
+    <button class="ctrl-btn" id="adv-toggle">Filters <span class="filter-badge" id="filter-badge" style="display:none">0</span></button>
+    <button class="ctrl-btn" id="btn-favonly">★ Favorites (<span class="fav-count" id="fav-count">0</span>)</button>
+    <div class="preset-wrap">
+      <button class="ctrl-btn" id="btn-presets">Views ▾</button>
+      <div class="preset-dropdown" id="preset-dropdown">
+        <button class="preset-item view-mode-item" data-view="table">⊞ Table View (default)</button>
+        <button class="preset-item view-mode-item" data-view="cards">⊟ Card View</button>
+        <button class="preset-item view-mode-item" data-view="map">◎ Contention Map</button>
+        <button class="preset-item view-mode-item" data-view="storylines">◈ Storylines</button>
+        <div class="preset-divider"></div>
+        <div style="padding:.3rem .9rem;font-size:.68rem;color:var(--muted)">Filter Presets</div>
+        <button class="preset-item" data-preset="venue-fits">Venue Fits (Δ Fit ≥ +0.08)</button>
+        <button class="preset-item" data-preset="high-base">High Base (SG Base ≥ 1.50)</button>
+        <div class="preset-divider"></div>
+        <button class="preset-item" data-preset="long-iron-fits">Long Iron Fits</button>
+        <button class="preset-item" data-preset="safe-cut-makers">Safe Cut Makers</button>
+        <button class="preset-item" data-preset="ceiling-plays">Ceiling Plays</button>
+        <div class="preset-divider"></div>
+        <button class="preset-item" data-preset="favorites">My Card ★</button>
+      </div>
+    </div>
+    <button class="ctrl-btn ctrl-btn-muted" id="btn-glossary">? Glossary</button>
+    <button class="ctrl-btn ctrl-btn-muted" id="btn-reset">Reset all</button>
+    <button class="ctrl-btn" id="btn-scenario" style="border-color:var(--gold-dim);color:var(--gold-dim);">⊡ Analyst Mode</button>
+  </div>
+  <div class="chip-bar" style="padding:0 0 .3rem;">
+    <button class="ctrl-btn chip active" data-f="all" onclick="setChip('all')">All</button>
+    <button class="ctrl-btn chip" data-f="t1t2" onclick="setChip('t1t2')">T1+T2</button>
+    <button class="ctrl-btn chip" data-f="nopen" onclick="setChip('nopen')">Clean</button>
+  </div>
+  <div class="active-pills" id="active-pills" style="display:none"></div>
+</div>
+
+<!-- ══ SECTION NAV ═══════════════════════════════════════════════════════════ -->
+<nav class="section-nav" id="section-nav">
+  <div class="section-nav-inner">
+    <button class="snav-tab active" data-snav="pre">Pre-Tournament</button>
+    <button class="snav-tab" data-snav="r1">Rd 1</button>
+    <button class="snav-tab" data-snav="r2">Rd 2</button>
+    <button class="snav-tab" data-snav="r3">Rd 3</button>
+    <button class="snav-tab" data-snav="final">Final</button>
+    <button class="snav-tab snav-placeholder" data-snav="tee-times" disabled>Tee-Times ◌</button>
+  </div>
+</nav>
+
+<!-- ══ ADVANCED FILTER PANEL ════════════════════════════════════════════════ -->
+<div id="adv-filter-panel" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+    <span style="font-weight:700;color:var(--gold);font-size:.85rem;">Advanced Filters</span>
+    <button id="clear-filters-btn" class="ctrl-btn ctrl-btn-muted" style="font-size:.72rem;">Clear all</button>
+  </div>
+  <div id="active-filters-zone"></div>
+  <button id="rfb-add-rule" class="ctrl-btn" style="margin-top:.5rem;font-size:.75rem;">+ Add filter rule</button>
+</div>
+
+<!-- ══ ANALYST MODE BANNER ═══════════════════════════════════════════════════ -->
+<div id="analyst-mode-banner" class="hidden" style="background:#1a1200;border:2px solid var(--gold);padding:.5rem 1.2rem;text-align:center;position:sticky;top:86px;z-index:48;">
+  <span style="color:var(--gold);font-weight:700;font-size:.8rem;font-family:'Inter',sans-serif;">
+    ⊡ Analyst Mode (Unofficial scenario) —
+    <button onclick="resetScenario()" style="background:none;border:none;color:var(--gold);text-decoration:underline;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif;">reset to restore official VenueDNA weights</button>
+  </span>
+</div>
+
+<!-- ══ BOARD TABLE ═══════════════════════════════════════════════════════════ -->
+<section class="board-section nav-section" id="sec-board" style="margin-top:.5rem;">
+  <div class="table-container">
+    <table class="board-table" id="board-table">
+      <thead>
+        <tr>
+          <th onclick="doSort('rank')">Rank<span id="sa-rank" class="sort-arrow asc active"></span></th>
+          <th onclick="doSort('player')">Player<span id="sa-player" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('vts_final')">VTS<span id="sa-vts_final" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('neutralSkillIndex')">NSI<span id="sa-neutralSkillIndex" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('sg_base_composite')">SG Base<span id="sa-sg_base_composite" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('sg_similar_composite')">SG Sim<span id="sa-sg_similar_composite" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('delta_fit')">Δ Fit<span id="sa-delta_fit" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('winPct')">Win%<span id="sa-winPct" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('top10Pct')">Top10%<span id="sa-top10Pct" class="sort-arrow idle"></span></th>
+          <th onclick="doSort('makeCutPct')">Cut%<span id="sa-makeCutPct" class="sort-arrow idle"></span></th>
+          <th class="sparkline-cell" style="min-width:70px">Form</th>
+        </tr>
+      </thead>
+      <tbody id="board-tbody">
+        <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:2rem">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div style="font-size:2rem;margin-bottom:.5rem;">⌕</div>
+    <div>No players match your filters.</div>
+    <button id="empty-reset" onclick="clearFilters()">Reset filters</button>
+  </div>
+  <!-- Mobile card view — same source data as table; shown only on mobile -->
+  <div id="player-cards" class="player-cards-grid"></div>
+</section>
+
+<!-- ══ SCENARIO PANEL ═══════════════════════════════════════════════════════════ -->
+<div id="scenario-panel" class="hidden" style="max-width:1400px;margin:.5rem auto;padding:0 1rem;">
+  <div style="background:#0a1520;border:2px solid var(--gold-dim);border-radius:var(--radius);padding:1rem 1.2rem;">
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;flex-wrap:wrap;">
+      <span style="font-weight:700;color:var(--gold);font-size:.9rem;">Analyst Mode — Weight Sandbox</span>
+      <span class="scenario-unofficial-tag">⚠ UNOFFICIAL — Analyst Mode Active</span>
+      <button class="ctrl-btn" id="scenario-reset" style="font-size:.72rem;margin-left:auto;">Reset to official model</button>
+      <button class="ctrl-btn" id="scenario-exit" style="font-size:.72rem;border-color:var(--gold);color:var(--gold);">✕ Exit Analyst Mode</button>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.65rem;">Adjust trait weights to explore how rankings shift under a different emphasis. Results are NOT official VenueDNA outputs and are never saved.</div>
+    <div id="scenario-sliders" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;"></div>
+  </div>
+</div>
+
+<!-- ══ CONTENTION CHART ════════════════════════════════════════════════════════ -->
+<section class="nav-section" id="sec-contention" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;">Contention Map</h2>
+    <span style="font-size:.75rem;color:var(--muted);">NSI vs Venue Fit Δ · bubble = Win% · top-right = structural winner</span>
+    <div style="margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap;">
+      <button class="ctrl-btn" id="chart-toggle-flags" style="font-size:.72rem;">Highlight Flags</button>
+      <button class="ctrl-btn" id="chart-toggle-debut" style="font-size:.72rem;">Highlight Debuts</button>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow:hidden;">
+    <canvas id="contention-canvas" style="max-height:400px;"></canvas>
+  </div>
+</section>
+
+<!-- ══ TIER INTEL ════════════════════════════════════════════════════════════ -->
+<section class="intel-section nav-section" id="sec-intel">
+  <h2>Tier Intelligence</h2>
+  <div id="tier-intel"></div>
+</section>
+
+<!-- ══ STORYLINES ═══════════════════════════════════════════════════════════ -->
+<section class="nav-section hidden" id="sec-storylines" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;">Storylines</h2>
+    <span style="font-size:.75rem;color:var(--muted);">Key narratives for EVENT_NAME_PLACEHOLDER</span>
+  </div>
+  <div id="storylines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem;"></div>
+</section>
+
+<!-- ══ LIVE ROUND ════════════════════════════════════════════════════════════ -->
+<section class="nav-section hidden" id="sec-live">
+  <div class="round-tabs" id="round-tabs">
+    <button class="round-tab" data-round="1">R1</button>
+    <button class="round-tab" data-round="2">R2</button>
+    <button class="round-tab" data-round="3">R3</button>
+    <button class="round-tab" data-round="4">R4</button>
+  </div>
+  <div id="live-pending" style="padding:1rem;color:var(--muted);font-size:.82rem;">Round data loading…</div>
+  <div id="live-content"></div>
+</section>
+
+<!-- ══ POST-MORTEM ═══════════════════════════════════════════════════════════ -->
+<section class="nav-section hidden" id="sec-pm"></section>
+
+<!-- sec-venue-dna rendered above sec-spotlight; this copy is inert -->
+<section class="nav-section hidden" id="sec-venue-dna-ref" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+    <h2 style="color:var(--gold);font-size:1.1rem;margin:0;">What Wins Here</h2>
+    <span style="font-size:.75rem;color:var(--muted);">VENUE_NAME_PLACEHOLDER · Venue DNA</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;align-items:stretch;">
+
+    <!-- Win Mechanism -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Winning Mechanism</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;">
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">SG: Approach rank — winners 2019–2025</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">6 of 7 finished top 10 in SG:App</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">Cumulative SG:App since 2019 (all Tour events)</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">+53.42 — highest of any PGA Tour event</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">Approach distribution skew</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">46% of approaches from 175+ yards</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:5px;padding:.45rem .6rem;">
+          <div style="font-size:.62rem;color:var(--muted);margin-bottom:.12rem;">2025 champion — Kitayama SG:App</div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--text);">+9.67 for the week (career best)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trait Priority -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Trait Priority (model weights)</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">App 150–200 yd</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">25%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:100%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">App Overall</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">20%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:80%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">OTT Accuracy</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">15%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:60%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--text);">OTT Positional</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--gold);">12%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:48%;background:var(--gold);opacity:.85;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">SG: Putting</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">10%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:40%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">SG: ARG</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">10%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:40%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:.18rem;">
+            <span style="font-size:.72rem;color:var(--muted);">Par-5 Scoring</span>
+            <span style="font-size:.68rem;font-weight:700;color:var(--muted);">8%</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:32%;background:var(--gold);opacity:.38;border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Who Struggles Here -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">Who Struggles Here</div>
+      <div style="display:flex;flex-direction:column;gap:.55rem;">
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Erratic bombers</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Water threatens 9 of 14 driving holes — raw distance without accuracy creates penalty exposure</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Short-game-only specialists</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Receptive bentgrass greens reduce the scrambling edge; ball-striking is the differentiator</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Putting-reliant profiles</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">Easy greens compress putting edge — hot putting rarely produces the win profile without approach support</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <span style="color:#dc2626;font-size:.72rem;flex-shrink:0;margin-top:.05rem;">✕</span>
+          <div>
+            <div style="font-size:.73rem;font-weight:700;color:var(--text);">Weak long-iron players</div>
+            <div style="font-size:.67rem;color:var(--muted);line-height:1.4;margin-top:.1rem;">46% of approaches from 175+ yards creates recurring pressure from mid-to-long irons</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Outlook — populated by renderWeather() -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;">
+      <div style="font-size:.68rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;margin-bottom:.6rem;">
+        Weather Outlook
+        <span id="wx-badge-inline" style="margin-left:.5rem;font-size:.6rem;font-weight:600;padding:.08rem .32rem;border-radius:3px;background:var(--surface2);color:var(--muted);text-transform:none;letter-spacing:0;vertical-align:middle;">—</span>
+      </div>
+      <div id="wx-round-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem;align-items:stretch;">
+        <div style="font-size:.68rem;color:var(--muted);grid-column:1/-1;">Loading forecast…</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ METHOD NOTE ═══════════════════════════════════════════════════════════ -->
+<section class="nav-section" id="sec-method" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
+  <h2 style="color:var(--gold);font-size:1.1rem;margin-bottom:.75rem;">Methodology</h2>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;">
+    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;">
+      <b style="color:var(--text);">Dual-Vector True SG</b> — Separates All Courses baseline (SG Base) from Top-20 Similar Courses performance (SG Sim) with sample-weighted regression. <b style="color:var(--text);">Delta Fit</b> measures VENUE_NAME_PLACEHOLDER-specific uplift vs. general skill. Decay weights: Base stability-heavy [6m:20%, 12m:30%, 24m:50%]; Delta recency-heavy [6m:50%, 12m:30%, 24m:20%]. Clamped to ±0.50 SG/round. VTS z-scored to mean=50, std=15.
+    </p>
+    <div id="engine-version-badge" style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">schema: 3m-dual-vector-v1.0</div>
+  </div>
+</section>
+
+<!-- ══ WEATHER FORECAST BLOCK ════════════════════════════════════════════════ -->
+<div style="display:none" id="wx-forecast-block">
+  <span id="fb-wind-rating"></span><span id="fb-wind-detail"></span>
+  <span id="fb-tide-rating"></span><span id="fb-tide-detail"></span>
+  <span id="fb-wave-rating"></span><span id="fb-wave-detail"></span>
+  <span id="fb-overall-rating"></span><span id="fb-overall-detail"></span>
+  <span id="wx-wave-note"></span>
+</div>
+
+<!-- ══ PLAYER DRAWER ══════════════════════════════════════════════════════════ -->
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<div class="player-drawer" id="player-drawer">
+  <div id="modal-content"></div>
+</div>
+
+<!-- ══ FLAG TOOLTIP ════════════════════════════════════════════════════════ -->
+<div id="flag-tooltip" class="flag-tooltip hidden" role="tooltip" aria-hidden="true">
+  <div class="ft-code" id="ft-code"></div>
+  <div class="ft-label" id="ft-label"></div>
+  <div class="ft-full" id="ft-full"></div>
+  <div class="ft-penalty" id="ft-penalty" style="display:none"></div>
+</div>
+
+<!-- ══ GLOSSARY MODAL ════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="glossary-modal-overlay">
+  <div class="modal">
+    <div style="padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <h2 style="color:var(--gold);font-size:1.1rem;">Glossary — EVENT_NAME_PLACEHOLDER</h2>
+      <button class="modal-close" id="glossary-modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="glossary-body">
+      <!-- Populated dynamically by renderGlossary() in app.js -->
+    </div>
+  </div>
+</div>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+<footer>
+  <strong style="color:var(--text)">VenueDNA is official rank authority</strong> for EVENT_NAME_PLACEHOLDER · DataGolf metrics are benchmark-only reference data ·
+  VENUE_NAME_PLACEHOLDER · Pre-tournament baseline · <span style="color:var(--accent)">Not betting advice</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
