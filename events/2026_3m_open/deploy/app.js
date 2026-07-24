@@ -30,6 +30,7 @@ const S = {
   chartHighlightFlags:  false,
   chartHighlightDebut:  false,
   activeTagFilters:     [],
+  _preTournamentData:   null,
 };
 
 // ── Filter field definitions ──────────────────────────────────────────────────
@@ -54,6 +55,14 @@ const QUICK_PRESETS = {
   'long-iron-fits':  [{ field:'app_150_200', op:'>=', val:60 }],
   'safe-cut-makers': [{ field:'pt_vts',      op:'>=', val:65 }],
   'ceiling-plays':   [{ field:'live_win',    op:'>=', val:5.0 }],
+};
+
+const ROUND_PAYLOADS = {
+  pre:   'data/2026_3m_open_event_payload.json',
+  r1:    'data/2026_3m_open_rd1_payload.json',
+  r2:    'data/2026_3m_open_rd2_payload.json',
+  r3:    'data/2026_3m_open_rd3_payload.json',
+  final: 'data/2026_3m_open_final_payload.json',
 };
 
 function traitScore(br, key, pData) {
@@ -332,25 +341,53 @@ function bindSectionNav() {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-      const snav = btn.dataset.snav;
-      if (snav === 'pre') {
-        switchView('table');
-      } else {
-        // R1–R4, Final: will be wired in T8 for dynamic fetch
-        // For now, just show a "Round data not yet available" note
-        const note = document.getElementById('round-pending-note');
-        if (!note) {
-          const div = document.createElement('div');
-          div.id = 'round-pending-note';
-          div.style.cssText = 'max-width:1400px;margin:1rem auto;padding:0 1rem;font-size:.82rem;color:var(--muted);';
-          div.textContent = `${btn.textContent.trim()} — Round data not yet available.`;
-          document.getElementById('section-nav')?.insertAdjacentElement('afterend', div);
-        } else {
-          note.textContent = `${btn.textContent.trim()} — Round data not yet available.`;
-        }
-      }
+      switchRoundPayload(btn.dataset.snav);
     });
   });
+}
+
+async function switchRoundPayload(snav) {
+  const url = ROUND_PAYLOADS[snav];
+  if (!url) return;
+
+  S.currentRound = snav;
+
+  // Remove old pending note if present
+  document.getElementById('round-pending-note')?.remove();
+
+  if (snav === 'pre') {
+    // Restore pre-tournament data (already loaded at init)
+    S.boardData = S._preTournamentData || S.boardData;
+    renderAll();
+    return;
+  }
+
+  // Show loading blur
+  const boardSection = document.getElementById('sec-board');
+  boardSection?.classList.add('loading-blur');
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const json = await response.json();
+    const players = json.players || [];
+    if (players.length === 0) throw new Error('Empty payload');
+
+    // Snapshot pre-tournament data on first round fetch
+    if (!S._preTournamentData) S._preTournamentData = [...S.boardData];
+
+    S.boardData = players.map(p => ({ ...p, _flags: buildFlags(p) }));
+    renderAll();
+  } catch (err) {
+    // Round data not available — show a note, keep current board
+    const note = document.createElement('div');
+    note.id = 'round-pending-note';
+    note.style.cssText = 'max-width:1400px;margin:.5rem auto;padding:.6rem 1rem;font-size:.82rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);';
+    note.textContent = `Round data not yet available (${url} — ${err.message})`;
+    document.getElementById('section-nav')?.insertAdjacentElement('afterend', note);
+  } finally {
+    boardSection?.classList.remove('loading-blur');
+  }
 }
 
 // ── Render orchestration ───────────────────────────────────────────────────────
