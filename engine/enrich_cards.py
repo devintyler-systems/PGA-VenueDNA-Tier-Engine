@@ -65,6 +65,11 @@ PENALTY_SG_DEP   = 0.90
 # Debut course-history haircut (venue profile §12)
 DEBUT_CH_HAIRCUT = -0.25
 
+# Live-round wave modifier (±VTS points on 0-100 scale)
+WAVE_MODIFIER      = 1.5
+EARLY_WAVE_CONTEXT = "capitalizing on favorable 7-9 mph morning winds."
+LATE_WAVE_CONTEXT  = "facing tougher 11-14 mph afternoon winds."
+
 # std_dev → VTS floor/ceil: 1 stroke ≈ 5 VTS points
 STD_VTS_SCALE = 5.0
 
@@ -402,6 +407,62 @@ def parse_l5_starts(raw: str) -> list[int]:
 
 # ── §9  Narrative Engine ───────────────────────────────────────────────────────
 
+def lastname_first_to_first_last(s: str) -> str:
+    """'Doe, John' → 'John Doe' for name-matching compatibility."""
+    if "," in s:
+        last, first = s.split(",", 1)
+        return f"{first.strip()} {last.strip()}"
+    return s
+
+
+def load_tee_times(path: Path) -> dict[str, dict]:
+    """{norm_name: {r2_wave, r2_teetime}} from round2_tee_times.csv.
+    CSV names are 'Last, First' matching pga_field.csv — normalized as-is."""
+    result: dict[str, dict] = {}
+    if not path.exists():
+        return result
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            raw = row.get("player_name", "").strip().strip('"').strip("'")
+            if not raw:
+                continue
+            norm  = normalize_name(raw)
+            wave  = row.get("r2_wave", "").strip().lower()
+            ttime = row.get("r2_teetime", "").strip()
+            if norm:
+                result[norm] = {"r2_wave": wave, "r2_teetime": ttime}
+    return result
+
+
+def load_r1_sg(path: Path) -> dict[str, dict]:
+    """{norm_name: {r1_score, sg_total, sg_approach}} from round1 SG file.
+    Amateur rows (TOT == '(a)') carry an extra column that shifts SG fields right by 1."""
+    result: dict[str, dict] = {}
+    if not path.exists():
+        return result
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            name = row.get("Player", "").strip().strip('"')
+            if not name:
+                continue
+            is_amateur = row.get("TOT", "").strip() == "(a)"
+            if is_amateur:
+                r1_score    = row.get("SG-Off The Tee", "").strip()
+                sg_approach = row.get("SG-Approach to Green (Rank)", "").strip()
+                sg_total    = row.get("SG Total (Rank)", "").strip()
+            else:
+                r1_score    = row.get("R1", "").strip()
+                sg_approach = row.get("SG-Approach to Green", "").strip()
+                sg_total    = row.get("SG Total", "").strip()
+            if not r1_score or r1_score == "-":
+                continue
+            result[normalize_name(name)] = {
+                "r1_score":    r1_score,
+                "sg_total":    safe_float(sg_total),
+                "sg_approach": safe_float(sg_approach),
+            }
+    return result
+
 def build_strength_tags(app_true: float, delta_fit: float, ott_true: float,
                         ch_adj: float, true_sg_l20: float) -> list[str]:
     tags: list[str] = []
@@ -505,6 +566,17 @@ def build_win_case(player: str, app_true: float, delta_fit: float,
     return f"{player} wins through {mech} {risk} {p5}"
 
 
+def build_live_r1_narrative(player: str, r1_score: str, sg_approach: float,
+                            r2_wave: str) -> str:
+    wave_ctx = EARLY_WAVE_CONTEXT if r2_wave == "early" else LATE_WAVE_CONTEXT
+    sg_fmt = f"+{sg_approach:.3f}" if sg_approach >= 0 else f"{sg_approach:.3f}"
+    return (
+        f"[LIVE R1 UPDATE]: {player} shot {r1_score} in Round 1, gaining "
+        f"{sg_fmt} strokes on Approach. They draw the {r2_wave} wave for "
+        f"Round 2, {wave_ctx}"
+    )
+
+
 # ── §10  Main Pipeline ─────────────────────────────────────────────────────────
 
 def check_field_completeness(field_names: list[str], trending_data: dict, lookup: dict) -> list[str]:
@@ -523,6 +595,8 @@ def check_field_completeness(field_names: list[str], trending_data: dict, lookup
 def main() -> None:
     parser = argparse.ArgumentParser(description="VenueDNA enrichment pipeline")
     parser.add_argument("--event", default="2026_3m_open")
+    parser.add_argument("--live", default=None, choices=["r1", "r2", "r3", "r4"],
+                        help="Enable live-round enrichment mode")
     args = parser.parse_args()
 
     event_dir  = _ROOT / "events" / args.event
@@ -708,10 +782,50 @@ def main() -> None:
     print("[enrich_cards] Computing probability matrices…")
 
     raw_scores = [p["_vts_raw"] for p in players_raw]
-    win_probs  = tempered_softmax(raw_scores, TEMPS["win"],   N_POSITIONS["win"])
-    t5_probs   = tempered_softmax(raw_scores, TEMPS["top5"],  N_POSITIONS["top5"])
-    t10_probs  = tempered_softmax(raw_scores, TEMPS["top10"], N_POSITIONS["top10"])
-    t20_probs  = tempered_softmax(raw_scores, TEMPS["top20"], N_POSITIONS["top20"])
+
+    # ── Live round enrichment ─────────────────────────────────────────────────
+    live_tee_times: dict = {}
+    live_r1_sg: dict     = {}
+
+    if args.live == "r1":
+        print("[enrich_cards] Live R1 mode — loading round data…")
+        live_tee_times = load_tee_times(
+            event_dir / "output" / "round1" / "round2_tee_times.csv")
+        live_r1_sg = load_r1_sg(
+            event_dir / "output" / "round1" / "round1_player_strokes_gained.csv")
+        print(f"  Tee times: {len(live_tee_times)} | R1 SG: {len(live_r1_sg)}")
+
+        # Softmax on wave-adjusted VTS (0-100); scale temps proportionally so
+        # the distribution width matches what raw-score temps produce.
+        raw_std    = field_stats(raw_scores)[1]
+        temp_scale = ZNORM_STD / max(raw_std, 0.01)
+
+        wave_vts: list[float] = []
+        for i, p in enumerate(players_raw):
+            norm = normalize_name(p["player"])
+            wave_info = live_tee_times.get(norm, {})
+            wave      = wave_info.get("r2_wave", "")
+            base      = vts_scaled[i]
+            if wave == "early":
+                adjusted = min(100.0, max(0.0, base + WAVE_MODIFIER))
+            elif wave == "late":
+                adjusted = min(100.0, max(0.0, base - WAVE_MODIFIER))
+            else:
+                adjusted = base
+            wave_vts.append(adjusted)
+            p["_live_vts"]   = round(adjusted, 1)
+            p["_r2_wave"]    = wave
+            p["_r2_teetime"] = wave_info.get("r2_teetime", "")
+
+        win_probs  = tempered_softmax(wave_vts, TEMPS["win"]   * temp_scale, N_POSITIONS["win"])
+        t5_probs   = tempered_softmax(wave_vts, TEMPS["top5"]  * temp_scale, N_POSITIONS["top5"])
+        t10_probs  = tempered_softmax(wave_vts, TEMPS["top10"] * temp_scale, N_POSITIONS["top10"])
+        t20_probs  = tempered_softmax(wave_vts, TEMPS["top20"] * temp_scale, N_POSITIONS["top20"])
+    else:
+        win_probs  = tempered_softmax(raw_scores, TEMPS["win"],   N_POSITIONS["win"])
+        t5_probs   = tempered_softmax(raw_scores, TEMPS["top5"],  N_POSITIONS["top5"])
+        t10_probs  = tempered_softmax(raw_scores, TEMPS["top10"], N_POSITIONS["top10"])
+        t20_probs  = tempered_softmax(raw_scores, TEMPS["top20"], N_POSITIONS["top20"])
 
     # ── Assemble final records ─────────────────────────────────────────────────
     print("[enrich_cards] Assembling player records…")
@@ -775,6 +889,26 @@ def main() -> None:
         )
         p["anti_pattern_flags"] = p["gate_flags"]
 
+        # Live fields + narrative injection
+        p["player_name"] = p["player"]
+        if args.live == "r1":
+            # r1_sg keys are "First Last" (from SG CSV); field names are "Last, First"
+            norm_fl = normalize_name(lastname_first_to_first_last(p["player"]))
+            sg_info = live_r1_sg.get(norm_fl, {})
+            wave    = p.get("_r2_wave", "")
+            p["live_vts"]   = p.get("_live_vts", vts)
+            p["r2_wave"]    = wave
+            p["r2_teetime"] = p.get("_r2_teetime", "")
+            if wave and sg_info:
+                narrative = build_live_r1_narrative(
+                    p["player"],
+                    sg_info.get("r1_score", "—"),
+                    sg_info.get("sg_approach", 0.0),
+                    wave,
+                )
+                p["win_case"] = narrative + " " + p["win_case"]
+        p["scouting_report"] = p["win_case"]
+
     # ── Sort + rank ────────────────────────────────────────────────────────────
     players_raw.sort(key=lambda p: p["vts_final"], reverse=True)
     for i, p in enumerate(players_raw, 1):
@@ -784,19 +918,23 @@ def main() -> None:
     # ── Canonical output schema (drop private fields) ──────────────────────────
     _drop = {"_vts_raw", "_nsi_raw", "_prepenalty_raw", "gate_flags", "course_debut",
              "_d_approach", "_d_long_iron", "_d_ott", "_d_ch", "_d_form",
-             "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure"}
+             "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure",
+             "_live_vts", "_r2_wave", "_r2_teetime"}
 
     _first = [
-        "rank", "player", "tier", "vts_final", "neutralSkillIndex",
+        "rank", "player", "player_name", "tier", "vts_final", "live_vts",
+        "neutralSkillIndex",
         "sg_base_composite", "sg_similar_composite", "delta_fit", "data_depth",
         "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
         "win_prob", "top_5_prob", "top_10_prob", "top_20_prob",
         "make_cut_prob", "miss_cut_prob",
         "prepenalty_vts", "vts_floor", "vts_ceil", "std_dev",
         "l5_array", "strength_tags", "weakness_tags", "headline", "win_case",
+        "scouting_report",
         "trait_scores", "anti_pattern_flags",
         "app_true", "ott_true", "ch_adjustment", "true_sg_l20",
         "trait_approach_raw", "trait_long_iron_raw",
+        "r2_wave", "r2_teetime",
     ]
 
     def reorder(p: dict) -> dict:
@@ -812,8 +950,13 @@ def main() -> None:
     ordered = [reorder(p) for p in players_raw]
 
     # ── Write outputs ──────────────────────────────────────────────────────────
+    _live_suffix = {"r1": "rd1", "r2": "rd2", "r3": "rd3", "r4": "rd4"}
+    file_base = (f"2026_3m_open_{_live_suffix[args.live]}_payload.json"
+                 if args.live else "2026_3m_open_event_payload.json")
+    schema_ver = f"3m-live-{args.live}-v1.0" if args.live else "3m-enriched-v2.0"
+
     payload = {
-        "schemaVersion": "3m-enriched-v2.0",
+        "schemaVersion": schema_ver,
         "generatedAt":   datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "event":         "2026 3M Open",
         "venue":         "TPC Twin Cities",
@@ -822,8 +965,8 @@ def main() -> None:
     }
     json_str = json.dumps(payload, indent=2)
 
-    deploy_path = deploy_dir / "2026_3m_open_event_payload.json"
-    output_path = output_dir / "2026_3m_open_event_payload.json"
+    deploy_path = deploy_dir / file_base
+    output_path = output_dir / file_base
 
     deploy_path.write_text(json_str, encoding="utf-8")
     output_path.write_text(json_str, encoding="utf-8")
