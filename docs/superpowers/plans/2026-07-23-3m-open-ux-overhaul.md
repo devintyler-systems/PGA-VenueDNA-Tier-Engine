@@ -4,7 +4,7 @@
 
 **Goal:** Integrate player card narrative copy, fix Glossary/Views, rename Scenario → Analyst Mode, expose fair odds, and promote the Contention Map and Storylines as first-class views on the 3M Open static board.
 
-**Architecture:** All changes are client-side read-only; the board (3m_open_2026_board.html + app.js) reads canonical artifacts and renders. No engine scripts or output files are modified. The player_briefs.json merge is the only data file write — it adds new fields alongside existing machine fields without replacing them.
+**Architecture:** All changes are client-side read-only; the board (2026_3m_open_board.html + app.js) reads canonical artifacts and renders. No engine scripts or output files are modified. The player_briefs.json merge is the only data file write — it adds new fields alongside existing machine fields without replacing them.
 
 **Tech Stack:** Vanilla JS ES5-compat, Chart.js 4.4.0 (CDN), HTML/CSS already in deploy/; Node.js used only for one-shot JSON merge (Task 1).
 
@@ -19,7 +19,7 @@
 - winPct, top10Pct, etc. are stored on 0–100 scale (e.g., 1.7 = 1.7%).
 - delta_fit ranges –0.500 to +0.500 SG/round; neutralSkillIndex and vts_final are 0–100 z-scores.
 - Do not add Chart.js or any other library; Chart.js 4.4.0 is already on CDN in the HTML.
-- Primary board file is `3m_open_2026_board.html` (index.html is a redirect only).
+- Primary board file is `2026_3m_open_board.html` (index.html is a redirect only).
 
 ---
 
@@ -29,13 +29,13 @@
 |------|-------------|
 | `events/2026_3m_open/deploy/data/2026_3m_open_player_briefs.json` | Task 1 — merge card copy narrative fields |
 | `events/2026_3m_open/deploy/app.js` | Tasks 2–7 — all JS additions |
-| `events/2026_3m_open/deploy/3m_open_2026_board.html` | Tasks 3, 6, 7 — HTML containers, button labels |
+| `events/2026_3m_open/deploy/2026_3m_open_board.html` | Tasks 3, 6, 7 — HTML containers, button labels |
 
 **Absolute paths** (all relative to repo root `C:\PGA_VenueDNA`):
 - Briefs: `events/2026_3m_open/deploy/data/2026_3m_open_player_briefs.json`
 - Card copy: `events/2026_3m_open/deploy/data/3m_open_2026_all_player_card.json`
 - App: `events/2026_3m_open/deploy/app.js`
-- Board: `events/2026_3m_open/deploy/3m_open_2026_board.html`
+- Board: `events/2026_3m_open/deploy/2026_3m_open_board.html`
 
 ---
 
@@ -240,7 +240,7 @@ Replace with:
 
 - [ ] **Step 4: Manual check**
 
-Open `http://localhost:8080/3m_open_2026_board.html` (or file://), click Scheffler's row, open modal. Verify:
+Open `http://localhost:8080/2026_3m_open_board.html` (or file://), click Scheffler's row, open modal. Verify:
 - §3 shows a scouting_report/win_case derived narrative in "Win Case"
 - §4 Player Analysis shows neutral_skill_summary (scouting_report) and form_summary (form_note)
 - Strength tags (green) and weakness tags (red) appear below analysis blocks
@@ -258,13 +258,13 @@ git commit -m "feat(3m-open): wire merged card copy fields into modal (narrative
 
 **Files:**
 - Modify: `events/2026_3m_open/deploy/app.js`
-- Modify: `events/2026_3m_open/deploy/3m_open_2026_board.html`
+- Modify: `events/2026_3m_open/deploy/2026_3m_open_board.html`
 
 **Background:** The glossary modal body is currently static HTML. The task requires an in-memory `uiGlossary` object and dynamic rendering. The glossary should also include an "Analyst Mode" section. In the HTML, replace the static body content with a container `<div id="glossary-body"></div>`.
 
 - [ ] **Step 1: Replace static glossary HTML body with container**
 
-In `3m_open_2026_board.html`, locate the glossary modal body (line ~541):
+In `2026_3m_open_board.html`, locate the glossary modal body (line ~541):
 ```html
     <div class="modal-body">
       <div class="gloss-section">
@@ -376,7 +376,7 @@ Click "? Glossary" button. Modal should open with all sections rendered dynamica
 - [ ] **Step 5: Commit**
 
 ```bash
-git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/3m_open_2026_board.html
+git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/2026_3m_open_board.html
 git commit -m "feat(3m-open): dynamic glossary with uiGlossary object + Analyst Mode entry"
 ```
 
@@ -385,14 +385,14 @@ git commit -m "feat(3m-open): dynamic glossary with uiGlossary object + Analyst 
 ## Task 4: Rename Scenario → Analyst Mode + Guardrail Banner
 
 **Files:**
-- Modify: `events/2026_3m_open/deploy/3m_open_2026_board.html`
+- Modify: `events/2026_3m_open/deploy/2026_3m_open_board.html`
 - Modify: `events/2026_3m_open/deploy/app.js`
 
 **Background:** Every UI reference to "Scenario" becomes "Analyst Mode". A persistent banner appears when the mode is active. Cards/rows get a subtle badge. Official view is the default.
 
 - [ ] **Step 1: Update button and panel text in board HTML**
 
-In `3m_open_2026_board.html`:
+In `2026_3m_open_board.html`:
 
 Find:
 ```html
@@ -481,7 +481,7 @@ And at the top of `renderScenarioResults()`, after `if (!S.scenarioMode) return;
   document.querySelectorAll('#board-tbody tr.analyst-mode-row').forEach(r => r.classList.remove('analyst-mode-row'));
 ```
 
-Add CSS for `analyst-mode-row` inline in the HTML style block (in `3m_open_2026_board.html`, after the `.scenario-unofficial-tag` style or near the flag styles):
+Add CSS for `analyst-mode-row` inline in the HTML style block (in `2026_3m_open_board.html`, after the `.scenario-unofficial-tag` style or near the flag styles):
 ```html
 .analyst-mode-row td { background: rgba(201,168,76,.04) !important; }
 .analyst-mode-row td:first-child::before { content:'⊡ '; font-size:.55rem; color:var(--gold-dim); vertical-align:middle; }
@@ -502,7 +502,7 @@ Click "⊡ Analyst Mode" button. Scenario panel should open with "Analyst Mode �
 - [ ] **Step 6: Commit**
 
 ```bash
-git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/3m_open_2026_board.html
+git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/2026_3m_open_board.html
 git commit -m "feat(3m-open): rename Scenario to Analyst Mode with guardrail banner + row badges"
 ```
 
@@ -578,7 +578,7 @@ Replace the entire `<div class="modal-probs">` block with:
 
 - [ ] **Step 3: Add .prob-odds CSS**
 
-In `3m_open_2026_board.html`, in the inline `<style>` block, add after `.prob-lbl`:
+In `2026_3m_open_board.html`, in the inline `<style>` block, add after `.prob-lbl`:
 ```css
 .prob-odds{font-size:.58rem;color:var(--muted);margin-top:.1rem;font-family:'Inter',sans-serif;}
 ```
@@ -610,7 +610,7 @@ Spotlight cards should show Win% with odds below (e.g., "+5780").
 - [ ] **Step 6: Commit**
 
 ```bash
-git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/3m_open_2026_board.html
+git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/2026_3m_open_board.html
 git commit -m "feat(3m-open): implied fair odds displayed in modal and spotlight cards"
 ```
 
@@ -684,7 +684,7 @@ Replace with:
 
 - [ ] **Step 3: Update the section heading in board HTML**
 
-In `3m_open_2026_board.html`, find:
+In `2026_3m_open_board.html`, find:
 ```html
     <span style="font-size:.75rem;color:var(--muted);">NSI vs VTS · bubble = Win%</span>
 ```
@@ -700,7 +700,7 @@ Reload board. The contention chart's Y-axis should now show values from –0.55 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/3m_open_2026_board.html
+git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/2026_3m_open_board.html
 git commit -m "feat(3m-open): contention map Y-axis updated to VFS (Δ Fit) per NSI×VFS spec"
 ```
 
@@ -710,7 +710,7 @@ git commit -m "feat(3m-open): contention map Y-axis updated to VFS (Δ Fit) per 
 
 **Files:**
 - Modify: `events/2026_3m_open/deploy/app.js`
-- Modify: `events/2026_3m_open/deploy/3m_open_2026_board.html`
+- Modify: `events/2026_3m_open/deploy/2026_3m_open_board.html`
 
 **Background:** The "Views ▾" button currently opens a filter preset dropdown. It will be expanded to include view-mode switching at the top, with a divider before filter presets. Views: `table` (default), `map` (contention), `storylines`. Switching a view shows the relevant section and dims others. Storylines is a new module. Card View is handled by the existing mobile card layout — clicking "Card View" scrolls to player-cards and adds a CSS class that forces the card grid to display even on desktop.
 
@@ -884,7 +884,7 @@ Click "Views ▾" button. Dropdown should show four view-mode items at top, then
 - [ ] **Step 7: Commit**
 
 ```bash
-git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/3m_open_2026_board.html
+git add events/2026_3m_open/deploy/app.js events/2026_3m_open/deploy/2026_3m_open_board.html
 git commit -m "feat(3m-open): views system (table/cards/map/storylines) + storylines module"
 ```
 
