@@ -81,8 +81,11 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;}
 .spotlight-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
 .spotlight-header h2{color:var(--gold);font-size:1.1rem;}
 .spotlight-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.65rem;}
-.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;justify-content:space-between;}
+.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:row;align-items:stretch;gap:.75rem;}
 .spotlight-card:hover{border-color:var(--gold-dim);transform:translateY(-1px);}
+.sc-left{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;}
+.sc-right{flex:0 0 74px;display:flex;flex-direction:column;align-items:center;text-align:center;padding-left:.65rem;border-left:1px solid var(--border);}
+.sc-stats-vert{display:flex;flex-direction:column;gap:.55rem;margin-top:.55rem;width:100%;}
 
 /* ── Board Table ── */
 .board-section{max-width:1400px;margin:1.5rem auto;padding:0 1rem;}
@@ -601,6 +604,7 @@ body.drawer-open{overflow:hidden;}
     <button class="snav-tab" data-snav="r2">Rd 2</button>
     <button class="snav-tab" data-snav="r3">Rd 3</button>
     <button class="snav-tab" data-snav="final">Final</button>
+    <button class="snav-tab" data-snav="pm">Post-Mortem</button>
     <button class="snav-tab snav-placeholder" data-snav="tee-times" disabled>Tee-Times ◌</button>
   </div>
 </nav>

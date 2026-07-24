@@ -348,6 +348,31 @@ function bindSectionNav() {
 }
 
 async function switchRoundPayload(snav) {
+  // Post-Mortem & Model Calibration is a distinct section, not a round payload
+  if (snav === 'pm') {
+    PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    document.getElementById('round-pending-note')?.remove();
+    const pmSection = document.getElementById('sec-pm');
+    if (!pmSection) return;
+    pmSection.classList.remove('hidden');
+    S.currentRound = snav;
+    if (S.pmData) { renderPostMortemView(S.pmData); return; }
+    pmSection.innerHTML = '<div style="text-align:center;padding:48px;color:var(--text-3);font-family:-apple-system,sans-serif">Loading post-mortem\u2026</div>';
+    try {
+      const resp = await fetch('data/2026_3m_open_post_mortem_analysis.json');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      S.pmData = await resp.json();
+      renderPostMortemView(S.pmData);
+    } catch (e) {
+      pmSection.innerHTML = '<div style="text-align:center;padding:48px;color:var(--muted);font-family:-apple-system,sans-serif">Post-Mortem &amp; Model Calibration will populate once the tournament concludes and final results are ingested.</div>';
+    }
+    return;
+  }
+
+  // Leaving the Post-Mortem view: restore normal board sections
+  document.getElementById('sec-pm')?.classList.add('hidden');
+  PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+
   const url = ROUND_PAYLOADS[snav];
   if (!url) return;
 
