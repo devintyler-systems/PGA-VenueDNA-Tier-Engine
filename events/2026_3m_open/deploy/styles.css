@@ -128,7 +128,7 @@ table.board-table tr:hover td { background: var(--surface2); }
 .spotlight-header { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; }
 .spotlight-header h2 { color: var(--gold); font-size: 1.1rem; }
 .spotlight-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: .65rem; }
-.spotlight-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: .85rem; cursor: pointer; transition: border-color .15s, transform .1s; display: flex; flex-direction: column; }
+.spotlight-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: .85rem; cursor: pointer; transition: border-color .15s, transform .1s; display: flex; flex-direction: column; justify-content: space-between; }
 .spotlight-card:hover { border-color: var(--gold-dim); transform: translateY(-1px); }
 .bar-row { display: flex; align-items: center; gap: .5rem; margin: .15rem 0; }
 .bar-lbl { font-size: .65rem; color: var(--muted); width: 44px; flex-shrink: 0; }
@@ -403,12 +403,27 @@ footer { text-align: center; padding: 2rem; font-size: .72rem; color: var(--mute
   background: #052e16; border: 1px solid #16a34a88; color: #4ade80;
   padding: .15rem .45rem; border-radius: 4px; font-size: .68rem;
   white-space: nowrap; display: inline-block;
+  cursor: pointer; transition: transform 0.1s ease, filter 0.1s ease;
 }
 .badge-weakness {
   background: #450a0a; border: 1px solid #dc262688; color: #fca5a5;
   padding: .15rem .45rem; border-radius: 4px; font-size: .68rem;
   white-space: nowrap; display: inline-block;
+  cursor: pointer; transition: transform 0.1s ease, filter 0.1s ease;
 }
+.badge-strength:hover { filter: brightness(1.25); transform: scale(1.03); }
+.badge-weakness:hover { filter: brightness(1.25); transform: scale(1.03); }
+.tier-badge { cursor: pointer; transition: transform 0.1s ease, filter 0.1s ease; }
+.tier-badge:hover { filter: brightness(1.15); transform: scale(1.02); }
+
+/* ── Tag filter pills ── */
+.pill {
+  background: var(--surface2); border: 1px solid var(--gold-dim); border-radius: 14px;
+  padding: .18rem .6rem; font-size: .72rem; color: var(--gold);
+  display: inline-flex; align-items: center; gap: .3rem;
+  cursor: pointer; transition: border-color .15s;
+}
+.pill:hover { border-color: var(--gold); }
 
 /* ── Radial Dials ── */
 .dial-row {

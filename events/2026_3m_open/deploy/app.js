@@ -29,6 +29,7 @@ const S = {
   favorites:            new Set(),
   chartHighlightFlags:  false,
   chartHighlightDebut:  false,
+  activeTagFilters:     [],
 };
 
 // ── Filter field definitions ──────────────────────────────────────────────────
@@ -42,9 +43,9 @@ const FILTER_FIELDS = [
   { key:'live_top10',    label:'Top 10%',     get:(p)    => p.top10Pct },
   { key:'live_cut',      label:'Cut%',        get:(p)    => p.makeCutPct },
   { key:'pt_tier',       label:'Tier #',      get:(p)    => parseInt((p.tier||'T5')[1]) },
-  { key:'app_150_200',   label:'App 150-200', get:(p,br) => traitScore(br,'app_150_200') },
-  { key:'sg_putt',       label:'SG: Putting', get:(p,br) => traitScore(br,'sg_putt') },
-  { key:'sg_arg',        label:'SG: ARG',     get:(p,br) => traitScore(br,'sg_arg') },
+  { key:'app_150_200',   label:'App 150-200', get:(p,br) => traitScore(br,'app_150_200',p) },
+  { key:'sg_putt',       label:'SG: Putting', get:(p,br) => traitScore(br,'sg_putt',p) },
+  { key:'sg_arg',        label:'SG: ARG',     get:(p,br) => traitScore(br,'sg_arg',p) },
 ];
 
 const QUICK_PRESETS = {
@@ -55,8 +56,9 @@ const QUICK_PRESETS = {
   'ceiling-plays':   [{ field:'live_win',    op:'>=', val:5.0 }],
 };
 
-function traitScore(br, key) {
-  const ts = (br || {}).trait_scores || [];
+function traitScore(br, key, pData) {
+  // Check brief first, then fall back to player payload trait_scores
+  const ts = (br || {}).trait_scores || (pData || {}).trait_scores || [];
   const entry = ts.find(t => resolveCumKey(t.label) === key);
   return entry != null ? entry.score : null;
 }
@@ -306,6 +308,14 @@ function bindEvents() {
 
   // Flag tooltip (event delegation)
   bindFlagTooltip();
+
+  // Trait badge filter — event delegation on body
+  document.body.addEventListener('click', e => {
+    const badge = e.target.closest('.badge-strength, .badge-weakness');
+    if (!badge) return;
+    const tag = badge.textContent.trim();
+    toggleTagFilter(tag);
+  });
 
   bindSectionNav();
 }
@@ -608,6 +618,28 @@ function applyVisibility() {
     if (show) shown++;
   });
 
+  // Tag filter pass — runs after all other passes (additive)
+  if (S.activeTagFilters.length > 0) {
+    document.querySelectorAll('#board-tbody tr[data-player]').forEach(row => {
+      if (row.classList.contains('hidden')) return; // already hidden
+      const name = row.dataset.player;
+      if (!name) return;
+      const p  = [...S.boardData, ...S.altPlayers].find(x => normName(x.player) === normName(name));
+      const br = S.briefsByName[normName(name)] || {};
+      const tags = [
+        ...(p?.strength_tags || []),
+        ...(p?.weakness_tags || []),
+        ...(br.strength_tags || []),
+        ...(br.weakness_tags || []),
+      ];
+      const matches = S.activeTagFilters.every(f => tags.includes(f));
+      if (!matches) {
+        row.classList.add('hidden');
+        shown--;
+      }
+    });
+  }
+
   // Sync mobile cards with same filter logic
   document.querySelectorAll('#player-cards .player-card[data-player]').forEach(card => {
     const tier  = card.dataset.tier;
@@ -699,7 +731,7 @@ function renderIntel() {
     const desc    = (descs[t] || '').split(' — ')[0];
     const players = (leads[t] || []).slice(0, 3);
     return `<div class="tier-block ${t.toLowerCase()}-bl">
-      <div class="tier-block-header sans"><span>${t} — ${desc}</span><span>${counts[t] || ''}</span></div>
+      <div class="tier-block-header sans" onclick="filterByTier('${t}')" style="cursor:pointer;user-select:none;" title="Click to filter board to ${t}"><span>${t} — ${desc}</span><span>${counts[t] || ''}</span></div>
       ${players.map(lp => `<div class="tier-block-player" data-player="${esc(lp.player)}" style="cursor:pointer">
         <div class="tbp-name">#${lp.rank} ${lp.player}</div>
         <div class="tbp-vals sans">
@@ -2274,6 +2306,45 @@ function updateRuleVal(idx, val) {
   if (S.filterRules[idx]) { S.filterRules[idx].val = val; applyVisibility(); }
 }
 
+// ── Tag filter system ──────────────────────────────────────────────────────────
+function toggleTagFilter(tag) {
+  const idx = S.activeTagFilters.indexOf(tag);
+  if (idx >= 0) {
+    S.activeTagFilters.splice(idx, 1);
+  } else {
+    S.activeTagFilters.push(tag);
+  }
+  renderTagPills();
+  applyVisibility();
+}
+
+function renderTagPills() {
+  let zone = document.getElementById('tag-filter-zone');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'tag-filter-zone';
+    zone.style.cssText = 'max-width:1400px;margin:.4rem auto 0;padding:0 1rem;display:flex;flex-wrap:wrap;gap:.35rem;';
+    const boardSection = document.getElementById('sec-board');
+    boardSection?.insertAdjacentElement('beforebegin', zone);
+  }
+  if (S.activeTagFilters.length === 0) {
+    zone.innerHTML = '';
+    return;
+  }
+  zone.innerHTML = S.activeTagFilters.map(tag =>
+    `<button class="pill" onclick="toggleTagFilter('${tag.replace(/'/g,"\\'")}')">
+      ${esc(tag)} <span style="margin-left:.3rem;color:var(--muted)">✕</span>
+    </button>`
+  ).join('');
+}
+
+// ── Tier block click → board filter ────────────────────────────────────────────
+function filterByTier(tier) {
+  S.currentTier = S.currentTier === tier ? 'all' : tier;
+  document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
+  applyVisibility();
+}
+
 function applyPreset(name) {
   const preset = QUICK_PRESETS[name];
   if (!preset) return;
@@ -2290,15 +2361,17 @@ function applyPreset(name) {
 
 // ── Clear all filters and reset sort to VTS rank ──────────────────────────────
 function clearFilters() {
-  S.currentFilter = 'all';
-  S.currentTier   = 'all';
-  S.searchQuery   = '';
-  S.filterRules   = [];
-  S.sort          = { key: 'rank', dir: 1 };
+  S.currentFilter    = 'all';
+  S.currentTier      = 'all';
+  S.searchQuery      = '';
+  S.filterRules      = [];
+  S.activeTagFilters = [];
+  S.sort             = { key: 'rank', dir: 1 };
   const srch = document.getElementById('player-search');
   if (srch) srch.value = '';
   document.querySelectorAll('.chip[data-f]').forEach(el => el.classList.toggle('active', el.dataset.f === 'all'));
   document.querySelectorAll('.tier-tile').forEach(el => el.classList.toggle('active', el.dataset.tier === 'all'));
+  renderTagPills();
   renderFilterRules();
   renderTable();
 }

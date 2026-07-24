@@ -81,7 +81,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;}
 .spotlight-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
 .spotlight-header h2{color:var(--gold);font-size:1.1rem;}
 .spotlight-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.65rem;}
-.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;}
+.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;justify-content:space-between;}
 .spotlight-card:hover{border-color:var(--gold-dim);transform:translateY(-1px);}
 
 /* ── Board Table ── */
@@ -173,8 +173,13 @@ table.board-table tr:hover td{background:var(--surface2);}
 .bar-nsi{background:var(--navy);}
 .bar-vfs{background:var(--green-ok);}
 .bar-pen{background:var(--accent);}
-.pill{background:var(--surface2);border:1px solid var(--gold-dim);border-radius:14px;padding:.18rem .6rem;font-size:.72rem;color:var(--gold);display:inline-flex;align-items:center;gap:.3rem;}
+.pill{background:var(--surface2);border:1px solid var(--gold-dim);border-radius:14px;padding:.18rem .6rem;font-size:.72rem;color:var(--gold);display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;transition:border-color .15s;}
+.pill:hover{border-color:var(--gold);}
 .pill button{color:var(--muted);font-size:.75rem;line-height:1;}
+.badge-strength,.badge-weakness,.tier-badge{cursor:pointer;transition:transform 0.1s ease,filter 0.1s ease;}
+.badge-strength:hover{filter:brightness(1.25);transform:scale(1.03);}
+.badge-weakness:hover{filter:brightness(1.25);transform:scale(1.03);}
+.tier-badge:hover{filter:brightness(1.15);transform:scale(1.02);}
 /* Spotlight card styles */
 .sc-top{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.5rem;}
 .sc-rank{font-size:1.1rem;font-weight:700;color:var(--muted);min-width:24px;}
