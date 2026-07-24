@@ -71,6 +71,11 @@ function normName(s) {
     .replace(/[\u2018\u2019\u0060']/g, "'");
 }
 
+// ── Tag normalisation — strip trailing numeric parentheticals for filter matching ─
+function normalizeTag(t) {
+  return (t || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
+}
+
 // ── Canonical name join — live CSV → boardData with suffix/initials fallbacks ─
 function canonName(rawName) {
   const nm = rawName || '';
@@ -632,7 +637,8 @@ function applyVisibility() {
         ...(br.strength_tags || []),
         ...(br.weakness_tags || []),
       ];
-      const matches = S.activeTagFilters.every(f => tags.includes(f));
+      const normalizedTags = tags.map(normalizeTag);
+      const matches = S.activeTagFilters.every(f => normalizedTags.includes(f));
       if (!matches) {
         row.classList.add('hidden');
         shown--;
@@ -2308,11 +2314,12 @@ function updateRuleVal(idx, val) {
 
 // ── Tag filter system ──────────────────────────────────────────────────────────
 function toggleTagFilter(tag) {
-  const idx = S.activeTagFilters.indexOf(tag);
+  const norm = normalizeTag(tag);
+  const idx = S.activeTagFilters.indexOf(norm);
   if (idx >= 0) {
     S.activeTagFilters.splice(idx, 1);
   } else {
-    S.activeTagFilters.push(tag);
+    S.activeTagFilters.push(norm);
   }
   renderTagPills();
   applyVisibility();
