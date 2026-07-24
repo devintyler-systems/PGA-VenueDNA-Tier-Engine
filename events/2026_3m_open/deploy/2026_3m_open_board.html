@@ -616,7 +616,7 @@ body.drawer-open{overflow:hidden;}
 </div>
 
 <!-- ══ ANALYST MODE BANNER ═══════════════════════════════════════════════════ -->
-<div id="analyst-mode-banner" class="hidden" style="background:#1a1200;border:2px solid var(--gold);padding:.5rem 1.2rem;text-align:center;position:sticky;top:53px;z-index:49;">
+<div id="analyst-mode-banner" class="hidden" style="background:#1a1200;border:2px solid var(--gold);padding:.5rem 1.2rem;text-align:center;position:sticky;top:86px;z-index:48;">
   <span style="color:var(--gold);font-weight:700;font-size:.8rem;font-family:'Inter',sans-serif;">
     ⊡ Analyst Mode (Unofficial scenario) —
     <button onclick="resetScenario()" style="background:none;border:none;color:var(--gold);text-decoration:underline;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif;">reset to restore official VenueDNA weights</button>
@@ -656,6 +656,20 @@ body.drawer-open{overflow:hidden;}
   <div id="player-cards" class="player-cards-grid"></div>
 </section>
 
+<!-- ══ SCENARIO PANEL ═══════════════════════════════════════════════════════════ -->
+<div id="scenario-panel" class="hidden" style="max-width:1400px;margin:.5rem auto;padding:0 1rem;">
+  <div style="background:#0a1520;border:2px solid var(--gold-dim);border-radius:var(--radius);padding:1rem 1.2rem;">
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;flex-wrap:wrap;">
+      <span style="font-weight:700;color:var(--gold);font-size:.9rem;">Analyst Mode — Weight Sandbox</span>
+      <span class="scenario-unofficial-tag">⚠ UNOFFICIAL — Analyst Mode Active</span>
+      <button class="ctrl-btn" id="scenario-reset" style="font-size:.72rem;margin-left:auto;">Reset to official model</button>
+      <button class="ctrl-btn" id="scenario-exit" style="font-size:.72rem;border-color:var(--gold);color:var(--gold);">✕ Exit Analyst Mode</button>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.65rem;">Adjust trait weights to explore how rankings shift under a different emphasis. Results are NOT official VenueDNA outputs and are never saved.</div>
+    <div id="scenario-sliders" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;"></div>
+  </div>
+</div>
+
 <!-- ══ CONTENTION CHART ════════════════════════════════════════════════════════ -->
 <section class="nav-section" id="sec-contention" style="max-width:1400px;margin:1.5rem auto;padding:0 1rem;">
   <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
@@ -670,20 +684,6 @@ body.drawer-open{overflow:hidden;}
     <canvas id="contention-canvas" style="max-height:400px;"></canvas>
   </div>
 </section>
-
-<!-- ══ SCENARIO PANEL ═══════════════════════════════════════════════════════════ -->
-<div id="scenario-panel" class="hidden" style="max-width:1400px;margin:.5rem auto;padding:0 1rem;">
-  <div style="background:#0a1520;border:2px solid var(--gold-dim);border-radius:var(--radius);padding:1rem 1.2rem;">
-    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;flex-wrap:wrap;">
-      <span style="font-weight:700;color:var(--gold);font-size:.9rem;">Analyst Mode — Weight Sandbox</span>
-      <span class="scenario-unofficial-tag">⚠ UNOFFICIAL — Analyst Mode Active</span>
-      <button class="ctrl-btn" id="scenario-reset" style="font-size:.72rem;margin-left:auto;">Reset to official model</button>
-      <button class="ctrl-btn" id="scenario-exit" style="font-size:.72rem;border-color:var(--gold);color:var(--gold);">✕ Exit Analyst Mode</button>
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.65rem;">Adjust trait weights to explore how rankings shift under a different emphasis. Results are NOT official VenueDNA outputs and are never saved.</div>
-    <div id="scenario-sliders" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;"></div>
-  </div>
-</div>
 
 <!-- ══ TIER INTEL ════════════════════════════════════════════════════════════ -->
 <section class="intel-section nav-section" id="sec-intel">

@@ -1005,6 +1005,7 @@ function onScenarioSlider(traitKey, rawVal) {
   S.scenarioWeights[traitKey] = parseFloat(rawVal) / 100;
   const valEl = document.getElementById('sw-val-' + traitKey);
   if (valEl) valEl.textContent = rawVal + '%';
+  renderTable();
   renderScenarioResults();
 }
 
