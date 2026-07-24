@@ -173,6 +173,7 @@ async function init() {
     }
 
     S.boardData = (boardJson.players || []).map(p => ({ ...p, _flags: buildFlags(p) }));
+    if (!S._preTournamentData) S._preTournamentData = [...S.boardData];
 
     bindEvents();
     renderAll();
@@ -349,6 +350,23 @@ function bindSectionNav() {
 async function switchRoundPayload(snav) {
   const url = ROUND_PAYLOADS[snav];
   if (!url) return;
+
+  // Reset volatile filter state when switching rounds
+  S.activeTagFilters = [];
+  S.currentTier      = 'all';
+  S.currentFilter    = 'all';
+  S.filterRules      = [];
+  renderTagPills();
+
+  // Clear active filter pills in the UI
+  const zone = document.getElementById('active-filters-zone');
+  if (zone) zone.innerHTML = '';
+  const badge = document.getElementById('filter-badge');
+  if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
+
+  // Update chip buttons so "All" is active
+  document.querySelectorAll('.ctrl-btn.chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.ctrl-btn.chip[data-f="all"]')?.classList.add('active');
 
   S.currentRound = snav;
 
@@ -2408,7 +2426,6 @@ function renderTagPills() {
 // ── Tier block click → board filter ────────────────────────────────────────────
 function filterByTier(tier) {
   S.currentTier = S.currentTier === tier ? 'all' : tier;
-  document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
   applyVisibility();
 }
 
