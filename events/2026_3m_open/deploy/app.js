@@ -811,52 +811,74 @@ function renderContentionChart() {
   const canvas = document.getElementById('contention-canvas');
   if (!canvas || !window.Chart || !S.boardData.length) return;
 
-  const TIER_COLORS = {
-    T1: { bg: 'rgba(22,163,74,.75)',  border: '#16a34a' },
-    T2: { bg: 'rgba(37,99,235,.75)',  border: '#2563eb' },
-    T3: { bg: 'rgba(124,58,237,.75)', border: '#7c3aed' },
-    T4: { bg: 'rgba(234,88,12,.75)',  border: '#ea580c' },
-    T5: { bg: 'rgba(220,38,38,.6)',   border: '#dc2626' },
-  };
-
   const players = S.boardData.filter(p => p.vts_final != null && p.neutralSkillIndex != null);
 
-  const datasets = ['T1','T2','T3','T4','T5'].map(tier => {
-    const tp = players.filter(p => p.tier === tier);
-    const cols = TIER_COLORS[tier];
-    return {
-      label: tier,
-      data: tp.map(p => {
-        const hasFlag  = (p._flags || []).length > 0;
-        const isDebut  = (p.data_depth || '').toUpperCase() === 'DEBUT';
-        const highlight = (S.chartHighlightFlags && hasFlag) || (S.chartHighlightDebut && isDebut);
-        return {
-          x: p.neutralSkillIndex,
-          y: p.delta_fit != null ? p.delta_fit : 0,
-          r: Math.max(4, Math.min(24, (p.winPct || 0.5) * 3.5)),
-          player: p.player,
-          tier,
-          winPct: p.winPct,
-          nsi: p.neutralSkillIndex,
-          vts: p.vts_final,
-          vfs: p.delta_fit != null ? p.delta_fit : 0,
-          hasFlag,
-          isDebut,
-          highlight,
-        };
-      }),
-      backgroundColor: tp.map(p => {
-        const isDebut  = (p.data_depth || '').toUpperCase() === 'DEBUT';
-        const hasFlag  = (p._flags || []).length > 0;
-        if (S.chartHighlightDebut && isDebut) return 'rgba(251,191,36,.85)';
-        if (S.chartHighlightFlags && hasFlag)  return 'rgba(239,68,68,.85)';
-        return cols.bg;
-      }),
-      borderColor: cols.border,
+  // Split players into three render layers: base (bottom) → debuts → highlights (top)
+  const basePoints      = [];
+  const debutPoints     = [];
+  const highlightPoints = [];
+
+  for (const p of players) {
+    const hasFlag = (p._flags || []).length > 0;
+    const isDebut = (p.data_depth || '').toUpperCase() === 'DEBUT';
+    // A player is "highlighted" (gold) when flags toggle is on + they have flags,
+    // OR when the debut toggle is on + they are a debut.
+    const isHighlight = (S.chartHighlightFlags && hasFlag) || (S.chartHighlightDebut && isDebut);
+
+    const point = {
+      x: p.neutralSkillIndex,
+      y: p.delta_fit != null ? p.delta_fit : 0,
+      r: Math.max(4, Math.min(24, (p.winPct || 0.5) * 3.5)),
+      player: p.player,
+      tier: p.tier,
+      winPct: p.winPct,
+      nsi: p.neutralSkillIndex,
+      vts: p.vts_final,
+      vfs: p.delta_fit != null ? p.delta_fit : 0,
+      hasFlag,
+      isDebut,
+      highlight: isHighlight,
+    };
+
+    if (isHighlight) {
+      // Gold layer (on top): flagged players or toggled debuts
+      highlightPoints.push(point);
+    } else if (isDebut) {
+      // Cyan layer: debut players when the debut toggle is off (passive visibility)
+      debutPoints.push(point);
+    } else {
+      // Gray base layer (bottom): everyone else
+      basePoints.push(point);
+    }
+  }
+
+  // Datasets ordered: base first (rendered bottom), highlights last (rendered on top)
+  const datasets = [
+    {
+      label: 'Field',
+      data: basePoints,
+      backgroundColor: 'rgba(75,85,99,0.6)',
+      borderColor: 'rgba(75,85,99,0.3)',
+      borderWidth: 1,
+      hoverBorderWidth: 2.5,
+    },
+    {
+      label: 'Debuts',
+      data: debutPoints,
+      backgroundColor: 'rgba(56,189,248,0.85)',
+      borderColor: '#38bdf8',
       borderWidth: 1.5,
       hoverBorderWidth: 2.5,
-    };
-  });
+    },
+    {
+      label: 'Highlighted',
+      data: highlightPoints,
+      backgroundColor: 'rgba(251,191,36,1.0)',
+      borderColor: '#fbbf24',
+      borderWidth: 2,
+      hoverBorderWidth: 3,
+    },
+  ];
 
   const chartConfig = {
     type: 'bubble',
