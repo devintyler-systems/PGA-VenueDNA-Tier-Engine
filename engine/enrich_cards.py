@@ -507,6 +507,19 @@ def build_win_case(player: str, app_true: float, delta_fit: float,
 
 # ── §10  Main Pipeline ─────────────────────────────────────────────────────────
 
+def check_field_completeness(field_names: list[str], trending_data: dict, lookup: dict) -> list[str]:
+    """Return canonical-field players (by pga_field.csv) with no row in
+    pga_field_trending_table.csv, using the same exact+fuzzy resolve()
+    logic the rest of the pipeline uses — not a raw name diff, so this
+    doesn't false-flag players the fuzzy matcher would have caught anyway.
+    """
+    missing = []
+    for name in field_names:
+        if resolve(name, trending_data, lookup, threshold=0.85) is None:
+            missing.append(name)
+    return missing
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="VenueDNA enrichment pipeline")
     parser.add_argument("--event", default="2026_3m_open")
@@ -538,6 +551,12 @@ def main() -> None:
     decomp_data    = load_decomp(input_dir    / "dg_decomposition.csv")
     ch_data        = load_ch(input_dir        / "tpc_twin_cities_CH.csv")
     trending_data  = load_trending(input_dir  / "pga_field_trending_table.csv")
+
+    _missing_trend = check_field_completeness(field_names, trending_data, build_lookup(trending_data))
+    if _missing_trend:
+        print(f"[enrich_cards] WARNING — {len(_missing_trend)} field player(s) missing from "
+              f"pga_field_trending_table.csv (likely late field additions; Form/l5 data will "
+              f"render blank, this is expected): {', '.join(_missing_trend)}", file=sys.stderr)
 
     # Build name-lookup tables once (exact pass; fuzzy fires per-player only on misses)
     lk = {
