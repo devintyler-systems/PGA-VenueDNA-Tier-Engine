@@ -151,3 +151,11 @@ python -c "import json; d=json.load(open('events/2026_3m_open/deploy/data/2026_3
 python -c "import json; d=json.load(open('events/2026_3m_open/deploy/data/2026_3m_open_event_payload.json')); assert all(p['top_10_prob'] >= p['top_5_prob'] for p in d['players']), 'Monotonicity fail'"
 python -m http.server 8000 --directory events/2026_3m_open/deploy
 ```
+
+**Required before manual Netlify deploy (added 2026-07-23):** the checks above validate the JSON payload only — they do not confirm anything actually renders. Run the Playwright rendering gate before deploying:
+
+```
+/verify-board 2026_3m_open
+```
+
+This was added after the Form-column sparkline shipped blank to production despite passing every check above — the payload was correct, the canvas paint call wasn't verified. `/verify-board` checks canvas pixel data, modal dials, badges, and the Analyst Mode toggle's actual view change, not just JSON shape. Do not deploy on a FAIL. A DATA ISSUE result (e.g. a late field addition with no trending-table row yet) is not a deploy blocker — log it, don't gate on it. Full gate definition: `docs/superpowers/specs/2026-07-23-playwright-verification-gate.md`.
