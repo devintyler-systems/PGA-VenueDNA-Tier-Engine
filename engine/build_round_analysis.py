@@ -337,7 +337,8 @@ else:
     CI_PATH = ROUND_DIR / f"round{ROUND}_course_insights.csv"
 
 TFM_PATH = OUT / f"{EVENT_SLUG}_trait_form_matrix.csv"
-PAY_PATH = DEP / "event_payload.json"
+_pay_candidates = [DEP / "event_payload.json", DEP / f"{EVENT_SLUG}_event_payload.json"]
+PAY_PATH = next((p for p in _pay_candidates if p.exists()), DEP / "event_payload.json")
 PAIRINGS  = EVENT_DIR / "input" / "r1_pairings.csv"
 
 # ── Helper functions ──────────────────────────────────────────────────────────
@@ -1550,7 +1551,7 @@ if ROUND == 2:
         else:
             _rec["heat_stress_penalty"] = 0.0
     n_heat = sum(1 for r in lb_snapshot if r.get("heat_stress_penalty", 0) < 0)
-    print(f"R3 heat stress: {n_heat} players flagged for afternoon tee times (≥11:30 AM CDT)")
+    print(f"R3 heat stress: {n_heat} players flagged for afternoon tee times (>=11:30 AM CDT)")
 
 def _sg_field(key):
     vals = [p.get(key) for p in lb_snapshot if p.get(key) is not None]
