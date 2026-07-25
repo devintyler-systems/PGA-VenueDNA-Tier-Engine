@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.0",
+  "event_slug": "2026_3m_open",
+  "created_at": "2026-07-25",
+  "per_round": {
+    "2": {
+      "round": 2,
+      "generated_at": "2026-07-25",
+      "spearman_rho": 0.38,
+      "trait_signals": {
+        "app_150_200": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 4.6,
+          "sg_delta": 1.488,
+          "enrichment_signal": null
+        },
+        "ott_accuracy": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 7.5,
+          "sg_delta": -3.001,
+          "enrichment_signal": null
+        },
+        "par5_scoring": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 4.8,
+          "sg_delta": 1.488,
+          "enrichment_signal": null
+        },
+        "app_wedge": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "app_100_150": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "ott_distance": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "putt_short_conv": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "putt_lag": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "arg_rough": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "arg_bunker": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 1,
+        "pt_top10_in_top20": 4,
+        "tier1_2_in_top20": 0
+      },
+      "risers": [
+        "Chandler Phillips",
+        "Troy Merritt",
+        "Jeffrey Kang",
+        "Will Gordon",
+        "Camilo Villegas",
+        "Kevin Roy",
+        "Kevin Streelman",
+        "Muzzy Donohue",
+        "Pontus Nyholm",
+        "Jesper Svensson",
+        "Vince Whaley",
+        "Kevin Yu"
+      ],
+      "slippage": [
+        "Chandler Phillips",
+        "Hideki Matsuyama"
+      ],
+      "wave_annotation_n": 0
+    }
+  },
+  "cumulative_signals": {
+    "app_wedge": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "app_100_150": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "app_150_200": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        4.6
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    },
+    "ott_accuracy": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "validated"
+      ],
+      "confidence_history": [
+        "proxy-confirmed"
+      ],
+      "delta_history": [
+        7.5
+      ],
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
+    },
+    "ott_distance": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "putt_short_conv": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "putt_lag": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "arg_rough": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "arg_bunker": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "not_testable"
+      ],
+      "confidence_history": [
+        "not-testable"
+      ],
+      "delta_history": [
+        null
+      ],
+      "consensus": "not_testable",
+      "consensus_confidence": "not-testable"
+    },
+    "par5_scoring": {
+      "rounds_observed": [
+        2
+      ],
+      "signal_history": [
+        "mixed"
+      ],
+      "confidence_history": [
+        "weak-proxy"
+      ],
+      "delta_history": [
+        4.8
+      ],
+      "consensus": "mixed",
+      "consensus_confidence": "weak-proxy"
+    }
+  },
+  "last_updated": "2026-07-25",
+  "updated_at": "2026-07-25T09:06:11",
+  "rounds_completed": 2,
+  "is_final": false,
+  "rounds_present": [
+    2
+  ]
+}
