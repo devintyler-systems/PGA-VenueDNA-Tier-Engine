@@ -44,9 +44,13 @@ const FILTER_FIELDS = [
   { key:'live_top10',    label:'Top 10%',     get:(p)    => p.top10Pct },
   { key:'live_cut',      label:'Cut%',        get:(p)    => p.makeCutPct },
   { key:'pt_tier',       label:'Tier #',      get:(p)    => parseInt((p.tier||'T5')[1]) },
-  { key:'app_150_200',   label:'App 150-200', get:(p,br) => traitScore(br,'app_150_200',p) },
-  { key:'sg_putt',       label:'SG: Putting', get:(p,br) => traitScore(br,'sg_putt',p) },
-  { key:'sg_arg',        label:'SG: ARG',     get:(p,br) => traitScore(br,'sg_arg',p) },
+  { key:'app_150_200',   label:'App 150-200',   get:(p,br) => traitScore(br,'app_150_200',p) },
+  { key:'sg_putt',       label:'SG: Putting',   get:(p,br) => traitScore(br,'sg_putt',p) },
+  { key:'sg_arg',        label:'SG: ARG',       get:(p,br) => traitScore(br,'sg_arg',p) },
+  { key:'app_overall',   label:'APP Overall',   get:(p,br) => traitScore(br,'app_overall',p) },
+  { key:'ott_accuracy',  label:'OTT Accuracy',  get:(p,br) => traitScore(br,'ott_accuracy',p) },
+  { key:'ott_positional',label:'OTT Positional',get:(p,br) => traitScore(br,'ott_positional',p) },
+  { key:'par5_scoring',  label:'Par-5 Scoring', get:(p,br) => traitScore(br,'par5_scoring',p) },
 ];
 
 const QUICK_PRESETS = {
@@ -345,6 +349,67 @@ function bindSectionNav() {
       switchRoundPayload(btn.dataset.snav);
     });
   });
+  initTeeTimesTab();
+}
+
+async function initTeeTimesTab() {
+  const btn = document.querySelector('.snav-tab[data-snav="tee-times"]');
+  if (!btn) return;
+  // Check embedded tee-times in loaded round data first
+  const r2data = S.roundData?.['2'];
+  const hasTTData = r2data?.round3_tee_times?.length > 0;
+  const ttFileUrl = 'data/round3_tee_times.json';
+  let ttData = hasTTData ? r2data.round3_tee_times : null;
+  if (!ttData) {
+    try {
+      const resp = await fetch(ttFileUrl);
+      if (resp.ok) ttData = await resp.json();
+    } catch {}
+  }
+  if (!ttData || !ttData.length) return;
+  S._teeTimesData = ttData;
+  btn.disabled = false;
+  btn.classList.remove('snav-placeholder');
+  btn.textContent = 'Tee-Times';
+  btn.addEventListener('click', () => renderTeeTimes(ttData));
+}
+
+function renderTeeTimes(data) {
+  document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.snav-tab[data-snav="tee-times"]')?.classList.add('active');
+  const liveEl = document.getElementById('sec-live');
+  if (!liveEl) return;
+  // Show live section, hide pre-tournament panels
+  document.getElementById('sec-spotlight')?.classList.add('hidden');
+  document.getElementById('sec-board')?.classList.add('hidden');
+  document.getElementById('sec-intel')?.classList.add('hidden');
+  document.getElementById('sec-method')?.classList.add('hidden');
+  liveEl.classList.remove('hidden');
+  const content = document.getElementById('live-content');
+  if (!content) return;
+  const sorted = [...data].sort((a, b) => {
+    const tA = a.tee_time || a.time || '';
+    const tB = b.tee_time || b.time || '';
+    if (tA !== tB) return tA.localeCompare(tB);
+    return (a.hole || a.tee || 0) - (b.hole || b.tee || 0);
+  });
+  content.innerHTML = `
+    <div style="margin-bottom:12px;font-family:-apple-system,sans-serif;font-size:13px;font-weight:700;color:var(--gold)">
+      Round 3 Tee Times
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface)">
+      <table class="live-table">
+        <thead><tr>
+          <th class="left">Player</th><th>Tee Time</th><th>Hole</th><th>Group</th>
+        </tr></thead>
+        <tbody>${sorted.map(r => `<tr>
+          <td class="sans" style="font-weight:600">${r.player || r.name || '—'}</td>
+          <td class="sans">${r.tee_time || r.time || '—'}</td>
+          <td class="sans">${r.hole || r.tee || '—'}</td>
+          <td class="sans" style="color:var(--text-3)">${r.group || '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
 }
 
 async function switchRoundPayload(snav) {
@@ -2046,14 +2111,19 @@ function renderLiveRound(data, el) {
           <th data-sort-key="sg_tot">SG-TOT ${_lsArrow('sg_tot')}</th>
           <th data-sort-key="sg_app">SG-APP ${_lsArrow('sg_app')}</th>
           <th data-sort-key="sg_putt">SG-PUTT ${_lsArrow('sg_putt')}</th>
+          <th data-sort-key="vs_proj">vs Proj ${_lsArrow('vs_proj')}</th>
           <th data-sort-key="live_win_pct">Live Win% ${_lsArrow('live_win_pct')}</th>
         </tr></thead>
         <tbody>${lbSnap.slice(0, 80).map(r => {
-          const score = r.r1_score ?? 0;
-          const scoreColor = score < 0 ? 'var(--green-ok)' : score > 0 ? 'var(--accent)' : 'var(--text-3)';
-          const scoreStr   = score > 0 ? `+${score}` : String(score);
+          const isDNS   = r.r1_score == null && !r.r1_pos_str;
           const isElim  = /^(CUT|WD|DQ|MC|MDF)/i.test(r.r1_pos_str || '');
-          const winPct  = isElim ? '0.0%' : (r.live_win_pct != null ? r.live_win_pct.toFixed(1) + '%' : '—');
+          const score   = r.r1_score;
+          const scoreColor = score == null ? 'var(--muted)' : score < 0 ? 'var(--green-ok)' : score > 0 ? 'var(--accent)' : 'var(--text-3)';
+          const scoreStr   = score == null ? (isDNS ? 'DNS' : '—') : score > 0 ? `+${score}` : String(score);
+          const winPct  = (isElim || isDNS) ? '0.0%' : (r.live_win_pct != null ? r.live_win_pct.toFixed(1) + '%' : '—');
+          const vp      = r.vs_proj;
+          const vpStr   = vp != null ? (vp > 0 ? '+' + vp.toFixed(2) : vp.toFixed(2)) : '—';
+          const vpColor = vp == null ? 'var(--muted)' : vp > 0 ? 'var(--green-ok)' : vp < 0 ? 'var(--accent)' : 'var(--text-3)';
           return `<tr data-player="${esc(canonName(r.r1_name))}">
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
@@ -2063,6 +2133,7 @@ function renderLiveRound(data, el) {
             <td class="sans">${sgFmt(r.sg_tot)}</td>
             <td class="sans" style="color:${(r.sg_app||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgFmt(r.sg_app)}</td>
             <td class="sans" style="color:${(r.sg_putt||0)>=0?'var(--navy)':'var(--accent)'}">${sgFmt(r.sg_putt)}</td>
+            <td class="sans" style="color:${vpColor}">${vpStr}</td>
             <td class="sans">${winPct}</td>
           </tr>`;
         }).join('')}</tbody>

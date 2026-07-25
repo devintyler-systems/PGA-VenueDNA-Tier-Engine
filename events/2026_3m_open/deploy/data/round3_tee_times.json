@@ -1,0 +1,398 @@
+[
+  {
+    "player": "Bauchou, Zach",
+    "tee_time": "7:00 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Bezuidenhout, Christiaan",
+    "tee_time": "11:35 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Blair, Zac",
+    "tee_time": "12:05 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Blanchet, Chandler",
+    "tee_time": "10:40 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Brennan, Michael",
+    "tee_time": "11:45 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Castillo, Ricky",
+    "tee_time": "7:50 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Chatfield, Davis",
+    "tee_time": "9:25 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Conners, Corey",
+    "tee_time": "7:10 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Crowe, Trace",
+    "tee_time": "7:00 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Dahmen, Joel",
+    "tee_time": "7:50 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Donohue, Muzzy",
+    "tee_time": "10:20 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Dou, Zecheng",
+    "tee_time": "10:10 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Eckroat, Austin",
+    "tee_time": "10:40 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Ewart, A.J.",
+    "tee_time": "8:10 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Fishburn, Patrick",
+    "tee_time": "8:10 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Glover, Lucas",
+    "tee_time": "10:50 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Gomez, Fabian",
+    "tee_time": "8:55 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Gordon, Will",
+    "tee_time": "8:55 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Greyserman, Max",
+    "tee_time": "7:30 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Griffin, Lanto",
+    "tee_time": "9:05 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Grillo, Emiliano",
+    "tee_time": "12:25 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Harman, Brian",
+    "tee_time": "11:55 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Hodges, Lee",
+    "tee_time": "11:10 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Hoey, Rico",
+    "tee_time": "7:20 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Horschel, Billy",
+    "tee_time": "12:05 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Hossler, Beau",
+    "tee_time": "9:15 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Hubbard, Mark",
+    "tee_time": "7:20 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Hughes, Mackenzie",
+    "tee_time": "8:35 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Jarvis, Casey",
+    "tee_time": "9:35 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Kang, Jeffrey",
+    "tee_time": "9:15 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Kim, Michael",
+    "tee_time": "12:35 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Kim, Tom",
+    "tee_time": "9:45 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Kirk, Chris",
+    "tee_time": "7:10 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Kitayama, Kurt",
+    "tee_time": "10:00 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Knapp, Jake",
+    "tee_time": "8:20 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Kohles, Ben",
+    "tee_time": "12:35 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Koivun, Jackson",
+    "tee_time": "12:15 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Lebioda, Hank",
+    "tee_time": "9:05 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Li, Haotong",
+    "tee_time": "10:20 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Matsuyama, Hideki",
+    "tee_time": "11:00 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "McCarthy, Denny",
+    "tee_time": "11:45 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "McNealy, Maverick",
+    "tee_time": "9:45 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Merritt, Troy",
+    "tee_time": "12:15 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Mitchell, Keith",
+    "tee_time": "9:25 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Neergaard-Petersen, Rasmus",
+    "tee_time": "8:45 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Nyholm, Pontus",
+    "tee_time": "9:35 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Parry, John",
+    "tee_time": "8:45 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Phillips, Chandler",
+    "tee_time": "12:25 PM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Power, Seamus",
+    "tee_time": "10:30 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Roy, Kevin",
+    "tee_time": "10:50 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Scheffler, Scottie",
+    "tee_time": "11:00 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Schmid, Matti",
+    "tee_time": "8:00 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Shipley, Neal",
+    "tee_time": "7:40 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Smith, Jordan",
+    "tee_time": "7:30 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Smotherman, Austin",
+    "tee_time": "11:10 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Stanger, Jimmy",
+    "tee_time": "7:40 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Stevens, Sam",
+    "tee_time": "10:00 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Streelman, Kevin",
+    "tee_time": "11:25 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Svensson, Jesper",
+    "tee_time": "11:55 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Thompson, Davis",
+    "tee_time": "10:30 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "VanDerLaan, John",
+    "tee_time": "8:00 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Ventura, Kristoffer",
+    "tee_time": "8:35 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Villegas, Camilo",
+    "tee_time": "8:20 AM",
+    "hole": "1",
+    "group": "early"
+  },
+  {
+    "player": "Whaley, Vince",
+    "tee_time": "10:10 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Woodland, Gary",
+    "tee_time": "11:25 AM",
+    "hole": "1",
+    "group": "late"
+  },
+  {
+    "player": "Yu, Kevin",
+    "tee_time": "11:35 AM",
+    "hole": "1",
+    "group": "late"
+  }
+]

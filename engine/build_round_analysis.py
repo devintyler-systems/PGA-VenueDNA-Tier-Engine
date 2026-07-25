@@ -1450,12 +1450,16 @@ for tk, v in trait_audit.items():
     cs_entry["consensus_confidence"] = cs_entry["confidence_history"][-1]
 
 # ── Leaderboard snapshot ──────────────────────────────────────────────────────
-lb_snapshot = [
-    {k: r[k] for k in ("r1_name","r1_pos","r1_pos_str","r1_score","pt_rank",
-                         "pt_tier","pt_vts","sg_app","sg_putt","sg_ott","sg_arg","sg_tot","wave","rank_delta")
-     if k in r}
-    for r in joined
-]
+lb_snapshot = []
+for _r in joined:
+    _rec = {k: _r[k] for k in ("r1_name","r1_pos","r1_pos_str","r1_score","pt_rank",
+                                  "pt_tier","pt_vts","sg_app","sg_putt","sg_ott","sg_arg","sg_tot","wave","rank_delta")
+            if k in _r}
+    # vs_proj: actual round SG-Total minus VTS-implied projected SG (1 stroke ≈ 5 VTS points)
+    _pt_vts = _r.get("pt_vts") or 50.0
+    _sg_tot = _r.get("sg_tot")
+    _rec["vs_proj"] = round(_sg_tot - (_pt_vts - 50.0) / 5.0, 3) if _sg_tot is not None else None
+    lb_snapshot.append(_rec)
 
 def _sg_field(key):
     vals = [p.get(key) for p in lb_snapshot if p.get(key) is not None]

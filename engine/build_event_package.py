@@ -817,13 +817,13 @@ def main():
         brief = make_brief(name, b, traits, flags2, ch_data, dgd_row, pf_row, tr_row)
         # Labels must match resolveCumKey() mappings in app.js so computeScenarioScore() finds them
         brief["trait_scores"] = [
-            {"label": "App 150–200 yd",   "score": _ts(traits.get("long_iron_z"))},
-            {"label": "OTT Accuracy",      "score": _ts(traits.get("driving_acc_z"))},
-            {"label": "OTT Overall",       "score": _ts(traits.get("total_driving_z"))},
-            {"label": "App Overall",       "score": _ts(traits.get("approach_z"))},
-            {"label": "SG: Putting",       "score": _ts(traits.get("putting_z"))},
-            {"label": "Recent Form (L20)", "score": _ts(traits.get("form_z"))},
-            {"label": "Par-5 Scoring",     "score": _ts(traits.get("par5_z"))},
+            {"label": "App 150–200 yd",   "weight": 0.25, "score": _ts(traits.get("long_iron_z"))},
+            {"label": "OTT Accuracy",      "weight": 0.10, "score": _ts(traits.get("driving_acc_z"))},
+            {"label": "OTT Overall",       "weight": 0.10, "score": _ts(traits.get("total_driving_z"))},
+            {"label": "App Overall",       "weight": 0.40, "score": _ts(traits.get("approach_z"))},
+            {"label": "SG: Putting",       "weight": 0.05, "score": _ts(traits.get("putting_z"))},
+            {"label": "Recent Form (L20)", "weight": 0.05, "score": _ts(traits.get("form_z"))},
+            {"label": "Par-5 Scoring",     "weight": 0.05, "score": _ts(traits.get("par5_z"))},
         ]
         briefs_map[name] = brief
 

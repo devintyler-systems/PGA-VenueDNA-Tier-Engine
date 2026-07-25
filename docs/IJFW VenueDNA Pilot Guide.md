@@ -11,11 +11,24 @@ It directly targets two bottlenecks already flagged in the VenueDNA Registry ent
 1. **Context compression / source consolidation** — IJFW's memory engine stores decisions as plain markdown under `.ijfw/memory/`, ranks recall by recency, and only promotes a pattern to durable knowledge after three references across two sessions (no single offhand comment becomes gospel).
 2. **Closing the post-event learning loop without hindsight contamination** — IJFW's cross-audit fires a second and third model (different training lineage) against a diff before it ships, and its memory model supports bi-temporal facts (what was true *as of* a point in time, not just now). That maps almost directly onto the Backlog's requirement to "prevent hindsight contamination" in the Post-Event VenueDNA Learning Loop.
 
-## The conflict you need to test first
+## Coexistence test: checked out (static analysis, 2026-07-23)
 
-You already installed [Superpowers](https://github.com/obra/superpowers) (`.superpowers` in `C:\PGA_VenueDNA`) for brainstorm/plan/execute workflow. IJFW's own positioning explicitly frames itself as a replacement for that exact workflow-discipline layer, not a companion to it. Both want to own the brainstorm → plan → execute → verify sequence. Running both live risks double-gating (two systems each waiting for you to approve the same phase) or contradictory session memory.
+Compared actual hook registrations between the two plugins directly via GitHub:
 
-**Do not run both engines in parallel long-term.** Pilot IJFW's memory + cross-audit engines only, and hold off on IJFW's workflow-discipline engine (`OSD`-equivalent) while Superpowers stays your driver. Decide the winner after one real week of VenueDNA work, then disable the loser's workflow commands — don't leave both wired in.
+| Event | Superpowers | IJFW |
+|---|---|---|
+| `SessionStart` | matcher `startup\|clear\|compact` | no matcher — fires on all |
+| `PreCompact` | — | ✅ |
+| `Stop` | — | ✅ |
+| `PreToolUse` | — | ✅ (3 scripts + `Read\|Bash` matcher) |
+| `PostToolUse` | — | ✅ |
+| `UserPromptSubmit` | — | ✅ |
+
+Claude Code merges hook arrays across all enabled plugins — no exclusivity, no file overwrite, no crash risk. **Only overlap is `SessionStart`**, where both will fire every session start/clear/compact. That's stacked latency, not a conflict.
+
+**One real check still required locally (not verifiable via GitHub alone):** after installing IJFW, open a fresh session and read both banners. If IJFW's `session-start.sh` output and Superpowers' output give *contradictory* workflow instructions (e.g., IJFW pushing its own routing framework while Superpowers pushes `/superpowers:brainstorm`), that's a one-time prompt-tuning fix, not a reason to uninstall either. Still pilot IJFW's memory + cross-audit engines only — hold off on its workflow-discipline engine while Superpowers stays your driver for brainstorm → plan → execute. Decide the winner after one real week of VenueDNA work.
+
+**Scope boundary:** IJFW's memory/routing layer should respect the same blast-radius rule as everything else touching this repo — full read access anywhere, but no autonomous write access outside `events/<event>/deploy/` without the same approval gate defined in `RALPH-LOOP-POLICY.md`.
 
 ## Install (Windows PowerShell)
 
@@ -65,8 +78,8 @@ ijfw-uninstall            # full removal, backs up every modified file with a .b
 From the "10 Claude Code Plugins" reference image, three more tools came up. Verdict, VenueDNA-specific:
 
 - **Context7** (`/plugin install context7`) — pulls live, version-pinned docs into context instead of stale training data. Cheap, low-risk, genuinely useful while writing Python/Streamlit code. **Adopt**, independent of the IJFW decision.
-- **Playwright MCP / Chrome DevTools MCP** — only earn their keep if VenueDNA has a browser-facing Streamlit/web layer you need to test or debug live. **Adapt when that surface exists, skip until then.**
-- **Ralph Loop** (autonomous, self-referential, unattended dev loop) — **Reject for VenueDNA as currently scoped.** The Registry and Backlog both hard-require human approval before any model-rule or venue-knowledge write-back ("No automatic write-back until approval"). An unattended agent loop is a direct policy conflict until you explicitly design an approval gate around it.
+- **Playwright MCP — Adopt (2026-07-23).** VenueDNA does have a browser-facing layer: the live per-event HTML boards deployed to Netlify. Confirmed a real defect this exact tool would have caught: the `Form` sparkline column shipped blank on the live 3M Open board even though the fix landed in commit `9009e2d` — because there's no CI/CD (no `netlify.toml`, no GitHub Actions) and the existing UX overhaul plan's verification only checks the JSON payload, never the rendered page. See `docs/superpowers/specs/2026-07-23-playwright-verification-gate.md` for the exact gate and install command. Chrome DevTools MCP stays the escape hatch for deep JS/console debugging if a Playwright screenshot surfaces something that needs root-causing — not a default addition.
+- **Ralph Loop — Scoped yes (2026-07-23).** Unattended runs permitted only inside `events/<event>/deploy/` (HTML/CSS/JS presentation layer) — mirrors the Global Constraints the UX overhaul plan already self-imposes. `engine/`, `data/venuedna_master.db`, `input/`, `output/`, and any venue-knowledge/model-rule file remain fully gated, no exception. Full policy: `RALPH-LOOP-POLICY.md`. The Automation Backlog's Post-Event VenueDNA Learning Loop entry has been updated with this exact carve-out.
 - **GitHub MCP** — already covered; GitHub connector access is already live in this session via `gh` CLI.
 
 ## Sources

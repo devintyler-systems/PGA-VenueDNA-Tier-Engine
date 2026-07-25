@@ -457,49 +457,49 @@ function renderSpotlight() {
     const dPct     = clamp(Math.abs(dFit) * 100, 0, 50);
     const br       = S.briefsByName[normName(p.player)] || {};
     const badges   = p.badges || br.badges || [];
+    const analystRows = [
+      { lbl: 'Win Mechanism',       val: br.scoring_thesis },
+      { lbl: 'Key Risk to Monitor', val: br.failure_condition || br.risk_vector },
+      { lbl: 'Analyst Brief',       val: br.conviction_statement },
+    ].filter(r => r.val);
     return `<div class="spotlight-card ${tc}" data-player="${esc(p.player)}">
-      <div class="sc-top">
-        <div class="sc-rank sans">${p.rank}</div>
-        <div>
-          <div class="sc-name">${p.player}</div>
-          <span class="tier-badge sans">${p.tier}</span>
+      <div class="sc-left">
+        <div class="sc-top">
+          <div class="sc-rank sans">${p.rank}</div>
+          <div>
+            <div class="sc-name">${p.player}</div>
+            <span class="tier-badge sans">${p.tier}</span>
+          </div>
         </div>
-        <div style="margin-left:auto;text-align:right">
-          <div class="sc-vts sans">${f2(p.vts_final)}</div>
-          <div class="sc-vts-lbl sans">VTS</div>
+        <div class="sc-bars">
+          ${bar('NSI',    nPct,    'bar-nsi', f1(p.neutralSkillIndex))}
+          ${bar('SG Sim', sgSimPct,'bar-vfs', sgSign(p.sg_similar_composite))}
+          ${bar('Δ Fit',  dPct,    dFit >= 0 ? 'bar-vfs' : 'bar-pen', sgSign(dFit), dFit >= 0 ? 'var(--green-ok)' : 'var(--accent)')}
         </div>
-      </div>
-      <div class="sc-bars">
-        ${bar('NSI',    nPct,    'bar-nsi', f1(p.neutralSkillIndex))}
-        ${bar('SG Sim', sgSimPct,'bar-vfs', sgSign(p.sg_similar_composite))}
-        ${bar('Δ Fit',  dPct,    dFit >= 0 ? 'bar-vfs' : 'bar-pen', sgSign(dFit), dFit >= 0 ? 'var(--green-ok)' : 'var(--accent)')}
-      </div>
-      <div class="sc-stats">
-        <div class="sc-stat-box">
-          <div class="sc-stat-val sans">${pct(p.winPct)}</div>
-          <div class="sc-stat-lbl sans">Win</div>
-          ${fairOdds(p.winPct) ? `<div style="font-size:.55rem;color:var(--muted);font-family:'Inter',sans-serif;">${fairOdds(p.winPct)}</div>` : ''}
-        </div>
-        <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.top10Pct)}</div><div class="sc-stat-lbl sans">Top 10</div></div>
-        <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.makeCutPct)}</div><div class="sc-stat-lbl sans">Cut</div></div>
-      </div>
-      ${badges.length ? `<div class="sc-flags">${badges.map(b => `<span class="badge sans">${b}</span>`).join('')}</div>` : ''}
-      ${p._flags.length ? `<div class="sc-flags">${p._flags.map(f => flag(f)).join('')}</div>` : ''}
-      <div class="sc-reason">${p.tierReason || ''}</div>
-      ${(() => {
-        const rows = [
-          { lbl: 'Win Mechanism',       val: br.scoring_thesis },
-          { lbl: 'Key Risk to Monitor', val: br.failure_condition || br.risk_vector },
-          { lbl: 'Analyst Brief',       val: br.conviction_statement },
-        ].filter(r => r.val);
-        return rows.length
-          ? `<div class="sc-analyst">${rows.map(r =>
+        ${badges.length ? `<div class="sc-flags">${badges.map(b => `<span class="badge sans">${b}</span>`).join('')}</div>` : ''}
+        ${p._flags.length ? `<div class="sc-flags">${p._flags.map(f => flag(f)).join('')}</div>` : ''}
+        ${p.tierReason ? `<div class="sc-reason">${p.tierReason}</div>` : ''}
+        ${analystRows.length
+          ? `<div class="sc-analyst">${analystRows.map(r =>
               `<div class="sc-analyst-row">
                 <div class="sc-analyst-lbl sans">${r.lbl}</div>
                 <div class="sc-analyst-txt">${esc(r.val)}</div>
               </div>`).join('')}</div>`
-          : '';
-      })()}
+          : ''}
+      </div>
+      <div class="sc-right">
+        <div class="sc-vts sans">${f2(p.vts_final)}</div>
+        <div class="sc-vts-lbl sans">VTS</div>
+        <div class="sc-stats-vert">
+          <div class="sc-stat-box">
+            <div class="sc-stat-val sans">${pct(p.winPct)}</div>
+            <div class="sc-stat-lbl sans">Win</div>
+            ${fairOdds(p.winPct) ? `<div style="font-size:.55rem;color:var(--muted);">${fairOdds(p.winPct)}</div>` : ''}
+          </div>
+          <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.top10Pct)}</div><div class="sc-stat-lbl sans">Top 10</div></div>
+          <div class="sc-stat-box"><div class="sc-stat-val sans">${pct(p.makeCutPct)}</div><div class="sc-stat-lbl sans">Cut</div></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 
@@ -522,11 +522,15 @@ function bar(lbl, fillPct, cls, val, valColor) {
 
 // ── Full-field table — renders ALL rows; visibility toggled by applyVisibility ─
 function renderTable() {
-  const sorted = [...S.boardData].sort((a, b) => {
-    const { key, dir } = S.sort;
-    if (key === 'player') return dir * (a.player || '').localeCompare(b.player || '');
-    return dir * ((a[key] || 0) - (b[key] || 0));
-  });
+  const sorted = S.scenarioMode
+    ? [...S.boardData]
+        .map(p => ({ ...p, _scs: computeScenarioScore(p) }))
+        .sort((a, b) => b._scs - a._scs)
+    : [...S.boardData].sort((a, b) => {
+        const { key, dir } = S.sort;
+        if (key === 'player') return dir * (a.player || '').localeCompare(b.player || '');
+        return dir * ((a[key] || 0) - (b[key] || 0));
+      });
 
   const tbody = document.getElementById('board-tbody');
   if (!tbody) return;
@@ -1053,11 +1057,13 @@ function exitScenario() {
   document.getElementById('board-sub-scenario')?.remove();
   S.scenarioWeights = {};
   document.querySelectorAll('#board-tbody tr.analyst-mode-row').forEach(r => r.classList.remove('analyst-mode-row'));
+  renderTable();
 }
 
 function resetScenario() {
   S.scenarioWeights = getDefaultWeights();
   renderScenarioSliders();
+  renderTable();
   renderScenarioResults();
 }
 

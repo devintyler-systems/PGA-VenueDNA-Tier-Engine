@@ -80,9 +80,12 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;}
 .spotlight-section{max-width:1400px;margin:1.2rem auto;padding:0 1rem;}
 .spotlight-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
 .spotlight-header h2{color:var(--gold);font-size:1.1rem;}
-.spotlight-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.65rem;}
-.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;justify-content:space-between;}
+.spotlight-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.65rem;}
+.spotlight-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;cursor:pointer;transition:border-color .15s,transform .1s;display:grid;grid-template-columns:1fr auto;gap:.75rem 1rem;align-items:start;}
 .spotlight-card:hover{border-color:var(--gold-dim);transform:translateY(-1px);}
+.sc-left{display:flex;flex-direction:column;gap:.4rem;min-width:0;}
+.sc-right{display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:80px;text-align:center;background:var(--surface);border:1px solid var(--border-2);border-radius:6px;padding:.7rem .5rem;}
+.sc-stats-vert{display:flex;flex-direction:column;gap:.25rem;width:100%;}
 
 /* ── Board Table ── */
 .board-section{max-width:1400px;margin:1.5rem auto;padding:0 1rem;}
@@ -342,6 +345,8 @@ footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--muted);border
   table.board-table{font-size:.7rem;}
   table.board-table th,table.board-table td{padding:.35rem .4rem;}
   .spotlight-container{grid-template-columns:1fr;}
+  .spotlight-card{grid-template-columns:1fr;}
+  .sc-right{flex-direction:row;justify-content:space-around;min-width:unset;padding:.5rem .75rem;}
   .tier-intel{grid-template-columns:1fr;}
   .modal{margin:.25rem;max-height:95vh;}
   .modal-header{flex-wrap:wrap;}
@@ -605,6 +610,12 @@ body.drawer-open{overflow:hidden;}
   </div>
 </nav>
 
+<!-- ══ TIER INTEL ════════════════════════════════════════════════════════════ -->
+<section class="intel-section nav-section" id="sec-intel">
+  <h2>Tier Intelligence</h2>
+  <div id="tier-intel"></div>
+</section>
+
 <!-- ══ ADVANCED FILTER PANEL ════════════════════════════════════════════════ -->
 <div id="adv-filter-panel" class="hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
@@ -683,12 +694,6 @@ body.drawer-open{overflow:hidden;}
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow:hidden;">
     <canvas id="contention-canvas" style="max-height:400px;"></canvas>
   </div>
-</section>
-
-<!-- ══ TIER INTEL ════════════════════════════════════════════════════════════ -->
-<section class="intel-section nav-section" id="sec-intel">
-  <h2>Tier Intelligence</h2>
-  <div id="tier-intel"></div>
 </section>
 
 <!-- ══ STORYLINES ═══════════════════════════════════════════════════════════ -->

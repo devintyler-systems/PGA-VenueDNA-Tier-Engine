@@ -871,6 +871,30 @@ def main() -> None:
             })
         p["trait_scores"] = trait_scores
 
+        # Archetype tag classification using z-scored trait percentiles
+        _arc_dist = d_scaled["_d_drv_dist"][i]
+        _arc_acc  = d_scaled["_d_drv_acc"][i]
+        _arc_app  = d_scaled["_d_approach"][i]
+        _arc_li   = d_scaled["_d_long_iron"][i]
+        _arc_putt = d_scaled["_d_putt"][i]
+        _arc_comp = d_scaled["_d_composure"][i]   # closing-holes / scrambling proxy for ARG
+        archetype_tags: list[str] = []
+        if _arc_dist >= 75 and _arc_acc <= 30:
+            archetype_tags.append("Erratic Bomber")
+        if _arc_putt >= 70 and _arc_comp >= 70 and _arc_app <= 40:
+            archetype_tags.append("Short-Game Specialist")
+        # Putting Reliant: raw sg_putt ≥ 60% of player's total positive SG
+        _putt_v = p.get("_d_putt") or 0.0
+        _pos_sg = sum(v for v in [
+            p.get("app_true", 0.0), p.get("ott_true", 0.0),
+            _putt_v, p.get("ch_adjustment", 0.0),
+        ] if v and v > 0)
+        if _pos_sg > 0 and _putt_v > 0 and _putt_v >= 0.6 * _pos_sg:
+            archetype_tags.append("Putting Reliant")
+        if _arc_li <= 30:
+            archetype_tags.append("Weak Long-Iron")
+        p["archetype_tags"] = archetype_tags
+
         # Narratives
         strength = build_strength_tags(
             p["app_true"], p["delta_fit"], p["ott_true"],
@@ -931,7 +955,7 @@ def main() -> None:
         "prepenalty_vts", "vts_floor", "vts_ceil", "std_dev",
         "l5_array", "strength_tags", "weakness_tags", "headline", "win_case",
         "scouting_report",
-        "trait_scores", "anti_pattern_flags",
+        "trait_scores", "archetype_tags", "anti_pattern_flags",
         "app_true", "ott_true", "ch_adjustment", "true_sg_l20",
         "trait_approach_raw", "trait_long_iron_raw",
         "r2_wave", "r2_teetime",

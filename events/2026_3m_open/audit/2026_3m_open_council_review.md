@@ -1,6 +1,6 @@
 # Model Council Review — 2026 3M Open (Pre-Tournament)
 
-**Date:** 2026-07-23
+**Date:** 2026-07-25
 **Type:** Pre-Tournament
 **Schema:** 1.1
 
