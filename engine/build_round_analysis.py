@@ -223,6 +223,41 @@ _EVENT_CONFIGS: dict[str, dict] = {
             ],
         },
     },
+    "2026_3m_open": {
+        "event_name":   "2026 3M Open",
+        "course_name":  "TPC Twin Cities",
+        "par":          71,
+        "event_dir_glob": "events/*3m_open*",
+        "course_key":   "tpc_twin_cities",
+        "favored_wave": "early_late",
+        "trait_cols": {
+            "app_150_200":     "VenueDNA_trait_long_iron_150_225",
+            "ott_accuracy":    "VenueDNA_trait_driving_accuracy",
+            "ott_positional":  "VenueDNA_trait_total_driving",
+            "app_overall":     "VenueDNA_trait_approach",
+            "sg_putt":         "VenueDNA_trait_easy_green_putting",
+            "par5_scoring":    "VenueDNA_trait_par5_scoring",
+            "recent_form":     "VenueDNA_trait_recent_form_context",
+        },
+        "venue_weights": {
+            "app_150_200": 0.25, "ott_accuracy": 0.10, "ott_positional": 0.10,
+            "app_overall": 0.40, "sg_putt": 0.05, "par5_scoring": 0.05, "recent_form": 0.05,
+        },
+        "sg_proxy": {
+            "app_150_200": "sg_app", "ott_accuracy": "sg_ott", "ott_positional": "sg_ott",
+            "app_overall": "sg_app", "sg_putt": "sg_putt",
+            "par5_scoring": "sg_app", "recent_form": "sg_tot",
+        },
+        "ci_trait_map": {
+            "app_150_200":    {"primary": "gir",          "direction": "higher_better", "secondary": "fairway_prox"},
+            "ott_accuracy":   {"primary": "d_accuracy",   "direction": "higher_better", "secondary": None},
+            "ott_positional": {"primary": "d_accuracy",   "direction": "higher_better", "secondary": "d_distance"},
+            "app_overall":    {"primary": "fairway_prox", "direction": "lower_better",  "secondary": "gir"},
+            "sg_putt":        {"primary": None,           "direction": None,            "secondary": None},
+            "par5_scoring":   {"primary": "gir",          "direction": "higher_better", "secondary": "d_distance"},
+            "recent_form":    {"primary": None,           "direction": None,            "secondary": None},
+        },
+    },
 }
 
 cfg = _EVENT_CONFIGS.get(EVENT_SLUG)
@@ -741,7 +776,7 @@ for p in payload.get("players", []):
 trait_by_nk: dict[str, dict] = {}
 name_to_nk:  dict[str, str]  = {}
 for row in tfm:
-    nk = row.get("name_key", "")
+    nk = row.get("name_key") or row.get("player_name", "")
     traits = {}
     for tk, col in TRAIT_COLS.items():
         try:
@@ -750,8 +785,9 @@ for row in tfm:
         except (TypeError, ValueError):
             traits[tk] = None
     trait_by_nk[nk] = traits
-    if "player_display" in row:
-        name_to_nk[ascii_fold(row["player_display"]).lower()] = nk
+    display = row.get("player_display") or row.get("player_name") or nk
+    if display:
+        name_to_nk[ascii_fold(display).lower()] = nk
 
 def lookup_traits(name_lf: str) -> dict | None:
     nk = name_to_nk.get(ascii_fold(name_lf).lower())
@@ -1460,6 +1496,61 @@ for _r in joined:
     _sg_tot = _r.get("sg_tot")
     _rec["vs_proj"] = round(_sg_tot - (_pt_vts - 50.0) / 5.0, 3) if _sg_tot is not None else None
     lb_snapshot.append(_rec)
+
+# ── R3 Heat Stress Penalty (Round 2 projection only) ────────────────────────
+# Apply -0.05 SG/round penalty to players teeing off ≥ 11:30 AM CDT in R3
+# Heat index forecast: 96°F+ by 12:35 PM (Extreme Heat Warning, Blaine MN)
+if ROUND == 2:
+    _r3_tt_lookup: dict[str, str] = {}
+    _r3_csv_candidates = [
+        OUT / "round2" / "round3_tee_times.csv",
+        EVENT_DIR / "deploy" / "data" / "round3_tee_times.json",
+    ]
+    for _cand in _r3_csv_candidates:
+        if _cand.exists():
+            if _cand.suffix == ".csv":
+                for _row in load_csv(_cand):
+                    _pn = (_row.get("player_name") or "").strip()
+                    _tt = (_row.get("r3_teetime") or "").strip()
+                    if _pn and _tt:
+                        _r3_tt_lookup[ascii_fold(_pn).lower()] = _tt
+            else:
+                import json as _json
+                with open(_cand, encoding="utf-8") as _f:
+                    for _entry in _json.load(_f):
+                        _pn = (_entry.get("player_name") or _entry.get("player") or "").strip()
+                        _tt = (_entry.get("r3_teetime") or _entry.get("tee_time") or "").strip()
+                        if _pn and _tt:
+                            _r3_tt_lookup[ascii_fold(_pn).lower()] = _tt
+            break
+
+    def _parse_tt_minutes(tt_str: str) -> int | None:
+        raw = str(tt_str).strip().upper()
+        is_pm = "PM" in raw
+        is_am = "AM" in raw
+        cleaned = raw.replace("AM", "").replace("PM", "").strip()
+        parts = cleaned.replace(":", " ").split()
+        try:
+            h, m = int(parts[0]), int(parts[1]) if len(parts) > 1 else 0
+        except (IndexError, ValueError):
+            return None
+        if is_pm and h != 12:
+            h += 12
+        elif is_am and h == 12:
+            h = 0
+        return h * 60 + m
+
+    for _rec in lb_snapshot:
+        _key = ascii_fold((_rec.get("r1_name") or "")).lower()
+        _tt_str = _r3_tt_lookup.get(_key)
+        _mins = _parse_tt_minutes(_tt_str) if _tt_str else None
+        if _mins is not None and _mins >= 690:  # 11:30 AM = 11*60+30
+            _rec["heat_stress_penalty"] = -0.05
+            _rec["heat_index_peak"] = 96
+        else:
+            _rec["heat_stress_penalty"] = 0.0
+    n_heat = sum(1 for r in lb_snapshot if r.get("heat_stress_penalty", 0) < 0)
+    print(f"R3 heat stress: {n_heat} players flagged for afternoon tee times (≥11:30 AM CDT)")
 
 def _sg_field(key):
     vals = [p.get(key) for p in lb_snapshot if p.get(key) is not None]
