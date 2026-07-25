@@ -1541,7 +1541,7 @@ if ROUND == 2:
         return h * 60 + m
 
     for _rec in lb_snapshot:
-        _key = ascii_fold((_rec.get("r1_name") or "")).lower()
+        _key = fl_to_lf(ascii_fold((_rec.get("r1_name") or ""))).lower()
         _tt_str = _r3_tt_lookup.get(_key)
         _mins = _parse_tt_minutes(_tt_str) if _tt_str else None
         if _mins is not None and _mins >= 690:  # 11:30 AM = 11*60+30
