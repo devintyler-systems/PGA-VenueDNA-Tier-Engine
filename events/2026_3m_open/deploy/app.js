@@ -90,6 +90,20 @@ function normalizeTag(t) {
   return (t || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
 }
 
+// ── Shared EmptyState renderer — pending / unavailable / error ─────────────────
+function renderEmptyState(type, label) {
+  const cfg = {
+    pending:     { icon: '◌', color: 'var(--gold)',   msg: label || 'Not yet available for this round.' },
+    unavailable: { icon: '–',  color: 'var(--muted)',  msg: label || 'Not available for this event.' },
+    error:       { icon: '!',  color: 'var(--accent)', msg: label || 'Data could not be loaded — try refreshing.' },
+  }[type] || { icon: '?', color: 'var(--muted)', msg: label || 'Unknown state.' };
+  return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;gap:12px;font-family:-apple-system,sans-serif;text-align:center">
+    <div style="font-size:2rem;color:${cfg.color};opacity:.6">${cfg.icon}</div>
+    <div style="font-size:.9rem;font-weight:600;color:${cfg.color}">${cfg.msg}</div>
+    <div style="font-size:.72rem;color:var(--text-3)">VenueDNA · 2026 3M Open</div>
+  </div>`;
+}
+
 // ── Canonical name join — live CSV → boardData with suffix/initials fallbacks ─
 function canonName(rawName) {
   const nm = rawName || '';
@@ -492,11 +506,15 @@ async function switchRoundPayload(snav) {
     S.boardData = players.map(p => ({ ...p, _flags: buildFlags(p) }));
     renderAll();
   } catch (err) {
-    // Round data not available — show a note, keep current board
+    console.warn('[VenueDNA] switchRoundPayload failed:', snav, err.message);
+    const isPending = /404|Empty payload/i.test(err.message);
     const note = document.createElement('div');
     note.id = 'round-pending-note';
-    note.style.cssText = 'max-width:1400px;margin:.5rem auto;padding:.6rem 1rem;font-size:.82rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);';
-    note.textContent = `Round data not yet available (${url} — ${err.message})`;
+    note.style.cssText = 'max-width:1400px;margin:.5rem auto;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);';
+    note.innerHTML = renderEmptyState(
+      isPending ? 'pending' : 'error',
+      isPending ? 'Round scoring data not yet available — board shows pre-tournament model.' : 'Round data could not be loaded — try refreshing.'
+    );
     document.getElementById('section-nav')?.insertAdjacentElement('afterend', note);
   } finally {
     boardSection?.classList.remove('loading-blur');
@@ -557,7 +575,7 @@ function renderSpotlight() {
       { lbl: 'Key Risk to Monitor', val: br.failure_condition || br.risk_vector },
       { lbl: 'Analyst Brief',       val: br.conviction_statement },
     ].filter(r => r.val);
-    return `<div class="spotlight-card ${tc}" data-player="${esc(p.player)}">
+    return `<div class="spotlight-card ${tc}" data-player="${esc(p.player)}" data-player-id="${esc(String(p.player_id || ''))}">`
       <div class="sc-left">
         <div class="sc-top">
           <div class="sc-rank sans">${p.rank}</div>
@@ -602,7 +620,7 @@ function renderSpotlight() {
     card.addEventListener('click', () => {
       const name = card.dataset.player;
       scrollToPlayer(name);
-      openModal(name);
+      openModal(name, card.dataset.playerId);
     });
   });
 }
@@ -922,7 +940,7 @@ function renderStorylines() {
   const topContender = S.boardData.find(p => (p.tier === 'T1' || p.tier === 'T2') && (p.delta_fit || 0) >= 0);
   const risers = S.boardData.map(p => {
     const br = S.briefsByName[normName(p.player)] || {};
-    return { player: p.player, tier: p.tier, vsBaselineL20: br.vsBaselineL20 != null ? Number(br.vsBaselineL20) : null };
+    return { player: p.player, player_id: p.player_id, tier: p.tier, vsBaselineL20: br.vsBaselineL20 != null ? Number(br.vsBaselineL20) : null };
   }).filter(x => x.vsBaselineL20 != null && x.vsBaselineL20 > 0).sort((a, b) => b.vsBaselineL20 - a.vsBaselineL20);
   const topRiser = risers[0];
   const darkHorse = S.boardData.find(p => (p.tier === 'T3' || p.tier === 'T4') && (p.delta_fit || 0) > 0.1);
@@ -930,10 +948,11 @@ function renderStorylines() {
   function storylineCard(icon, label, playerObj, narrative, tierColor) {
     if (!playerObj) return '';
     const pName = playerObj.player || playerObj;
+    const pId   = String(playerObj.player_id || '');
     const br    = S.briefsByName[normName(pName)] || {};
     const txt   = narrative || br.convictionStatement || br.conviction_statement || br.why_it_fits_structurally || '';
     const tc    = tierColor || 'var(--gold)';
-    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;" data-player="${esc(pName)}">
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;cursor:pointer;" data-player="${esc(pName)}" data-player-id="${esc(pId)}">
       <div style="font-size:.65rem;color:${tc};font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;font-family:'Inter',sans-serif;">${icon} ${esc(label)}</div>
       <div style="font-weight:700;font-size:.9rem;color:var(--text);margin-bottom:.3rem;">${esc(pName)}</div>
       <div style="font-size:.73rem;color:var(--text-2);line-height:1.45;">${esc(txt.slice(0, 180))}${txt.length > 180 ? '…' : ''}</div>
@@ -946,7 +965,7 @@ function renderStorylines() {
       'var(--t1-t)'),
     storylineCard('▲', 'Structural Contender', topContender, null, 'var(--t2-t)'),
     topRiser ? storylineCard('📈', 'Form Riser',
-      { player: topRiser.player },
+      { player: topRiser.player, player_id: topRiser.player_id },
       `vs. Baseline L20: ${topRiser.vsBaselineL20 >= 0 ? '+' : ''}${topRiser.vsBaselineL20.toFixed(2)} SG — trending above baseline.`,
       'var(--green-ok)') : '',
     darkHorse ? storylineCard('◎', 'Dark Horse',
@@ -956,7 +975,7 @@ function renderStorylines() {
   ].filter(Boolean).join('');
 
   grid.querySelectorAll('[data-player]').forEach(card => {
-    card.addEventListener('click', () => openModal(card.dataset.player));
+    card.addEventListener('click', () => openModal(card.dataset.player, card.dataset.playerId));
   });
 }
 
@@ -986,6 +1005,7 @@ function renderContentionChart() {
       y: p.delta_fit != null ? p.delta_fit : 0,
       r: Math.max(4, Math.min(24, (p.winPct || 0.5) * 3.5)),
       player: p.player,
+      player_id: p.player_id,
       tier: p.tier,
       winPct: p.winPct,
       nsi: p.neutralSkillIndex,
@@ -1087,7 +1107,7 @@ function renderContentionChart() {
         const point = ds.data[el.index];
         if (point?.player) {
           scrollToPlayer(point.player);
-          openModal(point.player);
+          openModal(point.player, point.player_id);
         }
       },
     },
@@ -1400,12 +1420,16 @@ function openModal(name, playerId) {
   if (_pid) {
     p = S.boardData.find(x => x.player_id && String(x.player_id) === _pid)
      || S.altPlayers.find(x => x.player_id && String(x.player_id) === _pid);
+    if (!p) console.warn('[VenueDNA] openModal: player_id lookup miss — pid=' + _pid + ', falling back to name-match for:', name);
   }
   if (!p) {
     p = S.boardData.find(x => x.player === name)
       || S.altPlayers.find(x => x.player === name);
   }
-  if (!p) return;
+  if (!p) {
+    console.warn('[VenueDNA] openModal: unresolved player — both player_id and name lookup failed:', { _pid, name });
+    return;
+  }
 
   const br = (_pid && S.briefsById[_pid])
           || S.briefsByName[normName(p.player)]
