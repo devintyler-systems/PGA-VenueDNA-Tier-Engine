@@ -166,13 +166,15 @@ async function init() {
   if (tbody) tbody.innerHTML = '<tr><td colspan="13" class="no-results sans">Loading…</td></tr>';
 
   try {
-    const [boardJson, analysisJson, briefsJson] = await Promise.all([
+    const [boardJson, analysisJson, briefsJson, cumLearn] = await Promise.all([
       fetch('data/2026_3m_open_event_payload.json').then(r => r.json()),
       fetch('data/final_analysis.json').then(r => r.json()).catch(() => ({})),
       fetch('data/2026_3m_open_player_briefs.json').then(r => r.json()).catch(() => ({})),
+      fetch('data/cumulative_learning.json').then(r => r.json()).catch(() => null),
     ]);
 
     S.analysis = analysisJson;
+    if (cumLearn) S.cumulativeLearning = cumLearn;
 
     // Build normalised brief lookups — by name and by player_id (dg_id)
     S.briefsByName = {};
@@ -201,6 +203,11 @@ async function init() {
 
     bindEvents();
     renderAll();
+
+    // Auto-reveal live analysis for the highest completed round
+    if (S.cumulativeLearning?.rounds_completed > 0) {
+      switchRound(String(S.cumulativeLearning.rounds_completed));
+    }
 
     fetch('data/2026_3m_open_weather_forecast.json')
       .then(r => r.ok ? r.json() : Promise.reject())
@@ -478,15 +485,15 @@ async function switchRoundPayload(snav) {
   document.querySelectorAll('.ctrl-btn.chip').forEach(c => c.classList.remove('active'));
   document.querySelector('.ctrl-btn.chip[data-f="all"]')?.classList.add('active');
 
-  S.currentRound = snav;
-
   // Remove old pending note if present
   document.getElementById('round-pending-note')?.remove();
 
   if (snav === 'pre') {
     // Restore pre-tournament data (already loaded at init)
+    S.currentRound = 'pre';
     S.boardData = S._preTournamentData || S.boardData;
     renderAll();
+    document.getElementById('sec-live')?.classList.add('hidden');
     return;
   }
 
@@ -520,6 +527,11 @@ async function switchRoundPayload(snav) {
   } finally {
     boardSection?.classList.remove('loading-blur');
   }
+
+  // Bridge: auto-load the corresponding live analysis into sec-live.
+  // This is the only way sec-live becomes visible — snav tabs bridge to switchRound.
+  const _liveRound = { r1: '1', r2: '2', r3: '3', final: '4' }[snav];
+  if (_liveRound) switchRound(_liveRound);
 }
 
 // ── Render orchestration ───────────────────────────────────────────────────────
@@ -576,7 +588,7 @@ function renderSpotlight() {
       { lbl: 'Key Risk to Monitor', val: br.failure_condition || br.risk_vector },
       { lbl: 'Analyst Brief',       val: br.conviction_statement },
     ].filter(r => r.val);
-    return `<div class="spotlight-card ${tc}" data-player="${esc(p.player)}" data-player-id="${esc(String(p.player_id || ''))}">`
+    return `<div class="spotlight-card ${tc}" data-player="${esc(p.player)}" data-player-id="${esc(String(p.player_id || ''))}">
       <div class="sc-left">
         <div class="sc-top">
           <div class="sc-rank sans">${p.rank}</div>
@@ -1372,9 +1384,11 @@ function buildLiveSGBlock(p) {
   const r = S.currentRound;
   if (r === 'pre' || !S.roundData[r]) return '';
 
-  const snap = S.roundData[r].leaderboard_snapshot || [];
-  const nm   = normName(p.player);
-  const row  = snap.find(x => normName(x.r1_name || '') === nm);
+  const snap  = S.roundData[r].leaderboard_snapshot || [];
+  const nm    = normName(p.player);
+  const _pid  = p.player_id ? String(p.player_id) : null;
+  const row   = (_pid && snap.find(x => String(x.player_id || '') === _pid))
+             || snap.find(x => normName(x.r1_name || '') === nm);
 
   const hasData = row && (row.sg_ott != null || row.sg_app != null ||
                           row.sg_arg != null || row.sg_putt != null || row.sg_tot != null);
@@ -1475,6 +1489,13 @@ function openModal(name, playerId) {
           <span class="tier-badge sans" style="background:${tBg};color:${tColor};border:1px solid ${tColor}">${tier}</span>
           ${badges.map(b => `<span class="badge sans">${b}</span>`).join('')}
           ${flags.map(f => flag(f)).join('')}
+          ${(() => {
+            if (S.currentRound === 'pre' || S.currentRound === 'pm' || !S._preTournamentData) return '';
+            const _preP = S._preTournamentData.find(x => x.player_id && String(x.player_id) === String(p.player_id || ''));
+            if (!_preP) return '';
+            const _wPct = _preP.winPct ?? _preP.win_prob;
+            return `<span class="sans" style="font-size:10px;color:var(--text-3);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;white-space:nowrap">Pre-Event: #${_preP.rank} ${_preP.tier}${_wPct != null ? ' · Win ' + Number(_wPct).toFixed(1) + '%' : ''}</span>`;
+          })()}
         </div>
         ${(scoring.band || p.band_name) ? `<div class="modal-band-row"><span class="modal-band-pill" style="background:${tBg};color:${tColor};border-color:${tBd}">${scoring.band || p.band_name}</span></div>` : ''}
       </div>
@@ -2038,7 +2059,7 @@ async function switchRound(r) {
     return;
   }
 
-  PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+  // sec-live shows alongside the board (does NOT replace PRE_SECTIONS)
   document.getElementById('sec-pm')?.classList.add('hidden');
   const liveSection = document.getElementById('sec-live');
   const pending     = document.getElementById('live-pending');
@@ -2158,7 +2179,9 @@ function renderLiveRound(data, el) {
           <th data-sort-key="vs_proj">vs Proj ${_lsArrow('vs_proj')}</th>
           <th data-sort-key="live_win_pct">Live Win% ${_lsArrow('live_win_pct')}</th>
         </tr></thead>
-        <tbody>${lbSnap.slice(0, 80).map(r => {
+        <tbody>${(() => {
+          let _cutSeen = false;
+          return lbSnap.slice(0, 80).map(r => {
           const isDNS   = r.r1_score == null && !r.r1_pos_str;
           const isElim  = /^(CUT|WD|DQ|MC|MDF)/i.test(r.r1_pos_str || '');
           const score   = r.r1_score;
@@ -2168,7 +2191,12 @@ function renderLiveRound(data, el) {
           const vp      = r.vs_proj;
           const vpStr   = vp != null ? (vp > 0 ? '+' + vp.toFixed(2) : vp.toFixed(2)) : '—';
           const vpColor = vp == null ? 'var(--muted)' : vp > 0 ? 'var(--green-ok)' : vp < 0 ? 'var(--accent)' : 'var(--text-3)';
-          return `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}">
+          let sep = '';
+          if (isElim && !_cutSeen) {
+            _cutSeen = true;
+            sep = `<tr class="cut-line-row"><td colspan="10" style="padding:4px 10px;background:#1a0a00;border-top:2px solid #dc2626;border-bottom:2px solid #dc2626;color:#f87171;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-align:center">✂ CUT LINE</td></tr>`;
+          }
+          return sep + `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}"${isElim ? ' style="opacity:.6"' : ''}>
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
             <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -2180,7 +2208,8 @@ function renderLiveRound(data, el) {
             <td class="sans" style="color:${vpColor}">${vpStr}</td>
             <td class="sans">${winPct}</td>
           </tr>`;
-        }).join('')}</tbody>
+          }).join('');
+        })()}</tbody>
       </table>
     </div>
 
