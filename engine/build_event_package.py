@@ -455,7 +455,12 @@ def make_brief(name: str, board: dict, traits: dict, flags: dict, ch: dict,
     if flags.get("VenueDNA_flag_accuracy_risk") is True:
         risk_parts.append(f"driving accuracy flag active (adj {acc_adj:+.3f}); penalty exposure on 9 water-threatened driving holes is the primary downside scenario")
     if flags.get("VenueDNA_flag_long_iron_deficit") is True:
-        risk_parts.append("150-200 fw SG below neutral; weak long-iron week at TPC produces a ceiling far short of leaderboard contention")
+        if v150_raw is not None:
+            risk_parts.append(f"150-200 fw SG {v150_raw:+.3f}/shot (long-iron deficit; below +0.04 threshold); weak long-iron week at TPC produces ceiling far short of leaderboard contention")
+        elif li_z is not None:
+            risk_parts.append(f"150-200 fw trait score {li_z:.0f}/100 (long-iron deficit flagged); weak long-iron week at TPC produces ceiling far short of leaderboard contention")
+        else:
+            risk_parts.append("150-200 fw SG below neutral; weak long-iron week at TPC produces a ceiling far short of leaderboard contention")
     if flags.get("VenueDNA_flag_putting_dependency") is True:
         risk_parts.append("putting-reliant profile; easy bentgrass greens compress the putting edge that drives results at trickier venues")
     if flags.get("VenueDNA_flag_debut_uncertainty") is True:
@@ -464,9 +469,11 @@ def make_brief(name: str, board: dict, traits: dict, flags: dict, ch: dict,
         risk_parts.append("short-game-only profile; TPC does not reward scrambling over ball-striking")
     if not risk_parts:
         if tier in ("T4","T5"):
-            risk_parts.append("below-field approach and/or iron play limits scoring capacity in TPC's birdiefest environment where approach is the primary separator")
+            app_note = f"App Overall {app_z:.0f}/100; " if app_z is not None else ""
+            risk_parts.append(f"{app_note}below-field approach and/or iron play limits TPC scoring capacity where birdie density separates contenders from field")
         else:
-            risk_parts.append("model risk is primarily regression to mean if 150-200 fw performance falls below recent trend")
+            li_note = f"App 150-200 {li_z:.0f}/100 — " if li_z is not None else ""
+            risk_parts.append(f"{li_note}model risk is regression to mean if 150-200 fw performance falls below recent trend")
 
     key_risk = "; ".join(risk_parts)
 

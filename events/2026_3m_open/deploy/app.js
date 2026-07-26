@@ -182,12 +182,13 @@ async function init() {
       : Object.values(briefsJson).filter(b => b && typeof b === 'object' && b.player_name);
     for (const b of _bEntries) {
       const _bKey = b.player_name || `${b.last_name || ''}, ${b.first_name || ''}`.trim();
-      // Map 3M brief schema fields → modal-expected field names
-      if (!b.scoring_thesis)        b.scoring_thesis        = b.exact_mechanism || b.why_it_fits_structurally || '';
+      // Map 3M brief schema → modal field names (one source field per display slot)
+      if (!b.scoring_thesis)        b.scoring_thesis        = b.exact_mechanism || '';
       if (!b.failure_condition)     b.failure_condition     = b.named_failure_condition || '';
-      if (!b.risk_vector)           b.risk_vector           = b.card_risk_vector || b.key_risk_vector || '';
-      if (!b.conviction_statement)  b.conviction_statement  = b.convictionStatement || b.why_it_fits_structurally || '';
-      if (!b.neutral_skill_summary) b.neutral_skill_summary = b.neutral_skill_summary || b.why_it_fits_structurally || '';
+      if (!b.risk_vector)           b.risk_vector           = b.key_risk_vector || '';
+      if (!b.conviction_statement)  b.conviction_statement  = b.why_it_fits_structurally || '';
+      // neutral_skill_summary intentionally not mapped to why_it_fits_structurally —
+      // conviction_statement already carries it; §4 only renders with genuinely distinct data
       if (!b.form_summary)          b.form_summary          = b.form_summary || '';
       if (!b.anti_pattern_summary)  b.anti_pattern_summary  = b.penalty_context || '';
       if (!b.venue_history_summary) b.venue_history_summary = b.venue_history_context || '';
@@ -1337,9 +1338,9 @@ function buildWinCase(p, br, tier) {
     return `<div class="modal-sec">
       <div class="modal-sec-title sans">${label}</div>
       <div class="win-case-card ${tc}">
-        ${br.scoring_thesis        ? `<div class="wc-q ${tc}c">Win Mechanism</div><div class="wc-p">${br.scoring_thesis}</div>` : ''}
-        ${(br.failure_condition || br.risk_vector) ? `<div class="wc-q ${tc}c">Key Risk</div><div class="wc-p">${br.failure_condition || br.risk_vector}</div>` : ''}
-        ${br.conviction_statement  ? `<div class="wc-q ${tc}c">Model Read</div><div class="wc-p">${br.conviction_statement}</div>` : ''}
+        ${br.scoring_thesis   ? `<div class="wc-q ${tc}c">Win Mechanism</div><div class="wc-p">${br.scoring_thesis}</div>` : ''}
+        ${br.failure_condition ? `<div class="wc-q ${tc}c">Key Risk</div><div class="wc-p">${br.failure_condition}</div>` : ''}
+        ${br.risk_vector       ? `<div class="wc-q ${tc}c">Risk Vector</div><div class="wc-p">${br.risk_vector}</div>` : ''}
       </div>
     </div>`;
   }
