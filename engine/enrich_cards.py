@@ -129,6 +129,20 @@ def load_field(path: Path) -> list[str]:
     return names
 
 
+def load_field_ids(path: Path) -> dict[str, str]:
+    """Returns {player_name: dg_id} from pga_field.csv. Names are 'Last, First' format."""
+    result: dict[str, str] = {}
+    if not path.exists():
+        return result
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            n = row.get("player_name", "").strip().strip('"')
+            fid = row.get("dg_id", "").strip()
+            if n and fid and fid.lower() != "null":
+                result[n] = fid
+    return result
+
+
 def load_sg_csv(path: Path) -> dict[str, dict]:
     """{name: {rounds, total_mean}}"""
     result: dict[str, dict] = {}
@@ -614,7 +628,8 @@ def main() -> None:
     if not field_names:
         print("[enrich_cards] ERROR — pga_field.csv missing or empty", file=sys.stderr)
         sys.exit(1)
-    print(f"  Field: {len(field_names)} players")
+    field_ids = load_field_ids(input_dir / "pga_field.csv")
+    print(f"  Field: {len(field_names)} players, {len(field_ids)} with dg_id")
 
     all_sg = {h: load_sg_csv(input_dir / f) for h, f in ALL_COURSES_FILES.items()}
     sim_sg = {h: load_sg_csv(input_dir / f) for h, f in SIM_COURSES_FILES.items()}
@@ -732,6 +747,7 @@ def main() -> None:
         players_raw.append({
             # Identity
             "player":               name,
+            "player_id":            field_ids.get(name),  # dg_id — immutable numeric join key
             "data_depth":           data_depth,
             "course_debut":         course_debut,
             # Dual-vector SG
@@ -946,7 +962,7 @@ def main() -> None:
              "_live_vts", "_r2_wave", "_r2_teetime"}
 
     _first = [
-        "rank", "player", "player_name", "tier", "vts_final", "live_vts",
+        "rank", "player", "player_name", "player_id", "tier", "vts_final", "live_vts",
         "neutralSkillIndex",
         "sg_base_composite", "sg_similar_composite", "delta_fit", "data_depth",
         "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",

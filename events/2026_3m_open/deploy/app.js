@@ -4,6 +4,7 @@
 const S = {
   boardData:         [],
   briefsByName:      {},
+  briefsById:        {},
   analysis:          null,
   activePlayer:      null,
   currentFilter:     'all',
@@ -139,7 +140,9 @@ function canonName(rawName) {
 
 // ── Derive audit flags from board row ─────────────────────────────────────────
 function buildFlags(p) {
-  const br = S.briefsByName[normName(p.player)] || {};
+  const br = (p.player_id && S.briefsById[String(p.player_id)])
+          || S.briefsByName[normName(p.player)]
+          || {};
   return [...(br.anti_pattern_flags || [])];
 }
 
@@ -157,8 +160,9 @@ async function init() {
 
     S.analysis = analysisJson;
 
-    // Build normalised brief lookup — handles flat {"Last, First": {...}} shape from 3M brief export
+    // Build normalised brief lookups — by name and by player_id (dg_id)
     S.briefsByName = {};
+    S.briefsById   = {};
     const _bEntries = Array.isArray(briefsJson.players)
       ? briefsJson.players
       : Object.values(briefsJson).filter(b => b && typeof b === 'object' && b.player_name);
@@ -174,6 +178,7 @@ async function init() {
       if (!b.anti_pattern_summary)  b.anti_pattern_summary  = b.penalty_context || '';
       if (!b.venue_history_summary) b.venue_history_summary = b.venue_history_context || '';
       S.briefsByName[normName(_bKey)] = b;
+      if (b.player_id) S.briefsById[String(b.player_id)] = b;
     }
 
     S.boardData = (boardJson.players || []).map(p => ({ ...p, _flags: buildFlags(p) }));
@@ -212,7 +217,7 @@ function bindEvents() {
     if (!tr) return;
     const name = tr.dataset.player;
     if (!name) return;
-    openModal(name);
+    openModal(name, tr.dataset.playerId);
   });
   document.getElementById('spotlight-toggle')?.addEventListener('click', toggleSpotlight);
   document.getElementById('adv-toggle')?.addEventListener('click', toggleAdvFilter);
@@ -629,7 +634,7 @@ function renderTable() {
     const tColor = { T1:'var(--t1-t)', T2:'var(--t2-t)', T3:'var(--t3-t)', T4:'var(--t4-t)', T5:'var(--t5-t)' }[p.tier];
     const tBg    = { T1:'var(--t1-bg)', T2:'var(--t2-bg)', T3:'var(--t3-bg)', T4:'var(--t4-bg)', T5:'var(--t5-bg)' }[p.tier];
     const flagStr = p._flags.join(',');
-    return `<tr data-player="${esc(p.player)}" data-tier="${p.tier}" data-flags="${flagStr}" data-vts="${p.vts_final ?? ''}" data-nsi="${p.neutralSkillIndex ?? ''}" data-win="${p.winPct ?? ''}">
+    return `<tr data-player="${esc(p.player)}" data-player-id="${esc(p.player_id || '')}" data-tier="${p.tier}" data-flags="${flagStr}" data-vts="${p.vts_final ?? ''}" data-nsi="${p.neutralSkillIndex ?? ''}" data-win="${p.winPct ?? ''}">
       <td class="left"><span class="rank-num sans" style="background:${tBg};color:${tColor}">${p.rank}</span></td>
       <td class="left"><div class="player-name-cell">${p.player}
         <small><span class="tier-badge sans" style="background:${tBg};color:${tColor};border:1px solid ${tColor}">${p.tier}</span></small>
@@ -658,7 +663,7 @@ function renderTable() {
   tbody.querySelectorAll('tr[data-player]').forEach(tr => {
     tr.addEventListener('click', () => {
       S.activePlayer = tr.dataset.player;
-      openModal(tr.dataset.player);
+      openModal(tr.dataset.player, tr.dataset.playerId);
     });
   });
 
@@ -680,7 +685,7 @@ function renderCards() {
     const tColor = { T1:'var(--t1-t)', T2:'var(--t2-t)', T3:'var(--t3-t)', T4:'var(--t4-t)', T5:'var(--t5-t)' }[p.tier] || '';
     const tBg    = { T1:'var(--t1-bg)', T2:'var(--t2-bg)', T3:'var(--t3-bg)', T4:'var(--t4-bg)', T5:'var(--t5-bg)' }[p.tier] || '';
     const flagStr = (p._flags || []).join(',');
-    return `<div class="player-card" data-player="${esc(p.player)}" data-tier="${p.tier}" data-flags="${flagStr}" data-vts="${p.vts_final ?? ''}" data-nsi="${p.neutralSkillIndex ?? ''}" data-win="${p.winPct ?? ''}">
+    return `<div class="player-card" data-player="${esc(p.player)}" data-player-id="${esc(p.player_id || '')}" data-tier="${p.tier}" data-flags="${flagStr}" data-vts="${p.vts_final ?? ''}" data-nsi="${p.neutralSkillIndex ?? ''}" data-win="${p.winPct ?? ''}">
       <div class="pc-top">
         <div class="pc-rank sans" style="background:${tBg};color:${tColor};border:1px solid ${tColor}">${p.rank}</div>
         <div class="pc-name">
@@ -703,7 +708,7 @@ function renderCards() {
   }).join('');
 
   container.querySelectorAll('.player-card[data-player]').forEach(card => {
-    card.addEventListener('click', () => openModal(card.dataset.player));
+    card.addEventListener('click', () => openModal(card.dataset.player, card.dataset.playerId));
   });
 }
 
@@ -1388,12 +1393,24 @@ function buildLiveSGBlock(p) {
 }
 
 // ── openModal — all 10 data zones ─────────────────────────────────────────────
-function openModal(name) {
-  const p = S.boardData.find(x => x.player === name)
-         || S.altPlayers.find(x => x.player === name);
+function openModal(name, playerId) {
+  // Resolve by player_id first (immutable join key); fall back to display name
+  let p;
+  const _pid = playerId ? String(playerId) : null;
+  if (_pid) {
+    p = S.boardData.find(x => x.player_id && String(x.player_id) === _pid)
+     || S.altPlayers.find(x => x.player_id && String(x.player_id) === _pid);
+  }
+  if (!p) {
+    p = S.boardData.find(x => x.player === name)
+      || S.altPlayers.find(x => x.player === name);
+  }
   if (!p) return;
 
-  const br    = S.briefsByName[normName(p.player)] || {};
+  const br = (_pid && S.briefsById[_pid])
+          || S.briefsByName[normName(p.player)]
+          || {};
+  const _hasBrief = !!(br.scoring_thesis || br.why_it_fits_structurally || br.conviction_statement || br.scouting_report || br.win_case);
   const tier  = p.tier;
   const tn    = parseInt(tier[1]) || 3;
   const flags = p._flags || [];
@@ -1444,6 +1461,8 @@ function openModal(name) {
     </div>
 
     <div class="modal-body">
+
+      ${!_hasBrief ? `<div style="padding:.6rem 1rem;margin-bottom:.75rem;background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.35);border-radius:6px;font-size:.73rem;color:var(--text-2);font-family:'Inter',sans-serif">No brief generated for this player — probability and VTS data from model only.</div>` : ''}
 
       <!-- §1 — PROBABILITY & OUTPUT -->
       <div class="modal-sec">
@@ -2098,7 +2117,7 @@ function renderLiveRound(data, el) {
     <div class="live-sub-header">
       <div class="live-sub-title">${meta.round_label || `Round ${round}`} Leaderboard</div>
       <div class="live-sub-note sans">${match.matched ?? '?'} / ${match.total_r1 ?? match.total ?? '?'} matched</div>
-      ${rho != null ? `<span class="rho-badge sans">rho: ${Number(rho).toFixed(3)}</span>` : ''}
+      ${rho != null ? `<span class="rho-badge sans" title="Spearman ρ: rank correlation between pre-tournament VTS rank and actual scoring position after Round ${round}. ≥0.60 = strong, ≥0.40 = moderate, ≥0.20 = weak, &lt;0.00 = inverse (council flag).">rho: ${Number(rho).toFixed(3)}</span>` : ''}
     </div>
     <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 2px 8px var(--shadow)">
       <table class="live-table">
@@ -2124,7 +2143,7 @@ function renderLiveRound(data, el) {
           const vp      = r.vs_proj;
           const vpStr   = vp != null ? (vp > 0 ? '+' + vp.toFixed(2) : vp.toFixed(2)) : '—';
           const vpColor = vp == null ? 'var(--muted)' : vp > 0 ? 'var(--green-ok)' : vp < 0 ? 'var(--accent)' : 'var(--text-3)';
-          return `<tr data-player="${esc(canonName(r.r1_name))}">
+          return `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}">
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
             <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -2154,7 +2173,7 @@ function renderLiveRound(data, el) {
             <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
             <th>Δ Rank</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th><th>Thesis</th>
           </tr></thead>
-          <tbody>${risers.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
+          <tbody>${risers.map(r => `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}">
             <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -2179,7 +2198,7 @@ function renderLiveRound(data, el) {
             <th class="left">Player</th><th>Δ Rank</th>
             <th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th>
           </tr></thead>
-          <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}">
+          <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}">
             <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
             <td class="sans">${deltaHtml(r.pt_rank, r.r1_pos)}</td>
             <td class="sans" style="color:${(r.sg_app||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgFmt(r.sg_app)}</td>
@@ -2374,9 +2393,9 @@ function renderPostMortemView(data) {
 
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px">
     <div class="pm-card">
-      <div class="pm-card-label">Overall Spearman &rho;</div>
+      <div class="pm-card-label" title="Spearman ρ: rank correlation between pre-tournament VTS rank and actual final position. ≥0.60 = strong, ≥0.40 = moderate, ≥0.20 = weak, &lt;0.00 = inverse (council flag).">Overall Spearman &rho;</div>
       <div class="pm-card-value" style="color:${rho != null ? rhoColor(Math.abs(rho)) : 'var(--text-2)'}">${rho != null ? rho.toFixed(3) : '—'}</div>
-      <div class="pm-card-sub">rank vs. final position</div>
+      <div class="pm-card-sub">pre-tournament VTS rank vs. final position</div>
     </div>
     <div class="pm-card">
       <div class="pm-card-label">T1/T2 Top-20 Hit Rate</div>

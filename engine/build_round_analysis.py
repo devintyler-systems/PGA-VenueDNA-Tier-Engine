@@ -336,10 +336,11 @@ else:
     CS_PATH = ROUND_DIR / f"round{ROUND}_course_stats.csv"
     CI_PATH = ROUND_DIR / f"round{ROUND}_course_insights.csv"
 
-TFM_PATH = OUT / f"{EVENT_SLUG}_trait_form_matrix.csv"
+TFM_PATH   = OUT / f"{EVENT_SLUG}_trait_form_matrix.csv"
 _pay_candidates = [DEP / "event_payload.json", DEP / f"{EVENT_SLUG}_event_payload.json"]
-PAY_PATH = next((p for p in _pay_candidates if p.exists()), DEP / "event_payload.json")
-PAIRINGS  = EVENT_DIR / "input" / "r1_pairings.csv"
+PAY_PATH   = next((p for p in _pay_candidates if p.exists()), DEP / "event_payload.json")
+PAIRINGS   = EVENT_DIR / "input" / "r1_pairings.csv"
+FIELD_PATH = EVENT_DIR / "input" / "pga_field.csv"
 
 # ── Helper functions ──────────────────────────────────────────────────────────
 
@@ -393,6 +394,14 @@ def _deep_norm(s: str) -> str:
 def fl_to_lf(name: str) -> str:
     parts = name.strip().split()
     return parts[-1] + ", " + " ".join(parts[:-1]) if len(parts) >= 2 else name
+
+
+_SPECIAL_FOLD = str.maketrans({'ø': 'o', 'Ø': 'o', 'ð': 'd', 'Ð': 'd', 'þ': 't',
+                                'Þ': 't', 'æ': 'ae', 'Æ': 'ae', 'ß': 'ss'})
+
+def _fold_special(s: str) -> str:
+    """Transliterate non-NFKD-decomposable chars (ø→o, ð→d, þ→t, æ→ae) for ASCII matching."""
+    return s.translate(_SPECIAL_FOLD)
 
 
 def avg(lst: list) -> float | None:
@@ -593,6 +602,25 @@ cs      = load_csv(CS_PATH) if cs_loaded else []
 ci_rows = load_csv(CI_PATH) if ci_loaded else []
 with open(PAY_PATH, encoding="utf-8") as f:
     payload = json.load(f)
+
+# Build dg_id lookup from pga_field.csv — canonical numeric ID per player
+_dg_id_by_norm: dict[str, str] = {}
+_dg_id_by_fl:   dict[str, str] = {}    # keyed by "First Last" form (catches compound surnames)
+if FIELD_PATH.exists():
+    for _frow in load_csv(FIELD_PATH):
+        _fn = _frow.get("player_name", "").strip()
+        _fid = _frow.get("dg_id", "").strip()
+        if _fn and _fid and _fid.lower() != "null":
+            _dg_id_by_norm[norm_name(_fn)] = _fid
+            # Build FL-form key: "Last, First" → "First Last"
+            _lf_parts = [p.strip() for p in _fn.split(",", 1)]
+            if len(_lf_parts) == 2:
+                _fl_form = f"{_lf_parts[1]} {_lf_parts[0]}".strip()
+                _dg_id_by_fl[_deep_norm(_fl_form)] = _fid
+                _dg_id_by_fl[_deep_norm(_fold_special(_fl_form))] = _fid
+    print(f"[player_id] Loaded {len(_dg_id_by_norm)} dg_id entries from pga_field.csv")
+else:
+    print("[player_id] WARNING — pga_field.csv not found; player_id will be null")
 
 # Board-export rank override — post-audit VTS ranks supersede event_payload ranks
 _board_rank: dict[str, int] = {}
@@ -877,7 +905,7 @@ for row in lb:
         "sg_app":  parse_float(sg_row.get("SG-Approach to Green")) if sg_row else None,
         "sg_arg":  sg_arg_val,
         "sg_putt": parse_float(sg_row.get("SG-Putting"))           if sg_row else None,
-        "sg_tot":  parse_float(sg_row.get("SG-Total"))             if sg_row else None,
+        "sg_tot":  parse_float(sg_row.get("SG Total") or sg_row.get("SG-Total")) if sg_row else None,
         "traits":     lookup_traits(norm),
         "rank_delta": ((_board_rank.get(folded.lower()) or _board_rank.get(_deep_norm(r_name)) or pt["rank"]) - pos_num) if pt else 0,
     }
@@ -1063,6 +1091,87 @@ def _brie_z_augment() -> dict:
 
 if "app_150_200" in trait_audit:
     trait_audit["app_150_200"]["brie_z"] = _brie_z_augment()
+
+# ── DG live stats tier-aware proxy augmentation ───────────────────────────────
+# Maps live_stats_r{N}_values.csv columns to trait audit with confidence tiering.
+# proxy-confirmed: proxy directly measures the target shot category
+# weak-proxy:      proxy uses a broader metric for a specific sub-category
+# not_testable:    no valid live proxy exists; retained without relabeling
+_LIVE_PROXY_CONF: dict[str, tuple[str | None, str, str]] = {
+    # trait_key: (live_col, source_label, confidence)
+    "ott_accuracy":  ("accuracy",  "D. ACCURACY",       "proxy-confirmed"),
+    "ott_positional":("sg_ott",    "SG OTT (broad)",    "weak-proxy"),
+    "app_overall":   ("sg_app",    "SG APP",             "proxy-confirmed"),
+    "app_150_200":   ("gir",       "GIR (broad)",        "weak-proxy"),
+    "sg_putt":       ("sg_putt",   "SG PUTT",            "proxy-confirmed"),
+    "putt_short_conv":("sg_putt",  "SG PUTT (broad)",    "weak-proxy"),
+    "putt_lag":      ("sg_putt",   "SG PUTT (broad)",    "weak-proxy"),
+    "arg_rough":     ("prox_rgh",  "ROUGH PROX",         "proxy-confirmed"),
+    "arg_bunker":    ("scrambling","SCRAMBLING (broad)", "weak-proxy"),
+    "par5_scoring":  (None,        None,                 "not_testable"),
+    "recent_form":   ("sg_total",  "SG TOTAL (broad)",   "weak-proxy"),
+}
+
+_live_stats_path = ROUND_DIR / f"live_stats_r{ROUND}_values.csv"
+if _live_stats_path.exists():
+    _ls_rows = load_csv(_live_stats_path)
+    # Build player_id → row lookup; also norm_name ("Last, First") → row fallback
+    _ls_by_pid:  dict[str, dict] = {}
+    _ls_by_norm: dict[str, dict] = {}
+    for _lsr in _ls_rows:
+        _ln = (_lsr.get("player_name") or "").strip()
+        _ls_by_norm[norm_name(_ln)] = _lsr
+        # Resolve player_id via dg_id_by_norm (Last,First lookup)
+        _lpid = _dg_id_by_norm.get(norm_name(_ln))
+        if _lpid:
+            _ls_by_pid[_lpid] = _lsr
+
+    def _ls_float(row: dict | None, col: str) -> float | None:
+        if row is None: return None
+        v = row.get(col, "")
+        try: return float(v) if v not in ("", None) else None
+        except (ValueError, TypeError): return None
+
+    def _ls_top10_avg(col: str) -> float | None:
+        vals = []
+        for _r in top10_group:
+            _pid = _dg_id_by_norm.get(norm_name(fl_to_lf(_r.get("r1_name", ""))))
+            row  = (_ls_by_pid.get(_pid) if _pid else None) or _ls_by_norm.get(norm_name(fl_to_lf(_r.get("r1_name", ""))))
+            v    = _ls_float(row, col)
+            if v is not None: vals.append(v)
+        return avg(vals)
+
+    def _ls_field_avg(col: str) -> float | None:
+        vals = []
+        for _r in joined:
+            _pid = _dg_id_by_norm.get(norm_name(fl_to_lf(_r.get("r1_name", ""))))
+            row  = (_ls_by_pid.get(_pid) if _pid else None) or _ls_by_norm.get(norm_name(fl_to_lf(_r.get("r1_name", ""))))
+            v    = _ls_float(row, col)
+            if v is not None: vals.append(v)
+        return avg(vals)
+
+    for _tk, (_lcol, _lsrc, _lconf) in _LIVE_PROXY_CONF.items():
+        if _tk not in trait_audit:
+            continue
+        if _lcol is None:
+            trait_audit[_tk]["source_confidence"] = "not_testable"
+            trait_audit[_tk]["proxy_source"]       = None
+            continue
+        _lt10 = _ls_top10_avg(_lcol)
+        _lfa  = _ls_field_avg(_lcol)
+        _lfile = f"live_stats_r{ROUND}_values.csv::{_lcol}"
+        trait_audit[_tk]["source_confidence"]  = _lconf
+        trait_audit[_tk]["proxy_source"]        = _lfile
+        trait_audit[_tk]["live_proxy_label"]    = _lsrc
+        trait_audit[_tk]["live_proxy_top10_avg"] = round(_lt10, 4) if _lt10 is not None else None
+        trait_audit[_tk]["live_proxy_field_avg"] = round(_lfa,  4) if _lfa  is not None else None
+    print(f"[proxy] Live stats proxy augmentation applied from {_live_stats_path.name}")
+else:
+    for _tk in _LIVE_PROXY_CONF:
+        if _tk in trait_audit:
+            trait_audit[_tk]["source_confidence"] = "not_testable"
+            trait_audit[_tk]["proxy_source"]       = None
+    print(f"[proxy] Live stats file not found — all traits marked not_testable: {_live_stats_path}")
 
 # ── Course insights enrichment ────────────────────────────────────────────────
 top10_ci = [r for r in top10_group if r.get("ci")]
@@ -1492,11 +1601,36 @@ for _r in joined:
     _rec = {k: _r[k] for k in ("r1_name","r1_pos","r1_pos_str","r1_score","pt_rank",
                                   "pt_tier","pt_vts","sg_app","sg_putt","sg_ott","sg_arg","sg_tot","wave","rank_delta")
             if k in _r}
+    # Canonical player ID — sourced from pga_field.csv dg_id (Last, First format); immutable join key
+    _r1n = _r.get("r1_name", "")
+    _rec["player_id"] = (
+        _dg_id_by_norm.get(norm_name(fl_to_lf(_r1n)))        # "Michael Kim" → "Kim, Michael"
+        or _dg_id_by_norm.get(norm_name(_r1n))                # direct "First Last" in LF dict
+        or _dg_id_by_fl.get(_deep_norm(_r1n))                 # compound surname FL lookup
+        or _dg_id_by_fl.get(_deep_norm(_fold_special(_r1n)))  # ø/ð/þ/æ → ASCII then FL lookup
+        or _dg_id_by_norm.get(norm_name(_r.get("norm_name", "")))
+    )
     # vs_proj: actual round SG-Total minus VTS-implied projected SG (1 stroke ≈ 5 VTS points)
     _pt_vts = _r.get("pt_vts") or 50.0
     _sg_tot = _r.get("sg_tot")
     _rec["vs_proj"] = round(_sg_tot - (_pt_vts - 50.0) / 5.0, 3) if _sg_tot is not None else None
+    # If sg_tot sub-components are available but sg_tot is null, compute it
+    if _sg_tot is None:
+        _subs = [_r.get(k) for k in ("sg_ott","sg_app","sg_arg","sg_putt")]
+        if all(v is not None for v in _subs):
+            _computed_tot = round(sum(_subs), 3)
+            _rec["sg_tot"] = _computed_tot
+            _rec["vs_proj"] = round(_computed_tot - (_pt_vts - 50.0) / 5.0, 3)
+        else:
+            _rec["sg_tot"] = None
     lb_snapshot.append(_rec)
+
+# Build-time assertion: player_id must be present for 100% of snapshot rows
+_missing_pid = [r.get("r1_name") for r in lb_snapshot if not r.get("player_id")]
+if _missing_pid:
+    print(f"[player_id] WARNING — {len(_missing_pid)} players without player_id: {_missing_pid[:10]}")
+else:
+    print(f"[player_id] Assertion passed: player_id present for all {len(lb_snapshot)} leaderboard rows")
 
 # ── R3 Heat Stress Penalty (Round 2 projection only) ────────────────────────
 # Apply -0.05 SG/round penalty to players teeing off ≥ 11:30 AM CDT in R3
@@ -1581,7 +1715,7 @@ def _load_hist_sg_tot(rnd: int) -> dict[str, float]:
                     if not name:
                         continue
                     lf = fl_to_lf(ascii_fold(name)).lower()
-                    v = parse_float(row.get("SG-Total") or row.get("sg-total"))
+                    v = parse_float(row.get("SG Total") or row.get("SG-Total") or row.get("sg-total"))
                     if v is not None:
                         result[lf] = v
                 return result
@@ -1605,12 +1739,15 @@ else:
     _pop_keys    = set(_r1_sg_map.keys())
     _active_nks  = {_r["norm_name"].lower() for _r in joined}
 
-    # Active players: sum all prior rounds + current round
+    # Active players: PGA Tour SG CSVs are cumulative through current round.
+    # Players with sg_tot use that directly; players without (CUT/missing) rebuild from history.
     for _r in joined:
         _nk = _r["norm_name"].lower()
-        cumulative_sg_by_norm[_nk] = (_r.get("sg_tot") or 0.0) + sum(
-            h.get(_nk, 0.0) for h in _hist_totals
-        )
+        _sg = _r.get("sg_tot")
+        if _sg is not None:
+            cumulative_sg_by_norm[_nk] = _sg
+        else:
+            cumulative_sg_by_norm[_nk] = sum(h.get(_nk, 0.0) for h in _hist_totals)
 
     # Full population: active entries + frozen cut/WD/DQ vectors
     for _nk in _pop_keys:
@@ -1628,7 +1765,7 @@ field_vts_mean = sum(_vts_vals) / len(_vts_vals) if _vts_vals else 50.0
 _pop_vals = list(pop_registry.values())
 _field_avg_cum_sg = sum(_pop_vals) / len(_pop_vals) if _pop_vals else 0.0
 
-_gamma = 0.35 * ROUND
+_gamma = 3.5 * ROUND
 
 # ── Weekend high-spin penalty (firm/fast Birkdale override) ───────────────────
 _spin_cfg    = cfg.get("weekend_high_spin_penalty", {})
