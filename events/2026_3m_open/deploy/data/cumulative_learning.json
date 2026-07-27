@@ -206,23 +206,126 @@
         "Trace Crowe"
       ],
       "wave_annotation_n": 0
+    },
+    "3": {
+      "round": 3,
+      "generated_at": "2026-07-26",
+      "spearman_rho": 0.425,
+      "trait_signals": {
+        "app_150_200": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 6.2,
+          "sg_delta": 2.797,
+          "enrichment_signal": null
+        },
+        "ott_accuracy": {
+          "signal": "validated",
+          "source_confidence": "proxy-confirmed",
+          "trait_delta": 8.7,
+          "sg_delta": -2.216,
+          "enrichment_signal": null
+        },
+        "par5_scoring": {
+          "signal": "mixed",
+          "source_confidence": "weak-proxy",
+          "trait_delta": 2.8,
+          "sg_delta": 2.797,
+          "enrichment_signal": null
+        },
+        "app_wedge": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "app_100_150": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "ott_distance": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "putt_short_conv": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "putt_lag": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "arg_rough": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        },
+        "arg_bunker": {
+          "signal": "not_testable",
+          "source_confidence": "not-testable",
+          "trait_delta": null,
+          "sg_delta": null,
+          "enrichment_signal": null
+        }
+      },
+      "model_hits": {
+        "pt_top10_in_top10": 2,
+        "pt_top10_in_top20": 4,
+        "tier1_2_in_top20": 0
+      },
+      "risers": [
+        "Chandler Phillips",
+        "Troy Merritt",
+        "Camilo Villegas",
+        "Davis Chatfield",
+        "Kevin Roy",
+        "Zecheng Dou",
+        "Vince Whaley",
+        "Kevin Yu",
+        "Kevin Streelman",
+        "John VanDerLaan",
+        "Will Gordon"
+      ],
+      "slippage": [
+        "Kevin Yu"
+      ],
+      "wave_annotation_n": 0
     }
   },
   "cumulative_signals": {
     "app_wedge": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -232,17 +335,21 @@
     "app_100_150": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -252,39 +359,47 @@
     "app_150_200": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
         "mixed",
-        "mixed"
+        "mixed",
+        "validated"
       ],
       "confidence_history": [
         "weak-proxy",
-        "weak-proxy"
+        "weak-proxy",
+        "proxy-confirmed"
       ],
       "delta_history": [
         4.6,
-        5.1
+        5.1,
+        6.2
       ],
-      "consensus": "mixed",
-      "consensus_confidence": "weak-proxy"
+      "consensus": "validated",
+      "consensus_confidence": "proxy-confirmed"
     },
     "ott_accuracy": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "validated",
         "validated",
         "validated"
       ],
       "confidence_history": [
         "proxy-confirmed",
+        "proxy-confirmed",
         "proxy-confirmed"
       ],
       "delta_history": [
         7.5,
-        9.9
+        9.9,
+        8.7
       ],
       "consensus": "validated",
       "consensus_confidence": "proxy-confirmed"
@@ -292,17 +407,21 @@
     "ott_distance": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -312,17 +431,21 @@
     "putt_short_conv": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -332,17 +455,21 @@
     "putt_lag": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -352,17 +479,21 @@
     "arg_rough": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -372,17 +503,21 @@
     "arg_bunker": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
+        "not_testable",
         "not_testable",
         "not_testable"
       ],
       "confidence_history": [
         "not-testable",
+        "not-testable",
         "not-testable"
       ],
       "delta_history": [
+        null,
         null,
         null
       ],
@@ -392,30 +527,35 @@
     "par5_scoring": {
       "rounds_observed": [
         2,
-        1
+        1,
+        3
       ],
       "signal_history": [
         "mixed",
-        "neutral"
+        "neutral",
+        "mixed"
       ],
       "confidence_history": [
+        "weak-proxy",
         "weak-proxy",
         "weak-proxy"
       ],
       "delta_history": [
         4.8,
-        -1.2
+        -1.2,
+        2.8
       ],
-      "consensus": "neutral",
+      "consensus": "mixed",
       "consensus_confidence": "weak-proxy"
     }
   },
   "last_updated": "2026-07-26",
-  "updated_at": "2026-07-26T02:01:33",
-  "rounds_completed": 2,
+  "updated_at": "2026-07-26T17:43:41",
+  "rounds_completed": 3,
   "is_final": false,
   "rounds_present": [
     1,
-    2
+    2,
+    3
   ]
 }
