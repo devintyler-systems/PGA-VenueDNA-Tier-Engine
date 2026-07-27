@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.1",
+  "generated_at": "2026-07-26",
+  "event_slug": "2026_3m_open",
+  "tournament_complete": true,
+  "is_final": true,
+  "five_tier_summary": {
+    "tier_leads": {
+      "T1": [
+        {
+          "rank": 1,
+          "player": "Scottie Scheffler",
+          "vts": 99.3,
+          "nsi": 100.0,
+          "vfs": 9.9,
+          "flags": []
+        },
+        {
+          "rank": 2,
+          "player": "Maverick McNealy",
+          "vts": 76.9,
+          "nsi": 76.3,
+          "vfs": 5.4,
+          "flags": []
+        },
+        {
+          "rank": 3,
+          "player": "Jackson Koivun",
+          "vts": 75.0,
+          "nsi": 70.9,
+          "vfs": 5.0,
+          "flags": []
+        }
+      ],
+      "T2": [
+        {
+          "rank": 6,
+          "player": "Hideki Matsuyama",
+          "vts": 71.3,
+          "nsi": 75.5,
+          "vfs": 4.3,
+          "flags": []
+        },
+        {
+          "rank": 7,
+          "player": "Tom Kim",
+          "vts": 70.3,
+          "nsi": 63.3,
+          "vfs": 4.1,
+          "flags": []
+        },
+        {
+          "rank": 8,
+          "player": "Corey Conners",
+          "vts": 69.7,
+          "nsi": 67.0,
+          "vfs": 3.9,
+          "flags": []
+        }
+      ],
+      "T3": [
+        {
+          "rank": 13,
+          "player": "Jake Knapp",
+          "vts": 64.9,
+          "nsi": 73.4,
+          "vfs": 3.0,
+          "flags": []
+        },
+        {
+          "rank": 14,
+          "player": "Sam Stevens",
+          "vts": 64.9,
+          "nsi": 63.0,
+          "vfs": 3.0,
+          "flags": []
+        },
+        {
+          "rank": 15,
+          "player": "Rico Hoey",
+          "vts": 64.3,
+          "nsi": 57.7,
+          "vfs": 2.9,
+          "flags": []
+        }
+      ],
+      "T4": [
+        {
+          "rank": 26,
+          "player": "Michael Brennan",
+          "vts": 61.5,
+          "nsi": 61.3,
+          "vfs": 2.3,
+          "flags": []
+        },
+        {
+          "rank": 27,
+          "player": "Lee Hodges",
+          "vts": 61.5,
+          "nsi": 55.8,
+          "vfs": 2.3,
+          "flags": []
+        },
+        {
+          "rank": 28,
+          "player": "Christiaan Bezuidenhout",
+          "vts": 61.4,
+          "nsi": 64.3,
+          "vfs": 2.3,
+          "flags": []
+        }
+      ],
+      "T5": [
+        {
+          "rank": 41,
+          "player": "Chandler Blanchet",
+          "vts": 58.4,
+          "nsi": 50.7,
+          "vfs": 1.7,
+          "flags": []
+        },
+        {
+          "rank": 42,
+          "player": "Emiliano Grillo",
+          "vts": 58.4,
+          "nsi": 55.7,
+          "vfs": 1.7,
+          "flags": []
+        },
+        {
+          "rank": 43,
+          "player": "Steven Fisk",
+          "vts": 58.3,
+          "nsi": 56.9,
+          "vfs": 1.7,
+          "flags": []
+        }
+      ]
+    },
+    "tier_descriptions": {
+      "T1": "Elite DNA \u2014 perfect venue match",
+      "T2": "High confidence \u2014 strong trait overlap",
+      "T3": "Moderate fit \u2014 multiple trait alignment",
+      "T4": "Fringe \u2014 partial fit or form-dependent",
+      "T5": "Mismatch or low data depth"
+    },
+    "tier_counts": {
+      "T1": 5,
+      "T2": 7,
+      "T3": 13,
+      "T4": 15,
+      "T5": 104
+    }
+  }
+}
