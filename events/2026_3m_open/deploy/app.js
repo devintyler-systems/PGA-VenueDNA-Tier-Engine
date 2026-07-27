@@ -32,6 +32,9 @@ const S = {
   chartHighlightDebut:  false,
   activeTagFilters:     [],
   _preTournamentData:   null,
+  _teeTimesActive:      false,
+  _teeTimesRoundData:   {},
+  _selectedTeeTimeRound: null,
 };
 
 // ── Filter field definitions ──────────────────────────────────────────────────
@@ -91,6 +94,24 @@ function lastFirstToFirstLast(s) {
   return m ? `${m[2].trim()} ${m[1].trim()}` : s;
 }
 
+// ── Canonical player lookup helpers — handle "Last, First" ↔ "First Last" format ─
+function findPlayerById(pid) {
+  if (!pid) return null;
+  const p = String(pid);
+  return S.boardData.find(x => x.player_id && String(x.player_id) === p)
+      || S._preTournamentData?.find(x => x.player_id && String(x.player_id) === p)
+      || null;
+}
+function findPlayerByAnyName(name) {
+  if (!name) return null;
+  const nm = normName(name);
+  return S.boardData.find(x => normName(x.player) === nm)
+      || S.boardData.find(x => normName(lastFirstToFirstLast(x.player)) === nm)
+      || S._preTournamentData?.find(x => normName(x.player) === nm)
+      || S._preTournamentData?.find(x => normName(lastFirstToFirstLast(x.player)) === nm)
+      || null;
+}
+
 // ── Tag normalisation — strip trailing numeric parentheticals for filter matching ─
 function normalizeTag(t) {
   return (t || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
@@ -137,24 +158,9 @@ function canonName(rawName) {
     if (cands.length === 1) return cands[0].player;
   }
 
-  // 4. Fallback: register a runtime debut/alternate record so the drawer stays openable
-  if (!S.altPlayers.find(x => x.player === nm)) {
-    S.altPlayers.push({
-      player: nm, rank: '—', tier: 'T5',
-      vts_final: 50.0,
-      neutralSkillIndex: 50.0,
-      sg_base_composite: 0.0, sg_similar_composite: 0.0, delta_fit: 0.0,
-      winPct: null, top5Pct: null, top10Pct: null,
-      top20Pct: null, makeCutPct: null, missCutPct: null,
-      win_prob: 0.001, top5_prob: 0.005, top10_prob: 0.010,
-      top20_prob: 0.020, make_cut_prob: 0.500, miss_cut_prob: 0.500,
-      band_name: 'Debut Profile',
-      tierReason: 'Late alternate or field addition — not in pre-tournament model.',
-      risk_flags: ['Late Alternate / No Pre-Tourney Model Data'],
-      _flags: [], _isAlt: true,
-    });
-    console.info('[VenueDNA] alt registered:', nm);
-  }
+  // 4. Unresolved — return raw name without creating fake alt records.
+  // Identity resolution failures are handled in openModal with an explicit error state.
+  console.info('[VenueDNA] canonName: unresolved —', nm);
   return nm;
 }
 
@@ -379,6 +385,10 @@ function bindSectionNav() {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
+      if (btn.dataset.snav !== 'tee-times' && S._teeTimesActive) {
+        S._teeTimesActive = false;
+        document.getElementById('round-tabs')?.style.removeProperty('display');
+      }
       switchRoundPayload(btn.dataset.snav);
     });
   });
@@ -388,77 +398,107 @@ function bindSectionNav() {
 async function initTeeTimesTab() {
   const btn = document.querySelector('.snav-tab[data-snav="tee-times"]');
   if (!btn) return;
-  // Check embedded tee-times in loaded round data first
+  S._teeTimesRoundData = {};
+
+  // Try R3 tee times from embedded round data or dedicated file
   const r2data = S.roundData?.['2'];
-  const hasTTData = r2data?.round3_tee_times?.length > 0;
-  const ttFileUrl = 'data/round3_tee_times.json';
-  let ttData = hasTTData ? r2data.round3_tee_times : null;
-  if (!ttData) {
+  let r3data = r2data?.round3_tee_times?.length > 0 ? r2data.round3_tee_times : null;
+  if (!r3data) {
     try {
-      const resp = await fetch(ttFileUrl);
-      if (resp.ok) ttData = await resp.json();
+      const resp = await fetch('data/round3_tee_times.json');
+      if (resp.ok) r3data = await resp.json();
     } catch {}
   }
-  if (!ttData || !ttData.length) return;
-  S._teeTimesData = ttData;
+  if (r3data?.length) S._teeTimesRoundData['3'] = r3data;
+
+  if (!Object.keys(S._teeTimesRoundData).length) return;
+
+  S._teeTimesData = S._teeTimesRoundData['3'] || null;
   btn.disabled = false;
   btn.classList.remove('snav-placeholder');
   btn.textContent = 'Tee-Times';
-  btn.addEventListener('click', () => renderTeeTimes(ttData));
+  btn.addEventListener('click', () => showTeeTimesPanel());
 }
 
-function renderTeeTimes(data) {
+function showTeeTimesPanel() {
   document.querySelectorAll('.snav-tab').forEach(t => t.classList.remove('active'));
   document.querySelector('.snav-tab[data-snav="tee-times"]')?.classList.add('active');
-  // Clear round-tab active state — tee-times is not a round analysis view
   document.querySelectorAll('.round-tab').forEach(el => el.classList.remove('active'));
+  PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
   const liveEl = document.getElementById('sec-live');
   if (!liveEl) return;
-  // Show live section, hide pre-tournament panels
-  PRE_SECTIONS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
   liveEl.classList.remove('hidden');
+
+  // Own state — hide main round-tabs so they cannot route to recap content
+  S._teeTimesActive = true;
+  document.getElementById('round-tabs')?.style.setProperty('display', 'none');
+
+  const rounds = Object.keys(S._teeTimesRoundData);
+  const defaultRound = rounds.sort().pop() || '3';
+  renderTeeTimeRound(defaultRound);
+}
+
+function renderTeeTimeRoundSelector(activeRound) {
+  return `<div style="display:flex;gap:.4rem;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+    <span style="font-size:.68rem;color:var(--muted);font-family:'Inter',sans-serif;margin-right:.15rem;text-transform:uppercase;letter-spacing:.05em">Tee Times</span>
+    ${['1','2','3','4'].map(r => {
+      const hasData = !!(S._teeTimesRoundData || {})[r];
+      const isActive = String(r) === String(activeRound);
+      return `<button onclick="renderTeeTimeRound('${r}')"
+        style="padding:.25rem .6rem;font-size:.72rem;border-radius:4px;border:1px solid ${isActive ? 'var(--gold)' : 'var(--border)'};background:${isActive ? 'rgba(234,179,8,.12)' : 'var(--surface2)'};color:${isActive ? 'var(--gold)' : hasData ? 'var(--text-2)' : 'var(--muted)'};cursor:pointer">Rd ${r}</button>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderTeeTimeRound(r) {
+  S._selectedTeeTimeRound = String(r);
   const content = document.getElementById('live-content');
   if (!content) return;
 
-  // Enrich each entry with canonical player identity for player_id-safe modal access.
-  // Tee-times artifact uses "Last, First" — same format as boardData — so match directly by
-  // normName. Convert to "First Last" for display only; keep "Last, First" as modal fallback key.
-  const enriched = [...data].map(r => {
-    const rawName    = r.player || r.name || '';
-    const found      = S.boardData.find(x => normName(x.player) === normName(rawName))
-                    || S.altPlayers.find(x => normName(x.player) === normName(rawName));
+  const data = (S._teeTimesRoundData || {})[String(r)];
+  if (!data || !data.length) {
+    content.innerHTML = renderTeeTimeRoundSelector(r)
+      + renderEmptyState('unavailable', `No tee-time data for Round ${r}.`);
+    return;
+  }
+
+  const enriched = [...data].map(entry => {
+    const rawName    = entry.player || entry.name || '';
+    const found      = findPlayerByAnyName(rawName);
     const canonical  = found ? found.player : rawName;
     const displayName = lastFirstToFirstLast(rawName);
-    return { ...r, _canonical: canonical, _displayName: displayName, _playerId: found?.player_id ? String(found.player_id) : '' };
+    const _playerId  = found?.player_id ? String(found.player_id) : '';
+    return { ...entry, _canonical: canonical, _displayName: displayName, _playerId };
   });
 
-  const sorted = enriched.sort((a, b) => {
+  const sorted = enriched.slice().sort((a, b) => {
     const tA = a.tee_time || a.time || '';
     const tB = b.tee_time || b.time || '';
     if (tA !== tB) return tA.localeCompare(tB);
     return (parseInt(a.hole || a.tee) || 0) - (parseInt(b.hole || b.tee) || 0);
   });
 
-  const unresolved = enriched.filter(r => !r._playerId).length;
-  if (unresolved > 0) console.info(`[VenueDNA] tee-times: ${unresolved} entries without player_id (debut/field additions)`);
+  const unresolved = enriched.filter(e => !e._playerId).length;
+  if (unresolved > 0) console.info(`[VenueDNA] tee-times R${r}: ${unresolved} entries without player_id`);
 
-  content.innerHTML = `
-    <div style="margin-bottom:12px;font-family:-apple-system,sans-serif;font-size:13px;font-weight:700;color:var(--gold)">
-      Round 3 Tee Times
-    </div>
+  content.innerHTML = renderTeeTimeRoundSelector(r) + `
     <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface)">
       <table class="live-table">
         <thead><tr>
           <th class="left">Player</th><th>Tee Time</th><th>Hole</th><th>Group</th>
         </tr></thead>
-        <tbody>${sorted.map(r => `<tr data-player="${esc(r._canonical)}" data-player-id="${esc(r._playerId)}" style="cursor:pointer">
-          <td class="sans" style="font-weight:600">${esc(r._displayName || r._canonical || r.player || '—')}</td>
-          <td class="sans">${r.tee_time || r.time || '—'}</td>
-          <td class="sans">${r.hole || r.tee || '—'}</td>
-          <td class="sans" style="color:var(--text-3)">${r.group || '—'}</td>
+        <tbody>${sorted.map(row => `<tr data-player="${esc(row._canonical)}" data-player-id="${esc(row._playerId)}" style="cursor:pointer">
+          <td class="sans" style="font-weight:600">${esc(row._displayName || row._canonical || row.player || '—')}</td>
+          <td class="sans">${row.tee_time || row.time || '—'}</td>
+          <td class="sans">${row.hole || row.tee || '—'}</td>
+          <td class="sans" style="color:var(--text-3)">${row.group || '—'}</td>
         </tr>`).join('')}</tbody>
       </table>
     </div>`;
+}
+
+function renderTeeTimes(data) {
+  showTeeTimesPanel();
 }
 
 async function switchRoundPayload(snav) {
@@ -947,20 +987,24 @@ function renderIntel() {
     const players = (leads[t] || []).slice(0, 3);
     return `<div class="tier-block ${t.toLowerCase()}-bl">
       <div class="tier-block-header sans" onclick="filterByTier('${t}')" style="cursor:pointer;user-select:none;" title="Click to filter board to ${t}"><span>${t} — ${desc}</span><span>${counts[t] || ''}</span></div>
-      ${players.map(lp => `<div class="tier-block-player" data-player="${esc(lp.player)}" style="cursor:pointer">
-        <div class="tbp-name">#${lp.rank} ${lp.player}</div>
-        <div class="tbp-vals sans">
-          <span>VTS <b>${f2(lp.vts)}</b></span>
-          <span>NSI <b>${f1(lp.nsi)}</b></span>
-          <span>VFS <b>${f1(lp.vfs)}</b></span>
-          ${(lp.flags || []).map(f => flag(f.replace(/-.*$/, ''))).join('')}
-        </div>
-      </div>`).join('')}
+      ${players.map(lp => {
+        const _lpFound = findPlayerByAnyName(lp.player);
+        const _lpPid   = _lpFound?.player_id ? String(_lpFound.player_id) : '';
+        return `<div class="tier-block-player" data-player="${esc(lp.player)}" data-player-id="${esc(_lpPid)}" style="cursor:pointer">
+          <div class="tbp-name">#${lp.rank} ${lp.player}</div>
+          <div class="tbp-vals sans">
+            <span>VTS <b>${f2(lp.vts)}</b></span>
+            <span>NSI <b>${f1(lp.nsi)}</b></span>
+            <span>VFS <b>${f1(lp.vfs)}</b></span>
+            ${(lp.flags || []).map(f => flag(f.replace(/-.*$/, ''))).join('')}
+          </div>
+        </div>`;
+      }).join('')}
     </div>`;
   }).join('');
 
   grid.querySelectorAll('.tier-block-player[data-player]').forEach(el => {
-    el.addEventListener('click', () => openModal(el.dataset.player));
+    el.addEventListener('click', () => openModal(el.dataset.player, el.dataset.playerId));
   });
 }
 
@@ -1451,20 +1495,24 @@ function buildLiveSGBlock(p) {
 
 // ── openModal — all 10 data zones ─────────────────────────────────────────────
 function openModal(name, playerId) {
-  // Resolve by player_id first (immutable join key); fall back to display name
+  // Phase 1: resolve canonical player record — player_id first (immutable join key)
   let p;
   const _pid = playerId ? String(playerId) : null;
   if (_pid) {
-    p = S.boardData.find(x => x.player_id && String(x.player_id) === _pid)
-     || S.altPlayers.find(x => x.player_id && String(x.player_id) === _pid);
+    p = findPlayerById(_pid) || S.altPlayers.find(x => x.player_id && String(x.player_id) === _pid);
     if (!p) console.warn('[VenueDNA] openModal: player_id lookup miss — pid=' + _pid + ', falling back to name-match for:', name);
   }
+  // Phase 2: name-match with "Last, First" ↔ "First Last" normalisation
+  if (!p) p = findPlayerByAnyName(name);
+  // Phase 3: explicit alternates only — never catch-all for failed lookups
+  if (!p) p = S.altPlayers.find(x => x._isExplicitAlt && x.player === name);
   if (!p) {
-    p = S.boardData.find(x => x.player === name)
-      || S.altPlayers.find(x => x.player === name);
-  }
-  if (!p) {
-    console.warn('[VenueDNA] openModal: unresolved player — both player_id and name lookup failed:', { _pid, name });
+    console.warn('[VenueDNA] openModal: identity unresolved —', { _pid, name });
+    const mc = document.getElementById('modal-content');
+    if (mc) mc.innerHTML = renderEmptyState('error', `Player identity could not be resolved — QA: pid=${_pid || '—'}, name="${name || '—'}"`);
+    document.getElementById('player-drawer')?.classList.add('open');
+    document.getElementById('drawer-backdrop')?.classList.add('open');
+    document.body.classList.add('drawer-open');
     return;
   }
 
@@ -2048,6 +2096,11 @@ function clearRoundVisualElements() {
 }
 
 async function switchRound(r) {
+  // If tee-times view owns the panel, route round selector clicks to tee-time data
+  if (S._teeTimesActive) {
+    renderTeeTimeRound(r);
+    return;
+  }
   S.currentRound      = r;
   S.activeFetchTarget = r;
   document.querySelectorAll('.round-tab').forEach(el =>
@@ -2218,7 +2271,8 @@ function renderLiveRound(data, el) {
             _cutSeen = true;
             sep = `<tr class="cut-line-row"><td colspan="10" style="padding:4px 10px;background:#1a0a00;border-top:2px solid #dc2626;border-bottom:2px solid #dc2626;color:#f87171;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-align:center">✂ CUT LINE</td></tr>`;
           }
-          return sep + `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}"${isElim ? ' style="opacity:.6"' : ''}>
+          const _rpid = r.player_id || findPlayerByAnyName(r.r1_name)?.player_id || '';
+          return sep + `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(String(_rpid))}"${isElim ? ' style="opacity:.6"' : ''}>
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="font-weight:600;min-width:150px">${r.r1_name || '—'}</td>
             <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -2249,7 +2303,7 @@ function renderLiveRound(data, el) {
             <th class="left">Player</th><th>Pos</th><th>PT Rank</th>
             <th>Δ Rank</th><th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th><th>Thesis</th>
           </tr></thead>
-          <tbody>${risers.map(r => `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}">
+          <tbody>${risers.map(r => { const _rrid = r.player_id || findPlayerByAnyName(r.r1_name)?.player_id || ''; return `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(String(_rrid))}">
             <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
             <td class="sans">${posFmt(r)}</td>
             <td class="sans" style="color:var(--text-3)">${r.pt_rank ?? '—'}</td>
@@ -2258,7 +2312,7 @@ function renderLiveRound(data, el) {
             <td class="sans">${sgFmt(r.sg_putt)}</td>
             <td class="sans">${sgFmt(r.sg_tot)}</td>
             <td class="sans" style="color:var(--text-2);max-width:200px;white-space:normal;font-size:11px">${r.thesis_note || '—'}</td>
-          </tr>`).join('')}</tbody>
+          </tr>`; }).join('')}</tbody>
         </table>
       </div>
       </div>` : ''}
@@ -2274,13 +2328,13 @@ function renderLiveRound(data, el) {
             <th class="left">Player</th><th>Δ Rank</th>
             <th>SG:APP</th><th>SG:PUTT</th><th>SG:TOT</th>
           </tr></thead>
-          <tbody>${slippage.map(r => `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(r.player_id || '')}">
+          <tbody>${slippage.map(r => { const _rsid = r.player_id || findPlayerByAnyName(r.r1_name)?.player_id || ''; return `<tr data-player="${esc(canonName(r.r1_name))}" data-player-id="${esc(String(_rsid))}">
             <td class="sans" style="font-weight:600">${r.r1_name || '—'}</td>
             <td class="sans">${deltaHtml(r.pt_rank, r.r1_pos)}</td>
             <td class="sans" style="color:${(r.sg_app||0)>=0?'var(--green-ok)':'var(--accent)'}">${sgFmt(r.sg_app)}</td>
             <td class="sans" style="color:var(--accent);font-weight:700">${sgFmt(r.sg_putt)}</td>
             <td class="sans">${sgFmt(r.sg_tot)}</td>
-          </tr>`).join('')}</tbody>
+          </tr>`; }).join('')}</tbody>
         </table>
       </div>
       </div>` : ''}
