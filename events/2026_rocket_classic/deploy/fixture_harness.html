@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VenueDNA — Fixture Harness (Rocket Classic)</title>
+  <link rel="stylesheet" href="fixture_harness.css" />
+</head>
+<body>
+
+<div class="harness-layout">
+
+  <!-- ── Filter sidebar (≥1280px permanent) ─────────────────────────────── -->
+  <aside class="filter-sidebar" id="filter-sidebar" aria-label="Filters">
+    <h2>Filters</h2>
+    <div class="filter-count" id="filter-count">Showing <strong>3</strong> of <strong>3</strong> players</div>
+
+    <div class="filter-section">
+      <div class="filter-section-label">Tier</div>
+      <div class="tier-chips">
+        <button class="tier-chip active" data-tier="All">All</button>
+        <button class="tier-chip" data-tier="T1">T1</button>
+        <button class="tier-chip" data-tier="T2">T2</button>
+        <button class="tier-chip" data-tier="T3">T3</button>
+        <button class="tier-chip" data-tier="T4">T4</button>
+        <button class="tier-chip" data-tier="T5">T5</button>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-section-label">Playstyle Badges</div>
+      <div class="badge-filters" id="badge-filter-list">
+        <!-- Populated from badge_policy.v1.json by fixture_harness.js -->
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-section-label">Trait Sliders &amp; Advanced Filters</div>
+      <div class="filter-deferred-note">
+        Trait range sliders and advanced filters are deferred until the Rocket Classic
+        scoring artifact is available and its schema is confirmed.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Filter rail (900–1279px) ───────────────────────────────────────── -->
+  <div class="filter-rail" id="filter-rail" aria-label="Filter controls">
+    <button class="filter-rail-btn" id="filter-rail-btn" title="Open filters" aria-expanded="false">⊞</button>
+  </div>
+
+  <!-- ── Filter popover (900–1279px) ───────────────────────────────────── -->
+  <div class="filter-popover" id="filter-popover" role="dialog" aria-label="Filters">
+    <h2 style="margin-bottom:14px;">Filters</h2>
+    <div class="filter-count" id="filter-count-popover">Showing players</div>
+    <div class="filter-section" style="margin-top:16px;">
+      <div class="filter-section-label">Tier</div>
+      <div class="tier-chips">
+        <button class="tier-chip active" data-tier="All">All</button>
+        <button class="tier-chip" data-tier="T1">T1</button>
+        <button class="tier-chip" data-tier="T2">T2</button>
+        <button class="tier-chip" data-tier="T4">T4</button>
+      </div>
+    </div>
+    <div class="filter-section" style="margin-top:16px;">
+      <div class="filter-section-label">Badges</div>
+      <div class="badge-filters" id="badge-filter-list-popover"></div>
+    </div>
+  </div>
+
+  <!-- ── Filter overlay (<900px) ────────────────────────────────────────── -->
+  <div class="filter-overlay" id="filter-overlay" role="dialog" aria-label="Filters">
+    <div style="padding:20px 16px;">
+      <h2 style="margin-bottom:14px; font-size:14px;">Filters</h2>
+      <div class="filter-section">
+        <div class="filter-section-label">Tier</div>
+        <div class="tier-chips">
+          <button class="tier-chip active" data-tier="All">All</button>
+          <button class="tier-chip" data-tier="T1">T1</button>
+          <button class="tier-chip" data-tier="T2">T2</button>
+          <button class="tier-chip" data-tier="T4">T4</button>
+        </div>
+      </div>
+      <div class="filter-section" style="margin-top:16px;">
+        <div class="filter-section-label">Badges</div>
+        <div class="badge-filters" id="badge-filter-list-overlay"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="harness-header">
+    <h1>VenueDNA</h1>
+    <span class="venue-pill">Detroit Golf Club</span>
+    <span class="venue-pill">Rocket Classic 2026</span>
+    <span class="harness-badge">Fixture Harness</span>
+
+    <button class="filter-toggle-btn" id="filter-toggle-btn" aria-label="Open filters">
+      ⊞ Filters
+    </button>
+  </header>
+
+  <!-- ── Roster panel ───────────────────────────────────────────────────── -->
+  <main class="roster-panel" id="roster-panel">
+    <h2>Field — Fixture Players</h2>
+
+    <table class="roster-table" id="roster-table" aria-label="Player roster">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>VTS</th>
+          <th>Tier</th>
+          <th>Conviction</th>
+          <th>Badges</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="roster-tbody">
+        <!-- Populated by fixture_harness.js -->
+      </tbody>
+    </table>
+
+    <p style="margin-top: 32px; font-size: 12px; color: var(--color-text-muted);">
+      This is a development fixture harness. Click any row to open the player drawer.
+      Three fixture players cover elite, volatile, and thin-evidence evidence states.
+    </p>
+  </main>
+
+  <!-- ── Player drawer ──────────────────────────────────────────────────── -->
+  <aside class="player-drawer" id="player-drawer" role="complementary" aria-label="Player detail">
+    <div class="drawer-inner" id="drawer-inner">
+      <!-- Populated by fixture_harness.js renderDrawer() -->
+    </div>
+  </aside>
+
+</div><!-- /.harness-layout -->
+
+<!-- Mobile backdrop -->
+<div class="overlay-backdrop" id="overlay-backdrop"></div>
+
+<script src="fixture_harness.js"></script>
+
+<script>
+  // Rail filter button (900–1279px)
+  const railBtn = document.getElementById("filter-rail-btn");
+  const popover = document.getElementById("filter-popover");
+  if (railBtn && popover) {
+    railBtn.addEventListener("click", () => {
+      const isOpen = popover.classList.toggle("open");
+      railBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+  }
+</script>
+
+</body>
+</html>

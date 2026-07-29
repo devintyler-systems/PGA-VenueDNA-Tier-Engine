@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "narrative_output_schema_v1.0",
+  "title": "VenueDNA Player Narrative Output",
+  "description": "Contract §3 output object. venue_fit and projection_explainer are structured objects with mechanically auditable trait/reason references. Only .text fields are rendered in the UI.",
+  "type": "object",
+  "required": [
+    "player_id", "event_id", "schema_version", "generated_at_utc", "generation_mode",
+    "headline", "story_hook", "venue_fit", "strengths", "weaknesses",
+    "win_scenario", "failure_scenario", "projection_explainer",
+    "form_note", "venue_history_note", "evidence_refs", "quality"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "player_id":        { "type": "string", "minLength": 1 },
+    "event_id":         { "type": "string", "pattern": "^pga_\\w+_\\d{4}$" },
+    "schema_version":   { "type": "string", "const": "1.0" },
+    "generated_at_utc": { "type": "string", "format": "date-time" },
+    "generation_mode":  { "type": "string", "enum": ["pre_tournament", "live_round", "post_tournament"] },
+
+    "headline": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "6-12 words. Specific venue-fit thesis. No player name unless required for clarity."
+    },
+    "story_hook": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 450,
+      "description": "45-75 words. Why this player matters at this venue this week."
+    },
+    "venue_fit": {
+      "type": "object",
+      "required": ["text", "trait_ids"],
+      "additionalProperties": false,
+      "description": "Structured: text is rendered in UI; trait_ids are used by validator to verify claims are grounded.",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 270,
+          "description": "25-45 words. Links player's strongest relevant traits to primary course demands."
+        },
+        "trait_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Each trait_id must exist in course_dna.primary_demands[*].trait_id in the input."
+        }
+      }
+    },
+    "strengths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["label", "statement", "trait_id"],
+        "additionalProperties": false,
+        "properties": {
+          "label":     { "type": "string", "minLength": 1 },
+          "statement": { "type": "string", "minLength": 1, "maxLength": 180, "description": "16-30 words." },
+          "trait_id":  { "type": "string", "minLength": 1, "description": "Must exist in input traits array." }
+        }
+      }
+    },
+    "weaknesses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["label", "statement", "trait_id"],
+        "additionalProperties": false,
+        "properties": {
+          "label":     { "type": "string", "minLength": 1 },
+          "statement": { "type": "string", "minLength": 1, "maxLength": 180, "description": "16-30 words." },
+          "trait_id":  { "type": "string", "minLength": 1, "description": "Must exist in risk_factors or be a direction:weakness trait." }
+        }
+      }
+    },
+    "win_scenario": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 210,
+      "description": "18-35 words. One conditional sentence: To win, [player] needs to..."
+    },
+    "failure_scenario": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 210,
+      "description": "18-35 words. One conditional sentence: The projection breaks if..."
+    },
+    "projection_explainer": {
+      "type": "object",
+      "required": ["text", "reason_codes", "component_ids"],
+      "additionalProperties": false,
+      "description": "Structured: text is rendered in UI; reason_codes and component_ids are validated against input.",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "description": "One sentence explaining the VTS/tier using supplied components only. Use 'the model' only here."
+        },
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Each must exist in projection.projection_reason_codes in the input."
+        },
+        "component_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["neutral_skill", "venue_fit_delta", "venue_history_delta", "penalty_total"]
+          },
+          "description": "Components from the projection model referenced by the explainer text."
+        }
+      }
+    },
+    "form_note": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "description": "One evidence-bound sentence, or a transparent limited-data statement."
+    },
+    "venue_history_note": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "description": "One evidence-bound sentence, or 'limited venue sample' / 'no meaningful venue sample' if starts < 2."
+    },
+    "evidence_refs": {
+      "type": "object",
+      "required": ["strength_trait_ids", "risk_trait_ids", "course_demand_trait_ids", "projection_reason_codes"],
+      "additionalProperties": false,
+      "properties": {
+        "strength_trait_ids":       { "type": "array", "items": { "type": "string" } },
+        "risk_trait_ids":           { "type": "array", "items": { "type": "string" } },
+        "course_demand_trait_ids":  { "type": "array", "items": { "type": "string" } },
+        "projection_reason_codes":  { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "required": ["evidence_coverage", "needs_editor_review", "validation_errors"],
+      "additionalProperties": false,
+      "properties": {
+        "evidence_coverage": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Must not be 'high' when any input trait has evidence_status: unavailable."
+        },
+        "needs_editor_review": { "type": "boolean" },
+        "validation_errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rule", "field", "detail"],
+            "additionalProperties": false,
+            "properties": {
+              "rule":   { "type": "string" },
+              "field":  { "type": "string" },
+              "detail": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

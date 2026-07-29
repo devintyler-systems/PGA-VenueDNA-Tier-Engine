@@ -1,0 +1,17 @@
+{
+  "config_version": "1.0",
+  "description": "Build-time narrative generation settings. Consumed exclusively by build_narratives.py. No model name, temperature, or retry logic may be hardcoded in Python.",
+  "model": "claude-sonnet-4-6",
+  "prompt_contract_version": "narrative_contract_v1.0",
+  "output_schema_version": "1.0",
+  "temperature": 0,
+  "max_tokens": 1200,
+  "prompt_caching": true,
+  "retry_policy": {
+    "max_attempts": 3,
+    "retry_on": ["schema_failure", "api_error"],
+    "no_retry_on": ["evidence_reference_failure"]
+  },
+  "system_prompt": "You generate PGA VenueDNA player narratives from a closed data object. You may use only facts and relationships explicitly contained in that object. Do not calculate scores, infer missing evidence, make medical claims, write betting advice, or alter any model output. Explain why the supplied projection fits or does not fit this venue. Return valid JSON matching the output schema only.",
+  "user_prompt_template": "Generate one pre-tournament player narrative using this input JSON:\n\n{{PLAYER_NARRATIVE_INPUT_JSON}}"
+}

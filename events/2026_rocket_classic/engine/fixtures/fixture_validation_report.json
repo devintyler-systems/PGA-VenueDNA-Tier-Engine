@@ -1,0 +1,46 @@
+{
+  "fixture_validation_run": "2026-07-28T00:00:00Z",
+  "total_fixtures": 3,
+  "hard_block_failures": 0,
+  "passed": 3,
+  "with_review_flags": 3,
+  "gate_status": "PASS",
+  "fixtures": [
+    {
+      "player_id": "fixture_elite_001",
+      "passed": true,
+      "hard_block_errors": [],
+      "review_flags": [
+        {
+          "rule": "RF_A_PROPER_NOUN",
+          "field": "prose",
+          "detail": "Proper noun not found in input: 'Elite' \u2014 review for invented reference"
+        }
+      ]
+    },
+    {
+      "player_id": "fixture_volatile_001",
+      "passed": true,
+      "hard_block_errors": [],
+      "review_flags": [
+        {
+          "rule": "RF_A_PROPER_NOUN",
+          "field": "prose",
+          "detail": "Proper noun not found in input: 'Positive' \u2014 review for invented reference"
+        }
+      ]
+    },
+    {
+      "player_id": "fixture_thin_001",
+      "passed": true,
+      "hard_block_errors": [],
+      "review_flags": [
+        {
+          "rule": "RF_A_PROPER_NOUN",
+          "field": "prose",
+          "detail": "Proper noun not found in input: 'Limited' \u2014 review for invented reference"
+        }
+      ]
+    }
+  ]
+}

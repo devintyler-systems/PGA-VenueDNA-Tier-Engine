@@ -1,0 +1,12 @@
+{
+  "player_id": "fixture_volatile_001",
+  "passed": true,
+  "hard_block_errors": [],
+  "review_flags": [
+    {
+      "rule": "RF_A_PROPER_NOUN",
+      "field": "prose",
+      "detail": "Proper noun not found in input: 'Positive' \u2014 review for invented reference"
+    }
+  ]
+}
