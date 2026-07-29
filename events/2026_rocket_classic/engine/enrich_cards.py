@@ -241,11 +241,16 @@ def load_performance(path: Path) -> dict[str, dict]:
         for row in csv.DictReader(f):
             name = row.get("player_name", "").strip().strip('"')
             if name:
+                _blank = {"", "null", "none", "n/a", "nan"}
                 result[name] = {
-                    "putt_true": safe_float(row.get("putt_true")),
-                    "arg_true":  safe_float(row.get("arg_true")),
-                    "app_true":  safe_float(row.get("app_true")),
-                    "ott_true":  safe_float(row.get("ott_true")),
+                    "putt_true":       safe_float(row.get("putt_true")),
+                    "arg_true":        safe_float(row.get("arg_true")),
+                    "app_true":        safe_float(row.get("app_true")),
+                    "ott_true":        safe_float(row.get("ott_true")),
+                    "_missing_fields": frozenset(
+                        f for f in PERF_FIELDS
+                        if str(row.get(f, "")).strip().lower() in _blank
+                    ),
                 }
     return result
 
@@ -519,6 +524,7 @@ def build_trait_availability(
     trend_avail: bool,
     data_depth: str,
     any_sg_avail: bool,
+    perf_field_missing: frozenset = frozenset(),
 ) -> dict:
     """
     Returns per-player availability metadata for each trait/component.
@@ -552,7 +558,10 @@ def build_trait_availability(
 
     # Performance file fields
     for field in PERF_FIELDS:
-        result[field] = _unavail_perf.copy() if perf_absent else _ok_perf.copy()
+        if perf_absent or field in perf_field_missing:
+            result[field] = _unavail_perf.copy()
+        else:
+            result[field] = _ok_perf.copy()
 
     # Approach raw (derived from app_skill_l12_sg.csv)
     if skill_avail:
@@ -1400,6 +1409,7 @@ def main() -> None:
             "_trend_avail":         trend_avail,
             "_any_sg_avail":        any_sg,
             "_crosswalk_resolved":  normalize_name(name) in crosswalk_resolved_norms,
+            "_perf_missing":        frozenset(perf.get("_missing_fields", set())),
         })
 
     # ── Field-level z-scoring (scored players only) ────────────────────────────
@@ -1525,19 +1535,41 @@ def main() -> None:
 
         # Build trait_availability for this player
         trait_avail = build_trait_availability(
-            perf_absent  = perf_absent,
-            skill_avail  = p["_skill_avail"],
-            prox_avail   = p["_prox_avail"],
-            ch_resolved  = p["_ch_resolved"],
-            ch_adj       = p["ch_adjustment"],
-            trend_avail  = p["_trend_avail"],
-            data_depth   = p["data_depth"],
-            any_sg_avail = p["_any_sg_avail"],
+            perf_absent        = perf_absent,
+            skill_avail        = p["_skill_avail"],
+            prox_avail         = p["_prox_avail"],
+            ch_resolved        = p["_ch_resolved"],
+            ch_adj             = p["ch_adjustment"],
+            trend_avail        = p["_trend_avail"],
+            data_depth         = p["data_depth"],
+            any_sg_avail       = p["_any_sg_avail"],
+            perf_field_missing = p.get("_perf_missing", frozenset()),
         )
         p["trait_availability"] = trait_avail
 
         # Compute unavailable set for strength/weakness/win_case gating
         unavail = _unavail_set(trait_avail)
+
+        # Data-confidence disclosure: flag players with imputed VTS components.
+        # A weighted component is "imputed" if its source cell was blank/absent
+        # and safe_float() substituted 0.0 — mathematically neutral but not measured.
+        _WEIGHTED_VTS_FIELDS = (
+            "trait_approach_raw", "trait_long_iron_raw", "ott_true",
+            "ch_adjustment", "true_sg_l20",
+        )
+        _IMPUTED_STATES = {"UNAVAILABLE", "MISSING_ZERO_FILLED"}
+        imputed_vts = [
+            f for f in _WEIGHTED_VTS_FIELDS
+            if trait_avail.get(f, {}).get("availability") in _IMPUTED_STATES
+        ]
+        if imputed_vts:
+            p["data_confidence"] = "reduced"
+            p["data_confidence_note"] = (
+                f"{len(imputed_vts)} of 6 VTS components "
+                f"({', '.join(imputed_vts)}) imputed as neutral (0.0) "
+                f"due to missing source data — VTS score is unaffected "
+                f"but reflects fewer real inputs."
+            )
 
         strength = build_strength_tags(
             p["app_true"], p["delta_fit"], p["ott_true"],
@@ -1734,13 +1766,14 @@ def main() -> None:
         "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure",
         "_live_vts", "_r2_wave", "_r2_teetime",
         "_skill_avail", "_prox_avail", "_ch_resolved", "_trend_avail", "_any_sg_avail",
-        "_crosswalk_resolved",
+        "_crosswalk_resolved", "_perf_missing",
     }
 
     _first = [
         "rank", "player", "player_name", "player_id", "tier", "vts_final", "live_vts",
         "neutralSkillIndex",
         "sg_base_composite", "sg_similar_composite", "delta_fit", "data_depth",
+        "data_confidence", "data_confidence_note",
         "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
         "win_prob", "top_5_prob", "top_10_prob", "top_20_prob",
         "make_cut_prob", "miss_cut_prob",
