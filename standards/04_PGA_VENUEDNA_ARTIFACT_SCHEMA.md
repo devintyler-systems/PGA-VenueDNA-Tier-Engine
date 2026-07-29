@@ -435,3 +435,9 @@ All three must be `True` for a player to be ELIGIBLE. UNSCORED players (`data_de
 **Build script:** `events/{slug}/output/build_tripod_audit.py`
 **Pre-build validation:** `events/{slug}/output/preflight_check.py`
 **Post-build validation:** `events/{slug}/output/validate_tripod_audit.py`
+**Sidecar parity verification:** `events/{slug}/output/verify_tripod_audit_parity.py`
+
+**Deploy/sidecar parity contract:**
+- When a `deploy/data/` mirror of the audit companion exists, the validated output audit and the deploy copy must have identical SHA-256 hashes before release.
+- Deploy copies are read-only mirrors. Verification must not silently rewrite or synchronize them — hash mismatch is a release-blocking artifact-integrity failure and must be investigated manually.
+- Run `verify_tripod_audit_parity.py` as part of every release validation sequence.

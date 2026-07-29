@@ -71,5 +71,14 @@
         "reason": "No numerical definition of exceptional NeutralSkill has been approved."
       }
     }
-  }
+  },
+  "known_limitations": [
+    {
+      "feature": "t2g_no_red_flag",
+      "status": "NOT_COMPUTED",
+      "reason": "Top-level source-coverage metadata marks true-SG inputs unavailable for this event build. Player-level values are non-authoritative until source reconciliation is completed.",
+      "current_engine_effect": "NONE",
+      "future_action": "Reconcile top-level source-coverage metadata with player-level true-SG values before any V2 governance validation study."
+    }
+  ]
 }
