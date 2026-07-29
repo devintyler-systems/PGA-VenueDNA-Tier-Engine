@@ -1,0 +1,50 @@
+{
+  "diagnostic_ts": "2026-07-29T05:24:49.862116+00:00",
+  "reconciliation": {
+    "total_field": {
+      "baseline": 147,
+      "observed": 147,
+      "match": true
+    },
+    "unscored": {
+      "baseline": 5,
+      "observed": 5,
+      "match": true
+    },
+    "scored": {
+      "baseline": 142,
+      "observed": 142,
+      "match": true
+    },
+    "phantom_absent_from_decomp": {
+      "baseline": false,
+      "observed": false,
+      "match": true,
+      "note": "PHANTOM_DECOMP_PLAYER must not appear in decomp (withdrawn/phantom)"
+    },
+    "phantom_absent_from_field": {
+      "baseline": false,
+      "observed": false,
+      "match": true
+    },
+    "decomp_matched_scored": {
+      "baseline": "142/142",
+      "observed": "142/142",
+      "match": true,
+      "note": "All 142 scored players expected to appear in dg_decomposition.csv"
+    },
+    "trending_matched_scored": {
+      "baseline": "~139/142 (8 noted gaps in prior build)",
+      "observed": "138/142",
+      "match": true,
+      "missing_players": [
+        "Dalke, Brad",
+        "Hooks, Joe",
+        "Ruffels, Ryan",
+        "Wilkes-Krier, Patrick"
+      ]
+    }
+  },
+  "mismatches_found": 0,
+  "mismatches": []
+}
