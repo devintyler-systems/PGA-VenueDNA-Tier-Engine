@@ -1,0 +1,14 @@
+# Direct third-party dependencies for PGA VenueDNA pipeline
+# Python 3.12 | Generated 2026-07-29
+# Active root engine: engine/*.py | Tests: tests/ | Narrative: engine/narrative/
+
+pandas==2.3.3
+numpy==2.4.1
+requests==2.32.5
+python-dotenv==1.2.2
+pytest==9.0.3
+rapidfuzz==3.14.3
+
+# Optional: required only for engine/narrative (build_narratives.py, validate_narrative.py)
+anthropic==0.84.0
+jsonschema==4.26.0
