@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "venue_id": "detroit_golf_club",
+  "venue_name": "Detroit Golf Club",
+  "generated_for_event": "2026 Rocket Classic",
+  "generated_at": "2026-07-29",
+  "frozen_payload_policy": "READ_ONLY",
+  "scoring_rebuild_required_for_changes": true,
+  "implementation_note": "Tripod V1 documents and audits existing venue-fit logic. It does not change Rocket Classic 2026 output.",
+  "dominant_tripod": {
+    "version": "RECONSTRUCTED_V1",
+    "status": "ACTIVE_DOCUMENTATION_ONLY",
+    "effective_scope": "Venue-fit interpretation, player audit, narrative support",
+    "scoring_impact": "NONE",
+    "retroactive_scoring_impact": "NONE",
+    "primary_trait": {
+      "key": "sg_approach",
+      "label": "SG: Approach",
+      "weight": 0.40
+    },
+    "secondary_trait": {
+      "key": "app_150_200",
+      "label": "App 150–200",
+      "weight": 0.25
+    },
+    "tertiary_trait": {
+      "key": "total_driving",
+      "label": "Total Driving",
+      "weight": 0.20
+    },
+    "weight_scope": "Canonical venueFit subset; 0.85 total subset weight",
+    "rationale": "Detroit Golf Club's 2026 renovated par-70 setup emphasizes approach quality, 150–200-yard play, and controlled modern driving.",
+    "evidence_notes": [
+      "7,328-yard par 70",
+      "26-yard effective landing width at 300 yards",
+      "103 bunkers",
+      "two reachable par 5s",
+      "long converted par 4s",
+      "rebuilt contoured bentgrass greens"
+    ]
+  },
+  "dominant_tripod_governance": {
+    "version": "PROPOSED_V2",
+    "status": "NOT_ACTIVE",
+    "activation_requirement": "Historical validation plus approved engine version change before pre-tournament build",
+    "applies_to": "Future Detroit Golf Club engine runs only",
+    "rules": {
+      "tripod_qualified": {
+        "definition": "Each of SG: Approach, App 150–200, and Total Driving is at or above the 60th percentile versus the eligible field.",
+        "current_use": "Audit and narrative only",
+        "future_candidate_use": "Tier 1 support signal, not a stand-alone scoring override"
+      },
+      "tripod_supported": {
+        "definition": "Weighted tripod score at or above the 65th percentile and at least two of three component traits at or above the 60th percentile.",
+        "current_use": "Audit and narrative only",
+        "future_candidate_use": "Balanced alternative to an all-three hard gate"
+      },
+      "t2g_no_red_flag": {
+        "definition": "min(trueSG_approach, trueSG_off_the_tee, trueSG_around_the_green) >= -0.25",
+        "status": "PROVISIONAL",
+        "current_use": "Do not score, tier-cap, badge, or suppress any player",
+        "future_candidate_use": "Ceiling and variance research feature only"
+      },
+      "recent_form_variance": {
+        "definition": "Tripod-qualified player with negative recent-form index",
+        "current_use": "Narrative risk disclosure only when source data is available and narrative-eligible",
+        "future_candidate_use": "Variance-band research feature; never silently subtract from VTS"
+      },
+      "neutral_skill_exception": {
+        "status": "UNSPECIFIED_NOT_IMPLEMENTABLE",
+        "reason": "No numerical definition of exceptional NeutralSkill has been approved."
+      }
+    }
+  }
+}

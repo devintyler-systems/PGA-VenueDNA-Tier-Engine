@@ -693,3 +693,96 @@ body {
     display: block;
   }
 }
+
+/* ── Detroit Fit section ─────────────────────────────────────────────────── */
+
+.detroit-fit-section {
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: var(--color-surface-alt, #1a2030);
+  border: 1px solid var(--color-border, #2a3040);
+  border-radius: 6px;
+}
+
+.detroit-fit-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #8899aa);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.detroit-fit-info {
+  cursor: help;
+  color: var(--color-text-muted, #8899aa);
+  font-size: 13px;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.detroit-fit-status {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+
+.detroit-fit-qualified {
+  background: #0a2a1a;
+  color: #3dd88e;
+  border: 1px solid #1a5a3a;
+}
+
+.detroit-fit-supported {
+  background: #1a2a0a;
+  color: #a8d85e;
+  border: 1px solid #3a5a1a;
+}
+
+.detroit-fit-incomplete {
+  background: #1a1a2a;
+  color: #8899cc;
+  border: 1px solid #2a2a4a;
+}
+
+.detroit-fit-unavailable .detroit-fit-status-text {
+  font-size: 12px;
+  color: var(--color-text-muted, #8899aa);
+}
+
+.detroit-fit-components {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.detroit-fit-comp {
+  font-size: 11px;
+  color: var(--color-text-muted, #8899aa);
+}
+
+.detroit-fit-comp em {
+  font-style: normal;
+  color: var(--color-text, #ccd6e8);
+}
+
+.detroit-fit-interpretation {
+  font-size: 11px;
+  color: var(--color-text-dim, #7788aa);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.detroit-fit-form-risk {
+  font-size: 11px;
+  color: #e8c060;
+  margin-top: 6px;
+}

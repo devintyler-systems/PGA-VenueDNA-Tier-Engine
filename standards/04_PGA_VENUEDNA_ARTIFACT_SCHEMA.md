@@ -306,3 +306,132 @@ Any discovered mismatch between expected and actual CSV headers must be logged i
   "resolution": "mapped timing_adj → DG_timingadj_benchmark"
 }
 ```
+
+---
+
+## 8. VENUE INTELLIGENCE ARTIFACTS
+
+### 8A. {venue_slug}_intelligence_{year}_v{n}.json
+
+Path: `library/venues/{venue_slug}/{venue_slug}_intelligence_{year}_v{n}.json`
+
+First introduced: `detroit_golf_club_intelligence_2026_v1.json` (2026 Rocket Classic)
+
+**Required top-level keys:**
+```json
+{
+  "venue":                  "Detroit Golf Club",
+  "venue_slug":             "detroit_golf_club",
+  "season":                 2026,
+  "schema_version":         "venue-intelligence-v1",
+  "governance_version":     "v1",
+  "generated_at":           "<ISO 8601 UTC>",
+  "frozen_payload_policy":  "READ_ONLY",
+  "scoring_rebuild_required_for_changes": true,
+  "dominant_tripod":        {},
+  "dominant_tripod_governance": {}
+}
+```
+
+**`dominant_tripod` block:**
+```json
+{
+  "label":          "Detroit Tripod",
+  "scoring_impact": "NONE",
+  "components": [
+    { "trait": "sg_approach",   "weight": 0.40, "source_label": "SG: Approach",  "availability_field": "trait_approach_raw" },
+    { "trait": "app_150_200",   "weight": 0.25, "source_label": "App 150-200",   "availability_field": "trait_long_iron_raw" },
+    { "trait": "total_driving", "weight": 0.20, "source_label": "Total Driving", "availability_field": "ott_true" }
+  ],
+  "subset_weight_total": 0.85,
+  "eligibility_gate":    "usable_for_badges"
+}
+```
+
+**`dominant_tripod_governance` block:**
+```json
+{
+  "status":      "NOT_ACTIVE",
+  "description": "Proposed V2 enhancement — documented for future governance only",
+  "effect_on_current_ranks":         "NONE",
+  "effect_on_current_tiers":         "NONE",
+  "effect_on_current_probabilities": "NONE"
+}
+```
+
+**Hard rules:**
+- `dominant_tripod.scoring_impact` must always equal `"NONE"` until a formal V2 governance vote is recorded
+- `dominant_tripod_governance.status` must be `"NOT_ACTIVE"` until explicitly activated by the council
+- This file is documentation only; it never affects VTS scores, tiers, or probabilities
+
+---
+
+## §3F. {slug}_tripod_audit.json (READ_ONLY_AUDIT_COMPANION)
+
+Path: `events/{slug}/output/{slug}_tripod_audit.json`
+Deploy copy: `events/{slug}/deploy/data/{slug}_tripod_audit.json`
+
+First introduced: `2026_rocket_classic_tripod_audit.json`
+
+**Purpose:** Analytical enrichment layer joined to the frozen event payload by `player_id`. Does not modify, recompute, or replace any field in the frozen payload. Zero impact on ranks, tiers, VTS, or probabilities.
+
+**Required top-level keys:**
+```json
+{
+  "metadata":               {},
+  "percentile_thresholds":  {},
+  "players":                []
+}
+```
+
+**`metadata` required fields:**
+```json
+{
+  "artifact_type":           "READ_ONLY_AUDIT_COMPANION",
+  "scoring_effect":          "NONE",
+  "tier_effect":             "NONE",
+  "probability_effect":      "NONE",
+  "source_payload":          "{slug}_event_payload.json",
+  "source_payload_schema":   "<schemaVersion from payload>",
+  "source_payload_hash":     "<SHA-256 hex of frozen payload>",
+  "join_key":                "player_id",
+  "field_size_expected":     147,
+  "frozen_output_preserved": true,
+  "v2_governance_status":    "NOT_ACTIVE",
+  "v2_governance_note":      "PROPOSED_V2 rules have zero effect on current ranks, tiers, VTS, and probabilities."
+}
+```
+
+**Per-player record fields:**
+
+| Field | Type | Notes |
+|---|---|---|
+| `player_id` | string | Join key — must match frozen payload |
+| `tripod_eligibility` | `"ELIGIBLE"` \| `"UNAVAILABLE"` | Determined by `usable_for_badges` gate on all three components |
+| `tripod_qualified` | bool \| null | True if all 3 components ≥ 60th percentile; null if UNAVAILABLE |
+| `tripod_supported` | bool \| null | True if weighted score ≥ 65th percentile AND ≥ 2/3 components qualify; null if UNAVAILABLE |
+| `component_percentiles` | object \| null | `{sg_approach, app_150_200, total_driving}` — present for ELIGIBLE only |
+| `weighted_tripod_score` | float \| null | `(sg*0.40 + app*0.25 + drv*0.20) / 0.85`; null if UNAVAILABLE |
+| `weighted_tripod_percentile` | float \| null | Percentile within eligible pool; null if UNAVAILABLE |
+| `recent_form_risk_flag` | bool \| null | True if `true_sg_l20 < 0` for tripod-qualified players; null otherwise |
+| `t2g_no_red_flag` | null | Always null — `arg_true` not materialized as numeric field in payload |
+| `current_engine_effect` | `"NONE"` | Always `"NONE"` — no scoring effect |
+| `proposed_v2_effect` | `"NONE — NOT ACTIVE"` | Always this exact string |
+| `source_availability_reason` | string \| null | Populated for UNAVAILABLE players only |
+| `audit_interpretation` | string | Human-readable interpretation of tripod status |
+
+**Eligibility gate (per-component, using `trait_availability` metadata):**
+
+```
+sg_approach   → trait_availability.trait_approach_raw.usable_for_badges == True
+app_150_200   → trait_availability.trait_long_iron_raw.usable_for_badges == True
+total_driving → trait_availability.ott_true.usable_for_badges == True
+```
+
+All three must be `True` for a player to be ELIGIBLE. UNSCORED players (`data_depth == "UNSCORED"`) are always UNAVAILABLE regardless of availability metadata.
+
+**Percentile pools:** Computed over ELIGIBLE players only. UNAVAILABLE players are excluded from all pools and thresholds.
+
+**Build script:** `events/{slug}/output/build_tripod_audit.py`
+**Pre-build validation:** `events/{slug}/output/preflight_check.py`
+**Post-build validation:** `events/{slug}/output/validate_tripod_audit.py`

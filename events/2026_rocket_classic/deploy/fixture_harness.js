@@ -19,6 +19,7 @@
       badges:       [],     // array of active badge_ids
     },
     openPlayerId:   null,   // currently open drawer player_id
+    auditCompanion: null,   // loaded from data/2026_rocket_classic_tripod_audit.json
   };
 
   // ── Bootstrap ────────────────────────────────────────────────────────────────
@@ -69,6 +70,18 @@
 
     renderBadgeFilters();
     renderRoster();
+    // Load tripod audit companion — graceful fallback if absent or malformed
+    try {
+      S.auditCompanion = await loadJSON("data/2026_rocket_classic_tripod_audit.json");
+    } catch {
+      try {
+        S.auditCompanion = await loadJSON("../deploy/data/2026_rocket_classic_tripod_audit.json");
+      } catch {
+        console.info("Tripod audit companion not found — Detroit Fit section will show unavailable.");
+        S.auditCompanion = null;
+      }
+    }
+
     bindGlobalEvents();
   }
 
@@ -79,6 +92,67 @@
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${path}`);
       return r.json();
     });
+  }
+
+  // ── Detroit Fit helpers ───────────────────────────────────────────────────────
+
+  function getAuditRecord(playerId) {
+    if (!S.auditCompanion) return null;
+    return (S.auditCompanion.players || []).find((p) => p.player_id === playerId) || null;
+  }
+
+  function renderDetroitFit(playerId) {
+    const TOOLTIP = "Detroit tripod is a venue-fit audit: SG: Approach, App 150–200, and Total Driving. "
+                  + "It does not alter the current model rank, tier, or probabilities.";
+    const rec = getAuditRecord(playerId);
+
+    if (!rec) {
+      return `<div class="detroit-fit-section detroit-fit-unavailable">
+        <div class="detroit-fit-label">Detroit Fit
+          <span class="detroit-fit-info" title="${esc(TOOLTIP)}" aria-label="${esc(TOOLTIP)}">&#x24D8;</span>
+        </div>
+        <span class="detroit-fit-status-text">Detroit Fit data not available for this player.</span>
+      </div>`;
+    }
+
+    if (rec.tripod_eligibility === "UNAVAILABLE") {
+      return `<div class="detroit-fit-section detroit-fit-unavailable">
+        <div class="detroit-fit-label">Detroit Fit
+          <span class="detroit-fit-info" title="${esc(TOOLTIP)}" aria-label="${esc(TOOLTIP)}">&#x24D8;</span>
+        </div>
+        <span class="detroit-fit-status-text">${esc(rec.audit_interpretation || "Tripod traits unavailable.")}</span>
+      </div>`;
+    }
+
+    const qualified = rec.tripod_qualified;
+    const supported = rec.tripod_supported;
+
+    let statusClass = "detroit-fit-incomplete";
+    let statusText  = "Tripod traits incomplete";
+    if (qualified)      { statusClass = "detroit-fit-qualified"; statusText = "Tripod-qualified (audit)"; }
+    else if (supported) { statusClass = "detroit-fit-supported"; statusText = "Tripod-supported (audit)"; }
+
+    const cp = rec.component_percentiles || {};
+    const compHtml = `
+      <div class="detroit-fit-components">
+        <span class="detroit-fit-comp">SG: App <em>${cp.sg_approach != null ? cp.sg_approach + "p" : "—"}</em></span>
+        <span class="detroit-fit-comp">App 150–200 <em>${cp.app_150_200 != null ? cp.app_150_200 + "p" : "—"}</em></span>
+        <span class="detroit-fit-comp">Total Drv <em>${cp.total_driving != null ? cp.total_driving + "p" : "—"}</em></span>
+      </div>`;
+
+    const formRisk = (rec.recent_form_risk_flag === true)
+      ? `<div class="detroit-fit-form-risk">⚠ Form risk noted (audit only)</div>`
+      : "";
+
+    return `<div class="detroit-fit-section">
+      <div class="detroit-fit-label">Detroit Fit
+        <span class="detroit-fit-info" title="${esc(TOOLTIP)}" aria-label="${esc(TOOLTIP)}">&#x24D8;</span>
+      </div>
+      <span class="detroit-fit-status ${esc(statusClass)}">${esc(statusText)}</span>
+      ${compHtml}
+      <div class="detroit-fit-interpretation">${esc(rec.audit_interpretation || "")}</div>
+      ${formRisk}
+    </div>`;
   }
 
   // ── Badge policy helpers ──────────────────────────────────────────────────────
@@ -398,6 +472,10 @@
         <div class="drawer-section-label">Venue History</div>
         <div class="drawer-prose">${esc(narrativeObj.venue_history_note)}</div>
       </div>
+
+      <div class="drawer-divider"></div>
+
+      ${renderDetroitFit(inputObj.player.player_id)}
     `;
   }
 
