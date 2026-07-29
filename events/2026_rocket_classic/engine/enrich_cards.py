@@ -1454,9 +1454,6 @@ def qualify_badges(
             if not eligible:
                 continue
 
-            if bid == "par5_predator":
-                continue
-
             src_files = ", ".join(
                 dict.fromkeys(
                     badge_inputs[tid]["source_file"]

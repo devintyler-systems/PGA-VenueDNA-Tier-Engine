@@ -426,8 +426,9 @@
       el.innerHTML = checkboxHtml;
       el.querySelectorAll(".badge-filter-checkbox").forEach((cb) => {
         cb.addEventListener("change", () => {
-          S.activeFilters.badges = [...document.querySelectorAll(".badge-filter-checkbox:checked")]
-            .map((c) => c.dataset.badgeId);
+          S.activeFilters.badges = [...new Set(
+            [...document.querySelectorAll(".badge-filter-checkbox:checked")].map((c) => c.dataset.badgeId)
+          )];
           renderRoster();
         });
       });
