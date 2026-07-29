@@ -91,4 +91,4 @@ def test_unscored_player_excluded_from_per_player_gates():
     p = {"player_id": "2", "data_depth": "UNSCORED"}  # no badges field at all
     errors = validate_payload(_payload([_player(), p]), _POLICY)
     # G2 must NOT fire for the UNSCORED player
-    assert not any("player_id=2" in e and "[G2]" in e for e in errors)
+    assert not any("Player 2" in e and "[G2]" in e for e in errors)
