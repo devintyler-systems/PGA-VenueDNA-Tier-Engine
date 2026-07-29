@@ -1282,3 +1282,48 @@ details[open] .venue-traits-summary::before {
   color: var(--color-text-muted);
   font-style: italic;
 }
+
+/* ── Player name search ──────────────────────────────────────────────────── */
+
+.search-wrap {
+  margin-bottom: 14px;
+}
+
+.player-search-input {
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-size: 13px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.player-search-input:focus {
+  border-color: var(--color-accent);
+}
+
+.player-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ── Badge filter checkboxes ─────────────────────────────────────────────── */
+.badge-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 3px 0;
+}
+.badge-filter-item:hover { color: var(--color-text); }
+.badge-filter-checkbox {
+  accent-color: var(--color-accent);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+}

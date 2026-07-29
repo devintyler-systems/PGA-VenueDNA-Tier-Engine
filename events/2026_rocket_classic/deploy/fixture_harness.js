@@ -3,7 +3,6 @@
  * VenueDNA Rocket Classic — fixture harness only.
  * Renders real event payload (142 scored players) with synthetic fixture fallback.
  * badge_policy.v1.json is the single source of truth — no badge constants here.
- * Badge filters are DISABLED for this build: qualification was not emitted in the frozen artifact.
  */
 
 (function () {
@@ -17,8 +16,9 @@
     playerBriefs:   null,   // keyed by player_name; from data/2026_rocket_classic_player_briefs.json
     activeFilters:  {
       tier:         "All",
-      badges:       [],     // always empty — badge filters disabled for this build
+      badges:       [],
       traitRanges:  {},
+      query:        "",
     },
     openPlayerId:   null,
     auditCompanion: null,
@@ -149,6 +149,19 @@
     return "Low";
   }
 
+  function validateEmittedBadges(rawBadges, badgePolicy) {
+    if (!Array.isArray(rawBadges)) return [];
+    const known = new Set((badgePolicy?.badges || []).map((b) => b.badge_id));
+    return rawBadges.filter((b) => {
+      if (!b || typeof b.badge_id !== "string") return false;
+      if (!known.has(b.badge_id)) {
+        console.error(`Badge validation error: unknown badge_id '${b.badge_id}' — omitting`);
+        return false;
+      }
+      return true;
+    });
+  }
+
   function playerToFixture(p, payload, brief) {
     const traitAvail = p.trait_availability || {};
 
@@ -173,7 +186,7 @@
       };
     });
 
-    const SKIP_TAGS = ["No Clear Structural Risk"];
+    const SKIP_TAGS = ["No Clear Structural Risk", "unknown", "Unknown"];
 
     const strengths = (p.strength_tags || [])
       .filter((t) => !SKIP_TAGS.includes(t))
@@ -250,7 +263,7 @@
         penalty_total:       0,
       },
       traits,
-      badges:             [],   // engine did not emit badges for this build
+      badges:             validateEmittedBadges(p.badges || [], S.badgePolicy),
       anti_pattern_flags: antiPatternFlags,
       risk_factors: weaknesses.map((w, i) => ({
         risk_id:           `risk_${i}`,
@@ -387,9 +400,37 @@
         <button class="badge-glossary-link" data-glossary-open="true" type="button">What are playstyle badges?</button>
       </div>
     `;
+
+    const presentIds = new Set();
+    S.fixtures.forEach((f) => { (f.input.badges || []).forEach((b) => presentIds.add(b.badge_id)); });
+
+    if (presentIds.size === 0) {
+      ["badge-filter-list", "badge-filter-list-popover", "badge-filter-list-overlay"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = DISABLED_HTML;
+      });
+      return;
+    }
+
+    const badgeDefs = (S.badgePolicy?.badges || []).filter((b) => presentIds.has(b.badge_id));
+    const checkboxHtml = badgeDefs.map((def) => `
+      <label class="badge-filter-item">
+        <input type="checkbox" class="badge-filter-checkbox" data-badge-id="${esc(def.badge_id)}" />
+        <span class="badge-filter-label">${esc(def.icon || "")} ${esc(def.label)}</span>
+      </label>
+    `).join("");
+
     ["badge-filter-list", "badge-filter-list-popover", "badge-filter-list-overlay"].forEach((id) => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = DISABLED_HTML;
+      if (!el) return;
+      el.innerHTML = checkboxHtml;
+      el.querySelectorAll(".badge-filter-checkbox").forEach((cb) => {
+        cb.addEventListener("change", () => {
+          S.activeFilters.badges = [...document.querySelectorAll(".badge-filter-checkbox:checked")]
+            .map((c) => c.dataset.badgeId);
+          renderRoster();
+        });
+      });
     });
   }
 
@@ -458,7 +499,15 @@
 
       if (S.activeFilters.tier !== "All" && tier !== S.activeFilters.tier) return false;
 
-      // Badge filter intentionally skipped — disabled for this build
+      if (S.activeFilters.query) {
+        const name = (inp.player.display_name || "").toLowerCase();
+        if (!name.includes(S.activeFilters.query)) return false;
+      }
+
+      if (S.activeFilters.badges.length > 0) {
+        const playerBadgeIds = (inp.badges || []).map((b) => b.badge_id);
+        if (!S.activeFilters.badges.some((bid) => playerBadgeIds.includes(bid))) return false;
+      }
 
       const ranges = S.activeFilters.traitRanges;
       if (Object.keys(ranges).length > 0) {
@@ -481,6 +530,10 @@
     S.activeFilters.tier = "All";
     S.activeFilters.badges = [];
     S.activeFilters.traitRanges = {};
+    S.activeFilters.query = "";
+    const searchEl = document.getElementById("player-search");
+    if (searchEl) searchEl.value = "";
+    document.querySelectorAll(".badge-filter-checkbox").forEach((cb) => { cb.checked = false; });
 
     document.querySelectorAll(".tier-chip").forEach((c) => {
       c.classList.toggle("active", c.dataset.tier === "All");
@@ -518,6 +571,12 @@
     if (!tbody) return;
 
     const visible = filteredFixtures();
+
+    if (S.openPlayerId) {
+      if (!visible.some((f) => f.input.player.player_id === S.openPlayerId)) {
+        closeDrawer();
+      }
+    }
 
     tbody.innerHTML = visible.map((f) => {
       const inp  = f.input;
@@ -900,6 +959,15 @@
     });
 
     bindTierChips();
+
+    const searchInput = document.getElementById("player-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        S.activeFilters.query = searchInput.value.trim().toLowerCase();
+        renderRoster();
+      });
+    }
+
     updateFilterCount();
   }
 
