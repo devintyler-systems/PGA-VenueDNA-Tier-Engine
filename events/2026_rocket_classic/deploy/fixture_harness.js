@@ -26,9 +26,9 @@
 
   async function init() {
     try {
-      S.badgePolicy = await loadJSON("../../../config/badge_policy.v1.json");
+      S.badgePolicy = await loadJSON("config/badge_policy.v1.json");
     } catch {
-      // Fallback: from repo root when served at events/2026_rocket_classic/deploy/
+      // Fallback: legacy repo-root-relative path (dev server only)
       try {
         S.badgePolicy = await loadJSON("../../../../config/badge_policy.v1.json");
       } catch {
@@ -39,20 +39,20 @@
 
     const fixtureDefs = [
       {
-        inputPath:     "../engine/fixtures/fixture_elite_001_input.json",
-        narrativePath: "../engine/fixtures/fixture_elite_001_narrative.json",
+        inputPath:     "fixtures/fixture_elite_001_input.json",
+        narrativePath: "fixtures/fixture_elite_001_narrative.json",
       },
       {
-        inputPath:     "../engine/fixtures/fixture_volatile_001_input.json",
-        narrativePath: "../engine/fixtures/fixture_volatile_001_narrative.json",
+        inputPath:     "fixtures/fixture_volatile_001_input.json",
+        narrativePath: "fixtures/fixture_volatile_001_narrative.json",
       },
       {
-        inputPath:     "../engine/fixtures/fixture_thin_001_input.json",
-        narrativePath: "../engine/fixtures/fixture_thin_001_narrative.json",
+        inputPath:     "fixtures/fixture_thin_001_input.json",
+        narrativePath: "fixtures/fixture_thin_001_narrative.json",
       },
       {
-        inputPath:     "../engine/fixtures/fixture_structural_failure_001_input.json",
-        narrativePath: "../engine/fixtures/fixture_structural_failure_001_narrative.json",
+        inputPath:     "fixtures/fixture_structural_failure_001_input.json",
+        narrativePath: "fixtures/fixture_structural_failure_001_narrative.json",
       },
     ];
 

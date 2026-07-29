@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "player_id": "fixture_structural_failure_001",
+  "event_id": "pga_rocket_classic_2026",
+  "generated_at_utc": "2026-07-28T00:00:00Z",
+  "prompt_contract_version": "narrative_contract_v1.0",
+  "headline": "Mid-tier approach signal with structural validation failure",
+  "story_hook": "This narrative was blocked by the structural validator before it could be cleared for display. The prose below was generated but failed a hard-block rule and has been suppressed.",
+  "venue_fit": {
+    "text": "Approach play contributes a moderate positive venue-fit delta at Detroit Golf Club.",
+    "trait_ids": ["approach_play"]
+  },
+  "strengths": [
+    {
+      "trait_id": "approach_play",
+      "label": "Approach Play",
+      "statement": "Approach metrics sit above field average, providing a modest venue-fit contribution."
+    }
+  ],
+  "weaknesses": [
+    {
+      "trait_id": "driving_accuracy",
+      "label": "Driving Accuracy",
+      "statement": "Driving accuracy at 28th percentile is a liability at a tree-lined venue.",
+      "severity": "medium"
+    }
+  ],
+  "win_scenario": "A weekend with accuracy closer to average would open the tree-lined fairways and allow the approach play to compound.",
+  "failure_scenario": "Continued accuracy deficits produce blocked approaches and consecutive bogeys that erase any approach-play gains.",
+  "projection_explainer": {
+    "text": "T3 placement reflects a modest positive approach signal offset by an accuracy deficit and no venue history.",
+    "reason_codes": ["POSITIVE_APPROACH_SIGNAL"],
+    "component_ids": ["neutral_skill", "venue_fit_delta", "penalty_total"]
+  },
+  "form_note": "Steady mid-field results over the last eight starts — no strong directional signal in either direction.",
+  "venue_history_note": "No prior starts at Detroit Golf Club. Venue-history delta not applied.",
+  "quality": {
+    "evidence_coverage": "medium",
+    "needs_editor_review": false,
+    "validation_errors": [
+      {
+        "rule": "R09_COMPONENT_ID_INVALID",
+        "field": "projection_explainer.component_ids",
+        "detail": "component_id 'venue_history_delta' referenced but venue_history.starts=0 makes this component inapplicable — hard-block: invented component reference."
+      },
+      {
+        "rule": "R11_EVIDENCE_COVERAGE_MISMATCH",
+        "field": "quality.evidence_coverage",
+        "detail": "evidence_coverage='medium' declared but traits include evidence_status='limited' (iron_play) — validator requires 'low' or explicit reviewer override when limited traits are present in top-2 demands."
+      }
+    ]
+  }
+}

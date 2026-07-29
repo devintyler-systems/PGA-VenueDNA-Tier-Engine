@@ -1,0 +1,69 @@
+{
+  "player_id": "fixture_volatile_001",
+  "event_id": "pga_rocket_classic_2026",
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-07-28T00:00:00Z",
+  "generation_mode": "pre_tournament",
+
+  "headline": "Positive approach signal offset by a structural accuracy deficit",
+
+  "story_hook": "Approach play at the 81st percentile gives this player a viable path at Detroit Golf Club, where the iron game drives scoring. The concern is a driving accuracy score at the 18th percentile — well below the threshold where tree-lined corridors become punishing. A single-start venue sample limits the course-history signal. The projection is positive but the accuracy risk is real and carries a high-severity flag.",
+
+  "venue_fit": {
+    "text": "Approach play at the 81st percentile maps to the venue's primary demand, but driving accuracy at the 18th percentile is a direct mismatch with Detroit Golf Club's tree-lined corridor requirements.",
+    "trait_ids": ["approach_play", "driving_accuracy"]
+  },
+
+  "strengths": [
+    {
+      "label": "Approach Play",
+      "statement": "Approach play at the 81st percentile meets the venue's primary demand, providing a base for birdie-range setups at a course where iron play drives scoring.",
+      "trait_id": "approach_play"
+    },
+    {
+      "label": "Putting",
+      "statement": "Putting at the 86th percentile is a potential rescue mechanism when approach play delivers mid-range birdie attempts on the bentgrass greens.",
+      "trait_id": "putting"
+    }
+  ],
+
+  "weaknesses": [
+    {
+      "label": "Driving Accuracy",
+      "statement": "Driving accuracy at the 18th percentile is the highest-severity risk — missed fairways at this tree-lined venue produce blocked approaches and direct bogey exposure.",
+      "trait_id": "driving_accuracy"
+    },
+    {
+      "label": "Iron Play — Limited Evidence",
+      "statement": "Iron-play 150-200 is scored from a limited window; the data is insufficient to establish a reliable signal on the venue's second-weighted demand.",
+      "trait_id": "iron_play"
+    }
+  ],
+
+  "win_scenario": "To win, this player must find enough fairways to minimize penalty exposure while applying the 81st-percentile approach to create birdie setups in each round.",
+
+  "failure_scenario": "The projection breaks if driving accuracy misses trigger a round of blocked approaches and penalty strokes, outpacing the birdie rate the approach play can generate.",
+
+  "projection_explainer": {
+    "text": "The model places this player in T2 based on a positive approach signal and modest venue-fit delta, with a 3.5-point penalty for the accuracy deficit.",
+    "reason_codes": ["POSITIVE_APPROACH_SIGNAL"],
+    "component_ids": ["neutral_skill", "venue_fit_delta", "penalty_total"]
+  },
+
+  "form_note": "Recent form shows 1 top-10 in the last 8 starts alongside 2 missed cuts; the accuracy trend declining below career average is the primary form concern.",
+
+  "venue_history_note": "One start at Detroit Golf Club with a T31 finish — limited venue sample. Insufficient starts to validate or contradict the structural projection.",
+
+  "evidence_refs": {
+    "strength_trait_ids": ["approach_play", "putting"],
+    "risk_trait_ids": ["driving_accuracy", "iron_play"],
+    "course_demand_trait_ids": ["approach_play", "driving_accuracy"],
+    "projection_reason_codes": ["POSITIVE_APPROACH_SIGNAL"]
+  },
+
+  "quality": {
+    "evidence_coverage": "medium",
+    "needs_editor_review": false,
+    "validation_errors": []
+  }
+}

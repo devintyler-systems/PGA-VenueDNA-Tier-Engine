@@ -1,0 +1,59 @@
+{
+  "player_id": "fixture_thin_001",
+  "event_id": "pga_rocket_classic_2026",
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-07-28T00:00:00Z",
+  "generation_mode": "pre_tournament",
+
+  "headline": "Limited evidence state — debut at a venue requiring iron precision",
+
+  "story_hook": "No prior starts at Detroit Golf Club and two unavailable trait scores — iron play and driving accuracy — define the evidence state for this projection. What data exists shows approach play near field average and a debut penalty of 2.4 VTS points applied. The viable path exists but is narrow, and a strong finish would require outperforming a low-confidence projection at a venue demanding the two unresolved skills.",
+
+  "venue_fit": {
+    "text": "Approach play at the 46th percentile sits near field average on the venue's primary demand. Iron play and driving accuracy — the second and third most important demands — are unavailable in the current data window.",
+    "trait_ids": ["approach_play"]
+  },
+
+  "strengths": [
+    {
+      "label": "Approach Play (available signal)",
+      "statement": "Approach play at the 46th percentile is the only substantive scoring signal available; it provides the projection floor but no positive venue-fit delta.",
+      "trait_id": "approach_play"
+    }
+  ],
+
+  "weaknesses": [
+    {
+      "label": "Key Traits Unavailable",
+      "statement": "Iron play and driving accuracy — both unavailable in the current window — are the venue's two most heavily weighted demands, removing the primary evidence basis.",
+      "trait_id": "iron_play"
+    }
+  ],
+
+  "win_scenario": "A strong finish requires approach play sustaining above its limited sample mean and putting outperforming expectations, compensating for the unresolved iron-play and accuracy signals.",
+
+  "failure_scenario": "The projection breaks if approach play regresses below its limited sample average; with no iron-play data available, there is no compensating scoring signal.",
+
+  "projection_explainer": {
+    "text": "The model assigns T4 at low confidence: two of the five scoring traits are unavailable, and a debut penalty of 2.4 points is applied per policy.",
+    "reason_codes": ["LIMITED_EVIDENCE_STATE", "DEBUT_PENALTY_APPLIED"],
+    "component_ids": ["neutral_skill", "penalty_total"]
+  },
+
+  "form_note": "Form data is drawn from fewer than 6 qualifying starts; the available sample is insufficient to establish a reliable trend.",
+
+  "venue_history_note": "No prior starts at Detroit Golf Club. No meaningful venue sample exists, and no venue-history delta is applied to this projection.",
+
+  "evidence_refs": {
+    "strength_trait_ids": ["approach_play"],
+    "risk_trait_ids": ["iron_play"],
+    "course_demand_trait_ids": ["approach_play"],
+    "projection_reason_codes": ["LIMITED_EVIDENCE_STATE", "DEBUT_PENALTY_APPLIED"]
+  },
+
+  "quality": {
+    "evidence_coverage": "low",
+    "needs_editor_review": false,
+    "validation_errors": []
+  }
+}

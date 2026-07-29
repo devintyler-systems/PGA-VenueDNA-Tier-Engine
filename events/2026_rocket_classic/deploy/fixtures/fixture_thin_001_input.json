@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0",
+  "event": {
+    "event_id": "pga_rocket_classic_2026",
+    "event_name": "Rocket Classic",
+    "venue_id": "detroit_golf_club",
+    "venue_name": "Detroit Golf Club",
+    "event_phase": "pre_tournament",
+    "generated_at_utc": "2026-07-28T00:00:00Z",
+    "data_as_of_utc": "2026-07-27T12:00:00Z"
+  },
+  "course_dna": {
+    "identity_summary": "A long tree-lined parkland layout that rewards elite approach play from 150-200 yards and penalizes positional mistakes off the tee.",
+    "primary_demands": [
+      {
+        "trait_id": "approach_play",
+        "label": "Approach Play",
+        "importance": 0.40,
+        "rank": 1,
+        "reason": "Narrow tree-lined corridors force precise iron play; 44% of approaches arrive from 150-200 yards."
+      },
+      {
+        "trait_id": "iron_play",
+        "label": "Iron Play 150-200yd",
+        "importance": 0.25,
+        "rank": 2,
+        "reason": "Mid-iron precision separates scoring at this length; proximity from 150-200 directly correlates with birdie conversion."
+      },
+      {
+        "trait_id": "driving_accuracy",
+        "label": "Driving Accuracy",
+        "importance": 0.15,
+        "rank": 3,
+        "reason": "Tree-lined fairways penalize errant tee shots with blocked approaches and penalty stroke exposure."
+      },
+      {
+        "trait_id": "par5_scoring",
+        "label": "Par-5 Scoring",
+        "importance": 0.10,
+        "rank": 4,
+        "reason": "Three reachable par-5s provide concentrated birdie opportunity for players who can both reach and convert."
+      },
+      {
+        "trait_id": "putting",
+        "label": "Putting",
+        "importance": 0.10,
+        "rank": 5,
+        "reason": "Bentgrass greens at moderate speed reward consistent putting after birdie-range approaches."
+      }
+    ],
+    "scoring_opportunities": [
+      "Three reachable par-5s where two-putt birdies are available for long hitters.",
+      "Mid-iron birdie setups when approach play is elite — proximity from 150-175 yards is the scoring engine.",
+      "Early wave scoring advantage on calm mornings before afternoon wind."
+    ],
+    "primary_failure_modes": [
+      "Missed fairways into trees produce blocked approaches and bogey exposure.",
+      "Approach play below field average leads to long-birdie attempts and net pars.",
+      "Putting volatility erases approach-play gains — this course does not forgive wasted birdie chances."
+    ],
+    "par": 72,
+    "yardage": 7380,
+    "weather_context": "Calm early-week forecast; afternoon wind 8-12mph possible by the weekend."
+  },
+  "player": {
+    "player_id": "fixture_thin_001",
+    "display_name": "Test Player Gamma",
+    "country": null,
+    "handedness": null
+  },
+  "projection": {
+    "vts": 53.8,
+    "vts_rank": 89,
+    "field_size": 144,
+    "tier": "T4",
+    "tier_rank": 31,
+    "conviction": "Low",
+    "confidence_score": 0.31,
+    "confidence_label": "Low",
+    "neutral_skill": 56.2,
+    "venue_fit_delta": 0.0,
+    "venue_history_delta": 0.0,
+    "penalty_total": -2.4,
+    "projection_direction": "neutral",
+    "projection_reason_codes": [
+      "LIMITED_EVIDENCE_STATE",
+      "DEBUT_PENALTY_APPLIED"
+    ]
+  },
+  "traits": [
+    {
+      "trait_id": "approach_play",
+      "label": "Approach Play",
+      "score": 54.1,
+      "field_percentile": 46.0,
+      "venue_importance": 0.40,
+      "fit_contribution": 0.0,
+      "direction": "neutral",
+      "evidence_status": "limited"
+    },
+    {
+      "trait_id": "iron_play",
+      "label": "Iron Play 150-200yd",
+      "score": 0.0,
+      "field_percentile": 0.0,
+      "venue_importance": 0.25,
+      "fit_contribution": 0.0,
+      "direction": "neutral",
+      "evidence_status": "unavailable"
+    },
+    {
+      "trait_id": "driving_accuracy",
+      "label": "Driving Accuracy",
+      "score": 0.0,
+      "field_percentile": 0.0,
+      "venue_importance": 0.15,
+      "fit_contribution": 0.0,
+      "direction": "neutral",
+      "evidence_status": "unavailable"
+    },
+    {
+      "trait_id": "par5_scoring",
+      "label": "Par-5 Scoring",
+      "score": 49.2,
+      "field_percentile": 44.0,
+      "venue_importance": 0.10,
+      "fit_contribution": 0.0,
+      "direction": "neutral",
+      "evidence_status": "limited"
+    },
+    {
+      "trait_id": "putting",
+      "label": "Putting",
+      "score": 61.4,
+      "field_percentile": 57.0,
+      "venue_importance": 0.10,
+      "fit_contribution": 0.2,
+      "direction": "neutral",
+      "evidence_status": "limited"
+    },
+    {
+      "trait_id": "recent_form",
+      "label": "Recent Form",
+      "score": 58.0,
+      "field_percentile": 52.0,
+      "venue_importance": 0.00,
+      "fit_contribution": 0.0,
+      "direction": "neutral",
+      "evidence_status": "limited"
+    }
+  ],
+  "badges": [
+    {
+      "badge_id": "debut",
+      "label": "Debut",
+      "qualification_reason": "No prior starts at Detroit Golf Club — venue_starts = 0.",
+      "evidence_trait_ids": []
+    }
+  ],
+  "form": {
+    "sample_window": "last_6_starts",
+    "form_label": "Limited data",
+    "form_direction": "limited_data",
+    "form_evidence": [
+      "Fewer than 6 qualifying starts in the current data window; form signal is not reliable."
+    ],
+    "recent_results": [
+      { "event_name": "Test Event One", "finish": "T44", "date": "2026-07-06" },
+      { "event_name": "Test Event Two", "finish": "T61", "date": "2026-06-15" }
+    ]
+  },
+  "venue_history": {
+    "starts": 0,
+    "cuts_made": 0,
+    "best_finish": null,
+    "history_label": "No meaningful venue sample",
+    "evidence": [
+      "No prior starts at Detroit Golf Club. Venue-history delta is not applied to this projection."
+    ]
+  },
+  "risk_factors": [
+    {
+      "risk_id": "limited_evidence_state",
+      "label": "Thin evidence — key traits unavailable",
+      "severity": "high",
+      "evidence_trait_id": "iron_play",
+      "description": "Iron play 150-200 and driving accuracy are unavailable in the current data window. These are the two highest-weighted traits at this venue. Projection relies primarily on overall approach play from a limited sample."
+    },
+    {
+      "risk_id": "debut_penalty",
+      "label": "Venue debut",
+      "severity": "medium",
+      "evidence_trait_id": null,
+      "description": "No prior starts at Detroit Golf Club. Debut penalty of 2.4 VTS points applied per standard policy."
+    }
+  ],
+  "live_context": {
+    "round": null,
+    "position": null,
+    "strokes_gained": [],
+    "prediction_status": null,
+    "round_evidence": []
+  }
+}

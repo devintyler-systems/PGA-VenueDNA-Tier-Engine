@@ -1,0 +1,69 @@
+{
+  "player_id": "fixture_elite_001",
+  "event_id": "pga_rocket_classic_2026",
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-07-28T00:00:00Z",
+  "generation_mode": "pre_tournament",
+
+  "headline": "Elite approach play meets a venue built for iron surgeons",
+
+  "story_hook": "At Detroit Golf Club, approach play is the primary scoring mechanism, and this player's approach metrics sit at the 93rd percentile of the field. Combined with iron play at the 90th percentile and four prior cuts made here, the pre-tournament case is among the most structurally grounded in the field. Improving form over recent starts reinforces the projection.",
+
+  "venue_fit": {
+    "text": "Approach play at the 93rd percentile and iron-play at the 90th percentile align directly with the venue's two highest-weighted demands. Four cuts made at Detroit Golf Club further validate the structural fit.",
+    "trait_ids": ["approach_play", "iron_play"]
+  },
+
+  "strengths": [
+    {
+      "label": "Approach Play",
+      "statement": "Approach play at the 93rd percentile is the primary driver, fitting a venue where 44 percent of approaches arrive from 150-200 yards.",
+      "trait_id": "approach_play"
+    },
+    {
+      "label": "Iron Play 150-200yd",
+      "statement": "Iron-play score at the 90th percentile directly addresses the venue's second-highest demand, supporting consistent birdie setups from mid-iron distances.",
+      "trait_id": "iron_play"
+    },
+    {
+      "label": "Par-5 Scoring",
+      "statement": "Par-5 scoring at the 84th percentile enables exploitation of the three reachable par-5s where birdie conversion rates separate the field.",
+      "trait_id": "par5_scoring"
+    }
+  ],
+
+  "weaknesses": [
+    {
+      "label": "Putting",
+      "statement": "Putting at the 51st percentile is field-average; a below-average putting week erases the approach-play advantage and leaves pars where birdies are expected.",
+      "trait_id": "putting"
+    }
+  ],
+
+  "win_scenario": "To win, elite approach play must convert into birdie chances on the par-5s, with putting holding near field average throughout the final two rounds.",
+
+  "failure_scenario": "The projection breaks if approach play regresses toward field average and the putting floor at the 51st percentile costs birdie conversions on reachable holes.",
+
+  "projection_explainer": {
+    "text": "The model assigns T1 placement based on a positive venue-fit delta from elite approach and iron-play scores, offset by a neutral putting contribution.",
+    "reason_codes": ["ELITE_APPROACH_FIT", "TOP_TIER_IRON_PLAY"],
+    "component_ids": ["neutral_skill", "venue_fit_delta"]
+  },
+
+  "form_note": "Four top-10 finishes in the last 8 stroke-play starts, with approach improving over the last 6 weeks — form trajectory supports the projection.",
+
+  "venue_history_note": "Four starts at Detroit Golf Club, four cuts made, and a best finish of T6 — the venue history provides supporting context for the positive projection.",
+
+  "evidence_refs": {
+    "strength_trait_ids": ["approach_play", "iron_play", "par5_scoring"],
+    "risk_trait_ids": ["putting"],
+    "course_demand_trait_ids": ["approach_play", "iron_play"],
+    "projection_reason_codes": ["ELITE_APPROACH_FIT", "TOP_TIER_IRON_PLAY"]
+  },
+
+  "quality": {
+    "evidence_coverage": "high",
+    "needs_editor_review": false,
+    "validation_errors": []
+  }
+}
