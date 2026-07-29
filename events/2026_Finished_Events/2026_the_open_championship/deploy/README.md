@@ -3,7 +3,7 @@
 Run the packaging layer from the repository root:
 
 ```powershell
-python events\2026_the_open_championship\engine\build_dry_run_pack.py
+# build_dry_run_pack.py removed in cleanup commit 58f8302 — see git history
 python events\2026_the_open_championship\engine\build_board_v3.py
 ```
 
