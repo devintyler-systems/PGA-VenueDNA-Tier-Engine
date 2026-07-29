@@ -10,7 +10,7 @@ Differences from root engine (engine/enrich_cards.py):
   - 5 UNSCORED stubs appended post-z-score (excluded from scoring loop)
   - Phantom exclusion noted: Koepka, Brooks in decomp but not in teetimes field
   - Event/venue: "2026 Rocket Classic" / "Detroit Golf Club"
-  - Schema version: "rocket-classic-v1.2" (v1.2 refines badge/narrative eligibility)
+  - Schema version: "rocket-classic-v1.3" (v1.3: per-player badges[] field added)
   - 5 mandatory pipeline artifacts written per build
   - Per-player trait_availability block: availability/source_status/usable_for_badges/
     usable_for_narrative_traits per trait — zero is never ambiguous downstream
@@ -39,6 +39,24 @@ Sections
   §9  Narrative engine
   §10 Main pipeline
 """
+# EVENT-LOCAL IMPLEMENTATION — 2026 Rocket Classic / Detroit Golf Club
+#
+# This module intentionally diverges from engine/enrich_cards.py. It is not a
+# disposable copy and must not be replaced by a root import without porting and
+# validating these event-specific contracts:
+#
+# - Detroit Golf Club similar-course SG and course-history source files
+# - pgafieldteetimes.csv field contract and rocketclassicplayerIDsource.csv
+#   identity crosswalk
+# - Five UNSCORED player stubs and explicit phantom-decomposition exclusion
+# - Missing dgperformance2026.csv handling: performance traits are UNAVAILABLE,
+#   excluded from badge/narrative inference, and OTT is uniformly zeroed
+# - Per-player traitavailability, payload sourceCoverage, V1-V6 validation
+#   gates, and mandatory provenance artifacts
+#
+# Root parity is intentional only for shared VTS math, normalization, tiering,
+# and anti-pattern thresholds. Any root-engine change must be selectively
+# ported here, diffed, and validated against the Rocket event contract.
 from __future__ import annotations
 
 import argparse
@@ -89,6 +107,22 @@ PERF_FILE   = "dg_performance_2026.csv"
 PERF_ABSENT_REASON = "source file absent from events/2026_rocket_classic/input/"
 
 DELTA_CLAMP = 0.50
+
+_BADGE_TRAIT_AVAIL_MAP: dict[str, str] = {
+    "approach_play": "trait_approach_raw",
+    "iron_play":     "trait_long_iron_raw",
+}
+
+BADGE_HOT_STREAK_L6_MIN_ROUNDS  = 8
+BADGE_HOT_STREAK_L24_MIN_ROUNDS = 16
+
+_CH_ANNUAL_COLS = [
+    "2021 (Rocket Mortgage Classic)",
+    "2022 (Rocket Mortgage Classic)",
+    "2023 (Rocket Mortgage Classic)",
+    "2024 (Rocket Mortgage Classic)",
+    "2025 (Rocket Classic)",
+]
 
 TEMPS       = {"win": 3.5, "top5": 5.0, "top10": 7.0, "top20": 10.0}
 N_POSITIONS = {"win": 1,   "top5": 5,   "top10": 10,  "top20": 20}
@@ -278,11 +312,18 @@ def load_ch(path: Path) -> dict[str, dict]:
     with path.open(newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
-                    "ch_adjustment":  safe_float(row.get("ch_adjustment")),
-                    "experience_adj": safe_float(row.get("experience_adjustment")),
-                }
+            if not name:
+                continue
+            detroit_starts = sum(
+                1 for col in _CH_ANNUAL_COLS
+                if str(row.get(col, "")).strip().lower() not in ("", "null", "none")
+            )
+            result[name] = {
+                "ch_adjustment":  safe_float(row.get("ch_adjustment")),
+                "experience_adj": safe_float(row.get("experience_adjustment")),
+                "detroit_starts": detroit_starts,
+                "rounds_played":  int(safe_float(row.get("rounds_played"), default=0)),
+            }
     return result
 
 
@@ -314,6 +355,47 @@ def load_trending(path: Path) -> dict[str, dict]:
                     "l5_starts":   row.get("l5_starts", "").strip(),
                 }
     return result
+
+
+def load_badge_policy(policy_path: Path) -> list[dict]:
+    """Load badge definitions from badge_policy.v1.json. Returns [] if file missing."""
+    if not policy_path.exists():
+        print(f"[enrich_cards] WARNING -- badge_policy not found: {policy_path}", file=sys.stderr)
+        return []
+    with policy_path.open(encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("badges", [])
+
+
+def _load_sg_window(path: Path) -> dict[str, dict]:
+    """
+    Load a pga_sg_query_allcourses_l*.csv into {player_name: metric_dict}.
+    Badge-relevant columns: dist_mean, acc_mean, putt_mean, total_mean, rounds_played.
+    """
+    result: dict[str, dict] = {}
+    if not path.exists():
+        return result
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            name = row.get("player_name", "").strip().strip('"')
+            if not name:
+                continue
+            result[name] = {
+                "dist_mean":     safe_float(row.get("dist_mean"),  default=None),
+                "acc_mean":      safe_float(row.get("acc_mean"),   default=None),
+                "putt_mean":     safe_float(row.get("putt_mean"),  default=None),
+                "total_mean":    safe_float(row.get("total_mean"), default=None),
+                "rounds_played": int(safe_float(row.get("rounds_played"), default=0)),
+            }
+    return result
+
+
+def load_sg_l24(path: Path) -> dict[str, dict]:
+    return _load_sg_window(path)
+
+
+def load_sg_l6(path: Path) -> dict[str, dict]:
+    return _load_sg_window(path)
 
 
 # ── §3  Name Matching ──────────────────────────────────────────────────────────
@@ -1196,6 +1278,229 @@ def make_unscored_stub(entry: dict) -> dict:
     return stub
 
 
+def build_badge_inputs(
+    p: dict,
+    sg_l24_row: dict | None,
+    sg_l6_row:  dict | None,
+) -> dict:
+    """
+    Assemble normalized badge-input record for one player.
+    Reads trait_availability from p["trait_availability"].
+    """
+    avail = p.get("trait_availability", {})
+
+    def _ta_entry(avail_key: str, source_file: str, source_col: str, window: str) -> dict:
+        ta = avail.get(avail_key, {})
+        return {
+            "source_file":       source_file,
+            "source_column":     source_col,
+            "window":            window,
+            "value":             None,
+            "availability":      ta.get("availability", "MISSING"),
+            "usable_for_badges": ta.get("usable_for_badges", False),
+        }
+
+    approach = _ta_entry(
+        "trait_approach_raw", "app_skill_l12_sg.csv", "trait_approach_raw", "12m"
+    )
+    approach["value"] = p.get("trait_approach_raw")
+
+    iron = _ta_entry(
+        "trait_long_iron_raw", "app_skill_l12_sg.csv + app_skill_l12_prox.csv",
+        "trait_long_iron_raw", "12m"
+    )
+    iron["value"] = p.get("trait_long_iron_raw")
+
+    def _l24_entry(col: str, source_col_name: str) -> dict:
+        val  = sg_l24_row.get(col) if sg_l24_row else None
+        rnds = sg_l24_row.get("rounds_played", 0) if sg_l24_row else 0
+        avail_status = "MEASURED" if (sg_l24_row is not None and val is not None) else "MISSING"
+        return {
+            "source_file":       "pga_sg_query_allcourses_l24.csv",
+            "source_column":     source_col_name,
+            "window":            "L24",
+            "value":             val,
+            "rounds":            rnds,
+            "availability":      avail_status,
+            "usable_for_badges": avail_status == "MEASURED",
+        }
+
+    l6_tm   = sg_l6_row.get("total_mean")       if sg_l6_row  else None
+    l6_rnd  = sg_l6_row.get("rounds_played", 0) if sg_l6_row  else 0
+    l24_tm  = sg_l24_row.get("total_mean")       if sg_l24_row else None
+    l24_rnd = sg_l24_row.get("rounds_played", 0) if sg_l24_row else 0
+    form_gate_ok = (
+        l6_tm is not None and l24_tm is not None
+        and l6_rnd  >= BADGE_HOT_STREAK_L6_MIN_ROUNDS
+        and l24_rnd >= BADGE_HOT_STREAK_L24_MIN_ROUNDS
+    )
+    recent_form_entry = {
+        "source_file":    "pga_sg_query_allcourses_l6.csv + l24.csv",
+        "source_column":  "total_mean delta (L6 − L24)",
+        "window":         "L6 vs L24",
+        "value":          round(l6_tm - l24_tm, 4) if form_gate_ok else None,
+        "l6_total_mean":  l6_tm,
+        "l6_rounds":      l6_rnd,
+        "l24_total_mean": l24_tm,
+        "l24_rounds":     l24_rnd,
+        "availability":   "MEASURED" if form_gate_ok else "INSUFFICIENT_SAMPLE",
+        "usable_for_badges": form_gate_ok,
+    }
+
+    detroit_starts = p.get("_detroit_starts", 0)
+    ch_rounds      = p.get("_detroit_rounds", 0)
+    ch_resolved    = p.get("_ch_resolved", False)
+    if not ch_resolved:
+        detroit_starts = 0
+        ch_rounds      = 0
+
+    ch_entry = {
+        "source_file":    "detroit_golf_club_CH.csv",
+        "source_column":  "2021-2025 annual columns (non-null = start)",
+        "window":         "2021-2025",
+        "detroit_starts": detroit_starts,
+        "rounds_played":  ch_rounds,
+        "availability":   "MEASURED",
+        "usable_for_badges": True,
+    }
+
+    return {
+        "approach_play":    approach,
+        "iron_play":        iron,
+        "driving_distance": _l24_entry("dist_mean", "dist_mean"),
+        "driving_accuracy": _l24_entry("acc_mean",  "acc_mean"),
+        "putting":          _l24_entry("putt_mean", "putt_mean"),
+        "recent_form":      recent_form_entry,
+        "course_history":   ch_entry,
+    }
+
+
+def compute_badge_percentiles(
+    players_raw: list[dict],
+    badge_inputs_list: list[dict],
+) -> list[dict]:
+    """
+    Compute field percentile (0–100) per badge-eligible trait per player.
+    Returns list indexed by player position; each entry is {trait_id: percentile}.
+    """
+    n      = len(players_raw)
+    result: list[dict] = [{} for _ in range(n)]
+
+    PERCENTILE_TRAITS = [
+        "approach_play", "iron_play",
+        "driving_distance", "driving_accuracy",
+        "putting", "recent_form",
+    ]
+
+    for trait_id in PERCENTILE_TRAITS:
+        eligible = [
+            (i, badge_inputs_list[i][trait_id]["value"])
+            for i in range(n)
+            if badge_inputs_list[i].get(trait_id, {}).get("usable_for_badges", False)
+            and badge_inputs_list[i][trait_id].get("value") is not None
+        ]
+        if not eligible:
+            continue
+        eligible.sort(key=lambda x: x[1], reverse=True)
+        ne = len(eligible)
+        for rank_0, (idx, _) in enumerate(eligible):
+            pct = round(100.0 * (ne - 1 - rank_0) / ne) if ne > 1 else 50
+            result[idx][trait_id] = pct
+
+    return result
+
+
+def qualify_badges(
+    badge_inputs: dict,
+    badge_policy_badges: list[dict],
+    player_percentiles: dict[str, float],
+) -> list[dict]:
+    """Qualify a player against all badge definitions. Returns [{badge_id, qualification_reason}]."""
+    earned: list[dict] = []
+    earned_ids: set[str] = set()
+
+    for badge in sorted(badge_policy_badges, key=lambda b: b.get("display_order", 99)):
+        bid             = badge["badge_id"]
+        threshold       = badge.get("threshold", {})
+        required_traits = badge.get("required_trait_ids", [])
+        exclusions      = badge.get("exclusions", [])
+
+        if any(ex in earned_ids for ex in exclusions):
+            continue
+
+        if "field_percentile_min" in threshold:
+            min_pct      = threshold["field_percentile_min"]
+            eligible     = True
+            reason_parts: list[str] = []
+
+            for tid in required_traits:
+                entry = badge_inputs.get(tid, {})
+                if not entry.get("usable_for_badges", False):
+                    eligible = False
+                    break
+                pct = player_percentiles.get(tid)
+                if pct is None or pct < min_pct:
+                    eligible = False
+                    break
+                val = entry.get("value")
+                win = entry.get("window", "")
+                src = entry.get("source_column", tid)
+                reason_parts.append(
+                    f"{tid}: {val:+.3f} ({src}, {win}, {pct:.0f}th-pct)"
+                    if isinstance(val, float) else
+                    f"{tid}: {pct:.0f}th-pct ({src}, {win})"
+                )
+
+            if not eligible:
+                continue
+
+            if bid == "par5_predator":
+                continue
+
+            src_files = ", ".join(
+                dict.fromkeys(
+                    badge_inputs[tid]["source_file"]
+                    for tid in required_traits if tid in badge_inputs
+                )
+            )
+            reason = (
+                f"Top-quintile {'; '.join(reason_parts)} "
+                f"(field threshold: {min_pct}th, source: {src_files})"
+            )
+            earned.append({"badge_id": bid, "qualification_reason": reason})
+            earned_ids.add(bid)
+
+        elif "venue_starts_max" in threshold and threshold["venue_starts_max"] == 0:
+            ch = badge_inputs.get("course_history", {})
+            if ch.get("usable_for_badges") and ch.get("detroit_starts", -1) == 0:
+                earned.append({
+                    "badge_id": bid,
+                    "qualification_reason": (
+                        "No prior Rocket Classic starts at Detroit Golf Club. "
+                        f"(source: {ch['source_file']})"
+                    ),
+                })
+                earned_ids.add(bid)
+
+        elif "venue_starts_min" in threshold:
+            min_starts = threshold["venue_starts_min"]
+            ch     = badge_inputs.get("course_history", {})
+            starts = ch.get("detroit_starts", 0)
+            rounds = ch.get("rounds_played", 0)
+            if ch.get("usable_for_badges") and starts >= min_starts:
+                earned.append({
+                    "badge_id": bid,
+                    "qualification_reason": (
+                        f"{starts} prior Rocket Classic start(s) at Detroit Golf Club "
+                        f"({rounds} rounds played). "
+                        f"(source: {ch['source_file']})"
+                    ),
+                })
+                earned_ids.add(bid)
+
+    return earned
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="VenueDNA Rocket Classic enrichment pipeline")
     parser.add_argument("--live", default=None, choices=["r1", "r2", "r3", "r4"],
@@ -1259,6 +1564,15 @@ def main() -> None:
     decomp_data   = load_decomp(input_dir   / "dg_decomposition.csv")
     ch_data       = load_ch(input_dir       / "detroit_golf_club_CH.csv")
     trending_data = load_trending(input_dir / "pga_field_trending_table.csv")
+
+    _repo_root = _EVENT_DIR.parent.parent
+    badge_policy_badges = load_badge_policy(_repo_root / "config" / "badge_policy.v1.json")
+    print(f"  Badge policy: {len(badge_policy_badges)} badge definition(s) loaded")
+
+    sg_l24_data = load_sg_l24(input_dir / ALL_COURSES_FILES["24m"])
+    sg_l6_data  = load_sg_l6 (input_dir / ALL_COURSES_FILES["6m"])
+    lk_l24      = build_lookup(sg_l24_data)
+    lk_l6       = build_lookup(sg_l6_data)
 
     # Filter UNSCORED players from scoring iteration
     _unscored_norms = {normalize_name(u["player"]) for u in UNSCORED_PLAYERS}
@@ -1327,6 +1641,8 @@ def main() -> None:
         _prox_raw  = resolve(name, app_prox_data,  lk["prox"])
         _ch_raw    = resolve(name, ch_data,         lk["ch"])
         _trend_raw = resolve(name, trending_data,   lk["trend"])
+        _ch_starts = _ch_raw.get("detroit_starts", 0) if _ch_raw else 0
+        _ch_rounds = _ch_raw.get("rounds_played",  0) if _ch_raw else 0
 
         skill  = _skill_raw if _skill_raw is not None else _EMPTY_SKILL.copy()
         prox   = _prox_raw
@@ -1406,6 +1722,8 @@ def main() -> None:
             "_skill_avail":         skill_avail,
             "_prox_avail":          prox_avail,
             "_ch_resolved":         ch_resolved,
+            "_detroit_starts":      _ch_starts,
+            "_detroit_rounds":      _ch_rounds,
             "_trend_avail":         trend_avail,
             "_any_sg_avail":        any_sg,
             "_crosswalk_resolved":  normalize_name(name) in crosswalk_resolved_norms,
@@ -1744,6 +2062,21 @@ def main() -> None:
         p["rank"] = i
         p["tier"] = assign_tier(i)
 
+    # ── Badge inputs + qualification ──────────────────────────────────────────
+    print("[enrich_cards] Building badge inputs and qualifying badges...")
+    badge_inputs_list: list[dict] = []
+    for p in players_raw:
+        sg_l24_row = resolve(p["player"], sg_l24_data, lk_l24)
+        sg_l6_row  = resolve(p["player"], sg_l6_data,  lk_l6)
+        badge_inputs_list.append(build_badge_inputs(p, sg_l24_row, sg_l6_row))
+
+    badge_percentiles = compute_badge_percentiles(players_raw, badge_inputs_list)
+    for i, p in enumerate(players_raw):
+        p["badges"] = qualify_badges(badge_inputs_list[i], badge_policy_badges, badge_percentiles[i])
+
+    total_badges = sum(len(p["badges"]) for p in players_raw)
+    print(f"  Badges emitted: {total_badges} across {len(players_raw)} scored players")
+
     # ── Canonical output schema (drop private fields) ──────────────────────────
     _drop = {
         "_vts_raw", "_nsi_raw", "_prepenalty_raw", "gate_flags", "course_debut",
@@ -1752,6 +2085,7 @@ def main() -> None:
         "_live_vts", "_r2_wave", "_r2_teetime",
         "_skill_avail", "_prox_avail", "_ch_resolved", "_trend_avail", "_any_sg_avail",
         "_crosswalk_resolved", "_perf_missing",
+        "_detroit_starts", "_detroit_rounds",
     }
 
     _first = [
@@ -1765,7 +2099,7 @@ def main() -> None:
         "prepenalty_vts", "vts_floor", "vts_ceil", "std_dev",
         "l5_array", "strength_tags", "weakness_tags", "headline", "win_case",
         "scouting_report",
-        "trait_scores", "archetype_tags", "anti_pattern_flags",
+        "trait_scores", "archetype_tags", "anti_pattern_flags", "badges",
         "app_true", "ott_true", "ch_adjustment", "true_sg_l20",
         "trait_approach_raw", "trait_long_iron_raw",
         "trait_availability",
@@ -1796,7 +2130,7 @@ def main() -> None:
         schema_ver = f"rocket-classic-live-{args.live}-v1.1"
     else:
         file_base  = "2026_rocket_classic_event_payload.json"
-        schema_ver = "rocket-classic-v1.2"
+        schema_ver = "rocket-classic-v1.3"  # v1.3: per-player badges[] field added
 
     payload = {
         "schemaVersion":  schema_ver,
