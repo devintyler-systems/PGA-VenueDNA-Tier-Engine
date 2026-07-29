@@ -37,34 +37,53 @@
       }
     }
 
-    const fixtureDefs = [
-      {
-        inputPath:     "fixtures/fixture_elite_001_input.json",
-        narrativePath: "fixtures/fixture_elite_001_narrative.json",
-      },
-      {
-        inputPath:     "fixtures/fixture_volatile_001_input.json",
-        narrativePath: "fixtures/fixture_volatile_001_narrative.json",
-      },
-      {
-        inputPath:     "fixtures/fixture_thin_001_input.json",
-        narrativePath: "fixtures/fixture_thin_001_narrative.json",
-      },
-      {
-        inputPath:     "fixtures/fixture_structural_failure_001_input.json",
-        narrativePath: "fixtures/fixture_structural_failure_001_narrative.json",
-      },
-    ];
+    // Try real event payload first; fall back to synthetic test fixtures
+    let payloadLoaded = false;
+    try {
+      const payload = await loadJSON("data/2026_rocket_classic_event_payload.json");
+      const players = (payload.players || []).filter((p) => p.data_depth !== "UNSCORED");
+      for (const p of players) {
+        try {
+          S.fixtures.push(playerToFixture(p, payload));
+        } catch (e) {
+          console.error("Failed to adapt player:", p.player_id, e);
+        }
+      }
+      if (S.fixtures.length > 0) payloadLoaded = true;
+    } catch (e) {
+      console.warn("Event payload unavailable — loading synthetic test fixtures:", e);
+    }
 
-    for (const def of fixtureDefs) {
-      try {
-        const [inp, nar] = await Promise.all([
-          loadJSON(def.inputPath),
-          loadJSON(def.narrativePath),
-        ]);
-        S.fixtures.push({ input: inp, narrative: nar });
-      } catch (e) {
-        console.error("Failed to load fixture:", def, e);
+    if (!payloadLoaded) {
+      const fixtureDefs = [
+        {
+          inputPath:     "fixtures/fixture_elite_001_input.json",
+          narrativePath: "fixtures/fixture_elite_001_narrative.json",
+        },
+        {
+          inputPath:     "fixtures/fixture_volatile_001_input.json",
+          narrativePath: "fixtures/fixture_volatile_001_narrative.json",
+        },
+        {
+          inputPath:     "fixtures/fixture_thin_001_input.json",
+          narrativePath: "fixtures/fixture_thin_001_narrative.json",
+        },
+        {
+          inputPath:     "fixtures/fixture_structural_failure_001_input.json",
+          narrativePath: "fixtures/fixture_structural_failure_001_narrative.json",
+        },
+      ];
+
+      for (const def of fixtureDefs) {
+        try {
+          const [inp, nar] = await Promise.all([
+            loadJSON(def.inputPath),
+            loadJSON(def.narrativePath),
+          ]);
+          S.fixtures.push({ input: inp, narrative: nar });
+        } catch (e) {
+          console.error("Failed to load fixture:", def, e);
+        }
       }
     }
 
@@ -92,6 +111,152 @@
       if (!r.ok) throw new Error(`HTTP ${r.status}: ${path}`);
       return r.json();
     });
+  }
+
+  // ── Real-payload adapter ──────────────────────────────────────────────────────
+
+  const TRAIT_ID_MAP = {
+    "SG: Approach":     "approach_play",
+    "App 150-200":      "iron_play",
+    "Total Driving":    "total_driving",
+    "Course History":   "course_history",
+    "Putting":          "putting",
+    "Par-5 Scoring":    "par5_scoring",
+    "Driving Accuracy": "driving_accuracy",
+    "Driving Distance": "driving_distance",
+  };
+
+  function convictionLabel(dataDepth) {
+    if (dataDepth === "FULL")      return "High";
+    if (dataDepth === "ZERO_FILL") return "Low";
+    return "Medium";
+  }
+
+  function playerToFixture(p, payload) {
+    const traits = (p.trait_scores || []).map((ts) => {
+      const tid = TRAIT_ID_MAP[ts.label]
+        || ts.label.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+      return {
+        trait_id:         tid,
+        label:            ts.label,
+        score:            Number(ts.score ?? 0),
+        field_percentile: null,
+        venue_importance: ts.weight,
+        fit_contribution: null,
+        direction:        (ts.score ?? 0) >= 60 ? "strength" : (ts.score ?? 0) >= 40 ? "neutral" : "weakness",
+        evidence_status:  p.data_depth === "FULL" ? "validated" : "limited",
+      };
+    });
+
+    const SKIP_TAGS = ["No Clear Structural Risk"];
+
+    const strengths = (p.strength_tags || [])
+      .filter((t) => !SKIP_TAGS.includes(t))
+      .map((tag) => {
+        const matched = traits.find((t) => tag.toLowerCase().includes(t.label.toLowerCase()));
+        return {
+          label:    matched ? matched.label : tag,
+          statement: tag,
+          trait_id: matched ? matched.trait_id : null,
+        };
+      });
+
+    const weaknesses = (p.weakness_tags || [])
+      .filter((t) => !SKIP_TAGS.includes(t))
+      .map((tag) => {
+        const matched = traits.find((t) => tag.toLowerCase().includes(t.label.toLowerCase()));
+        return {
+          label:    matched ? matched.label : tag,
+          statement: tag,
+          trait_id: matched ? matched.trait_id : null,
+        };
+      });
+
+    let formNote = "";
+    if (p.true_sg_l20 != null) {
+      const sign = Number(p.true_sg_l20) >= 0 ? "+" : "";
+      formNote = `Recent SG: ${sign}${Number(p.true_sg_l20).toFixed(2)} per round (last 20 rounds).`;
+    } else {
+      formNote = (p.strength_tags || []).find((t) => /form|streak|hot|cold/i.test(t))
+        || "Form data not available.";
+    }
+
+    const venueHistNote = (p.ch_adjustment != null && p.ch_adjustment !== 0)
+      ? `Course history adjustment: ${Number(p.ch_adjustment) >= 0 ? "+" : ""}${Number(p.ch_adjustment).toFixed(2)} strokes.`
+      : "No prior starts at Detroit Golf Club on record.";
+
+    const failureText = weaknesses.length > 0
+      ? weaknesses.map((w) => w.statement).join(" ")
+      : "The projection breaks if key scoring skills regress below field average.";
+
+    const fieldSize = (payload.players || []).length;
+
+    const input = {
+      schema_version: "1.0",
+      event: {
+        event_id:   "pga_rocket_classic_2026",
+        event_name: "Rocket Classic",
+        venue_id:   "detroit_golf_club",
+        venue_name: "Detroit Golf Club",
+      },
+      player: {
+        player_id:    String(p.player_id),
+        display_name: p.player_name,
+      },
+      projection: {
+        vts:                Number(p.vts_final ?? 0),
+        vts_rank:           p.rank,
+        field_size:         fieldSize,
+        tier:               p.tier || "—",
+        tier_rank:          p.rank,
+        conviction:         convictionLabel(p.data_depth),
+        confidence_label:   convictionLabel(p.data_depth),
+        neutral_skill:      p.neutralSkillIndex,
+        venue_fit_delta:    p.delta_fit,
+        venue_history_delta: p.ch_adjustment,
+        penalty_total:      0,
+      },
+      traits,
+      badges:       [],
+      risk_factors: weaknesses.map((w, i) => ({
+        risk_id:           `risk_${i}`,
+        evidence_trait_id: w.trait_id,
+        label:             w.label,
+        severity:          "medium",
+        description:       w.statement,
+      })),
+    };
+
+    const narrative = {
+      player_id:      String(p.player_id),
+      event_id:       "pga_rocket_classic_2026",
+      schema_version: "1.0",
+      headline:       p.headline || `${p.player_name} — ${p.tier || ""}`,
+      story_hook:     p.scouting_report || p.win_case || "",
+      venue_fit: {
+        text:      (p.strength_tags || []).slice(0, 2).join(" • ") || "See scouting report.",
+        trait_ids: strengths.map((s) => s.trait_id).filter(Boolean),
+      },
+      strengths,
+      weaknesses,
+      win_scenario:     p.win_case || "",
+      failure_scenario: failureText,
+      projection_explainer: {
+        text: `VTS ${Number(p.vts_final ?? 0).toFixed(1)} — ${p.tier || "—"} projection. `
+            + `${(p.strength_tags || []).slice(0, 2).join("; ") || "See full scouting report."}`,
+        reason_codes:  [],
+        component_ids: ["neutral_skill", "venue_fit_delta"],
+      },
+      form_note:          formNote,
+      venue_history_note: venueHistNote,
+      quality: {
+        evidence_coverage:   p.data_depth === "FULL" ? "high" : "medium",
+        needs_editor_review: false,
+        validation_errors:   [],
+      },
+    };
+
+    return { input, narrative };
   }
 
   // ── Detroit Fit helpers ───────────────────────────────────────────────────────
