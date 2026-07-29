@@ -13,7 +13,7 @@
   <!-- ── Filter sidebar (≥1280px permanent) ─────────────────────────────── -->
   <aside class="filter-sidebar" id="filter-sidebar" aria-label="Filters">
     <h2>Filters</h2>
-    <div class="filter-count" id="filter-count">Showing <strong>3</strong> of <strong>3</strong> players</div>
+    <div class="filter-count" id="filter-count">Showing <strong>—</strong> players</div>
 
     <div class="filter-section">
       <div class="filter-section-label">Tier</div>
@@ -30,15 +30,19 @@
     <div class="filter-section">
       <div class="filter-section-label">Playstyle Badges</div>
       <div class="badge-filters" id="badge-filter-list">
-        <!-- Populated from badge_policy.v1.json by fixture_harness.js -->
+        <!-- Populated by fixture_harness.js renderBadgeFilters() — disabled state for this build -->
       </div>
     </div>
 
     <div class="filter-section" id="trait-slider-section">
       <div class="filter-section-label">Trait Filters</div>
       <div id="trait-slider-list">
-        <!-- Populated from loaded fixtures by fixture_harness.js renderTraitSliders() -->
+        <!-- Populated by fixture_harness.js renderTraitSliders() -->
       </div>
+    </div>
+
+    <div class="filter-section">
+      <button class="reset-filters-btn" data-reset-filters="true" type="button">Reset Filters</button>
     </div>
   </aside>
 
@@ -57,12 +61,17 @@
         <button class="tier-chip active" data-tier="All">All</button>
         <button class="tier-chip" data-tier="T1">T1</button>
         <button class="tier-chip" data-tier="T2">T2</button>
+        <button class="tier-chip" data-tier="T3">T3</button>
         <button class="tier-chip" data-tier="T4">T4</button>
+        <button class="tier-chip" data-tier="T5">T5</button>
       </div>
     </div>
     <div class="filter-section" style="margin-top:16px;">
       <div class="filter-section-label">Badges</div>
       <div class="badge-filters" id="badge-filter-list-popover"></div>
+    </div>
+    <div class="filter-section" style="margin-top:16px;">
+      <button class="reset-filters-btn" data-reset-filters="true" type="button">Reset Filters</button>
     </div>
   </div>
 
@@ -76,12 +85,17 @@
           <button class="tier-chip active" data-tier="All">All</button>
           <button class="tier-chip" data-tier="T1">T1</button>
           <button class="tier-chip" data-tier="T2">T2</button>
+          <button class="tier-chip" data-tier="T3">T3</button>
           <button class="tier-chip" data-tier="T4">T4</button>
+          <button class="tier-chip" data-tier="T5">T5</button>
         </div>
       </div>
       <div class="filter-section" style="margin-top:16px;">
         <div class="filter-section-label">Badges</div>
         <div class="badge-filters" id="badge-filter-list-overlay"></div>
+      </div>
+      <div class="filter-section" style="margin-top:16px;">
+        <button class="reset-filters-btn" data-reset-filters="true" type="button">Reset Filters</button>
       </div>
     </div>
   </div>
@@ -93,6 +107,10 @@
     <span class="venue-pill">Rocket Classic 2026</span>
     <span class="harness-badge">Fixture Harness</span>
 
+    <button class="glossary-btn" data-glossary-open="true" type="button" aria-haspopup="dialog">
+      Glossary
+    </button>
+
     <button class="filter-toggle-btn" id="filter-toggle-btn" aria-label="Open filters">
       ⊞ Filters
     </button>
@@ -100,7 +118,7 @@
 
   <!-- ── Roster panel ───────────────────────────────────────────────────── -->
   <main class="roster-panel" id="roster-panel">
-    <h2>Field — Fixture Players</h2>
+    <h2>Field — Scored Players</h2>
 
     <table class="roster-table" id="roster-table" aria-label="Player roster">
       <thead>
@@ -109,18 +127,18 @@
           <th>VTS</th>
           <th>Tier</th>
           <th>Conviction</th>
-          <th>Badges</th>
+          <th>Flags</th>
           <th></th>
         </tr>
       </thead>
       <tbody id="roster-tbody">
-        <!-- Populated by fixture_harness.js -->
+        <!-- Populated by fixture_harness.js renderRoster() -->
       </tbody>
     </table>
 
-    <p style="margin-top: 32px; font-size: 12px; color: var(--color-text-muted);">
+    <p style="margin-top:32px; font-size:12px; color:var(--color-text-muted);">
       This is a development fixture harness. Click any row to open the player drawer.
-      Three fixture players cover elite, volatile, and thin-evidence evidence states.
+      Showing 142 scored players from the real event payload.
     </p>
   </main>
 
@@ -136,19 +154,96 @@
 <!-- Mobile backdrop -->
 <div class="overlay-backdrop" id="overlay-backdrop"></div>
 
-<script src="fixture_harness.js"></script>
+<!-- ── Glossary dialog ─────────────────────────────────────────────────── -->
+<dialog id="glossary-dialog" class="glossary-dialog" aria-label="VenueDNA Glossary">
+  <div class="glossary-inner">
+    <div class="glossary-header">
+      <h2>VenueDNA Glossary</h2>
+      <button id="glossary-close" class="glossary-close-btn" aria-label="Close glossary">✕</button>
+    </div>
+    <div class="glossary-body">
+      <dl class="glossary-list">
 
-<script>
-  // Rail filter button (900–1279px)
-  const railBtn = document.getElementById("filter-rail-btn");
-  const popover = document.getElementById("filter-popover");
-  if (railBtn && popover) {
-    railBtn.addEventListener("click", () => {
-      const isOpen = popover.classList.toggle("open");
-      railBtn.setAttribute("aria-expanded", String(isOpen));
-    });
-  }
-</script>
+        <div class="glossary-section-header">Ranking</div>
+
+        <div class="glossary-entry" id="glossary-venuedna-rank">
+          <dt>VenueDNA Rank</dt>
+          <dd>The model's pre-tournament ranking of a player's projected structural fit at this venue. Rank 1 represents the strongest projected fit. Rank does not incorporate live scoring, player odds, or market prices.</dd>
+        </div>
+
+        <div class="glossary-entry" id="glossary-tier">
+          <dt>Tier</dt>
+          <dd>A tier-group derived from rank and model confidence. Tier boundaries are determined per-event by the VenueDNA engine — approximate field sizes are listed below.
+            <ul class="glossary-tier-list">
+              <li><strong>T1</strong> — Elite venue fit (ranks ~1–5, this field). High-conviction projection; full player brief available.</li>
+              <li><strong>T2</strong> — Strong venue fit (ranks ~6–12, this field). Solid structural case; full player brief available.</li>
+              <li><strong>T3</strong> — Moderate venue fit (ranks ~13–25, this field). Case has depth but limited structural edge.</li>
+              <li><strong>T4</strong> — Below-field-average fit (ranks ~26–40, this field). Structural risks identified.</li>
+              <li><strong>T5</strong> — Weak or thin-evidence fit (remaining field). Low conviction; zero-fill or thin evidence data common.</li>
+            </ul>
+          </dd>
+        </div>
+
+        <div class="glossary-entry" id="glossary-vts">
+          <dt>VTS — Venue Trait Score</dt>
+          <dd>A 0–100 composite score representing how well a player's tracked skills align with this venue's scoring demands. VTS is <em>not</em> a win probability, predicted finish, or betting-market price. A higher VTS indicates stronger projected structural fit at this venue, before application of gates and penalties.</dd>
+        </div>
+
+        <div class="glossary-section-header">Player Card Content</div>
+
+        <div class="glossary-entry" id="glossary-structural-case">
+          <dt>Structural Case</dt>
+          <dd>The primary venue-trait mechanism driving this player's ranking — the specific skill or statistical edge that makes this venue a structurally strong (or weak) fit. Drawn from the full player brief for T1/T2 players; sourced from the canonical event payload for other tiers with a "limited player brief" label.</dd>
+        </div>
+
+        <div class="glossary-entry" id="glossary-risk-failure">
+          <dt>Risk / Failure Condition</dt>
+          <dd>The specific scenario in which the structural case collapses — the trait or pattern that, if it regresses toward field average, removes the projected edge. This is distinct from the general Risks section: it names the model's key fragility, not a relative weakness list.</dd>
+        </div>
+
+        <div class="glossary-section-header">Trait Scores</div>
+
+        <div class="glossary-entry" id="glossary-trait-score">
+          <dt>Trait Score (0–100)</dt>
+          <dd>A per-skill component score on a 0–100 scale. Higher values indicate stronger alignment on that individual scored trait. Trait scores are <em>pre-composite inputs</em> to the VTS model — they are not VTS itself, and should not be treated as field percentiles. Tier and rank reflect the full model output including weighting, penalties, and gates applied to the composite.</dd>
+        </div>
+
+        <div class="glossary-entry" id="glossary-trait-availability">
+          <dt>Trait Availability</dt>
+          <dd>The evidence state for each individual trait score:
+            <ul class="glossary-evidence-list">
+              <li><span class="ev-measured ev-tag">Measured</span> — Directly observed from a source data file for this player.</li>
+              <li><span class="ev-derived ev-tag">Derived</span> — Computed or modeled from measured inputs; not directly observed.</li>
+              <li><span class="ev-unavailable ev-tag">Unavailable</span> — Source data absent; score was zero-filled. Not eligible for badges or narrative-trait use.</li>
+            </ul>
+          </dd>
+        </div>
+
+        <div class="glossary-section-header">Badges and Flags</div>
+
+        <div class="glossary-entry" id="glossary-playstyle-badge">
+          <dt>Playstyle Badge</dt>
+          <dd>A skill label earned when a player scores above the 80th field percentile on a badge's required trait(s) — for example, "Iron Surgeon" requires top-quintile approach and iron-play scores. Badges are qualified <em>upstream by the VenueDNA engine</em> using computed field percentiles from source data; they are not inferred in the browser from the frozen event artifact. <strong>For this event build, badge qualification was not emitted</strong> — badge filters are therefore disabled.</dd>
+        </div>
+
+        <div class="glossary-entry" id="glossary-anti-pattern">
+          <dt>Anti-Pattern Flag</dt>
+          <dd>A structural risk flag applied by the engine when a player's known weaknesses directly conflict with this venue's primary scoring demands. Anti-pattern flags appear in the Risks section of the player card (and as a ⚠ indicator in the roster). They are <em>not</em> playstyle badges and do not affect tier or rank assignment directly — they document a model-level concern about structural fit.</dd>
+        </div>
+
+        <div class="glossary-section-header">Benchmark</div>
+
+        <div class="glossary-entry" id="glossary-benchmark">
+          <dt>Benchmark Disagreement</dt>
+          <dd>A read-only external comparison between VenueDNA rank and the CH Model benchmark rank. A disagreement flags where the two systems rank a player meaningfully differently. This is an informational audit signal only — it does not alter VenueDNA scoring, tiers, probabilities, or rank. Benchmark data is an external reference and is explicitly not part of the VenueDNA model output.</dd>
+        </div>
+
+      </dl>
+    </div>
+  </div>
+</dialog>
+
+<script src="fixture_harness.js"></script>
 
 </body>
 </html>

@@ -1,9 +1,9 @@
 /**
  * fixture_harness.js
  * VenueDNA Rocket Classic — fixture harness only.
- * Renders three fixture players, player drawer, badge system, evidence states.
- * Does not contain the full board (tabs, leaderboard, filter sidebar, spotlight).
+ * Renders real event payload (142 scored players) with synthetic fixture fallback.
  * badge_policy.v1.json is the single source of truth — no badge constants here.
+ * Badge filters are DISABLED for this build: qualification was not emitted in the frozen artifact.
  */
 
 (function () {
@@ -14,13 +14,14 @@
   const S = {
     badgePolicy:    null,   // loaded from config/badge_policy.v1.json
     fixtures:       [],     // [{input, narrative}, ...]
-    activeFilters:  {       // filter state — never mutated by drawer open/close
+    playerBriefs:   null,   // keyed by player_name; from data/2026_rocket_classic_player_briefs.json
+    activeFilters:  {
       tier:         "All",
-      badges:       [],     // array of active badge_ids
-      traitRanges:  {},     // { trait_id: [min, max] } — only present when user drags
+      badges:       [],     // always empty — badge filters disabled for this build
+      traitRanges:  {},
     },
-    openPlayerId:   null,   // currently open drawer player_id
-    auditCompanion: null,   // loaded from data/2026_rocket_classic_tripod_audit.json
+    openPlayerId:   null,
+    auditCompanion: null,
   };
 
   // ── Bootstrap ────────────────────────────────────────────────────────────────
@@ -29,23 +30,29 @@
     try {
       S.badgePolicy = await loadJSON("config/badge_policy.v1.json");
     } catch {
-      // Fallback: legacy repo-root-relative path (dev server only)
       try {
         S.badgePolicy = await loadJSON("../../../../config/badge_policy.v1.json");
       } catch {
-        console.error("badge_policy.v1.json not found. Badge rendering will be degraded.");
+        console.error("badge_policy.v1.json not found. Badge glossary will be degraded.");
         S.badgePolicy = { badges: [] };
       }
     }
 
-    // Try real event payload first; fall back to synthetic test fixtures
+    try {
+      const briefsRaw = await loadJSON("data/2026_rocket_classic_player_briefs.json");
+      S.playerBriefs = briefsRaw.players || null;
+    } catch {
+      console.info("Player briefs not found — structural case will use reduced-detail fallback.");
+    }
+
     let payloadLoaded = false;
     try {
       const payload = await loadJSON("data/2026_rocket_classic_event_payload.json");
       const players = (payload.players || []).filter((p) => p.data_depth !== "UNSCORED");
       for (const p of players) {
         try {
-          S.fixtures.push(playerToFixture(p, payload));
+          const brief = S.playerBriefs ? (S.playerBriefs[p.player_name] || null) : null;
+          S.fixtures.push(playerToFixture(p, payload, brief));
         } catch (e) {
           console.error("Failed to adapt player:", p.player_id, e);
         }
@@ -57,30 +64,14 @@
 
     if (!payloadLoaded) {
       const fixtureDefs = [
-        {
-          inputPath:     "fixtures/fixture_elite_001_input.json",
-          narrativePath: "fixtures/fixture_elite_001_narrative.json",
-        },
-        {
-          inputPath:     "fixtures/fixture_volatile_001_input.json",
-          narrativePath: "fixtures/fixture_volatile_001_narrative.json",
-        },
-        {
-          inputPath:     "fixtures/fixture_thin_001_input.json",
-          narrativePath: "fixtures/fixture_thin_001_narrative.json",
-        },
-        {
-          inputPath:     "fixtures/fixture_structural_failure_001_input.json",
-          narrativePath: "fixtures/fixture_structural_failure_001_narrative.json",
-        },
+        { inputPath: "fixtures/fixture_elite_001_input.json",             narrativePath: "fixtures/fixture_elite_001_narrative.json" },
+        { inputPath: "fixtures/fixture_volatile_001_input.json",          narrativePath: "fixtures/fixture_volatile_001_narrative.json" },
+        { inputPath: "fixtures/fixture_thin_001_input.json",              narrativePath: "fixtures/fixture_thin_001_narrative.json" },
+        { inputPath: "fixtures/fixture_structural_failure_001_input.json", narrativePath: "fixtures/fixture_structural_failure_001_narrative.json" },
       ];
-
       for (const def of fixtureDefs) {
         try {
-          const [inp, nar] = await Promise.all([
-            loadJSON(def.inputPath),
-            loadJSON(def.narrativePath),
-          ]);
+          const [inp, nar] = await Promise.all([loadJSON(def.inputPath), loadJSON(def.narrativePath)]);
           S.fixtures.push({ input: inp, narrative: nar });
         } catch (e) {
           console.error("Failed to load fixture:", def, e);
@@ -91,7 +82,7 @@
     renderBadgeFilters();
     renderTraitSliders();
     renderRoster();
-    // Load tripod audit companion — graceful fallback if absent or malformed
+
     try {
       S.auditCompanion = await loadJSON("data/2026_rocket_classic_tripod_audit.json");
     } catch {
@@ -123,30 +114,62 @@
     "Total Driving":    "total_driving",
     "Course History":   "course_history",
     "Putting":          "putting",
+    "SG: Putting":      "putting",
     "Par-5 Scoring":    "par5_scoring",
+    "Par 5 Scoring":    "par5_scoring",
     "Driving Accuracy": "driving_accuracy",
     "Driving Distance": "driving_distance",
+    "Recent Form":      "recent_form",
+    "Closing Holes":    "closing_holes",
   };
 
-  function convictionLabel(dataDepth) {
-    if (dataDepth === "FULL")      return "High";
-    if (dataDepth === "ZERO_FILL") return "Low";
-    return "Medium";
+  // Maps trait label → trait_availability key in per-player payload
+  const TRAIT_AVAIL_KEY_MAP = {
+    "SG: Approach":     "trait_approach_raw",
+    "App 150-200":      "trait_long_iron_raw",
+    "Total Driving":    "sg_base_composite",
+    "Course History":   "ch_adjustment",
+    "Recent Form":      "true_sg_l20",
+    "Putting":          "putt_true",
+    "SG: Putting":      "putt_true",
+  };
+
+  function evidenceStatusFromAvail(avail) {
+    if (!avail) return "DERIVED";
+    const a = avail.availability;
+    const s = avail.source_status;
+    if (a === "MEASURED" || a === "MEASURED_ZERO") return "MEASURED";
+    if (a === "UNAVAILABLE" || a === "MISSING_ZERO_FILLED" || a === "DEBUT_ZERO" || s === "MISSING") return "UNAVAILABLE";
+    return "DERIVED";
   }
 
-  function playerToFixture(p, payload) {
+  function convictionLabel(dataDepth) {
+    if (dataDepth === "FULL")  return "High";
+    if (dataDepth === "DEBUT") return "Medium";
+    return "Low";
+  }
+
+  function playerToFixture(p, payload, brief) {
+    const traitAvail = p.trait_availability || {};
+
     const traits = (p.trait_scores || []).map((ts) => {
       const tid = TRAIT_ID_MAP[ts.label]
         || ts.label.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+      const availKey = TRAIT_AVAIL_KEY_MAP[ts.label];
+      const avail = availKey ? (traitAvail[availKey] || null) : null;
+      const isVenueHistory = avail
+        ? !!(avail.narrative_context === "venue_history" || (avail.narrative_constraint || "").includes("venue-history"))
+        : false;
+
       return {
-        trait_id:         tid,
-        label:            ts.label,
-        score:            Number(ts.score ?? 0),
-        field_percentile: null,
-        venue_importance: ts.weight,
-        fit_contribution: null,
-        direction:        (ts.score ?? 0) >= 60 ? "strength" : (ts.score ?? 0) >= 40 ? "neutral" : "weakness",
-        evidence_status:  p.data_depth === "FULL" ? "validated" : "limited",
+        trait_id:              tid,
+        label:                 ts.label,
+        score:                 Number(ts.score ?? 0),
+        weight:                ts.weight,
+        venue_importance:      ts.weight,
+        direction:             (ts.score ?? 0) >= 60 ? "strength" : (ts.score ?? 0) >= 40 ? "neutral" : "weakness",
+        evidence_status:       evidenceStatusFromAvail(avail),
+        venue_history_context: isVenueHistory,
       };
     });
 
@@ -156,22 +179,14 @@
       .filter((t) => !SKIP_TAGS.includes(t))
       .map((tag) => {
         const matched = traits.find((t) => tag.toLowerCase().includes(t.label.toLowerCase()));
-        return {
-          label:    matched ? matched.label : tag,
-          statement: tag,
-          trait_id: matched ? matched.trait_id : null,
-        };
+        return { label: matched ? matched.label : tag, statement: tag, trait_id: matched ? matched.trait_id : null };
       });
 
     const weaknesses = (p.weakness_tags || [])
       .filter((t) => !SKIP_TAGS.includes(t))
       .map((tag) => {
         const matched = traits.find((t) => tag.toLowerCase().includes(t.label.toLowerCase()));
-        return {
-          label:    matched ? matched.label : tag,
-          statement: tag,
-          trait_id: matched ? matched.trait_id : null,
-        };
+        return { label: matched ? matched.label : tag, statement: tag, trait_id: matched ? matched.trait_id : null };
       });
 
     let formNote = "";
@@ -192,6 +207,22 @@
       : "The projection breaks if key scoring skills regress below field average.";
 
     const fieldSize = (payload.players || []).length;
+    const tier = p.tier || "—";
+    const isT1orT2 = tier === "T1" || tier === "T2";
+
+    // T3–T5 cards use canonical event-brief fields where present, displayed as
+    // reduced-detail rather than Tier 1/2 full-card detail. The schema formally
+    // designates player briefs for T1/T2, but the JSON provides structural fields
+    // across the full field; the "limited player brief" label reflects that
+    // distinction, not the absence of brief data.
+    const structuralCase = brief
+      ? (brief.why_it_fits_structurally || brief.exact_mechanism || "")
+      : "";
+    const riskCondition = brief
+      ? (brief.named_failure_condition || brief.key_risk_vector || "")
+      : "";
+
+    const antiPatternFlags = (p.anti_pattern_flags || []);
 
     const input = {
       schema_version: "1.0",
@@ -206,20 +237,21 @@
         display_name: p.player_name,
       },
       projection: {
-        vts:                Number(p.vts_final ?? 0),
-        vts_rank:           p.rank,
-        field_size:         fieldSize,
-        tier:               p.tier || "—",
-        tier_rank:          p.rank,
-        conviction:         convictionLabel(p.data_depth),
-        confidence_label:   convictionLabel(p.data_depth),
-        neutral_skill:      p.neutralSkillIndex,
-        venue_fit_delta:    p.delta_fit,
+        vts:                 Number(p.vts_final ?? 0),
+        vts_rank:            p.rank,
+        field_size:          fieldSize,
+        tier,
+        tier_rank:           p.rank,
+        conviction:          convictionLabel(p.data_depth),
+        confidence_label:    convictionLabel(p.data_depth),
+        neutral_skill:       p.neutralSkillIndex,
+        venue_fit_delta:     p.delta_fit,
         venue_history_delta: p.ch_adjustment,
-        penalty_total:      0,
+        penalty_total:       0,
       },
       traits,
-      badges:       [],
+      badges:             [],   // engine did not emit badges for this build
+      anti_pattern_flags: antiPatternFlags,
       risk_factors: weaknesses.map((w, i) => ({
         risk_id:           `risk_${i}`,
         evidence_trait_id: w.trait_id,
@@ -230,22 +262,24 @@
     };
 
     const narrative = {
-      player_id:      String(p.player_id),
-      event_id:       "pga_rocket_classic_2026",
-      schema_version: "1.0",
-      headline:       p.headline || `${p.player_name} — ${p.tier || ""}`,
-      story_hook:     p.scouting_report || p.win_case || "",
+      player_id:       String(p.player_id),
+      event_id:        "pga_rocket_classic_2026",
+      schema_version:  "1.0",
+      headline:        p.headline || `${p.player_name} — ${tier}`,
+      story_hook:      p.win_case || "",   // retained for synthetic fixture fallback
+      structural_case: structuralCase,     // from player brief
+      risk_condition:  riskCondition,      // from player brief
+      has_full_brief:  isT1orT2 && !!brief,
       venue_fit: {
-        text:      (p.strength_tags || []).slice(0, 2).join(" • ") || "See scouting report.",
+        text:      (p.strength_tags || []).filter((t) => !SKIP_TAGS.includes(t)).slice(0, 2).join(" • ") || "See scouting report.",
         trait_ids: strengths.map((s) => s.trait_id).filter(Boolean),
       },
       strengths,
       weaknesses,
-      win_scenario:     p.win_case || "",
       failure_scenario: failureText,
       projection_explainer: {
-        text: `VTS ${Number(p.vts_final ?? 0).toFixed(1)} — ${p.tier || "—"} projection. `
-            + `${(p.strength_tags || []).slice(0, 2).join("; ") || "See full scouting report."}`,
+        text: `VTS ${Number(p.vts_final ?? 0).toFixed(1)} — ${tier} projection. `
+            + `${(p.strength_tags || []).filter((t) => !SKIP_TAGS.includes(t)).slice(0, 2).join("; ") || "See full scouting report."}`,
         reason_codes:  [],
         component_ids: ["neutral_skill", "venue_fit_delta"],
       },
@@ -338,7 +372,7 @@
     const color = def.color || "#6B7280";
     return `<span class="badge-pill"
       style="background:${color}22; border-color:${color}55; color:${color};"
-      title="${esc(badgeObj.qualification_reason)}">
+      title="${esc(badgeObj.qualification_reason || def.description)}">
       ${esc(def.icon || "")} ${esc(def.label)}
     </span>`;
   }
@@ -346,31 +380,16 @@
   // ── Filter sidebar ────────────────────────────────────────────────────────────
 
   function renderBadgeFilters() {
-    const container = document.getElementById("badge-filter-list");
-    if (!container || !S.badgePolicy) return;
-
-    const sorted = [...S.badgePolicy.badges].sort(
-      (a, b) => (a.display_order || 99) - (b.display_order || 99)
-    );
-
-    container.innerHTML = sorted.map((b) => `
-      <label class="badge-filter-item">
-        <input type="checkbox" data-badge-id="${esc(b.badge_id)}" />
-        <span style="color:${esc(b.color || '#888')};">${esc(b.icon || "")} ${esc(b.label)}</span>
-      </label>
-    `).join("");
-
-    container.querySelectorAll("input[type=checkbox]").forEach((cb) => {
-      cb.addEventListener("change", () => {
-        const bid = cb.dataset.badgeId;
-        if (cb.checked) {
-          if (!S.activeFilters.badges.includes(bid)) S.activeFilters.badges.push(bid);
-        } else {
-          S.activeFilters.badges = S.activeFilters.badges.filter((b) => b !== bid);
-        }
-        updateFilterCount();
-        // Drawer does NOT close or reset on filter change
-      });
+    const DISABLED_HTML = `
+      <div class="badge-unavailable-state" role="status">
+        <div class="badge-unavailable-label">Playstyle badges unavailable for this event build</div>
+        <div class="badge-unavailable-detail">Badge qualification was not emitted in the frozen event artifact; filters are disabled rather than inferred in-browser.</div>
+        <button class="badge-glossary-link" data-glossary-open="true" type="button">What are playstyle badges?</button>
+      </div>
+    `;
+    ["badge-filter-list", "badge-filter-list-popover", "badge-filter-list-overlay"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = DISABLED_HTML;
     });
   }
 
@@ -379,7 +398,6 @@
     if (!container) return;
     if (S.fixtures.length === 0) { container.innerHTML = ""; return; }
 
-    // Collect all trait_ids seen across loaded fixtures (preserving first-seen label order)
     const seen = new Map();
     S.fixtures.forEach((f) => {
       (f.input.traits || []).forEach((t) => {
@@ -418,29 +436,29 @@
         } else {
           S.activeFilters.traitRanges[tid] = [lo, hi];
         }
-        updateFilterCount();
+        renderRoster();
       });
     });
   }
 
   function updateFilterCount() {
     const visible = filteredFixtures().length;
-    const el = document.getElementById("filter-count");
-    if (el) el.innerHTML = `Showing <strong>${visible}</strong> of <strong>${S.fixtures.length}</strong> players`;
+    const total   = S.fixtures.length;
+    const html = `Showing <strong>${visible}</strong> of <strong>${total}</strong> players`;
+    const el  = document.getElementById("filter-count");
+    if (el) el.innerHTML = html;
+    const elP = document.getElementById("filter-count-popover");
+    if (elP) elP.innerHTML = html;
   }
 
   function filteredFixtures() {
     return S.fixtures.filter((f) => {
-      const inp = f.input;
+      const inp  = f.input;
       const tier = inp.projection.tier;
 
       if (S.activeFilters.tier !== "All" && tier !== S.activeFilters.tier) return false;
 
-      if (S.activeFilters.badges.length > 0) {
-        const playerBadgeIds = (inp.badges || []).map((b) => b.badge_id);
-        const hasAll = S.activeFilters.badges.every((bid) => playerBadgeIds.includes(bid));
-        if (!hasAll) return false;
-      }
+      // Badge filter intentionally skipped — disabled for this build
 
       const ranges = S.activeFilters.traitRanges;
       if (Object.keys(ranges).length > 0) {
@@ -457,16 +475,38 @@
     });
   }
 
+  // ── Reset filters ─────────────────────────────────────────────────────────────
+
+  function resetFilters() {
+    S.activeFilters.tier = "All";
+    S.activeFilters.badges = [];
+    S.activeFilters.traitRanges = {};
+
+    document.querySelectorAll(".tier-chip").forEach((c) => {
+      c.classList.toggle("active", c.dataset.tier === "All");
+    });
+
+    document.querySelectorAll("input.trait-slider").forEach((slider) => {
+      slider.value = slider.dataset.end === "lo" ? "0" : "100";
+    });
+    document.querySelectorAll(".trait-slider-range-label").forEach((el) => {
+      el.textContent = "0 – 100";
+    });
+
+    renderRoster();
+  }
+
   // ── Tier chip bindings ────────────────────────────────────────────────────────
 
   function bindTierChips() {
     document.querySelectorAll(".tier-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
-        document.querySelectorAll(".tier-chip").forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        S.activeFilters.tier = chip.dataset.tier;
-        updateFilterCount();
-        // Drawer does NOT close or reset on filter change
+        const tier = chip.dataset.tier;
+        document.querySelectorAll(".tier-chip").forEach((c) => {
+          c.classList.toggle("active", c.dataset.tier === tier);
+        });
+        S.activeFilters.tier = tier;
+        renderRoster();
       });
     });
   }
@@ -477,33 +517,100 @@
     const tbody = document.getElementById("roster-tbody");
     if (!tbody) return;
 
-    tbody.innerHTML = S.fixtures.map((f) => {
-      const inp = f.input;
-      const pid = inp.player.player_id;
+    const visible = filteredFixtures();
+
+    tbody.innerHTML = visible.map((f) => {
+      const inp  = f.input;
+      const pid  = inp.player.player_id;
       const name = inp.player.display_name;
       const tier = inp.projection.tier;
       const vts  = inp.projection.vts.toFixed(1);
+      const conv = inp.projection.conviction;
       const badges = (inp.badges || []).map(renderBadgePill).join("");
-      const conv  = inp.projection.conviction;
+      const hasAntiPattern = (inp.anti_pattern_flags || []).length > 0;
+
+      const badgeCell = badges
+        ? `<div class="badge-row">${badges}${hasAntiPattern ? '<span class="roster-anti-pattern" title="Anti-pattern flag — see player detail">⚠</span>' : ""}</div>`
+        : `<div class="badge-row">${hasAntiPattern ? '<span class="roster-anti-pattern" title="Anti-pattern flag — see player detail">⚠</span>' : ""}</div>`;
 
       return `<tr class="roster-row" data-player-id="${esc(pid)}" tabindex="0" role="button" aria-label="View ${esc(name)}">
         <td><span class="player-name">${esc(name)}</span></td>
         <td><span class="vts-score">${esc(vts)}</span></td>
         <td><span class="tier-pill tier-${esc(tier)}">${esc(tier)}</span></td>
         <td><span style="font-size:12px; color:var(--color-text-muted);">${esc(conv)}</span></td>
-        <td><div class="badge-row">${badges}</div></td>
+        <td>${badgeCell}</td>
         <td><button class="open-btn" data-player-id="${esc(pid)}">View ›</button></td>
       </tr>`;
     }).join("");
 
+    if (visible.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="roster-empty">
+        No players match the current filters.
+        <button class="roster-reset-link" type="button">Reset filters</button>
+      </td></tr>`;
+      const resetLink = tbody.querySelector(".roster-reset-link");
+      if (resetLink) resetLink.addEventListener("click", resetFilters);
+    }
+
     tbody.querySelectorAll(".roster-row").forEach((row) => {
       row.addEventListener("click", () => openDrawer(row.dataset.playerId));
       row.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") openDrawer(row.dataset.playerId);
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDrawer(row.dataset.playerId); }
       });
     });
 
     updateFilterCount();
+  }
+
+  // ── Venue Traits panel ────────────────────────────────────────────────────────
+
+  function renderVenueTraits(traits) {
+    if (!traits || traits.length === 0) return "";
+
+    const scoringTraits = traits.filter((t) => !t.venue_history_context);
+    const hasHistoryTraits = traits.some((t) => t.venue_history_context);
+
+    const rows = scoringTraits.map((t) => {
+      const score    = Number(t.score ?? 0);
+      const weightPct = Math.round((t.weight || 0) * 100);
+      const weightLabel = weightPct > 0
+        ? `<span class="venue-trait-weight">${weightPct}%&thinsp;wt</span>`
+        : `<span class="venue-trait-weight zero-wt">monitor</span>`;
+
+      let evClass = "ev-derived";
+      let evLabel = "Derived";
+      if (t.evidence_status === "MEASURED")   { evClass = "ev-measured";   evLabel = "Measured"; }
+      if (t.evidence_status === "UNAVAILABLE") { evClass = "ev-unavailable"; evLabel = "Unavailable"; }
+
+      const barFill = t.evidence_status === "UNAVAILABLE"
+        ? `<div class="trait-bar-fill bar-unavailable" style="width:${score.toFixed(1)}%"></div>`
+        : `<div class="trait-bar-fill" style="width:${score.toFixed(1)}%"></div>`;
+
+      return `<div class="venue-trait-row">
+        <div class="venue-trait-header">
+          <span class="venue-trait-label">${esc(t.label)}</span>
+          ${weightLabel}
+          <span class="venue-trait-ev ${esc(evClass)}">${esc(evLabel)}</span>
+        </div>
+        <div class="venue-trait-bar-row">
+          <div class="trait-bar-bg">${barFill}</div>
+          <span class="trait-bar-score">${score.toFixed(0)}</span>
+        </div>
+      </div>`;
+    }).join("");
+
+    const histNote = hasHistoryTraits
+      ? `<div class="venue-trait-history-note">Course History excluded — venue-history context only. See Venue History section below.</div>`
+      : "";
+
+    return `<details class="venue-traits-panel">
+      <summary class="venue-traits-summary">
+        Venue traits <span class="venue-traits-count">(${scoringTraits.length} scored)</span>
+      </summary>
+      <div class="venue-traits-scale-note">VenueDNA trait component score (0–100) — higher values indicate stronger alignment on each individual scored trait. This is a pre-composite input; tier and rank reflect the full model including penalties and gates.</div>
+      ${rows}
+      ${histNote}
+    </details>`;
   }
 
   // ── Drawer ─────────────────────────────────────────────────────────────────────
@@ -518,7 +625,6 @@
 
     S.openPlayerId = playerId;
 
-    // Update active row styling
     document.querySelectorAll(".roster-row").forEach((r) => r.classList.remove("active"));
     const activeRow = document.querySelector(`.roster-row[data-player-id="${CSS.escape(playerId)}"]`);
     if (activeRow) activeRow.classList.add("active");
@@ -528,16 +634,14 @@
     const drawer = document.getElementById("player-drawer");
     drawer.classList.add("open");
 
-    // Mobile: show backdrop
     const backdrop = document.getElementById("overlay-backdrop");
     if (backdrop) backdrop.classList.add("active");
 
-    // Dim roster on desktop (opacity stays >0 so board is still visible)
     const roster = document.getElementById("roster-panel");
     if (roster && window.innerWidth >= 1280) {
       roster.style.opacity = "0.45";
       roster.style.transition = "opacity 0.25s";
-      roster.style.pointerEvents = "auto"; // still interactive
+      roster.style.pointerEvents = "auto";
     }
   }
 
@@ -553,11 +657,7 @@
     if (backdrop) backdrop.classList.remove("active");
 
     const roster = document.getElementById("roster-panel");
-    if (roster) {
-      roster.style.opacity = "";
-      roster.style.pointerEvents = "";
-    }
-    // activeFilters is NOT reset here — per spec
+    if (roster) { roster.style.opacity = ""; roster.style.pointerEvents = ""; }
   }
 
   function renderDrawer(inputObj, narrativeObj) {
@@ -567,33 +667,59 @@
     const validationErrors = narrativeObj.quality?.validation_errors || [];
     const evidenceCoverage = narrativeObj.quality?.evidence_coverage || "high";
 
-    // ── Structural validation failure state ──────────────────────────────────
+    // ── Structural validation failure ────────────────────────────────────────
     if (validationErrors.length > 0) {
       drawerInner.innerHTML = `
         <div class="drawer-close">
-          <span style="font-size:13px; color:var(--color-text-muted);">
-            ${esc(inputObj.player.display_name)}
-          </span>
+          <span style="font-size:13px; color:var(--color-text-muted);">${esc(inputObj.player.display_name)}</span>
           <button onclick="window.__harness.closeDrawer()" aria-label="Close">✕ Close</button>
         </div>
         <div class="narrative-unavailable">
           <strong>Narrative unavailable — structural validation failed</strong>
           ${validationErrors.length} validation error(s) blocked narrative generation.
           Player scoring data is available; prose content has been suppressed.
-        </div>
-      `;
+        </div>`;
       return;
     }
 
     // ── Evidence coverage banner ─────────────────────────────────────────────
     const evidenceBanner = evidenceCoverage !== "high"
-      ? `<div class="evidence-banner low" role="status">
-          ⚠ Limited evidence — ${evidenceCoverage} confidence
+      ? `<div class="evidence-banner low" role="status">⚠ Limited evidence — ${esc(evidenceCoverage)} confidence</div>`
+      : "";
+
+    // ── Badges: no active badges for this build ──────────────────────────────
+    const badgePills = (inputObj.badges || []).map(renderBadgePill).join(" ");
+    const badgesSection = badgePills
+      ? `<div class="drawer-badges">${badgePills}</div>`
+      : `<div class="drawer-badges-empty" role="status">
+          No active playstyle badges were emitted for this player.
+          <button class="inline-glossary-link" data-glossary-open="true" type="button">About badges</button>
+        </div>`;
+
+    // ── Anti-pattern flags ───────────────────────────────────────────────────
+    const antiPatterns = inputObj.anti_pattern_flags || [];
+    const antiPatternHtml = antiPatterns.length > 0
+      ? `<div class="anti-pattern-section">
+          <div class="drawer-section-label">Anti-Pattern Flags</div>
+          ${antiPatterns.map((ap) => `
+            <div class="anti-pattern-card">
+              <span class="anti-pattern-icon" aria-hidden="true">⚠</span>
+              <span>${esc(ap)}</span>
+            </div>`).join("")}
         </div>`
       : "";
 
-    // ── Badges ───────────────────────────────────────────────────────────────
-    const badgePills = (inputObj.badges || []).map(renderBadgePill).join(" ");
+    // ── Structural Case ──────────────────────────────────────────────────────
+    const tier = inputObj.projection.tier;
+    const isT1orT2 = tier === "T1" || tier === "T2";
+    const structuralText = narrativeObj.structural_case || narrativeObj.venue_fit?.text || "";
+    const structuralLabel = isT1orT2 ? "Structural Case" : "Structural Case — limited player brief";
+    const structuralFallbackNote = !isT1orT2 && structuralText
+      ? `<div class="brief-fallback-note">Generated from the canonical event payload; a full Tier 1/2 brief was not available.</div>`
+      : "";
+
+    // ── Risk / Failure Condition ─────────────────────────────────────────────
+    const riskText = narrativeObj.risk_condition || narrativeObj.failure_scenario || "";
 
     // ── Strengths ────────────────────────────────────────────────────────────
     const strengthsHtml = (narrativeObj.strengths || []).map((s) => {
@@ -601,9 +727,7 @@
       const score = traitData ? traitData.score : null;
       const barHtml = score !== null
         ? `<div class="trait-bar-wrap">
-            <div class="trait-bar-bg">
-              <div class="trait-bar-fill" style="width:${score.toFixed(1)}%"></div>
-            </div>
+            <div class="trait-bar-bg"><div class="trait-bar-fill" style="width:${score.toFixed(1)}%"></div></div>
             <span class="trait-bar-score">${score.toFixed(0)}</span>
           </div>`
         : "";
@@ -612,7 +736,7 @@
         <div class="card-statement">${esc(s.statement)}</div>
         ${barHtml}
       </div>`;
-    }).join("");
+    }).join("") || `<div class="drawer-prose no-content">No strength tags available.</div>`;
 
     // ── Weaknesses ────────────────────────────────────────────────────────────
     const weaknessesHtml = (narrativeObj.weaknesses || []).map((w) => {
@@ -624,15 +748,13 @@
         <div class="card-label">${esc(w.label)}</div>
         <div class="card-statement">${esc(w.statement)}</div>
       </div>`;
-    }).join("");
+    }).join("") || `<div class="drawer-prose no-content">No structural risks identified.</div>`;
 
     drawerInner.innerHTML = `
       <div class="drawer-close">
         <span style="font-size:13px; color:var(--color-text-muted);">
           ${esc(inputObj.player.display_name)}
-          <span class="tier-pill tier-${esc(inputObj.projection.tier)}" style="margin-left:6px;">
-            ${esc(inputObj.projection.tier)}
-          </span>
+          <span class="tier-pill tier-${esc(tier)}" style="margin-left:6px;">${esc(tier)}</span>
         </span>
         <button onclick="window.__harness.closeDrawer()" aria-label="Close">✕ Close</button>
       </div>
@@ -641,16 +763,14 @@
 
       <div class="drawer-headline">${esc(narrativeObj.headline)}</div>
 
-      <div class="drawer-badges">${badgePills}</div>
+      ${badgesSection}
+
+      ${antiPatternHtml}
 
       <div class="drawer-section">
-        <div class="drawer-section-label">Story</div>
-        <div class="drawer-prose">${esc(narrativeObj.story_hook)}</div>
-      </div>
-
-      <div class="drawer-section">
-        <div class="drawer-section-label">At Detroit Golf Club</div>
-        <div class="drawer-prose">${esc(narrativeObj.venue_fit.text)}</div>
+        <div class="drawer-section-label">${esc(structuralLabel)}</div>
+        ${structuralFallbackNote}
+        <div class="drawer-prose">${esc(structuralText)}</div>
       </div>
 
       <div class="drawer-divider"></div>
@@ -665,74 +785,80 @@
         ${weaknessesHtml}
       </div>
 
-      <div class="drawer-divider"></div>
-
       <div class="drawer-section">
-        <div class="drawer-section-label">Win Scenario</div>
-        <div class="scenario-block win">
-          <div class="scenario-tag win">To Win</div>
-          ${esc(narrativeObj.win_scenario)}
-        </div>
-      </div>
-
-      <div class="drawer-section">
-        <div class="drawer-section-label">Failure Scenario</div>
+        <div class="drawer-section-label">Risk / Failure Condition</div>
         <div class="scenario-block failure">
           <div class="scenario-tag fail">Risk</div>
-          ${esc(narrativeObj.failure_scenario)}
+          ${esc(riskText)}
         </div>
       </div>
+
+      <div class="drawer-divider"></div>
+
+      ${renderVenueTraits(inputObj.traits)}
 
       <div class="drawer-divider"></div>
 
       <div class="drawer-section">
         <div class="drawer-section-label">Projection</div>
-        <div class="drawer-prose">${esc(narrativeObj.projection_explainer.text)}</div>
+        <div class="drawer-prose">${esc(narrativeObj.projection_explainer?.text || "")}</div>
       </div>
 
       <div class="drawer-section">
         <div class="drawer-section-label">Form</div>
-        <div class="drawer-prose">${esc(narrativeObj.form_note)}</div>
+        <div class="drawer-prose">${esc(narrativeObj.form_note || "")}</div>
       </div>
 
       <div class="drawer-section">
         <div class="drawer-section-label">Venue History</div>
-        <div class="drawer-prose">${esc(narrativeObj.venue_history_note)}</div>
+        <div class="drawer-prose">${esc(narrativeObj.venue_history_note || "")}</div>
       </div>
 
       <div class="drawer-divider"></div>
 
       ${renderDetroitFit(inputObj.player.player_id)}
     `;
+
+    // Bind inline glossary links injected into drawer HTML
+    drawerInner.querySelectorAll("[data-glossary-open]").forEach((btn) => {
+      btn.addEventListener("click", openGlossary);
+    });
+  }
+
+  // ── Glossary ──────────────────────────────────────────────────────────────────
+
+  function openGlossary() {
+    const dialog = document.getElementById("glossary-dialog");
+    if (dialog) dialog.showModal();
+  }
+
+  function closeGlossary() {
+    const dialog = document.getElementById("glossary-dialog");
+    if (dialog) dialog.close();
   }
 
   // ── Global events ─────────────────────────────────────────────────────────────
 
   function bindGlobalEvents() {
-    // Escape key closes drawer
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && S.openPlayerId) closeDrawer();
+      if (e.key === "Escape") {
+        const dialog = document.getElementById("glossary-dialog");
+        if (dialog && dialog.open) return; // native dialog handles its own Escape
+        if (S.openPlayerId) closeDrawer();
+      }
     });
 
-    // Click outside drawer on roster panel closes it (desktop)
     const rosterPanel = document.getElementById("roster-panel");
     if (rosterPanel) {
       rosterPanel.addEventListener("click", (e) => {
-        // Only close if click was on the dimmed roster background, not on a row
-        if (S.openPlayerId && !e.target.closest(".roster-row")) {
-          closeDrawer();
-        }
+        if (S.openPlayerId && !e.target.closest(".roster-row")) closeDrawer();
       });
     }
 
-    // Mobile backdrop click closes drawer
     const backdrop = document.getElementById("overlay-backdrop");
-    if (backdrop) {
-      backdrop.addEventListener("click", () => closeDrawer());
-    }
+    if (backdrop) backdrop.addEventListener("click", () => closeDrawer());
 
-    // Filter toggle (mid/mobile)
-    const filterToggle = document.getElementById("filter-toggle-btn");
+    const filterToggle  = document.getElementById("filter-toggle-btn");
     const filterPopover = document.getElementById("filter-popover");
     const filterOverlay = document.getElementById("filter-overlay");
 
@@ -742,6 +868,36 @@
         if (filterOverlay) filterOverlay.classList.toggle("open");
       });
     }
+
+    // Rail button (900–1279px)
+    const railBtn = document.getElementById("filter-rail-btn");
+    if (railBtn && filterPopover) {
+      railBtn.addEventListener("click", () => {
+        const isOpen = filterPopover.classList.toggle("open");
+        railBtn.setAttribute("aria-expanded", String(isOpen));
+      });
+    }
+
+    // Glossary triggers (sidebar badge state + header button)
+    document.querySelectorAll("[data-glossary-open]").forEach((btn) => {
+      btn.addEventListener("click", openGlossary);
+    });
+
+    const glossaryClose = document.getElementById("glossary-close");
+    if (glossaryClose) glossaryClose.addEventListener("click", closeGlossary);
+
+    // Glossary backdrop click
+    const glossaryDialog = document.getElementById("glossary-dialog");
+    if (glossaryDialog) {
+      glossaryDialog.addEventListener("click", (e) => {
+        if (e.target === glossaryDialog) closeGlossary();
+      });
+    }
+
+    // Reset filters
+    document.querySelectorAll("[data-reset-filters]").forEach((btn) => {
+      btn.addEventListener("click", resetFilters);
+    });
 
     bindTierChips();
     updateFilterCount();
@@ -759,15 +915,18 @@
       .replace(/'/g, "&#39;");
   }
 
-  // ── Public API (for Playwright verify access) ─────────────────────────────────
+  // ── Public API ─────────────────────────────────────────────────────────────────
 
   window.__harness = {
     closeDrawer,
-    getActiveFilters: () => ({ ...S.activeFilters, badges: [...S.activeFilters.badges] }),
-    getOpenPlayerId: () => S.openPlayerId,
+    resetFilters,
+    openGlossary,
+    closeGlossary,
+    getActiveFilters:  () => ({ ...S.activeFilters, badges: [...S.activeFilters.badges] }),
+    getOpenPlayerId:   () => S.openPlayerId,
+    getFixtureCount:   () => S.fixtures.length,
+    getFilteredCount:  () => filteredFixtures().length,
   };
-
-  // ── Init ───────────────────────────────────────────────────────────────────────
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
