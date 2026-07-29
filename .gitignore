@@ -40,3 +40,8 @@ env/
 # Large regeneratable intermediate pipeline artifacts
 # (QA records CSV can be rebuilt by qa_trait_validation.py)
 output/*_qa_records.csv
+
+# Event-local output and deploy artifacts (governance rule: untracked, rebuilt from pipeline)
+events/2026_rocket_classic/output/
+events/2026_rocket_classic/deploy/data/
+events/2026_rocket_classic/output/_dry_run/
