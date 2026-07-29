@@ -1639,52 +1639,37 @@ def main() -> None:
                    if a.get(field, {}).get("availability")
                    in ("MEASURED", "MEASURED_ZERO", "DERIVED", "DEBUT_ZERO"))
 
+    def _perf_field_coverage(field: str) -> dict:
+        if perf_absent:
+            return {
+                "availability":                "UNAVAILABLE",
+                "source_status":               "MISSING",
+                "source_file":                 PERF_FILE,
+                "measured_count":              0,
+                "scored_count":                n_scored,
+                "pct_measured":                0.0,
+                "usable_for_badges":           False,
+                "usable_for_narrative_traits": False,
+                "reason":                      PERF_ABSENT_REASON,
+            }
+        mc = _count_measured(field)
+        return {
+            "availability":                "MEASURED",
+            "source_status":               "OK",
+            "source_file":                 PERF_FILE,
+            "measured_count":              mc,
+            "scored_count":                n_scored,
+            "pct_measured":                round(100.0 * mc / n_scored, 1),
+            "usable_for_badges":           mc > 0,
+            "usable_for_narrative_traits": mc > 0,
+        }
+
     payload_source_coverage = {
         "fields": {
-            "app_true": {
-                "availability":                "UNAVAILABLE",
-                "source_status":               "MISSING",
-                "source_file":                 PERF_FILE,
-                "measured_count":              0,
-                "scored_count":                n_scored,
-                "pct_measured":                0.0,
-                "usable_for_badges":           False,
-                "usable_for_narrative_traits": False,
-                "reason":                      PERF_ABSENT_REASON,
-            },
-            "ott_true": {
-                "availability":                "UNAVAILABLE",
-                "source_status":               "MISSING",
-                "source_file":                 PERF_FILE,
-                "measured_count":              0,
-                "scored_count":                n_scored,
-                "pct_measured":                0.0,
-                "usable_for_badges":           False,
-                "usable_for_narrative_traits": False,
-                "reason":                      PERF_ABSENT_REASON,
-            },
-            "putt_true": {
-                "availability":                "UNAVAILABLE",
-                "source_status":               "MISSING",
-                "source_file":                 PERF_FILE,
-                "measured_count":              0,
-                "scored_count":                n_scored,
-                "pct_measured":                0.0,
-                "usable_for_badges":           False,
-                "usable_for_narrative_traits": False,
-                "reason":                      PERF_ABSENT_REASON,
-            },
-            "arg_true": {
-                "availability":                "UNAVAILABLE",
-                "source_status":               "MISSING",
-                "source_file":                 PERF_FILE,
-                "measured_count":              0,
-                "scored_count":                n_scored,
-                "pct_measured":                0.0,
-                "usable_for_badges":           False,
-                "usable_for_narrative_traits": False,
-                "reason":                      PERF_ABSENT_REASON,
-            },
+            "app_true":  _perf_field_coverage("app_true"),
+            "ott_true":  _perf_field_coverage("ott_true"),
+            "putt_true": _perf_field_coverage("putt_true"),
+            "arg_true":  _perf_field_coverage("arg_true"),
             "trait_approach_raw": {
                 "availability":                "DERIVED",
                 "source_file":                 "app_skill_l12_sg.csv",
