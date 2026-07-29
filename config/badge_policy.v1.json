@@ -47,7 +47,7 @@
       "icon": "🦅",
       "qualification_logic_version": "1.0",
       "required_trait_ids": ["par5_scoring"],
-      "threshold": { "field_percentile_min": 80 },
+      "threshold": { "field_percentile_min": 89 },
       "exclusions": [],
       "description": "Top-quintile par-5 scoring. Exploits the reachable par-5s that separate scoring at birdie-opportunity venues."
     },

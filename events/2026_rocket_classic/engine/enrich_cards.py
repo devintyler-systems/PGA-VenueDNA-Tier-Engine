@@ -10,7 +10,7 @@ Differences from root engine (engine/enrich_cards.py):
   - 5 UNSCORED stubs appended post-z-score (excluded from scoring loop)
   - Phantom exclusion noted: Koepka, Brooks in decomp but not in teetimes field
   - Event/venue: "2026 Rocket Classic" / "Detroit Golf Club"
-  - Schema version: "rocket-classic-v1.3" (v1.3: per-player badges[] field added)
+  - Schema version: "rocket-classic-v1.4" (v1.4: par5_predator badge added)
   - 5 mandatory pipeline artifacts written per build
   - Per-player trait_availability block: availability/source_status/usable_for_badges/
     usable_for_narrative_traits per trait — zero is never ambiguous downstream
@@ -115,6 +115,18 @@ _BADGE_TRAIT_AVAIL_MAP: dict[str, str] = {
 
 BADGE_HOT_STREAK_L6_MIN_ROUNDS  = 8
 BADGE_HOT_STREAK_L24_MIN_ROUNDS = 16
+
+_PAR5_HOLE_MIN_2026 = 150  # minimum 2026 par-5 holes for badge eligibility
+
+_PAR5_COMPONENTS = [
+    # (field_key,          sign,  weight)   sign=-1 means lower raw value = better
+    ("scoring_avg_2026",  -1.0,  0.45),
+    ("birdie_pct_2026",   +1.0,  0.25),
+    ("eagle_rate_2026",   +1.0,  0.15),
+    ("scoring_avg_2025",  -1.0,  0.10),
+    ("birdie_pct_2025",   +1.0,  0.03),
+    ("eagle_rate_2025",   +1.0,  0.02),
+]
 
 _CH_ANNUAL_COLS = [
     "2021 (Rocket Mortgage Classic)",
@@ -1278,10 +1290,381 @@ def make_unscored_stub(entry: dict) -> dict:
     return stub
 
 
+def build_par5_name_lookup(event_players: list[dict]) -> dict[str, str | None]:
+    """
+    Build {normalized_first_last: player_id} from the event field.
+
+    Payload names are last-first ("Knapp, Jake"). Par-5 CSVs are first-last ("Jake Knapp").
+    For each player, deterministically reverse the payload name to first-last and normalize.
+    If two players produce the same normalized key -> mark AMBIGUOUS (value = None).
+    Only exact normalized matches are used; no fuzzy matching.
+
+    Resolution statuses stored as values:
+      str (player_id)  -> unique match
+      None             -> AMBIGUOUS (two+ players share the key)
+    """
+    lookup: dict[str, str | None] = {}
+    for p in event_players:
+        name = p.get("player_name") or p.get("player") or ""
+        pid  = p.get("player_id")
+        if not name or not pid:
+            continue
+        if ", " in name:
+            last, first = name.split(", ", 1)
+            first_last = f"{first.strip()} {last.strip()}"
+        else:
+            first_last = name
+        key = normalize_name(first_last)
+        if not key:
+            continue
+        if key in lookup:
+            if lookup[key] != pid:
+                lookup[key] = None   # AMBIGUOUS
+        else:
+            lookup[key] = pid
+    return lookup
+
+
+def _load_par5_csv(path: Path) -> list[dict]:
+    """Load a par-5 stat CSV (Latin-1 encoded). Returns list of row dicts."""
+    import csv as _csv
+    if not path.exists():
+        return []
+    with open(path, encoding="latin-1", newline="") as f:
+        return [dict(row) for row in _csv.DictReader(f)]
+
+
+def load_par5_inputs(
+    input_dir: Path,
+    name_lookup: dict[str, str | None],
+) -> tuple[dict[str, dict], list[dict]]:
+    """
+    Load all six canonical par-5 source files and resolve to event players.
+
+    Returns:
+      par5_records : {player_id -> raw record dict}
+      audit        : list of audit rows (one per source CSV row attempted)
+    """
+    def _safe_float(v: str | None) -> float | None:
+        try:
+            if v is None:
+                return None
+            s = str(v).strip().rstrip("%")
+            return float(s) if s != "" else None
+        except (ValueError, TypeError):
+            return None
+
+    def _safe_int(v: str | None) -> int | None:
+        try:
+            return int(v) if v is not None and str(v).strip() != "" else None
+        except (ValueError, TypeError):
+            return None
+
+    # ── Load raw CSVs ──────────────────────────────────────────────────────────
+    scoring_2026 = _load_par5_csv(input_dir / "2026_par5_scoring_average.csv")
+    scoring_2025 = _load_par5_csv(input_dir / "2025_par5_scoring_average.csv")
+    birdie_2026  = _load_par5_csv(input_dir / "2026_par5_birdieorbetter_leaders.csv")
+    birdie_2025  = _load_par5_csv(input_dir / "2025_par5_birdieorbetter_leaders.csv")
+    eagle_2026   = _load_par5_csv(input_dir / "2026_par5_eagle_leaders.csv")
+    eagle_2025   = _load_par5_csv(input_dir / "2025_par5_eagle_leaders.csv")
+
+    # ── Build name-keyed dicts for each CSV ────────────────────────────────────
+    def _csv_to_namedict(rows: list[dict]) -> dict[str, dict]:
+        nd = {}
+        for row in rows:
+            key = normalize_name(row.get("PLAYER", ""))
+            if key:
+                nd[key] = row
+        return nd
+
+    sc26 = _csv_to_namedict(scoring_2026)
+    sc25 = _csv_to_namedict(scoring_2025)
+    bi26 = _csv_to_namedict(birdie_2026)
+    bi25 = _csv_to_namedict(birdie_2025)
+    ea26 = _csv_to_namedict(eagle_2026)
+    ea25 = _csv_to_namedict(eagle_2025)
+
+    par5_records: dict[str, dict] = {}
+    audit: list[dict] = []
+
+    # Iterate all scoring-2026 source names as primary anchors
+    primary_names = set(sc26.keys())
+    # Also include players who appear only in birdie/eagle but not scoring
+    # (edge case; their data is UNAVAILABLE since scoring is required)
+    all_source_names = primary_names | set(bi26.keys())
+
+    for norm_src_name in all_source_names:
+        pid = name_lookup.get(norm_src_name)
+        resolution_status = (
+            "MATCHED"    if pid is not None and pid != "" else
+            "AMBIGUOUS"  if norm_src_name in name_lookup and name_lookup[norm_src_name] is None else
+            "UNMATCHED"
+        )
+
+        audit_row = {
+            "source_name_normalized": norm_src_name,
+            "resolution_status": resolution_status,
+            "player_id": pid if resolution_status == "MATCHED" else None,
+        }
+        audit.append(audit_row)
+
+        if resolution_status != "MATCHED":
+            continue
+
+        # ── 2026 scoring ──────────────────────────────────────────────────────
+        sc26r = sc26.get(norm_src_name, {})
+        scoring_avg_2026 = _safe_float(sc26r.get("AVG"))
+        total_strokes_2026 = _safe_int(sc26r.get("TOTAL STROKES"))
+        total_holes_2026   = _safe_int(sc26r.get("TOTAL HOLES"))
+
+        # Denominator cross-check: AVG ≈ TOTAL STROKES / TOTAL HOLES
+        denom_ok_scoring_2026 = None
+        if scoring_avg_2026 is not None and total_strokes_2026 is not None and total_holes_2026 is not None and total_holes_2026 > 0:
+            expected = total_strokes_2026 / total_holes_2026
+            denom_ok_scoring_2026 = abs(expected - scoring_avg_2026) <= 0.005
+
+        # ── 2026 birdie ───────────────────────────────────────────────────────
+        bi26r = bi26.get(norm_src_name, {})
+        birdie_pct_2026  = _safe_float(bi26r.get("%"))
+        birdies_2026     = _safe_int(bi26r.get("PAR 5 BIRDIES OR BETTER"))
+        birdie_holes_2026 = _safe_int(bi26r.get("PAR 5 HOLES"))
+
+        # Denominator cross-check: % ≈ birdies / holes * 100
+        denom_ok_birdie_2026 = None
+        if birdie_pct_2026 is not None and birdies_2026 is not None and birdie_holes_2026 is not None and birdie_holes_2026 > 0:
+            expected = (birdies_2026 / birdie_holes_2026) * 100
+            denom_ok_birdie_2026 = abs(expected - birdie_pct_2026) <= 0.05
+
+        # Cross-file denominator check: scoring TOTAL HOLES ≈ birdie PAR 5 HOLES (tol ±2)
+        denom_cross_ok_2026 = None
+        denom_cross_delta_2026 = None
+        if total_holes_2026 is not None and birdie_holes_2026 is not None:
+            denom_cross_delta_2026 = abs(total_holes_2026 - birdie_holes_2026)
+            denom_cross_ok_2026 = denom_cross_delta_2026 <= 2
+
+        # ── 2026 eagle ────────────────────────────────────────────────────────
+        ea26r = ea26.get(norm_src_name, {})
+        has_eagle_2026 = bool(ea26r)
+        eagles_2026      = _safe_int(ea26r.get("TOTAL"))         if ea26r else None
+        eagle_holes_2026 = _safe_int(ea26r.get("TOTAL PAR 5 HOLES")) if ea26r else None
+        eagle_rate_2026  = None
+        eagle_denom_ok_2026 = None
+        if has_eagle_2026 and eagles_2026 is not None and eagle_holes_2026 is not None and eagle_holes_2026 > 0:
+            eagle_rate_2026 = eagles_2026 / eagle_holes_2026
+            # Cross-file denom vs scoring
+            if total_holes_2026 is not None:
+                eagle_denom_ok_2026 = abs(eagle_holes_2026 - total_holes_2026) <= 5  # wider tolerance for eagle file
+        elif has_eagle_2026 and (eagles_2026 is None or eagle_holes_2026 is None or eagle_holes_2026 == 0):
+            eagle_rate_2026 = None  # malformed eagle row -> treat as absent
+
+        # ── 2025 scoring ──────────────────────────────────────────────────────
+        sc25r = sc25.get(norm_src_name, {})
+        scoring_avg_2025  = _safe_float(sc25r.get("AVG"))
+        total_holes_2025  = _safe_int(sc25r.get("TOTAL HOLES"))
+
+        # ── 2025 birdie ───────────────────────────────────────────────────────
+        bi25r = bi25.get(norm_src_name, {})
+        birdie_pct_2025   = _safe_float(bi25r.get("%"))
+        birdie_holes_2025 = _safe_int(bi25r.get("PAR 5 HOLES"))
+
+        # ── 2025 eagle ────────────────────────────────────────────────────────
+        ea25r = ea25.get(norm_src_name, {})
+        has_eagle_2025 = bool(ea25r)
+        eagles_2025      = _safe_int(ea25r.get("TOTAL"))             if ea25r else None
+        eagle_holes_2025 = _safe_int(ea25r.get("TOTAL PAR 5 HOLES")) if ea25r else None
+        eagle_rate_2025  = None
+        if has_eagle_2025 and eagles_2025 is not None and eagle_holes_2025 is not None and eagle_holes_2025 > 0:
+            eagle_rate_2025 = eagles_2025 / eagle_holes_2025
+
+        par5_records[pid] = {
+            # 2026 primary
+            "scoring_avg_2026":    scoring_avg_2026,
+            "total_strokes_2026":  total_strokes_2026,
+            "total_holes_2026":    total_holes_2026,
+            "birdie_pct_2026":     birdie_pct_2026,
+            "birdies_2026":        birdies_2026,
+            "birdie_holes_2026":   birdie_holes_2026,
+            "eagles_2026":         eagles_2026,
+            "eagle_holes_2026":    eagle_holes_2026,
+            "eagle_rate_2026":     eagle_rate_2026,
+            # 2025 stabilization
+            "scoring_avg_2025":    scoring_avg_2025,
+            "total_holes_2025":    total_holes_2025,
+            "birdie_pct_2025":     birdie_pct_2025,
+            "birdie_holes_2025":   birdie_holes_2025,
+            "eagles_2025":         eagles_2025,
+            "eagle_holes_2025":    eagle_holes_2025,
+            "eagle_rate_2025":     eagle_rate_2025,
+            # Provenance
+            "source_name_normalized": norm_src_name,
+            "has_eagle_2026":      has_eagle_2026,
+            "has_eagle_2025":      has_eagle_2025,
+            # Validation
+            "denom_ok_scoring_2026":  denom_ok_scoring_2026,
+            "denom_ok_birdie_2026":   denom_ok_birdie_2026,
+            "denom_cross_ok_2026":    denom_cross_ok_2026,
+            "denom_cross_delta_2026": denom_cross_delta_2026,
+            "eagle_denom_ok_2026":    eagle_denom_ok_2026,
+        }
+
+    return par5_records, audit
+
+
+def compute_par5_composite_scores(
+    players_raw: list[dict],
+    par5_records: dict[str, dict],
+) -> dict[str, dict]:
+    """
+    Compute per-player par-5 composite z-score.
+
+    Eligibility gate: player in par5_records AND scoring_avg_2026 non-None
+    AND birdie_pct_2026 non-None AND total_holes_2026 >= _PAR5_HOLE_MIN_2026
+    AND 2026 required denominator checks pass.
+
+    Z-scores for each component are computed only among players with a valid
+    measured value for that component (independent cohorts per component).
+
+    Returns {player_id -> composite_data_dict}.
+    """
+    # Identify eligible players
+    eligible_pids: set[str] = set()
+    for p in players_raw:
+        pid = p.get("player_id")
+        if pid not in par5_records:
+            continue
+        r = par5_records[pid]
+        # Required 2026 components
+        if r.get("scoring_avg_2026") is None or r.get("birdie_pct_2026") is None:
+            continue
+        if (r.get("total_holes_2026") or 0) < _PAR5_HOLE_MIN_2026:
+            continue
+        # Required 2026 denominator checks
+        if r.get("denom_ok_scoring_2026") is False:
+            continue   # quarantine: malformed scoring average
+        if r.get("denom_ok_birdie_2026") is False:
+            continue   # quarantine: malformed birdie percentage
+        if r.get("denom_cross_ok_2026") is False:
+            continue   # quarantine: denominator conflict between scoring and birdie
+        eligible_pids.add(pid)
+
+    # Per-component: collect signed values across their own eligible cohorts
+    # sign is already in _PAR5_COMPONENTS: -1 for lower-is-better metrics
+    component_values: dict[str, list[float]] = {key: [] for key, _, _ in _PAR5_COMPONENTS}
+
+    for pid in eligible_pids:
+        r = par5_records[pid]
+        for key, sign, _ in _PAR5_COMPONENTS:
+            val = r.get(key)
+            if val is not None:
+                component_values[key].append(sign * val)
+
+    # Compute mean and std per component
+    def _mean(lst: list[float]) -> float | None:
+        return sum(lst) / len(lst) if lst else None
+
+    def _std(lst: list[float]) -> float | None:
+        if len(lst) < 2:
+            return None
+        m = _mean(lst)
+        return (sum((x - m) ** 2 for x in lst) / len(lst)) ** 0.5
+
+    comp_mean = {k: _mean(v) for k, v in component_values.items()}
+    comp_std  = {k: _std(v)  for k, v in component_values.items()}
+
+    # Per-player composite
+    results: dict[str, dict] = {}
+
+    for p in players_raw:
+        pid = p.get("player_id")
+        if pid not in eligible_pids:
+            r = par5_records.get(pid)
+            # Determine why unavailable
+            if r is None:
+                status = "UNMATCHED"
+                reason = "Not in par-5 source files"
+            elif (r.get("total_holes_2026") or 0) < _PAR5_HOLE_MIN_2026:
+                status = "UNAVAILABLE"
+                reason = f"Insufficient 2026 par-5 holes: {r.get('total_holes_2026', 0)} < {_PAR5_HOLE_MIN_2026}"
+            elif r.get("scoring_avg_2026") is None or r.get("birdie_pct_2026") is None:
+                status = "UNAVAILABLE"
+                reason = "Missing required 2026 scoring average or birdie-or-better percentage"
+            elif r.get("denom_ok_scoring_2026") is False or r.get("denom_ok_birdie_2026") is False or r.get("denom_cross_ok_2026") is False:
+                status = "UNAVAILABLE"
+                reason = "Required 2026 denominator validation failed — source data quarantined"
+            else:
+                status = "UNAVAILABLE"
+                reason = "Not resolved to event field"
+            results[pid] = {
+                "usable_for_badges": False,
+                "coverage_status": status,
+                "composite": None,
+                "component_availability": {},
+                "unavailable_reason": reason,
+            }
+            continue
+
+        r = par5_records[pid]
+        weighted_sum = 0.0
+        total_weight = 0.0
+        comp_avail: dict[str, str] = {}
+        has_eagle_2026_data = r.get("eagle_rate_2026") is not None
+
+        for key, sign, weight in _PAR5_COMPONENTS:
+            val = r.get(key)
+            signed_val = sign * val if val is not None else None
+            m = comp_mean.get(key)
+            s = comp_std.get(key)
+
+            if signed_val is not None and m is not None:
+                if s is not None and s > 0:
+                    z = (signed_val - m) / s
+                elif s == 0:
+                    z = 0.0
+                else:
+                    comp_avail[key] = "INSUFFICIENT_COHORT"
+                    continue
+                weighted_sum += weight * z
+                total_weight += weight
+                comp_avail[key] = "MEASURED"
+            else:
+                comp_avail[key] = "UNAVAILABLE"
+
+        composite = weighted_sum / total_weight if total_weight > 0 else None
+
+        # Determine coverage status
+        has_2026_eagle_measured = comp_avail.get("eagle_rate_2026") == "MEASURED"
+        all_full = all(v == "MEASURED" for v in comp_avail.values())
+        if all_full:
+            coverage = "FULL"
+        elif has_2026_eagle_measured:
+            coverage = "CURRENT_FULL_HISTORICAL_PARTIAL"
+        else:
+            coverage = "DEGRADED_NO_2026_EAGLE"
+
+        results[pid] = {
+            "usable_for_badges": composite is not None,
+            "coverage_status": coverage,
+            "composite": composite,
+            "component_availability": comp_avail,
+            "holes_2026": r.get("total_holes_2026"),
+            "unavailable_reason": None,
+            # Provenance fields for qualification reason
+            "scoring_avg_2026": r.get("scoring_avg_2026"),
+            "birdie_pct_2026":  r.get("birdie_pct_2026"),
+            "eagle_rate_2026":  r.get("eagle_rate_2026"),
+            "scoring_avg_2025": r.get("scoring_avg_2025"),
+            "birdie_pct_2025":  r.get("birdie_pct_2025"),
+            "eagle_rate_2025":  r.get("eagle_rate_2025"),
+        }
+
+    return results
+
+
 def build_badge_inputs(
     p: dict,
     sg_l24_row: dict | None,
     sg_l6_row:  dict | None,
+    par5_composite_data: dict | None = None,
 ) -> dict:
     """
     Assemble normalized badge-input record for one player.
@@ -1364,6 +1747,41 @@ def build_badge_inputs(
         "usable_for_badges": True,
     }
 
+    par5 = par5_composite_data or {}
+    par5_composite = par5.get("composite")
+    par5_usable    = par5.get("usable_for_badges", False)
+    par5_coverage  = par5.get("coverage_status", "UNAVAILABLE")
+    par5_holes     = par5.get("holes_2026")
+    par5_comp_avail = par5.get("component_availability", {})
+
+    # Build human-readable provenance for the par5_scoring entry
+    par5_avail_parts = []
+    if par5.get("scoring_avg_2026") is not None:
+        par5_avail_parts.append(f"scoring_avg_2026={par5['scoring_avg_2026']:.3f}")
+    if par5.get("birdie_pct_2026") is not None:
+        par5_avail_parts.append(f"birdie_pct_2026={par5['birdie_pct_2026']:.2f}%")
+    if par5.get("eagle_rate_2026") is not None:
+        par5_avail_parts.append(f"eagle_rate_2026={par5['eagle_rate_2026']:.4f}")
+    if par5.get("scoring_avg_2025") is not None:
+        par5_avail_parts.append(f"scoring_avg_2025={par5['scoring_avg_2025']:.3f}")
+    if par5.get("birdie_pct_2025") is not None:
+        par5_avail_parts.append(f"birdie_pct_2025={par5['birdie_pct_2025']:.2f}%")
+    if par5.get("eagle_rate_2025") is not None:
+        par5_avail_parts.append(f"eagle_rate_2025={par5['eagle_rate_2025']:.4f}")
+
+    par5_scoring_entry = {
+        "source_file":        "2026_par5_scoring_average.csv, 2026_par5_birdieorbetter_leaders.csv, 2026_par5_eagle_leaders.csv (+ 2025 variants)",
+        "source_column":      "AVG, %, eagle_rate=TOTAL/TOTAL_PAR5_HOLES",
+        "window":             "2026 primary (0.45/0.25/0.15) + 2025 stabilization (0.10/0.03/0.02); partial-coverage renormalized",
+        "value":              par5_composite,
+        "availability":       par5_coverage,
+        "usable_for_badges":  par5_usable,
+        "holes_2026":         par5_holes,
+        "component_availability": par5_comp_avail,
+        "provenance":         "; ".join(par5_avail_parts) if par5_avail_parts else "no par-5 data",
+        "unavailable_reason": par5.get("unavailable_reason"),
+    }
+
     return {
         "approach_play":    approach,
         "iron_play":        iron,
@@ -1372,6 +1790,7 @@ def build_badge_inputs(
         "putting":          _l24_entry("putt_mean", "putt_mean"),
         "recent_form":      recent_form_entry,
         "course_history":   ch_entry,
+        "par5_scoring":     par5_scoring_entry,
     }
 
 
@@ -1390,6 +1809,7 @@ def compute_badge_percentiles(
         "approach_play", "iron_play",
         "driving_distance", "driving_accuracy",
         "putting", "recent_form",
+        "par5_scoring",
     ]
 
     for trait_id in PERCENTILE_TRAITS:
@@ -1460,10 +1880,27 @@ def qualify_badges(
                     for tid in required_traits if tid in badge_inputs
                 )
             )
-            reason = (
-                f"Top-quintile {'; '.join(reason_parts)} "
-                f"(field threshold: {min_pct}th, source: {src_files})"
-            )
+
+            # Par-5 predator gets a richer provenance reason
+            if bid == "par5_predator" and "par5_scoring" in badge_inputs:
+                p5 = badge_inputs["par5_scoring"]
+                pct_val = player_percentiles.get("par5_scoring", 0)
+                coverage = p5.get("availability", "UNKNOWN")
+                provenance = p5.get("provenance", "")
+                holes = p5.get("holes_2026", "?")
+                composite_val = p5.get("value")
+                composite_str = f"{composite_val:+.4f}" if isinstance(composite_val, float) else str(composite_val)
+                reason = (
+                    f"Top par-5 scorer (composite={composite_str}, {pct_val:.0f}th-pct, "
+                    f"threshold={min_pct}th); coverage={coverage}; "
+                    f"2026 holes={holes}; {provenance} "
+                    f"(source: {src_files})"
+                )
+            else:
+                reason = (
+                    f"Top-quintile {'; '.join(reason_parts)} "
+                    f"(field threshold: {min_pct}th, source: {src_files})"
+                )
             earned.append({"badge_id": bid, "qualification_reason": reason})
             earned_ids.add(bid)
 
@@ -2061,18 +2498,42 @@ def main() -> None:
 
     # ── Badge inputs + qualification ──────────────────────────────────────────
     print("[enrich_cards] Building badge inputs and qualifying badges...")
+
+    # Par-5 data: build name lookup from resolved event field
+    par5_name_lookup = build_par5_name_lookup(players_raw)
+    par5_raw_records, par5_audit = load_par5_inputs(input_dir, par5_name_lookup)
+    par5_composites = compute_par5_composite_scores(players_raw, par5_raw_records)
+
+    # Resolution audit summary
+    matched_count    = sum(1 for a in par5_audit if a["resolution_status"] == "MATCHED")
+    unmatched_count  = sum(1 for a in par5_audit if a["resolution_status"] == "UNMATCHED")
+    ambiguous_count  = sum(1 for a in par5_audit if a["resolution_status"] == "AMBIGUOUS")
+    print(f"  Par-5 resolution: {matched_count} matched, {unmatched_count} unmatched, "
+          f"{ambiguous_count} ambiguous (of {len(par5_audit)} source names)")
+
+    par5_eligible = sum(1 for v in par5_composites.values() if v.get("usable_for_badges"))
+    print(f"  Par-5 eligible (>={_PAR5_HOLE_MIN_2026} holes, required data present): {par5_eligible}")
+
     badge_inputs_list: list[dict] = []
     for p in players_raw:
         sg_l24_row = resolve(p["player"], sg_l24_data, lk_l24)
         sg_l6_row  = resolve(p["player"], sg_l6_data,  lk_l6)
-        badge_inputs_list.append(build_badge_inputs(p, sg_l24_row, sg_l6_row))
+        pid = p.get("player_id")
+        badge_inputs_list.append(
+            build_badge_inputs(p, sg_l24_row, sg_l6_row, par5_composites.get(pid))
+        )
 
     badge_percentiles = compute_badge_percentiles(players_raw, badge_inputs_list)
     for i, p in enumerate(players_raw):
         p["badges"] = qualify_badges(badge_inputs_list[i], badge_policy_badges, badge_percentiles[i])
 
     total_badges = sum(len(p["badges"]) for p in players_raw)
-    print(f"  Badges emitted: {total_badges} across {len(players_raw)} scored players")
+    par5_badge_count = sum(
+        1 for p in players_raw
+        if any(b["badge_id"] == "par5_predator" for b in p.get("badges", []))
+    )
+    print(f"  Badges emitted: {total_badges} across {len(players_raw)} scored players "
+          f"(par5_predator: {par5_badge_count})")
 
     # ── Canonical output schema (drop private fields) ──────────────────────────
     _drop = {
@@ -2127,7 +2588,7 @@ def main() -> None:
         schema_ver = f"rocket-classic-live-{args.live}-v1.1"
     else:
         file_base  = "2026_rocket_classic_event_payload.json"
-        schema_ver = "rocket-classic-v1.3"  # v1.3: per-player badges[] field added
+        schema_ver = "rocket-classic-v1.4"  # v1.4: par5_predator badge added
 
     payload = {
         "schemaVersion":  schema_ver,

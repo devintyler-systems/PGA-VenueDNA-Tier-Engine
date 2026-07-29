@@ -1,4 +1,5 @@
 """Unit tests for badge qualification in the Rocket Classic event-local engine."""
+import copy
 import importlib.util
 from pathlib import Path
 import pytest
@@ -246,10 +247,12 @@ def test_hot_streak_rejected_insufficient_l24_rounds():
     assert not any(b["badge_id"] == "hot_streak" for b in result)
 
 
-def test_par5_predator_never_emitted():
-    badges = _load_policy()
-    inp = _inputs_stub()
-    result = qualify_badges(inp, badges, {"par5_scoring": 95})
+def test_par5_predator_not_emitted_when_no_par5_scoring_key():
+    """No par5_scoring key in badge_inputs -> badge not emitted (same as original guard behavior)."""
+    stub = copy.deepcopy(_inputs_stub())
+    # _inputs_stub has no par5_scoring key
+    assert "par5_scoring" not in stub
+    result = _mod.qualify_badges(stub, _load_policy(), {})
     assert not any(b["badge_id"] == "par5_predator" for b in result)
 
 

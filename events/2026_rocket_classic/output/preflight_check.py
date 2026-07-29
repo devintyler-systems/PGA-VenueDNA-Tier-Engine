@@ -14,7 +14,7 @@ REPO_ROOT      = Path(__file__).resolve().parent.parent.parent.parent
 PAYLOAD_DEPLOY = REPO_ROOT / "events/2026_rocket_classic/deploy/data/2026_rocket_classic_event_payload.json"
 PAYLOAD_OUTPUT = REPO_ROOT / "events/2026_rocket_classic/output/2026_rocket_classic_event_payload.json"
 VENUE_INTEL    = REPO_ROOT / "library/venues/detroit_golf_club/detroit_golf_club_intelligence_2026_v1.json"
-EXPECTED_HASH  = "a2269b943f250b1119381c6388624070570780543b68496b183f497ea7c6d680"
+EXPECTED_HASH  = "f132e9616fe70ab679bd68e8fb2c98e41c237f22b4db4b63b8df7db5ae051c57"
 
 TRIPOD_AVAIL_MAP = {
     "sg_approach":   "trait_approach_raw",
@@ -50,7 +50,7 @@ with open(PAYLOAD_DEPLOY) as f:
 # V1: Schema version
 print("\nV1: Schema version")
 sv = payload.get("schemaVersion", "")
-if sv == "rocket-classic-v1.3":
+if sv == "rocket-classic-v1.4":
     ok(f"schemaVersion: {sv}")
 else:
     fail(f"schemaVersion wrong: {sv!r}")
