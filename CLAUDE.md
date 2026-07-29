@@ -22,7 +22,8 @@ A course-DNA prediction engine for PGA Tour tournaments. Scores players based on
 - `engine/latent_model.py` — latent model for venue fit
 - `engine/enrich_cards.py` — player card enrichment
 - `engine/dg_api_harvester.py` — DataGolf API ingestion
-- `data/venuedna_master.db` — canonical SQLite DB (56 KB); `data/venue_dna.db` is zero-byte artifact
+- `data/venuedna_master.db` — canonical SQLite DB (56 KB); tracked. See Database Architecture section.
+- `data/venue_dna.db` — harvester raw-cache DB; gitignored. Written by `dg_api_harvester.py`.
 - `standards/` — scoring specs, architecture docs, audit SOPs
 - `library/venues/` — per-venue profiles (each venue has its own subfolder)
 
@@ -47,7 +48,6 @@ library/venues/{venue_slug}/
 data/raw/       — incoming DataGolf API pulls, unprocessed
 data/processed/ — cleaned, normalized tournament and player data
 data/venue/     — course characteristic profiles (yardage, rough, green speed, layout tags)
-ingestion/      — API call scripts, PDF parsers, manual stat loaders
 library/engine/ — master system prompts, scoring specs, rebuild guides
 library/templates/ — intake forms, CLAUDE.md template
 standards/      — canonical architecture docs and scoring specs
@@ -73,6 +73,25 @@ tools/          — utility scripts (update_claude_md.py)
 - `strokes_gained` — per-player, per-tournament SG splits
 - `venue_profiles` — course DNA features (normalized 0-100)
 - `venue_scores` — final VenueDNA scores per player per tournament
+
+## Database Architecture
+
+Two SQLite databases with distinct roles — do not conflate them.
+
+### `data/venuedna_master.db` (tracked in git — 56 KB)
+Processed production master. Holds canonical `players`, `tournaments`, `strokes_gained`, `venue_profiles`, and `venue_scores` tables.
+Scripts that use it — all hardcode this path, ignoring `db_config.json`'s `db_path` field:
+- `engine/datagolf_client.py` — manages schema; `DB_PATH` hardcoded
+- `engine/ingest_manual_exports.py` — upserts into `active_field_projections`
+- `engine/initialize_venues.py` — seeds `course_profiles`
+- `engine/build_round_analysis.py` — reads for scoring (reads `db_config.json` for other settings only)
+- `engine/traits_calculator.py` — queries trait rows (reads `db_config.json` for other settings only)
+
+### `data/venue_dna.db` (untracked — gitignored)
+Local raw API-cache and harvester working store. Created and populated on first run by `engine/dg_api_harvester.py`. Absent from a clean clone.
+`config/db_config.json` declares `"db_path": "data/venue_dna.db"`. Only `dg_api_harvester.py` obeys that field. All other scripts that load `db_config.json` do so for `rate_limit_rpm`, `dg_base_url`, and `sparse_columns` only.
+
+**Rule:** Never add a global `*.db` gitignore rule. `venuedna_master.db` is intentionally tracked; `venue_dna.db` has its own explicit gitignore entry.
 
 ## Conventions
 - All scores normalized 0-100; higher = better venue fit
@@ -104,16 +123,9 @@ Session stamp: 2026-07-23 (post-cleanup)
 - Next focus: [R1 live build — update with tee times / pairings / live SG when available]
 
 ## Known Issues / Debt
-- `events/2026_3m_open/engine/` is empty — 3M Open runs against root engine (no protected per-event snapshot). Risk: root engine could be overwritten before post-mortem.
-- `deploy/data/board_export.json` violates naming convention but CANNOT be renamed without updating app.js line 133.
-- `deploy/3m_open_2026_board.html` + `index.html` are two entry points; `index.html` references `3m_open_2026_board.html` — rename requires updating both atomically.
-- `deploy/data/3m_open_2026_overhaul_notes.txt` — temp note in live deploy/data/ folder; should be deleted.
-- `data/venue_dna.db` — zero-byte file (artifact); `data/venuedna_master.db` is the real DB.
-- `public/` folder — full mirror of Open Championship deploy (26 files, ~10 MB); purpose unclear (web server root?). Awaiting human decision on whether to keep/delete.
-- Open Championship `engine/` — 3 versions of scoring script (score_open_2026.py, _v2, _v3) and 2 board builders (build_board_v2, build_board_v3). Canonical version unclear.
-- `events/2026_USOPEN/DraftKings/` — non-canonical subfolder with DK outputs; needs to move to output/ or deploy/data/.
-- `library/` root: `CJ_CUP_Byron_Nelson_Kickoff_Prompt.md` and `promo_playbook.md` are purpose-unclear artifacts.
-- `engine/__pycache__/backfill_history.cpython-312.pyc` — orphaned bytecode; source `.py` deleted.
+- `events/2026_Finished_Events/2026_USOPEN/output/derivatives/draftkings/` — non-canonical subfolder with DK outputs; doesn't follow canonical output/ structure.
+- Open Championship `engine/` — canonical v3 scripts (`score_open_2026_v3.py`, `build_board_v3.py`) are active. Legacy v1/v2 versions and `build_dry_run_pack.py` were deleted in July 2026 cleanup.
+- Finished event folder names under `events/2026_Finished_Events/` use mixed case (e.g., `2026_GenesisScottishOpen`) instead of canonical lowercase snake_case. Deferred: renaming requires auditing all downstream path references.
 
 ## Anti-Patterns to Avoid
 - Do not hardcode weights anywhere — keep in engine's config section
