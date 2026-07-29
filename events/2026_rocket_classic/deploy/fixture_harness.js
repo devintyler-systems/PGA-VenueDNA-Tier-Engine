@@ -17,6 +17,7 @@
     activeFilters:  {       // filter state — never mutated by drawer open/close
       tier:         "All",
       badges:       [],     // array of active badge_ids
+      traitRanges:  {},     // { trait_id: [min, max] } — only present when user drags
     },
     openPlayerId:   null,   // currently open drawer player_id
     auditCompanion: null,   // loaded from data/2026_rocket_classic_tripod_audit.json
@@ -88,6 +89,7 @@
     }
 
     renderBadgeFilters();
+    renderTraitSliders();
     renderRoster();
     // Load tripod audit companion — graceful fallback if absent or malformed
     try {
@@ -372,6 +374,55 @@
     });
   }
 
+  function renderTraitSliders() {
+    const container = document.getElementById("trait-slider-list");
+    if (!container) return;
+    if (S.fixtures.length === 0) { container.innerHTML = ""; return; }
+
+    // Collect all trait_ids seen across loaded fixtures (preserving first-seen label order)
+    const seen = new Map();
+    S.fixtures.forEach((f) => {
+      (f.input.traits || []).forEach((t) => {
+        if (!seen.has(t.trait_id)) seen.set(t.trait_id, t.label);
+      });
+    });
+
+    if (seen.size === 0) { container.innerHTML = ""; return; }
+
+    container.innerHTML = [...seen.entries()].map(([tid, label]) => `
+      <div class="trait-slider-item" data-trait-id="${esc(tid)}">
+        <div class="trait-slider-label">
+          <span>${esc(label)}</span>
+          <span class="trait-slider-range-label" id="ts-label-${esc(tid)}">0 – 100</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input type="range" class="trait-slider" id="ts-lo-${esc(tid)}"
+            data-trait-id="${esc(tid)}" data-end="lo"
+            min="0" max="100" value="0" step="1" />
+          <input type="range" class="trait-slider" id="ts-hi-${esc(tid)}"
+            data-trait-id="${esc(tid)}" data-end="hi"
+            min="0" max="100" value="100" step="1" />
+        </div>
+      </div>
+    `).join("");
+
+    container.querySelectorAll("input.trait-slider").forEach((slider) => {
+      slider.addEventListener("input", () => {
+        const tid = slider.dataset.traitId;
+        const lo = parseInt(document.getElementById(`ts-lo-${tid}`).value, 10);
+        const hi = parseInt(document.getElementById(`ts-hi-${tid}`).value, 10);
+        const rangeLabel = document.getElementById(`ts-label-${tid}`);
+        if (rangeLabel) rangeLabel.textContent = `${lo} – ${hi}`;
+        if (lo === 0 && hi === 100) {
+          delete S.activeFilters.traitRanges[tid];
+        } else {
+          S.activeFilters.traitRanges[tid] = [lo, hi];
+        }
+        updateFilterCount();
+      });
+    });
+  }
+
   function updateFilterCount() {
     const visible = filteredFixtures().length;
     const el = document.getElementById("filter-count");
@@ -389,6 +440,17 @@
         const playerBadgeIds = (inp.badges || []).map((b) => b.badge_id);
         const hasAll = S.activeFilters.badges.every((bid) => playerBadgeIds.includes(bid));
         if (!hasAll) return false;
+      }
+
+      const ranges = S.activeFilters.traitRanges;
+      if (Object.keys(ranges).length > 0) {
+        const traitMap = {};
+        (inp.traits || []).forEach((t) => { traitMap[t.trait_id] = t.score; });
+        for (const [tid, [lo, hi]] of Object.entries(ranges)) {
+          const score = traitMap[tid];
+          if (score == null) return false;
+          if (score < lo || score > hi) return false;
+        }
       }
 
       return true;

@@ -132,10 +132,60 @@ Generated: 2026-07-29T15:37:39.603787+00:00
 - **Todd, Brendon** (T5, rank 142) — `VenueDNA_flag_corridor_risk` → **rejected**. Renovated corridors measure ~26 effective yards wide at 300 yards with 103 bunkers in play. Bottom-quartile driving control compounds penalty strokes here more than at a typical Tour stop.
 - **Todd, Brendon** (T5, rank 142) — `VenueDNA_flag_debut_uncertainty` → **watchlist**. Debut/reduced-evidence disclosure — not a hard structural anti-pattern.
 
-## 3D — DG vs. VenueDNA Disagreement Review (>15 ranks)
+## 3D — External Benchmark vs. VenueDNA Disagreement Review (>15 ranks)
 
-- **STATUS: BLOCKED** — No DataGolf consensus/predicted-finish rank field present in provided inputs. datagolf.csv contains only current-season skill-category SG adjustments, not a comparable rank or win-probability figure. A naive proxy (ranking by Total SG Adjustment) produced 86% disagreement with VenueDNA_rank, which is evidence the proxy is invalid, not that 122 players are real model disagreements.
-- Action needed: Supply an actual DG_rank_implied or DG win/top-finish probability field per player to run 3D properly.
+**Benchmark:** CH Model Win Predictions (`rocket_classic_preds_ch_model.csv`, 147 rows, 129 finite-win entries)
+**Rank method:** ascending win odds (lower positive American odds = higher implied win probability = better rank); ties: ascending top_10 odds, then ascending normalized name
+**Threshold:** |rank_delta| > 15
+
+### Match Summary
+| Category | Count |
+|---|---|
+| Comparison universe (both finite-win) | 128 |
+| Flagged >15 ranks | 49 (38.3%) |
+| VenueDNA-higher calls | 27 |
+| Benchmark-higher calls | 22 |
+| Excluded — scored VD players with Inf benchmark win | 14 |
+| Excluded — unscored stubs | 5 (Azallion, Celano, Huskey, Quiban, Silverman) |
+| Benchmark finite not in scored VD | 1 (Silverman, Ben — unscored stub) |
+
+### T1/T2 Assessment
+**No T1 or T2 player has a >15 rank disagreement.** All five T1 assignments and all T2 players are within 15 ranks of the CH model benchmark. T1/T2 rulings from section 3B are unaffected.
+
+### Largest VenueDNA-Higher Calls (top 10)
+| Player | Tier | VTS Rank | BM Rank | Delta | Structural basis |
+|---|---|---|---|---|---|
+| Hall, Harry | T3 | 22 | 75 | −53 | Strong Corridor Control (+0.52); Strong Approach Play (+0.80) |
+| McCarty, Matt | T3 | 23 | 63 | −40 | Strong Approach Play (+0.77); Strong Venue Fit (+0.23) |
+| Pendrith, Taylor | T4 | 35 | 71 | −36 | Strong Approach Play (+0.59) |
+| Hoge, Tom | T5 | 59 | 94 | −35 | Approach-Weighted Venue Fit (+0.43) |
+| Echavarria, Nico | T4 | 34 | 68 | −34 | Strong Approach Play (+0.64) |
+| Castillo, Ricky | T4 | 26 | 58 | −32 | Strong Approach Play (+0.54); Strong Corridor Control (+0.44) |
+| Horschel, Billy | T5 | 43 | 74 | −31 | Strong Approach Play (+0.53) |
+| Keefer, Johnny | T3 | 20 | 49 | −29 | Strong Approach Play (+0.72) |
+| Ewart, A.J. | T5 | 57 | 86 | −29 | Corridor Control flag active |
+| Kuchar, Matt | T5 | 93 | 122 | −29 | Course History Adjustment (+0.14) |
+
+VenueDNA-higher calls are driven by approach-weighted venue scoring and corridor-control assessments specific to Detroit Golf Club's 2026 renovation. The CH model uses tour-wide metrics without venue-specific approach weighting; the gap is structural and expected.
+
+### Largest Benchmark-Higher Calls (top 10)
+| Player | Tier | VTS Rank | BM Rank | Delta | Structural basis |
+|---|---|---|---|---|---|
+| Dou, Zecheng | T5 | 106 | 43 | +63 | Weak Approach Play (−0.31) |
+| Roy, Kevin | T5 | 111 | 61 | +50 | Approach Deficit flag active |
+| Brennan, Michael | T5 | 67 | 22 | +45 | Approach Deficit flag active |
+| Hossler, Beau | T5 | 92 | 48 | +44 | Corridor Risk flag active |
+| Kohles, Ben | T5 | 75 | 40 | +35 | Corridor Risk flag active |
+| Hughes, Mackenzie | T5 | 90 | 56 | +34 | Approach Deficit flag active |
+| Davis, Cam | T5 | 134 | 100 | +34 | Approach Deficit flag active; Corridor Risk flag active |
+| Smith, Jordan | T5 | 55 | 24 | +31 | Corridor Risk flag active |
+| Fisk, Steven | T5 | 84 | 53 | +31 | Corridor Risk flag active |
+| Meissner, Mac | T5 | 58 | 29 | +29 | Approach Deficit flag active |
+
+Benchmark-higher calls typically involve players whose general skill level (captured by the CH model) is higher than their venue-specific fit at Detroit — players VenueDNA flags for approach deficit or corridor risk that the tour-wide model does not penalize.
+
+### Ruling
+All disagreements are **review signals only**. Benchmark disagreement does not alter VenueDNA scoring, tiers, badges, or probabilities. No ranking changes made. Full comparison data in `2026_rocket_classic_benchmark_disagreement.json`.
 
 ## Data Integrity Note
 

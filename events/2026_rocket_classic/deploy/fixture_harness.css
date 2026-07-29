@@ -786,3 +786,55 @@ body {
   color: #e8c060;
   margin-top: 6px;
 }
+
+/* ── Trait sliders ──────────────────────────────────────────────────────── */
+.trait-slider-item {
+  margin-bottom: 14px;
+}
+
+.trait-slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.trait-slider-range-label {
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: right;
+}
+
+input.trait-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--color-border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  display: block;
+  margin: 3px 0;
+}
+
+input.trait-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-accent, #6366f1);
+  cursor: pointer;
+}
+
+input.trait-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-accent, #6366f1);
+  cursor: pointer;
+}
