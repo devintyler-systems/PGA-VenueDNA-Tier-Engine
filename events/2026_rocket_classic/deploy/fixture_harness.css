@@ -59,6 +59,7 @@ body {
 
   .filter-popover   { display: none !important; }
   .filter-rail      { display: none !important; }
+  .filter-overlay   { display: none !important; }
 }
 
 /* 900–1279px: filter rail + popover */
@@ -75,6 +76,7 @@ body {
   .harness-header   { grid-area: header; }
   .roster-panel     { grid-area: roster; overflow-y: auto; }
   .filter-rail      { grid-area: rail; }
+  .filter-overlay   { display: none !important; }
 
   .player-drawer {
     position: fixed;
@@ -99,6 +101,7 @@ body {
 
   .filter-sidebar   { display: none !important; }
   .filter-rail      { display: none !important; }
+  .filter-popover   { display: none !important; }
   .harness-header   { grid-area: header; }
   .roster-panel     { grid-area: roster; overflow-y: auto; }
 
