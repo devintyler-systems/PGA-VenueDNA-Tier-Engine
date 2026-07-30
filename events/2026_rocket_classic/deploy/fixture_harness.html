@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VenueDNA — Fixture Harness (Rocket Classic)</title>
+  <title>VenueDNA — Rocket Classic 2026 | Detroit Golf Club</title>
   <link rel="stylesheet" href="fixture_harness.css" />
 </head>
 <body>
@@ -34,11 +34,10 @@
       </div>
     </div>
 
-    <div class="filter-section" id="trait-slider-section">
-      <div class="filter-section-label">Trait Filters</div>
-      <div id="trait-slider-list">
-        <!-- Populated by fixture_harness.js renderTraitSliders() -->
-      </div>
+    <div class="filter-section">
+      <div class="filter-section-label">Advanced Filters</div>
+      <p class="filter-advanced-note">Filter by player strengths. Only traits with complete field data are shown.</p>
+      <div id="trait-slider-list"></div>
     </div>
 
     <div class="filter-section">
@@ -48,7 +47,7 @@
 
   <!-- ── Filter rail (900–1279px) ───────────────────────────────────────── -->
   <div class="filter-rail" id="filter-rail" aria-label="Filter controls">
-    <button class="filter-rail-btn" id="filter-rail-btn" title="Open filters" aria-expanded="false">⊞</button>
+    <button class="filter-rail-btn" id="filter-rail-btn" title="Open filters" aria-expanded="false">⊞<span class="rail-active-count" id="rail-active-count" aria-hidden="true"></span></button>
   </div>
 
   <!-- ── Filter popover (900–1279px) ───────────────────────────────────── -->
@@ -69,6 +68,10 @@
     <div class="filter-section" style="margin-top:16px;">
       <div class="filter-section-label">Badges</div>
       <div class="badge-filters" id="badge-filter-list-popover"></div>
+    </div>
+    <div class="filter-section" style="margin-top:16px;">
+      <div class="filter-section-label">Advanced Filters</div>
+      <div id="trait-slider-list-popover"></div>
     </div>
     <div class="filter-section" style="margin-top:16px;">
       <button class="reset-filters-btn" data-reset-filters="true" type="button">Reset Filters</button>
@@ -95,6 +98,10 @@
         <div class="badge-filters" id="badge-filter-list-overlay"></div>
       </div>
       <div class="filter-section" style="margin-top:16px;">
+        <div class="filter-section-label">Advanced Filters</div>
+        <div id="trait-slider-list-overlay"></div>
+      </div>
+      <div class="filter-section" style="margin-top:16px;">
         <button class="reset-filters-btn" data-reset-filters="true" type="button">Reset Filters</button>
       </div>
     </div>
@@ -105,8 +112,6 @@
     <h1>VenueDNA</h1>
     <span class="venue-pill">Detroit Golf Club</span>
     <span class="venue-pill">Rocket Classic 2026</span>
-    <span class="harness-badge">Fixture Harness</span>
-
     <button class="glossary-btn" data-glossary-open="true" type="button" aria-haspopup="dialog">
       Glossary
     </button>
@@ -118,7 +123,18 @@
 
   <!-- ── Roster panel ───────────────────────────────────────────────────── -->
   <main class="roster-panel" id="roster-panel">
-    <h2>Field — Scored Players</h2>
+    <h2>2026 Rocket Classic — Full Field</h2>
+
+    <div class="search-wrap">
+      <input
+        type="search"
+        id="player-search"
+        class="player-search-input"
+        placeholder="Search player…"
+        aria-label="Search players by name"
+        autocomplete="off"
+      />
+    </div>
 
     <table class="roster-table" id="roster-table" aria-label="Player roster">
       <thead>
@@ -136,10 +152,6 @@
       </tbody>
     </table>
 
-    <p style="margin-top:32px; font-size:12px; color:var(--color-text-muted);">
-      This is a development fixture harness. Click any row to open the player drawer.
-      Showing 142 scored players from the real event payload.
-    </p>
   </main>
 
   <!-- ── Player drawer ──────────────────────────────────────────────────── -->

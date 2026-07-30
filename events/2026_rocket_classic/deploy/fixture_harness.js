@@ -123,6 +123,11 @@
     "Closing Holes":    "closing_holes",
   };
 
+  const FILTER_ELIGIBLE_TRAITS = new Set([
+    "driving_distance",
+    "driving_accuracy",
+  ]);
+
   // Maps trait label → trait_availability key in per-player payload
   const TRAIT_AVAIL_KEY_MAP = {
     "SG: Approach":     "trait_approach_raw",
@@ -436,50 +441,85 @@
   }
 
   function renderTraitSliders() {
-    const container = document.getElementById("trait-slider-list");
-    if (!container) return;
-    if (S.fixtures.length === 0) { container.innerHTML = ""; return; }
+    const CONTAINER_IDS = [
+      "trait-slider-list",
+      "trait-slider-list-popover",
+      "trait-slider-list-overlay",
+    ];
+
+    if (S.fixtures.length === 0) {
+      CONTAINER_IDS.forEach((cid) => {
+        const el = document.getElementById(cid);
+        if (el) el.innerHTML = "";
+      });
+      return;
+    }
 
     const seen = new Map();
     S.fixtures.forEach((f) => {
       (f.input.traits || []).forEach((t) => {
-        if (!seen.has(t.trait_id)) seen.set(t.trait_id, t.label);
+        if (FILTER_ELIGIBLE_TRAITS.has(t.trait_id) && !seen.has(t.trait_id)) {
+          seen.set(t.trait_id, t.label);
+        }
       });
     });
 
-    if (seen.size === 0) { container.innerHTML = ""; return; }
+    const buildSliderHtml = (tid, label) => {
+      const [lo, hi] = S.activeFilters.traitRanges[tid] || [0, 100];
+      return `
+        <div class="trait-slider-item" data-trait-id="${esc(tid)}">
+          <div class="trait-slider-label">
+            <span>${esc(label)}</span>
+            <span class="trait-slider-range-label" data-trait-range-label="${esc(tid)}">${lo} – ${hi}</span>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <input type="range" class="trait-slider"
+              data-trait-id="${esc(tid)}" data-end="lo"
+              min="0" max="100" value="${lo}" step="1" />
+            <input type="range" class="trait-slider"
+              data-trait-id="${esc(tid)}" data-end="hi"
+              min="0" max="100" value="${hi}" step="1" />
+          </div>
+        </div>`;
+    };
 
-    container.innerHTML = [...seen.entries()].map(([tid, label]) => `
-      <div class="trait-slider-item" data-trait-id="${esc(tid)}">
-        <div class="trait-slider-label">
-          <span>${esc(label)}</span>
-          <span class="trait-slider-range-label" id="ts-label-${esc(tid)}">0 – 100</span>
-        </div>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <input type="range" class="trait-slider" id="ts-lo-${esc(tid)}"
-            data-trait-id="${esc(tid)}" data-end="lo"
-            min="0" max="100" value="0" step="1" />
-          <input type="range" class="trait-slider" id="ts-hi-${esc(tid)}"
-            data-trait-id="${esc(tid)}" data-end="hi"
-            min="0" max="100" value="100" step="1" />
-        </div>
-      </div>
-    `).join("");
+    const slidersHtml = seen.size > 0
+      ? [...seen.entries()].map(([tid, label]) => buildSliderHtml(tid, label)).join("")
+      : "";
 
-    container.querySelectorAll("input.trait-slider").forEach((slider) => {
-      slider.addEventListener("input", () => {
-        const tid = slider.dataset.traitId;
-        const lo = parseInt(document.getElementById(`ts-lo-${tid}`).value, 10);
-        const hi = parseInt(document.getElementById(`ts-hi-${tid}`).value, 10);
-        const rangeLabel = document.getElementById(`ts-label-${tid}`);
-        if (rangeLabel) rangeLabel.textContent = `${lo} – ${hi}`;
-        if (lo === 0 && hi === 100) {
-          delete S.activeFilters.traitRanges[tid];
-        } else {
-          S.activeFilters.traitRanges[tid] = [lo, hi];
-        }
-        renderRoster();
+    CONTAINER_IDS.forEach((cid) => {
+      const el = document.getElementById(cid);
+      if (!el) return;
+      el.innerHTML = slidersHtml;
+      el.querySelectorAll("input.trait-slider").forEach((slider) => {
+        slider.addEventListener("input", onTraitSliderInput);
       });
+    });
+  }
+
+  function onTraitSliderInput() {
+    const tid = this.dataset.traitId;
+    const item = this.closest(".trait-slider-item");
+    const lo = parseInt(item.querySelector('[data-end="lo"]').value, 10);
+    const hi = parseInt(item.querySelector('[data-end="hi"]').value, 10);
+    if (lo === 0 && hi === 100) {
+      delete S.activeFilters.traitRanges[tid];
+    } else {
+      S.activeFilters.traitRanges[tid] = [lo, hi];
+    }
+    syncTraitSliderDisplay(tid, lo, hi);
+    renderRoster();
+  }
+
+  function syncTraitSliderDisplay(tid, lo, hi) {
+    document.querySelectorAll(`[data-trait-range-label="${CSS.escape(tid)}"]`).forEach((el) => {
+      el.textContent = `${lo} – ${hi}`;
+    });
+    document.querySelectorAll(`input.trait-slider[data-trait-id="${CSS.escape(tid)}"][data-end="lo"]`).forEach((sl) => {
+      if (parseInt(sl.value, 10) !== lo) sl.value = String(lo);
+    });
+    document.querySelectorAll(`input.trait-slider[data-trait-id="${CSS.escape(tid)}"][data-end="hi"]`).forEach((sl) => {
+      if (parseInt(sl.value, 10) !== hi) sl.value = String(hi);
     });
   }
 
@@ -491,6 +531,13 @@
     if (el) el.innerHTML = html;
     const elP = document.getElementById("filter-count-popover");
     if (elP) elP.innerHTML = html;
+
+    const activeCount =
+      (S.activeFilters.tier !== "All" ? 1 : 0) +
+      S.activeFilters.badges.length +
+      Object.keys(S.activeFilters.traitRanges).length;
+    const railBadge = document.getElementById("rail-active-count");
+    if (railBadge) railBadge.textContent = activeCount > 0 ? String(activeCount) : "";
   }
 
   function filteredFixtures() {
@@ -605,8 +652,8 @@
 
     if (visible.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" class="roster-empty">
-        No players match the current filters.
-        <button class="roster-reset-link" type="button">Reset filters</button>
+        No players match these filters.
+        <button class="roster-reset-link" type="button">Reset Filters</button>
       </td></tr>`;
       const resetLink = tbody.querySelector(".roster-reset-link");
       if (resetLink) resetLink.addEventListener("click", resetFilters);
