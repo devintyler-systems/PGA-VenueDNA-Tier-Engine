@@ -22,6 +22,15 @@
     },
     openPlayerId:   null,
     auditCompanion: null,
+
+    // Live R2 diagnostic layer — read-only overlay, never mutates the fixtures above.
+    currentView:       "pre-event",   // "pre-event" | "live"
+    liveData:          null,          // parsed data/2026_rocket_classic_r2_live.json
+    liveAvailable:     false,
+    liveRendered:      false,
+    liveKeyToPlayerId: {},            // client-computed name key -> fixture player_id
+    playerIdToLiveKey: {},            // reverse of the above, for drawer injection lookups
+    survivorsByKey:    {},            // player_key -> cut_survivors record (built once live data loads)
   };
 
   // ── Bootstrap ────────────────────────────────────────────────────────────────
@@ -93,6 +102,18 @@
         S.auditCompanion = null;
       }
     }
+
+    try {
+      S.liveData = await loadJSON("data/2026_rocket_classic_r2_live.json");
+      S.liveAvailable = true;
+      indexLiveData();
+    } catch (e) {
+      console.warn("Live R2 data unavailable — Live: R2 Update view stays hidden.", e);
+      S.liveAvailable = false;
+    }
+
+    const liveToggleBtn = document.getElementById("view-toggle-live");
+    if (liveToggleBtn) liveToggleBtn.hidden = !S.liveAvailable;
 
     bindGlobalEvents();
   }
@@ -737,6 +758,7 @@
     if (activeRow) activeRow.classList.add("active");
 
     renderDrawer(fixture.input, fixture.narrative);
+    injectLiveSummaryIntoDrawer(playerId);
 
     const drawer = document.getElementById("player-drawer");
     drawer.classList.add("open");
@@ -944,6 +966,356 @@
     if (dialog) dialog.close();
   }
 
+  // ── Live R2 diagnostic layer ─────────────────────────────────────────────────
+  //
+  // Read-only overlay consuming data/2026_rocket_classic_r2_live.json. All tags,
+  // buckets, and mechanism leaders are pre-computed by build_live_r2.py — nothing
+  // here re-derives model logic, it only formats and renders what the builder emitted.
+  // Never mutates S.fixtures / the pre-event payload.
+
+  const NAME_TOKEN_RE = /[A-Za-z]+/g;
+  const SUFFIX_TOKENS = new Set(["jr", "sr", "ii", "iii", "iv", "v"]);
+
+  const TAG_LABELS = {
+    structurally_live:    "Structurally Live",
+    surviving_short_game: "Surviving on Short Game",
+    fragile_survivor:     "Fragile Survivor",
+    model_vindication:    "Model Vindication",
+    model_miss_watch:     "Model Miss Watch",
+  };
+  const TAG_CHIP_CLASS = {
+    structurally_live:    "chip-live",
+    surviving_short_game: "chip-neutral",
+    fragile_survivor:     "chip-danger",
+    model_vindication:    "chip-success",
+    model_miss_watch:     "chip-warning",
+  };
+  const BUCKET_LABELS = { promotion_watch: "Promotion Watch", hold: "Hold", downgrade_watch: "Downgrade Watch" };
+  const BUCKET_CHIP_CLASS = { promotion_watch: "chip-success", hold: "chip-neutral", downgrade_watch: "chip-danger" };
+
+  // Mirrors build_live_r2.py's normalize_name(): sorted alpha-token key, order-
+  // and format-invariant across "Last, First" / "First Last" sources.
+  function clientNameKey(raw) {
+    const tokens = (String(raw || "").match(NAME_TOKEN_RE) || [])
+      .map((t) => t.toLowerCase())
+      .filter((t) => !SUFFIX_TOKENS.has(t));
+    tokens.sort();
+    return tokens.join("|");
+  }
+
+  function fmtScore(n) {
+    if (n == null) return "—";
+    const v = Math.round(n);
+    if (v === 0) return "E";
+    return v > 0 ? `+${v}` : String(v);
+  }
+
+  function fmtSigned(n) {
+    if (n == null) return "—";
+    const v = Number(n);
+    return `${v >= 0 ? "+" : ""}${v.toFixed(2)}`;
+  }
+
+  function renderTagChips(tags) {
+    return (tags || [])
+      .map((t) => `<span class="live-chip ${TAG_CHIP_CLASS[t] || "chip-neutral"}">${esc(TAG_LABELS[t] || t)}</span>`)
+      .join("");
+  }
+
+  function indexLiveData() {
+    S.liveKeyToPlayerId = {};
+    S.playerIdToLiveKey = {};
+    S.fixtures.forEach((f) => {
+      const key = clientNameKey(f.input.player.display_name);
+      S.liveKeyToPlayerId[key] = f.input.player.player_id;
+      S.playerIdToLiveKey[f.input.player.player_id] = key;
+    });
+    S.survivorsByKey = {};
+    (S.liveData.cut_survivors || []).forEach((r) => { S.survivorsByKey[r.player_key] = r; });
+  }
+
+  function setView(view) {
+    if (view === "live" && !S.liveAvailable) return;
+    S.currentView = view;
+
+    const layout = document.querySelector(".harness-layout");
+    if (layout) layout.classList.toggle("view-live", view === "live");
+
+    const preBtn  = document.getElementById("view-toggle-preevent");
+    const liveBtn = document.getElementById("view-toggle-live");
+    if (preBtn) {
+      preBtn.classList.toggle("active", view === "pre-event");
+      preBtn.setAttribute("aria-selected", String(view === "pre-event"));
+    }
+    if (liveBtn) {
+      liveBtn.classList.toggle("active", view === "live");
+      liveBtn.setAttribute("aria-selected", String(view === "live"));
+    }
+
+    if (S.openPlayerId) closeDrawer();
+    const filterPopover = document.getElementById("filter-popover");
+    const filterOverlay = document.getElementById("filter-overlay");
+    if (filterPopover) filterPopover.classList.remove("open");
+    if (filterOverlay) filterOverlay.classList.remove("open");
+
+    const livePanel = document.getElementById("live-panel");
+    if (livePanel) livePanel.hidden = view !== "live";
+
+    if (view === "live" && !S.liveRendered) renderLivePanel();
+  }
+
+  function bindViewToggle() {
+    document.querySelectorAll(".view-toggle-btn").forEach((btn) => {
+      btn.addEventListener("click", () => setView(btn.dataset.view));
+    });
+  }
+
+  function openLiveDrawer(playerKey) {
+    const playerId = S.liveKeyToPlayerId[playerKey];
+    if (!playerId) return; // no matching pre-event fixture for this player — nothing to open
+    openDrawer(playerId);
+  }
+
+  function injectLiveSummaryIntoDrawer(playerId) {
+    if (!S.liveAvailable) return;
+    const drawerInner = document.getElementById("drawer-inner");
+    if (!drawerInner) return;
+
+    const key = S.playerIdToLiveKey[playerId];
+    const rec = key ? S.survivorsByKey[key] : null;
+    if (!rec) return;
+
+    const closeRow = drawerInner.querySelector(".drawer-close");
+    if (!closeRow) return;
+
+    const tags = S.liveData.venue_mechanism_tags[key] || [];
+    const block = document.createElement("div");
+    block.className = "live-drawer-block";
+    block.innerHTML = `
+      <div class="live-drawer-block-title">Live R2 Snapshot — diagnostic, not an official rerank</div>
+      <div>LB Pos <strong>${esc(rec.lb_pos_display)}</strong> · Total ${fmtScore(rec.total)} (R1 ${rec.r1 ?? "—"} / R2 ${rec.r2 ?? "—"})</div>
+      ${rec.r3_teetime ? `<div>R3 tee: ${esc(rec.r3_teetime)} (${esc(rec.r3_wave || "—")})</div>` : ""}
+      <div style="margin-top:6px;">${tags.length ? renderTagChips(tags) : '<span class="live-chip chip-neutral">unclassified</span>'}</div>
+    `;
+    closeRow.insertAdjacentElement("afterend", block);
+  }
+
+  function renderLiveSummary() {
+    const ls = S.liveData.live_state;
+    const genDate = ls.generated_at ? new Date(ls.generated_at) : null;
+    const genLabel = genDate && !isNaN(genDate) ? genDate.toLocaleString() : (ls.generated_at || "—");
+
+    return `
+      <div class="live-audit-banner">
+        <strong>Diagnostic overlay — not an official rerank.</strong>
+        The pre-tournament VenueDNA model remains the canonical baseline; this view is observational and forward-looking only.
+        Generated ${esc(genLabel)} · iteration <code>${esc(ls.event_iteration)}</code>.
+      </div>
+      <div class="live-section">
+        <div class="live-section-title">Live State — Through Round ${esc(ls.through_round)}</div>
+        <div class="live-stat-row">
+          <div class="live-stat-tile"><div class="live-stat-label">Cut Line</div><div class="live-stat-value">${esc(ls.cut_line_display)}</div></div>
+          <div class="live-stat-tile"><div class="live-stat-label">Made Cut</div><div class="live-stat-value">${esc(ls.players_through)}</div></div>
+          <div class="live-stat-tile"><div class="live-stat-label">Missed Cut</div><div class="live-stat-value">${esc(ls.players_cut)}</div></div>
+          <div class="live-stat-tile"><div class="live-stat-label">Withdrew</div><div class="live-stat-value">${esc(ls.players_wd)}</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCutSurvivorsSection() {
+    const rows = [...(S.liveData.cut_survivors || [])].sort(
+      (a, b) => (a.lb_pos_numeric ?? 999) - (b.lb_pos_numeric ?? 999)
+    );
+
+    const body = rows.map((r) => {
+      const tags = S.liveData.venue_mechanism_tags[r.player_key] || [];
+      const matched = !!S.liveKeyToPlayerId[r.player_key];
+      const deltaLabel = r.rank_delta == null ? "—" : (r.rank_delta > 0 ? `+${r.rank_delta}` : String(r.rank_delta));
+      return `<tr data-player-key="${esc(r.player_key)}" data-matched="${matched}" tabindex="0" role="button" aria-label="View ${esc(r.player_name)}">
+        <td>${esc(r.lb_pos_display)}</td>
+        <td>${esc(r.player_name)}</td>
+        <td>${fmtScore(r.total)}</td>
+        <td>${r.r1 ?? "—"}</td>
+        <td>${r.r2 ?? "—"}</td>
+        <td>${r.model_rank ?? "—"}</td>
+        <td>${r.model_tier ? `<span class="tier-pill tier-${esc(r.model_tier)}">${esc(r.model_tier)}</span>` : "—"}</td>
+        <td>${deltaLabel}</td>
+        <td>${r.r3_teetime ? esc(r.r3_teetime) : "—"}</td>
+        <td>${r.r3_wave ? esc(r.r3_wave) : "—"}</td>
+        <td>${tags.length ? renderTagChips(tags) : '<span class="live-chip chip-neutral">unclassified</span>'}</td>
+      </tr>`;
+    }).join("");
+
+    return `
+      <div class="live-section">
+        <div class="live-section-title">Weekend Field <span class="live-section-sub">${rows.length} survivors — LB Pos is leaderboard standing, not VenueDNA rank</span></div>
+        <div class="live-table-wrap">
+          <table class="live-table">
+            <thead><tr>
+              <th>LB Pos</th><th>Player</th><th>Total</th><th>R1</th><th>R2</th>
+              <th>Model Rank</th><th>Tier</th><th>Δ vs Model</th><th>R3 Tee</th><th>Wave</th><th>Diagnostic</th>
+            </tr></thead>
+            <tbody>${body || '<tr><td colspan="11" class="live-empty-state">No survivor data.</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDiagnosticBucketsSection() {
+    const buckets = S.liveData.diagnostic_buckets || {};
+    const order = ["promotion_watch", "hold", "downgrade_watch"];
+
+    const cards = order.map((b) => {
+      const keys = buckets[b] || [];
+      const rowsHtml = keys.map((k) => {
+        const rec = S.survivorsByKey[k];
+        if (!rec) return "";
+        const tags = S.liveData.venue_mechanism_tags[k] || [];
+        const primaryTag = tags[0];
+        return `<div class="live-bucket-row" data-player-key="${esc(k)}" tabindex="0" role="button" aria-label="View ${esc(rec.player_name)}">
+          <span>${esc(rec.lb_pos_display)} ${esc(rec.player_name)}</span>
+          ${primaryTag ? `<span class="live-chip ${TAG_CHIP_CLASS[primaryTag] || "chip-neutral"}">${esc(TAG_LABELS[primaryTag] || primaryTag)}</span>` : ""}
+        </div>`;
+      }).join("") || `<div class="live-bucket-empty">None</div>`;
+
+      return `<div class="live-bucket-card bucket-${b}">
+        <div class="live-bucket-header"><span>${BUCKET_LABELS[b]}</span><span class="live-bucket-count">${keys.length}</span></div>
+        ${rowsHtml}
+      </div>`;
+    }).join("");
+
+    return `
+      <div class="live-section">
+        <div class="live-section-title">Diagnostic Buckets <span class="live-section-sub">live lens — not an official rerank</span></div>
+        <div class="live-bucket-grid">${cards}</div>
+      </div>
+    `;
+  }
+
+  function renderMechanismLeadersSection() {
+    const ml = S.liveData.mechanism_leaders || {};
+    const metrics = [
+      ["sg_total", "SG Total"], ["sg_ott", "SG OTT"], ["sg_app", "SG APP"],
+      ["sg_arg", "SG ARG"], ["sg_putt", "SG PUTT"],
+    ];
+
+    const cards = metrics.map(([key, label]) => {
+      const rows = (ml[key] || []).map((r) => `
+        <div class="live-mech-row" data-player-key="${esc(r.player_key)}" tabindex="0" role="button" aria-label="View ${esc(r.player_name)}">
+          <span>${esc(r.lb_pos_display)} ${esc(r.player_name)}</span>
+          <span class="live-mech-value">${fmtSigned(r.value)}</span>
+        </div>`).join("") || `<div class="live-bucket-empty">No data</div>`;
+      return `<div class="live-mech-card"><div class="live-mech-title">${esc(label)}</div>${rows}</div>`;
+    }).join("");
+
+    return `
+      <div class="live-section">
+        <div class="live-section-title">Mechanism Leaders <span class="live-section-sub">two-round SG, cut survivors only</span></div>
+        <div class="live-mech-grid">${cards}</div>
+      </div>
+    `;
+  }
+
+  function renderCourseObservationsSection() {
+    const co = S.liveData.course_observations || {};
+    const holesByNum = {};
+    (co.holes || []).forEach((h) => { holesByNum[h.hole] = h; });
+
+    const group = (label, nums, extra) => {
+      const chips = (nums || []).map((n) => {
+        const h = holesByNum[n];
+        const detail = h ? `Par ${h.par} · ${extra(h)}` : "";
+        return `<span class="live-hole-chip">Hole ${esc(n)}${detail ? ` — ${esc(detail)}` : ""}</span>`;
+      }).join("");
+      return `<div class="live-course-card"><div class="live-course-title">${esc(label)}</div>${chips || '<span class="live-empty-state">—</span>'}</div>`;
+    };
+
+    return `
+      <div class="live-section">
+        <div class="live-section-title">Course Through 2 Rounds — Detroit Golf Club</div>
+        <div class="live-course-grid">
+          ${group("Easiest Holes", co.easiest_holes, (h) => `${h.plus_minus > 0 ? "+" : ""}${h.plus_minus}`)}
+          ${group("Hardest Holes", co.hardest_holes, (h) => `${h.plus_minus > 0 ? "+" : ""}${h.plus_minus}`)}
+          ${group("Birdie-Heavy", co.birdie_heavy, (h) => `${h.birdies} birdies`)}
+          ${group("Danger Holes", co.danger_holes, (h) => `${h.dbl_plus} dbl+`)}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderWeatherSection() {
+    const w = S.liveData.round3_weather || {};
+    let body;
+
+    if (w.parse_status === "parsed") {
+      const riskClass = w.risk_label === "low" ? "chip-success" : w.risk_label === "moderate" ? "chip-warning" : "chip-danger";
+      body = `
+        <div class="live-weather-stats">
+          <div class="live-stat-tile"><div class="live-stat-label">Temp Range</div><div class="live-stat-value">${w.temp_range_f[0]}–${w.temp_range_f[1]}°F</div></div>
+          <div class="live-stat-tile"><div class="live-stat-label">Wind Range</div><div class="live-stat-value">${w.wind_range_mph[0]}–${w.wind_range_mph[1]} mph</div></div>
+          <div class="live-stat-tile"><div class="live-stat-label">Max Precip</div><div class="live-stat-value">${w.max_precip_pct}%</div></div>
+          <div class="live-stat-tile"><div class="live-stat-label">Risk</div><div class="live-stat-value"><span class="live-chip ${riskClass}">${esc(w.risk_label)}</span></div></div>
+        </div>
+        <div class="live-weather-note">
+          ${w.tee_time_window_summary ? `Tee window: ${esc(w.tee_time_window_summary)}<br>` : ""}
+          Early (6–10 AM): ${esc(w.early_window_summary || "—")}<br>
+          Late (11 AM–5 PM): ${esc(w.late_window_summary || "—")}
+        </div>`;
+    } else {
+      body = `
+        <div class="live-weather-note">Hourly forecast could not be reliably parsed — showing source text as-is.</div>
+        <div class="live-weather-raw">${esc(w.raw_text || "No weather data available.")}</div>`;
+    }
+
+    return `
+      <div class="live-section">
+        <div class="live-section-title">R3 Weather — Detroit Golf Club</div>
+        <div class="live-weather-card">${body}</div>
+      </div>
+    `;
+  }
+
+  function renderMatchIssuesSection() {
+    const issues = S.liveData.match_issues || [];
+    const rows = issues.slice(0, 20).map((i) => `
+      <div class="live-issue-row">
+        <strong>${esc(i.source_file)}</strong> — ${esc(i.raw_name)} <span class="live-section-sub">(${esc(i.reason)})</span>
+      </div>`).join("") || `<div class="live-issue-row">No unresolved match issues.</div>`;
+
+    return `
+      <div class="live-section">
+        <div class="live-section-title">Data Notes <span class="live-section-sub">${issues.length} match issue(s) logged</span></div>
+        <div class="live-issues-list">${rows}</div>
+      </div>
+    `;
+  }
+
+  function renderLivePanel() {
+    const panel = document.getElementById("live-panel");
+    if (!panel || !S.liveData) return;
+
+    panel.innerHTML = [
+      renderLiveSummary(),
+      renderCutSurvivorsSection(),
+      renderDiagnosticBucketsSection(),
+      renderMechanismLeadersSection(),
+      renderCourseObservationsSection(),
+      renderWeatherSection(),
+      renderMatchIssuesSection(),
+    ].join("");
+
+    panel.querySelectorAll("[data-player-key]").forEach((el) => {
+      el.addEventListener("click", () => openLiveDrawer(el.dataset.playerKey));
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLiveDrawer(el.dataset.playerKey); }
+      });
+    });
+
+    S.liveRendered = true;
+  }
+
   // ── Global events ─────────────────────────────────────────────────────────────
 
   function bindGlobalEvents() {
@@ -1007,6 +1379,7 @@
     });
 
     bindTierChips();
+    bindViewToggle();
 
     const searchInput = document.getElementById("player-search");
     if (searchInput) {
@@ -1042,6 +1415,9 @@
     getOpenPlayerId:   () => S.openPlayerId,
     getFixtureCount:   () => S.fixtures.length,
     getFilteredCount:  () => filteredFixtures().length,
+    setView,
+    getCurrentView:    () => S.currentView,
+    isLiveAvailable:   () => S.liveAvailable,
   };
 
   if (document.readyState === "loading") {

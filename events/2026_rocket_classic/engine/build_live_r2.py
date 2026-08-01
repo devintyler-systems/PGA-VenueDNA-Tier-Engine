@@ -490,10 +490,12 @@ def assign_bucket(entry: dict, tags: list[str], model: dict) -> str | None:
 
     is_downgrade = "model_miss_watch" in tags or "fragile_survivor" in tags
     is_promotion = (
-        model_tier not in MODEL_TIER_WATCH
-        and ("structurally_live" in tags or "model_vindication" in tags)
-        and lb_pos is not None
+        lb_pos is not None
         and lb_pos <= 30
+        and (
+            ("structurally_live" in tags and model_tier not in MODEL_TIER_WATCH)
+            or "model_vindication" in tags
+        )
     )
 
     if is_downgrade:

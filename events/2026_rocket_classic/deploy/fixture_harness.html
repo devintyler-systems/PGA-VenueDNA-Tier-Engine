@@ -116,6 +116,11 @@
       Glossary
     </button>
 
+    <div class="view-toggle" id="view-toggle" role="tablist" aria-label="App view">
+      <button class="view-toggle-btn active" id="view-toggle-preevent" type="button" role="tab" aria-selected="true" data-view="pre-event">Pre-Event Model</button>
+      <button class="view-toggle-btn" id="view-toggle-live" type="button" role="tab" aria-selected="false" data-view="live" hidden>Live: R2 Update</button>
+    </div>
+
     <button class="filter-toggle-btn" id="filter-toggle-btn" aria-label="Open filters">
       ⊞ Filters
     </button>
@@ -152,6 +157,11 @@
       </tbody>
     </table>
 
+  </main>
+
+  <!-- ── Live R2 diagnostic panel (hidden unless live data loads + view-live active) ── -->
+  <main class="live-panel" id="live-panel" hidden aria-label="Live R2 diagnostic view">
+    <!-- Populated by fixture_harness.js renderLivePanel() -->
   </main>
 
   <!-- ── Player drawer ──────────────────────────────────────────────────── -->

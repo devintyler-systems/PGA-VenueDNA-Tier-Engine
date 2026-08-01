@@ -1357,3 +1357,428 @@ details[open] .venue-traits-summary::before {
   height: 13px;
   cursor: pointer;
 }
+
+/* ── View toggle (Pre-Event Model / Live: R2 Update) ─────────────────────── */
+
+.view-toggle {
+  display: inline-flex;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.view-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.view-toggle-btn:hover { color: var(--color-text); }
+
+.view-toggle-btn.active {
+  background: var(--color-accent-dim);
+  color: #a5b4fc;
+}
+
+.view-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 560px) {
+  .harness-header h1,
+  .harness-header .venue-pill { display: none; }
+  .view-toggle { order: 1; }
+  .glossary-btn { order: 2; }
+  .filter-toggle-btn { order: 3; }
+}
+
+/* ── Live R2 panel — full-width layout override ───────────────────────────── */
+
+.harness-layout.view-live {
+  grid-template-columns: 1fr !important;
+  grid-template-areas: "header" "roster" !important;
+}
+
+.harness-layout.view-live .filter-sidebar,
+.harness-layout.view-live .filter-rail,
+.harness-layout.view-live .filter-popover,
+.harness-layout.view-live .filter-overlay,
+.harness-layout.view-live .roster-panel {
+  display: none !important;
+}
+
+.live-panel {
+  grid-area: roster;
+  overflow-y: auto;
+  padding: 20px 24px 60px;
+}
+
+@media (max-width: 640px) {
+  .live-panel { padding: 14px 12px 60px; }
+}
+
+/* Drawer stays usable (fixed overlay) when the live view has collapsed the grid.
+   Header needs a higher stacking order here or the fixed drawer (top:0) covers
+   the view toggle, since the "drawer" grid area no longer exists in this layout. */
+@media (min-width: 900px) {
+  .harness-layout.view-live .player-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: var(--drawer-width-mid);
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 220;
+  }
+  .harness-layout.view-live .harness-header {
+    z-index: 300;
+  }
+}
+
+/* ── Live panel content ───────────────────────────────────────────────────── */
+
+.live-audit-banner {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.live-audit-banner strong { color: var(--color-text); }
+
+.live-section {
+  margin-bottom: 28px;
+}
+
+.live-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-section-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* Stat tiles */
+
+.live-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.live-stat-tile {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.live-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.live-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tables */
+
+.live-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.live-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 720px;
+}
+
+.live-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+  padding: 8px 10px;
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+.live-table td {
+  padding: 7px 10px;
+  border-top: 1px solid var(--color-border);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.live-table tbody tr {
+  cursor: pointer;
+}
+
+.live-table tbody tr:hover {
+  background: var(--color-surface-2);
+}
+
+.live-table tbody tr:not([data-matched="true"]) {
+  cursor: default;
+}
+
+/* Chips */
+
+.live-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.live-chip + .live-chip { margin-left: 4px; }
+
+.chip-live      { background: var(--color-accent-dim); color: #a5b4fc; border-color: var(--color-accent); }
+.chip-success   { background: rgba(34,197,94,0.12);  color: var(--color-success); border-color: var(--color-success); }
+.chip-warning   { background: rgba(245,158,11,0.12); color: var(--color-warning); border-color: var(--color-warning); }
+.chip-danger    { background: rgba(239,68,68,0.12);  color: var(--color-danger);  border-color: var(--color-danger); }
+.chip-neutral   { background: var(--color-surface-2); color: var(--color-text-muted); border-color: var(--color-border); }
+
+/* Diagnostic buckets */
+
+.live-bucket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.live-bucket-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.live-bucket-card.bucket-promotion_watch { border-top: 3px solid var(--color-success); }
+.live-bucket-card.bucket-hold            { border-top: 3px solid var(--color-border); }
+.live-bucket-card.bucket-downgrade_watch { border-top: 3px solid var(--color-danger); }
+
+.live-bucket-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.live-bucket-count {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.live-bucket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.live-bucket-row:first-of-type { border-top: none; }
+.live-bucket-row:hover { color: #a5b4fc; }
+
+.live-bucket-empty {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 6px 0;
+}
+
+/* Mechanism leaders */
+
+.live-mech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.live-mech-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.live-mech-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.live-mech-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.live-mech-row:hover { color: #a5b4fc; }
+
+.live-mech-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* Course observations */
+
+.live-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.live-course-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.live-course-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.live-hole-chip {
+  display: inline-block;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  margin: 0 6px 6px 0;
+}
+
+/* Weather card */
+
+.live-weather-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.live-weather-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.live-weather-note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.live-weather-raw {
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Match issues panel */
+
+.live-issues-list {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.live-issue-row {
+  padding: 6px 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.live-issue-row:first-child { border-top: none; }
+
+.live-drawer-block {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.live-drawer-block-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a5b4fc;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.live-empty-state {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}

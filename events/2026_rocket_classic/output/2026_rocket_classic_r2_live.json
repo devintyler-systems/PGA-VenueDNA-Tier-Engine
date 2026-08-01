@@ -1,0 +1,6961 @@
+{
+  "event": {
+    "name": "Rocket Classic",
+    "course": "Detroit Golf Club",
+    "year": 2026
+  },
+  "live_state": {
+    "through_round": 2,
+    "cut_line_score": -3.0,
+    "cut_line_display": "-3",
+    "players_through": 73,
+    "players_cut": 73,
+    "players_wd": 1,
+    "generated_at": "2026-08-01T02:55:57.911151+00:00",
+    "event_iteration": "update_r2",
+    "source_files": [
+      "live_stats_r1_values.csv",
+      "live_stats_r2_values.csv",
+      "round1_round2_player_strokes_gained.csv",
+      "round2_leaderboard.csv",
+      "round2_course_stats.csv",
+      "pga_field_r3_teetimes.csv",
+      "detroit_golf_club_r3_weather_data_2026.json",
+      "2026_rocket_classic_event_payload.json"
+    ]
+  },
+  "leaderboard": [
+    {
+      "lb_pos_raw": "T1",
+      "lb_pos_display": "T1",
+      "lb_pos_numeric": 1,
+      "lb_is_tied": true,
+      "status_raw": "T1",
+      "status": "cut_survivor",
+      "player_name": "Cameron Young",
+      "player_key": "cameron|young",
+      "total": -10.0,
+      "r1": 69,
+      "r2": 61,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T1",
+      "lb_pos_display": "T1",
+      "lb_pos_numeric": 1,
+      "lb_is_tied": true,
+      "status_raw": "T1",
+      "status": "cut_survivor",
+      "player_name": "Patrick Cantlay",
+      "player_key": "cantlay|patrick",
+      "total": -10.0,
+      "r1": 64,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T1",
+      "lb_pos_display": "T1",
+      "lb_pos_numeric": 1,
+      "lb_is_tied": true,
+      "status_raw": "T1",
+      "status": "cut_survivor",
+      "player_name": "Patrick Fishburn",
+      "player_key": "fishburn|patrick",
+      "total": -10.0,
+      "r1": 64,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T4",
+      "lb_pos_display": "T4",
+      "lb_pos_numeric": 4,
+      "lb_is_tied": true,
+      "status_raw": "T4",
+      "status": "cut_survivor",
+      "player_name": "Matt Wallace",
+      "player_key": "matt|wallace",
+      "total": -9.0,
+      "r1": 67,
+      "r2": 64,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T4",
+      "lb_pos_display": "T4",
+      "lb_pos_numeric": 4,
+      "lb_is_tied": true,
+      "status_raw": "T4",
+      "status": "cut_survivor",
+      "player_name": "Rickie Fowler",
+      "player_key": "fowler|rickie",
+      "total": -9.0,
+      "r1": 63,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Michael Brennan",
+      "player_key": "brennan|michael",
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Michael Kim",
+      "player_key": "kim|michael",
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Peter Malnati",
+      "player_key": "malnati|peter",
+      "total": -8.0,
+      "r1": 61,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Chris Kirk",
+      "player_key": "chris|kirk",
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Xander Schauffele",
+      "player_key": "schauffele|xander",
+      "total": -8.0,
+      "r1": 66,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Davis Riley",
+      "player_key": "davis|riley",
+      "total": -8.0,
+      "r1": 68,
+      "r2": 64,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Ryan Gerard",
+      "player_key": "gerard|ryan",
+      "total": -8.0,
+      "r1": 63,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T6",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "lb_is_tied": true,
+      "status_raw": "T6",
+      "status": "cut_survivor",
+      "player_name": "Doug Ghim",
+      "player_key": "doug|ghim",
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Justin Lower",
+      "player_key": "justin|lower",
+      "total": -7.0,
+      "r1": 68,
+      "r2": 65,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Michael Thorbjornsen",
+      "player_key": "michael|thorbjornsen",
+      "total": -7.0,
+      "r1": 69,
+      "r2": 64,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Jacob Bridgeman",
+      "player_key": "bridgeman|jacob",
+      "total": -7.0,
+      "r1": 68,
+      "r2": 65,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Luke Clanton",
+      "player_key": "clanton|luke",
+      "total": -7.0,
+      "r1": 66,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Emiliano Grillo",
+      "player_key": "emiliano|grillo",
+      "total": -7.0,
+      "r1": 66,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Keegan Bradley",
+      "player_key": "bradley|keegan",
+      "total": -7.0,
+      "r1": 65,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T14",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "lb_is_tied": true,
+      "status_raw": "T14",
+      "status": "cut_survivor",
+      "player_name": "Stephan Jaeger",
+      "player_key": "jaeger|stephan",
+      "total": -7.0,
+      "r1": 65,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "David Lipsky",
+      "player_key": "david|lipsky",
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Russell Henley",
+      "player_key": "henley|russell",
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Corey Conners",
+      "player_key": "conners|corey",
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "J.J. Spaun",
+      "player_key": "j|j|spaun",
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Jordan Spieth",
+      "player_key": "jordan|spieth",
+      "total": -6.0,
+      "r1": 68,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Marco Penge",
+      "player_key": "marco|penge",
+      "total": -6.0,
+      "r1": 70,
+      "r2": 64,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Kristoffer Ventura",
+      "player_key": "kristoffer|ventura",
+      "total": -6.0,
+      "r1": 68,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Adrien Saddier",
+      "player_key": "adrien|saddier",
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Mark Hubbard",
+      "player_key": "hubbard|mark",
+      "total": -6.0,
+      "r1": 66,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Ricky Castillo",
+      "player_key": "castillo|ricky",
+      "total": -6.0,
+      "r1": 66,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T21",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "lb_is_tied": true,
+      "status_raw": "T21",
+      "status": "cut_survivor",
+      "player_name": "Brandt Snedeker",
+      "player_key": "brandt|snedeker",
+      "total": -6.0,
+      "r1": 66,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Kevin Roy",
+      "player_key": "kevin|roy",
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Rico Hoey",
+      "player_key": "hoey|rico",
+      "total": -5.0,
+      "r1": 66,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Thorbjørn Olesen",
+      "player_key": "olesen|rn|thorbj",
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Hideki Matsuyama",
+      "player_key": "hideki|matsuyama",
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Joe Highsmith",
+      "player_key": "highsmith|joe",
+      "total": -5.0,
+      "r1": 68,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Nicolai Højgaard",
+      "player_key": "h|jgaard|nicolai",
+      "total": -5.0,
+      "r1": 66,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Austin Eckroat",
+      "player_key": "austin|eckroat",
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Hank Lebioda",
+      "player_key": "hank|lebioda",
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Ben Kohles",
+      "player_key": "ben|kohles",
+      "total": -5.0,
+      "r1": 70,
+      "r2": 65,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Zac Blair",
+      "player_key": "blair|zac",
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Tony Finau",
+      "player_key": "finau|tony",
+      "total": -5.0,
+      "r1": 68,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Si Woo Kim",
+      "player_key": "kim|si|woo",
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Adam Schenk",
+      "player_key": "adam|schenk",
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Nick Taylor",
+      "player_key": "nick|taylor",
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Davis Thompson",
+      "player_key": "davis|thompson",
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T32",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "lb_is_tied": true,
+      "status_raw": "T32",
+      "status": "cut_survivor",
+      "player_name": "Ben James",
+      "player_key": "ben|james",
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Beau Hossler",
+      "player_key": "beau|hossler",
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Ryo Hisatsune",
+      "player_key": "hisatsune|ryo",
+      "total": -4.0,
+      "r1": 66,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Matt McCarty",
+      "player_key": "matt|mccarty",
+      "total": -4.0,
+      "r1": 70,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Sungjae Im",
+      "player_key": "im|sungjae",
+      "total": -4.0,
+      "r1": 67,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Brian Campbell",
+      "player_key": "brian|campbell",
+      "total": -4.0,
+      "r1": 68,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Harris English",
+      "player_key": "english|harris",
+      "total": -4.0,
+      "r1": 67,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Max Greyserman",
+      "player_key": "greyserman|max",
+      "total": -4.0,
+      "r1": 68,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Zecheng Dou",
+      "player_key": "dou|zecheng",
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Jackson Koivun",
+      "player_key": "jackson|koivun",
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Kevin Yu",
+      "player_key": "kevin|yu",
+      "total": -4.0,
+      "r1": 66,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Matt Kuchar",
+      "player_key": "kuchar|matt",
+      "total": -4.0,
+      "r1": 68,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Karl Vilips",
+      "player_key": "karl|vilips",
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Gordon Sargent",
+      "player_key": "gordon|sargent",
+      "total": -4.0,
+      "r1": 67,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Keita Nakajima",
+      "player_key": "keita|nakajima",
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T48",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "lb_is_tied": true,
+      "status_raw": "T48",
+      "status": "cut_survivor",
+      "player_name": "Johnny Keefer",
+      "player_key": "johnny|keefer",
+      "total": -4.0,
+      "r1": 66,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Jordan Smith",
+      "player_key": "jordan|smith",
+      "total": -3.0,
+      "r1": 66,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Mac Meissner",
+      "player_key": "mac|meissner",
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Dylan Wu",
+      "player_key": "dylan|wu",
+      "total": -3.0,
+      "r1": 67,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Rasmus Højgaard",
+      "player_key": "h|jgaard|rasmus",
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Jackson Suber",
+      "player_key": "jackson|suber",
+      "total": -3.0,
+      "r1": 66,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Chandler Blanchet",
+      "player_key": "blanchet|chandler",
+      "total": -3.0,
+      "r1": 72,
+      "r2": 65,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Marcelo Rozo",
+      "player_key": "marcelo|rozo",
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Christiaan Bezuidenhout",
+      "player_key": "bezuidenhout|christiaan",
+      "total": -3.0,
+      "r1": 68,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "William Mouw",
+      "player_key": "mouw|william",
+      "total": -3.0,
+      "r1": 71,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Adam Svensson",
+      "player_key": "adam|svensson",
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "T63",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "lb_is_tied": true,
+      "status_raw": "T63",
+      "status": "cut_survivor",
+      "player_name": "Neal Shipley",
+      "player_key": "neal|shipley",
+      "total": -3.0,
+      "r1": 67,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Sudarshan Yellamaraju",
+      "player_key": "sudarshan|yellamaraju",
+      "total": -2.0,
+      "r1": 69,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Andrew Putnam",
+      "player_key": "andrew|putnam",
+      "total": -2.0,
+      "r1": 68,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Lee Hodges",
+      "player_key": "hodges|lee",
+      "total": -2.0,
+      "r1": 69,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Ben Silverman",
+      "player_key": "ben|silverman",
+      "total": -2.0,
+      "r1": 71,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Ben Griffin",
+      "player_key": "ben|griffin",
+      "total": -2.0,
+      "r1": 68,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Jake Knapp",
+      "player_key": "jake|knapp",
+      "total": -2.0,
+      "r1": 67,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Erik van Rooyen",
+      "player_key": "erik|rooyen|van",
+      "total": -2.0,
+      "r1": 69,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "William Jennings (a)",
+      "player_key": "jennings|william",
+      "total": null,
+      "r1": null,
+      "r2": 67,
+      "amateur": true
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Eric Cole",
+      "player_key": "cole|eric",
+      "total": -2.0,
+      "r1": 67,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Aaron Wise",
+      "player_key": "aaron|wise",
+      "total": -2.0,
+      "r1": 68,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Vince Whaley",
+      "player_key": "vince|whaley",
+      "total": -2.0,
+      "r1": 69,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Mackenzie Hughes",
+      "player_key": "hughes|mackenzie",
+      "total": -2.0,
+      "r1": 70,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Billy Horschel",
+      "player_key": "billy|horschel",
+      "total": -1.0,
+      "r1": 68,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Tom Hoge",
+      "player_key": "hoge|tom",
+      "total": -1.0,
+      "r1": 70,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Jimmy Stanger",
+      "player_key": "jimmy|stanger",
+      "total": -1.0,
+      "r1": 72,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "John Parry",
+      "player_key": "john|parry",
+      "total": -1.0,
+      "r1": 69,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Joel Dahmen",
+      "player_key": "dahmen|joel",
+      "total": -1.0,
+      "r1": 70,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Akshay Bhatia",
+      "player_key": "akshay|bhatia",
+      "total": -1.0,
+      "r1": 68,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Kensei Hirata",
+      "player_key": "hirata|kensei",
+      "total": -1.0,
+      "r1": 73,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Brice Garnett",
+      "player_key": "brice|garnett",
+      "total": null,
+      "r1": 70,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Matthieu Pavon",
+      "player_key": "matthieu|pavon",
+      "total": null,
+      "r1": 66,
+      "r2": 74,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "A.J. Ewart",
+      "player_key": "a|ewart|j",
+      "total": null,
+      "r1": 68,
+      "r2": 72,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Hayden Springer",
+      "player_key": "hayden|springer",
+      "total": null,
+      "r1": 65,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Zach Bauchou",
+      "player_key": "bauchou|zach",
+      "total": null,
+      "r1": 70,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Rasmus Neergaard-Petersen",
+      "player_key": "neergaard|petersen|rasmus",
+      "total": null,
+      "r1": 70,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Takumi Kanaya",
+      "player_key": "kanaya|takumi",
+      "total": null,
+      "r1": 72,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Nico Echavarria",
+      "player_key": "echavarria|nico",
+      "total": null,
+      "r1": 72,
+      "r2": 68,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Sam Stevens",
+      "player_key": "sam|stevens",
+      "total": null,
+      "r1": 68,
+      "r2": 72,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Haotong Li",
+      "player_key": "haotong|li",
+      "total": null,
+      "r1": 71,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Adrien Dumont de Chassart",
+      "player_key": "adrien|chassart|de|dumont",
+      "total": null,
+      "r1": 71,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Ryan Ruffels",
+      "player_key": "ruffels|ryan",
+      "total": null,
+      "r1": 70,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Rafael Campos",
+      "player_key": "campos|rafael",
+      "total": 1.0,
+      "r1": 69,
+      "r2": 72,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "John VanDerLaan",
+      "player_key": "john|vanderlaan",
+      "total": 1.0,
+      "r1": 71,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Jeffrey Kang",
+      "player_key": "jeffrey|kang",
+      "total": 1.0,
+      "r1": 70,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Chandler Phillips",
+      "player_key": "chandler|phillips",
+      "total": 1.0,
+      "r1": 72,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Chris Gotterup",
+      "player_key": "chris|gotterup",
+      "total": 1.0,
+      "r1": 68,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Harry Hall",
+      "player_key": "hall|harry",
+      "total": 1.0,
+      "r1": 72,
+      "r2": 69,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Jesper Svensson",
+      "player_key": "jesper|svensson",
+      "total": 1.0,
+      "r1": 75,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Davis Chatfield",
+      "player_key": "chatfield|davis",
+      "total": 1.0,
+      "r1": 71,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Denny McCarthy",
+      "player_key": "denny|mccarthy",
+      "total": 2.0,
+      "r1": 69,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Webb Simpson",
+      "player_key": "simpson|webb",
+      "total": 2.0,
+      "r1": 72,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Taylor Pendrith",
+      "player_key": "pendrith|taylor",
+      "total": 2.0,
+      "r1": 72,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Danny Walker",
+      "player_key": "danny|walker",
+      "total": 2.0,
+      "r1": 76,
+      "r2": 66,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Pierceson Coody",
+      "player_key": "coody|pierceson",
+      "total": 2.0,
+      "r1": 70,
+      "r2": 72,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Garrick Higgo",
+      "player_key": "garrick|higgo",
+      "total": 3.0,
+      "r1": 73,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Cam Davis",
+      "player_key": "cam|davis",
+      "total": 3.0,
+      "r1": 68,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Matti Schmid",
+      "player_key": "matti|schmid",
+      "total": 3.0,
+      "r1": 68,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Trace Crowe",
+      "player_key": "crowe|trace",
+      "total": 3.0,
+      "r1": 73,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Aldrich Potgieter",
+      "player_key": "aldrich|potgieter",
+      "total": 3.0,
+      "r1": 76,
+      "r2": 67,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Stefano Mazzoli",
+      "player_key": "mazzoli|stefano",
+      "total": 3.0,
+      "r1": 69,
+      "r2": 74,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Kevin Streelman",
+      "player_key": "kevin|streelman",
+      "total": 3.0,
+      "r1": 70,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Max McGreevy",
+      "player_key": "max|mcgreevy",
+      "total": 4.0,
+      "r1": 68,
+      "r2": 76,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Seamus Power",
+      "player_key": "power|seamus",
+      "total": 4.0,
+      "r1": 73,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Patton Kizzire",
+      "player_key": "kizzire|patton",
+      "total": 4.0,
+      "r1": 70,
+      "r2": 74,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Lucas Glover",
+      "player_key": "glover|lucas",
+      "total": 4.0,
+      "r1": 73,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Chad Ramey",
+      "player_key": "chad|ramey",
+      "total": 5.0,
+      "r1": 74,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Nick Dunlap",
+      "player_key": "dunlap|nick",
+      "total": 5.0,
+      "r1": 72,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Lanto Griffin",
+      "player_key": "griffin|lanto",
+      "total": 5.0,
+      "r1": 70,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Wyndham Clark",
+      "player_key": "clark|wyndham",
+      "total": 5.0,
+      "r1": 71,
+      "r2": 74,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Christo Lamprecht",
+      "player_key": "christo|lamprecht",
+      "total": 5.0,
+      "r1": 72,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Pontus Nyholm",
+      "player_key": "nyholm|pontus",
+      "total": 5.0,
+      "r1": 73,
+      "r2": 72,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Daniel Azallion",
+      "player_key": "azallion|daniel",
+      "total": 5.0,
+      "r1": 74,
+      "r2": 71,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Brendon Todd",
+      "player_key": "brendon|todd",
+      "total": 6.0,
+      "r1": 76,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Andrew Novak",
+      "player_key": "andrew|novak",
+      "total": 6.0,
+      "r1": 72,
+      "r2": 74,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Ryan Celano",
+      "player_key": "celano|ryan",
+      "total": 6.0,
+      "r1": 73,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Steven Fisk",
+      "player_key": "fisk|steven",
+      "total": 7.0,
+      "r1": 72,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Justin Quiban",
+      "player_key": "justin|quiban",
+      "total": 7.0,
+      "r1": 72,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Patrick Wilkes-Krier",
+      "player_key": "krier|patrick|wilkes",
+      "total": 7.0,
+      "r1": 74,
+      "r2": 73,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Joe Hooks",
+      "player_key": "hooks|joe",
+      "total": 8.0,
+      "r1": 76,
+      "r2": 72,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Keenan Huskey",
+      "player_key": "huskey|keenan",
+      "total": 11.0,
+      "r1": 75,
+      "r2": 76,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Alejandro Tosti",
+      "player_key": "alejandro|tosti",
+      "total": 12.0,
+      "r1": 82,
+      "r2": 70,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Austin Smotherman",
+      "player_key": "austin|smotherman",
+      "total": 12.0,
+      "r1": 77,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "CUT",
+      "lb_pos_display": "CUT",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "CUT",
+      "status": "missed_cut",
+      "player_name": "Brad Dalke",
+      "player_key": "brad|dalke",
+      "total": 16.0,
+      "r1": 81,
+      "r2": 75,
+      "amateur": false
+    },
+    {
+      "lb_pos_raw": "WD",
+      "lb_pos_display": "WD",
+      "lb_pos_numeric": null,
+      "lb_is_tied": false,
+      "status_raw": "WD",
+      "status": "withdrew",
+      "player_name": "Patrick Rodgers",
+      "player_key": "patrick|rodgers",
+      "total": null,
+      "r1": 77,
+      "r2": null,
+      "amateur": false
+    }
+  ],
+  "cut_survivors": [
+    {
+      "player_key": "cameron|young",
+      "player_name": "Cameron Young",
+      "lb_pos_display": "T1",
+      "lb_pos_numeric": 1,
+      "total": -10.0,
+      "r1": 69,
+      "r2": 61,
+      "model_rank": 2,
+      "model_tier": "T1",
+      "rank_delta": 1,
+      "sg_ott": 2.52,
+      "sg_app": 3.593,
+      "sg_arg": 1.044,
+      "sg_putt": 1.232,
+      "sg_total": 8.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.66667,
+        "distance": 317.7
+      },
+      "r2_detail": {
+        "today": -9.0,
+        "sg_total": 8.18,
+        "accuracy": 0.85714,
+        "gir": 0.77778,
+        "scrambling": 1.0,
+        "distance": 316.0
+      },
+      "r3_teetime": "1:50 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "cantlay|patrick",
+      "player_name": "Patrick Cantlay",
+      "lb_pos_display": "T1",
+      "lb_pos_numeric": 1,
+      "total": -10.0,
+      "r1": 64,
+      "r2": 66,
+      "model_rank": 5,
+      "model_tier": "T1",
+      "rank_delta": 4,
+      "sg_ott": -0.126,
+      "sg_app": 2.798,
+      "sg_arg": 0.724,
+      "sg_putt": 4.993,
+      "sg_total": 8.389,
+      "r1_detail": {
+        "today": -6.0,
+        "sg_total": 5.2,
+        "accuracy": 0.78571,
+        "gir": 0.77778,
+        "scrambling": 1.0,
+        "distance": 314.2
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 1.0,
+        "distance": 298.2
+      },
+      "r3_teetime": "1:50 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "fishburn|patrick",
+      "player_name": "Patrick Fishburn",
+      "lb_pos_display": "T1",
+      "lb_pos_numeric": 1,
+      "total": -10.0,
+      "r1": 64,
+      "r2": 66,
+      "model_rank": 91,
+      "model_tier": "T5",
+      "rank_delta": 90,
+      "sg_ott": 1.442,
+      "sg_app": -1.813,
+      "sg_arg": 3.011,
+      "sg_putt": 5.749,
+      "sg_total": 8.389,
+      "r1_detail": {
+        "today": -6.0,
+        "sg_total": 5.2,
+        "accuracy": 0.71429,
+        "gir": 0.66667,
+        "scrambling": 0.83333,
+        "distance": 305.0
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.78571,
+        "gir": 1.0,
+        "scrambling": 1.0,
+        "distance": 293.6
+      },
+      "r3_teetime": "1:40 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "matt|wallace",
+      "player_name": "Matt Wallace",
+      "lb_pos_display": "T4",
+      "lb_pos_numeric": 4,
+      "total": -9.0,
+      "r1": 67,
+      "r2": 64,
+      "model_rank": 63,
+      "model_tier": "T5",
+      "rank_delta": 59,
+      "sg_ott": 1.314,
+      "sg_app": 0.308,
+      "sg_arg": 1.515,
+      "sg_putt": 4.252,
+      "sg_total": 7.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.64286,
+        "gir": 0.77778,
+        "scrambling": 0.57143,
+        "distance": 302.0
+      },
+      "r2_detail": {
+        "today": -6.0,
+        "sg_total": 5.18,
+        "accuracy": 0.78571,
+        "gir": 0.66667,
+        "scrambling": 0.75,
+        "distance": 296.5
+      },
+      "r3_teetime": "1:40 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "fowler|rickie",
+      "player_name": "Rickie Fowler",
+      "lb_pos_display": "T4",
+      "lb_pos_numeric": 4,
+      "total": -9.0,
+      "r1": 63,
+      "r2": 68,
+      "model_rank": 12,
+      "model_tier": "T2",
+      "rank_delta": 8,
+      "sg_ott": 0.883,
+      "sg_app": 4.386,
+      "sg_arg": -0.551,
+      "sg_putt": 2.671,
+      "sg_total": 7.389,
+      "r1_detail": {
+        "today": -7.0,
+        "sg_total": 6.2,
+        "accuracy": 0.85714,
+        "gir": 0.94444,
+        "scrambling": 0.5,
+        "distance": 296.9
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.57143,
+        "distance": 301.2
+      },
+      "r3_teetime": "1:30 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "brennan|michael",
+      "player_name": "Michael Brennan",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "model_rank": 67,
+      "model_tier": "T5",
+      "rank_delta": 61,
+      "sg_ott": -1.504,
+      "sg_app": 4.345,
+      "sg_arg": -0.306,
+      "sg_putt": 3.854,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -5.0,
+        "sg_total": 4.2,
+        "accuracy": 0.5,
+        "gir": 0.77778,
+        "scrambling": 0.4,
+        "distance": 320.5
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.5,
+        "gir": 0.77778,
+        "scrambling": 0.75,
+        "distance": 304.6
+      },
+      "r3_teetime": "1:30 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "kim|michael",
+      "player_name": "Michael Kim",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "model_rank": 38,
+      "model_tier": "T4",
+      "rank_delta": 32,
+      "sg_ott": 1.678,
+      "sg_app": 0.462,
+      "sg_arg": 0.729,
+      "sg_putt": 3.52,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -5.0,
+        "sg_total": 4.2,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.8,
+        "distance": 291.6
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.78571,
+        "gir": 0.66667,
+        "scrambling": 0.85714,
+        "distance": 302.1
+      },
+      "r3_teetime": "1:20 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "malnati|peter",
+      "player_name": "Peter Malnati",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 61,
+      "r2": 71,
+      "model_rank": 129,
+      "model_tier": "T5",
+      "rank_delta": 123,
+      "sg_ott": 1.853,
+      "sg_app": 1.043,
+      "sg_arg": 0.268,
+      "sg_putt": 3.225,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -9.0,
+        "sg_total": 8.2,
+        "accuracy": 0.92857,
+        "gir": 0.94444,
+        "scrambling": 1.0,
+        "distance": 296.8
+      },
+      "r2_detail": {
+        "today": 1.0,
+        "sg_total": -1.82,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 309.2
+      },
+      "r3_teetime": "1:20 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "chris|kirk",
+      "player_name": "Chris Kirk",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "model_rank": 50,
+      "model_tier": "T5",
+      "rank_delta": 44,
+      "sg_ott": 2.205,
+      "sg_app": 2.84,
+      "sg_arg": 0.961,
+      "sg_putt": 0.383,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -5.0,
+        "sg_total": 4.2,
+        "accuracy": 0.85714,
+        "gir": 0.77778,
+        "scrambling": 0.83333,
+        "distance": 307.3
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.66667,
+        "distance": 313.2
+      },
+      "r3_teetime": "1:10 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "schauffele|xander",
+      "player_name": "Xander Schauffele",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 66,
+      "r2": 66,
+      "model_rank": 3,
+      "model_tier": "T1",
+      "rank_delta": -3,
+      "sg_ott": 1.32,
+      "sg_app": 2.526,
+      "sg_arg": -0.071,
+      "sg_putt": 2.614,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.71429,
+        "gir": 0.66667,
+        "scrambling": 0.875,
+        "distance": 311.7
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.64286,
+        "gir": 0.83333,
+        "scrambling": 0.6,
+        "distance": 302.8
+      },
+      "r3_teetime": "1:10 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "davis|riley",
+      "player_name": "Davis Riley",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 68,
+      "r2": 64,
+      "model_rank": 124,
+      "model_tier": "T5",
+      "rank_delta": 118,
+      "sg_ott": 0.701,
+      "sg_app": 2.371,
+      "sg_arg": 0.029,
+      "sg_putt": 3.288,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.66667,
+        "distance": 299.3
+      },
+      "r2_detail": {
+        "today": -6.0,
+        "sg_total": 5.18,
+        "accuracy": 0.57143,
+        "gir": 0.88889,
+        "scrambling": 0.66667,
+        "distance": 307.3
+      },
+      "r3_teetime": "1:00 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "gerard|ryan",
+      "player_name": "Ryan Gerard",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 63,
+      "r2": 69,
+      "model_rank": 17,
+      "model_tier": "T3",
+      "rank_delta": 11,
+      "sg_ott": -0.585,
+      "sg_app": 0.715,
+      "sg_arg": -0.743,
+      "sg_putt": 7.002,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -7.0,
+        "sg_total": 6.2,
+        "accuracy": 0.57143,
+        "gir": 0.83333,
+        "scrambling": 0.8,
+        "distance": 312.8
+      },
+      "r2_detail": {
+        "today": -1.0,
+        "sg_total": 0.18,
+        "accuracy": 0.5,
+        "gir": 0.61111,
+        "scrambling": 0.57143,
+        "distance": 305.2
+      },
+      "r3_teetime": "1:00 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "doug|ghim",
+      "player_name": "Doug Ghim",
+      "lb_pos_display": "T6",
+      "lb_pos_numeric": 6,
+      "total": -8.0,
+      "r1": 65,
+      "r2": 67,
+      "model_rank": 28,
+      "model_tier": "T4",
+      "rank_delta": 22,
+      "sg_ott": 4.426,
+      "sg_app": 1.129,
+      "sg_arg": 1.022,
+      "sg_putt": -0.188,
+      "sg_total": 6.389,
+      "r1_detail": {
+        "today": -5.0,
+        "sg_total": 4.2,
+        "accuracy": 0.78571,
+        "gir": 0.94444,
+        "scrambling": 0.33333,
+        "distance": 307.7
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.78571,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 310.1
+      },
+      "r3_teetime": "12:45 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "justin|lower",
+      "player_name": "Justin Lower",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 68,
+      "r2": 65,
+      "model_rank": 119,
+      "model_tier": "T5",
+      "rank_delta": 105,
+      "sg_ott": -0.408,
+      "sg_app": 2.771,
+      "sg_arg": 1.163,
+      "sg_putt": 1.863,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.57143,
+        "gir": 0.61111,
+        "scrambling": 0.83333,
+        "distance": 293.8
+      },
+      "r2_detail": {
+        "today": -5.0,
+        "sg_total": 4.18,
+        "accuracy": 0.71429,
+        "gir": 0.83333,
+        "scrambling": 0.8,
+        "distance": 288.4
+      },
+      "r3_teetime": "12:45 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "michael|thorbjornsen",
+      "player_name": "Michael Thorbjornsen",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 69,
+      "r2": 64,
+      "model_rank": 39,
+      "model_tier": "T4",
+      "rank_delta": 25,
+      "sg_ott": 2.504,
+      "sg_app": 0.384,
+      "sg_arg": -0.353,
+      "sg_putt": 2.854,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.64286,
+        "gir": 0.77778,
+        "scrambling": 0.25,
+        "distance": 314.1
+      },
+      "r2_detail": {
+        "today": -6.0,
+        "sg_total": 5.18,
+        "accuracy": 0.85714,
+        "gir": 0.94444,
+        "scrambling": 0.5,
+        "distance": 312.4
+      },
+      "r3_teetime": "12:35 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "bridgeman|jacob",
+      "player_name": "Jacob Bridgeman",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 68,
+      "r2": 65,
+      "model_rank": 10,
+      "model_tier": "T2",
+      "rank_delta": -4,
+      "sg_ott": 0.661,
+      "sg_app": 2.509,
+      "sg_arg": -0.023,
+      "sg_putt": 2.242,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.75,
+        "distance": 304.4
+      },
+      "r2_detail": {
+        "today": -5.0,
+        "sg_total": 4.18,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.85714,
+        "distance": 295.8
+      },
+      "r3_teetime": "12:35 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "clanton|luke",
+      "player_name": "Luke Clanton",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 66,
+      "r2": 67,
+      "model_rank": 88,
+      "model_tier": "T5",
+      "rank_delta": 74,
+      "sg_ott": 0.588,
+      "sg_app": 0.325,
+      "sg_arg": 1.638,
+      "sg_putt": 2.838,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.8,
+        "distance": 302.5
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.71429,
+        "distance": 293.7
+      },
+      "r3_teetime": "12:25 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "emiliano|grillo",
+      "player_name": "Emiliano Grillo",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 66,
+      "r2": 67,
+      "model_rank": 32,
+      "model_tier": "T4",
+      "rank_delta": 18,
+      "sg_ott": -1.749,
+      "sg_app": 5.046,
+      "sg_arg": 0.569,
+      "sg_putt": 1.523,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.57143,
+        "gir": 0.88889,
+        "scrambling": 0.33333,
+        "distance": 294.4
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.71429,
+        "distance": 297.8
+      },
+      "r3_teetime": "12:25 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "bradley|keegan",
+      "player_name": "Keegan Bradley",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 65,
+      "r2": 68,
+      "model_rank": 15,
+      "model_tier": "T3",
+      "rank_delta": 1,
+      "sg_ott": -0.216,
+      "sg_app": 7.512,
+      "sg_arg": 0.192,
+      "sg_putt": -2.099,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -5.0,
+        "sg_total": 4.2,
+        "accuracy": 0.5,
+        "gir": 0.88889,
+        "scrambling": 0.33333,
+        "distance": 307.2
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.64286,
+        "gir": 0.77778,
+        "scrambling": 0.8,
+        "distance": 311.6
+      },
+      "r3_teetime": "12:15 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "jaeger|stephan",
+      "player_name": "Stephan Jaeger",
+      "lb_pos_display": "T14",
+      "lb_pos_numeric": 14,
+      "total": -7.0,
+      "r1": 65,
+      "r2": 68,
+      "model_rank": 87,
+      "model_tier": "T5",
+      "rank_delta": 73,
+      "sg_ott": 0.345,
+      "sg_app": 0.631,
+      "sg_arg": -0.999,
+      "sg_putt": 5.412,
+      "sg_total": 5.389,
+      "r1_detail": {
+        "today": -5.0,
+        "sg_total": 4.2,
+        "accuracy": 0.57143,
+        "gir": 0.77778,
+        "scrambling": 0.66667,
+        "distance": 307.4
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.35714,
+        "gir": 0.72222,
+        "scrambling": 0.66667,
+        "distance": 316.7
+      },
+      "r3_teetime": "12:15 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "david|lipsky",
+      "player_name": "David Lipsky",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "model_rank": 107,
+      "model_tier": "T5",
+      "rank_delta": 86,
+      "sg_ott": 1.118,
+      "sg_app": 0.054,
+      "sg_arg": 2.63,
+      "sg_putt": 0.587,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.85714,
+        "gir": 0.88889,
+        "scrambling": 1.0,
+        "distance": 298.3
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.71429,
+        "gir": 0.66667,
+        "scrambling": 0.85714,
+        "distance": 292.3
+      },
+      "r3_teetime": "12:05 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "henley|russell",
+      "player_name": "Russell Henley",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "model_rank": 4,
+      "model_tier": "T1",
+      "rank_delta": -17,
+      "sg_ott": 1.292,
+      "sg_app": 2.615,
+      "sg_arg": -2.005,
+      "sg_putt": 2.487,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.78571,
+        "gir": 0.83333,
+        "scrambling": 0.5,
+        "distance": 298.4
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.33333,
+        "distance": 297.0
+      },
+      "r3_teetime": "12:05 PM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "conners|corey",
+      "player_name": "Corey Conners",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "model_rank": 19,
+      "model_tier": "T3",
+      "rank_delta": -2,
+      "sg_ott": 2.409,
+      "sg_app": 1.297,
+      "sg_arg": -2.12,
+      "sg_putt": 2.803,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.66667,
+        "distance": 310.8
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.92857,
+        "gir": 0.77778,
+        "scrambling": 0.33333,
+        "distance": 306.8
+      },
+      "r3_teetime": "11:55 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "j|j|spaun",
+      "player_name": "J.J. Spaun",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "model_rank": 7,
+      "model_tier": "T2",
+      "rank_delta": -14,
+      "sg_ott": 1.748,
+      "sg_app": 1.759,
+      "sg_arg": 1.612,
+      "sg_putt": -0.73,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.78571,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 307.4
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.64286,
+        "gir": 0.77778,
+        "scrambling": 0.5,
+        "distance": 302.6
+      },
+      "r3_teetime": "11:55 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "jordan|spieth",
+      "player_name": "Jordan Spieth",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 68,
+      "r2": 66,
+      "model_rank": 21,
+      "model_tier": "T3",
+      "rank_delta": 0,
+      "sg_ott": 1.179,
+      "sg_app": 2.594,
+      "sg_arg": -0.611,
+      "sg_putt": 1.227,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.64286,
+        "gir": 0.83333,
+        "scrambling": 0.6,
+        "distance": 312.2
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.4,
+        "distance": 310.6
+      },
+      "r3_teetime": "11:40 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "marco|penge",
+      "player_name": "Marco Penge",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 70,
+      "r2": 64,
+      "model_rank": 48,
+      "model_tier": "T5",
+      "rank_delta": 27,
+      "sg_ott": 3.945,
+      "sg_app": 1.573,
+      "sg_arg": 1.115,
+      "sg_putt": -2.244,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": 0.0,
+        "sg_total": -0.8,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.7,
+        "distance": 323.0
+      },
+      "r2_detail": {
+        "today": -6.0,
+        "sg_total": 5.18,
+        "accuracy": 0.78571,
+        "gir": 0.88889,
+        "scrambling": 0.33333,
+        "distance": 320.1
+      },
+      "r3_teetime": "11:40 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "kristoffer|ventura",
+      "player_name": "Kristoffer Ventura",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 68,
+      "r2": 66,
+      "model_rank": 98,
+      "model_tier": "T5",
+      "rank_delta": 77,
+      "sg_ott": 2.397,
+      "sg_app": 2.085,
+      "sg_arg": 0.929,
+      "sg_putt": -1.022,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.5,
+        "distance": 314.0
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 314.8
+      },
+      "r3_teetime": "11:30 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "adrien|saddier",
+      "player_name": "Adrien Saddier",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 67,
+      "r2": 67,
+      "model_rank": 109,
+      "model_tier": "T5",
+      "rank_delta": 88,
+      "sg_ott": -0.404,
+      "sg_app": 1.128,
+      "sg_arg": 1.631,
+      "sg_putt": 2.034,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.33333,
+        "distance": 317.5
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.28571,
+        "gir": 0.72222,
+        "scrambling": 0.85714,
+        "distance": 301.7
+      },
+      "r3_teetime": "11:30 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "hubbard|mark",
+      "player_name": "Mark Hubbard",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 66,
+      "r2": 68,
+      "model_rank": 71,
+      "model_tier": "T5",
+      "rank_delta": 50,
+      "sg_ott": 0.49,
+      "sg_app": 3.691,
+      "sg_arg": 2.636,
+      "sg_putt": -2.428,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.85714,
+        "gir": 0.88889,
+        "scrambling": 0.75,
+        "distance": 299.8
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.57143,
+        "gir": 0.77778,
+        "scrambling": 0.75,
+        "distance": 303.0
+      },
+      "r3_teetime": "11:20 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "castillo|ricky",
+      "player_name": "Ricky Castillo",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 66,
+      "r2": 68,
+      "model_rank": 26,
+      "model_tier": "T4",
+      "rank_delta": 5,
+      "sg_ott": 2.728,
+      "sg_app": -0.571,
+      "sg_arg": 0.82,
+      "sg_putt": 1.412,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.83333,
+        "distance": 300.6
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.71429,
+        "gir": 0.66667,
+        "scrambling": 0.77778,
+        "distance": 309.6
+      },
+      "r3_teetime": "11:20 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "brandt|snedeker",
+      "player_name": "Brandt Snedeker",
+      "lb_pos_display": "T21",
+      "lb_pos_numeric": 21,
+      "total": -6.0,
+      "r1": 66,
+      "r2": 68,
+      "model_rank": 110,
+      "model_tier": "T5",
+      "rank_delta": 89,
+      "sg_ott": 0.44,
+      "sg_app": 0.758,
+      "sg_arg": 0.863,
+      "sg_putt": 2.328,
+      "sg_total": 4.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 283.7
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.92857,
+        "gir": 0.66667,
+        "scrambling": 0.57143,
+        "distance": 289.2
+      },
+      "r3_teetime": "11:10 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "kevin|roy",
+      "player_name": "Kevin Roy",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "model_rank": 111,
+      "model_tier": "T5",
+      "rank_delta": 79,
+      "sg_ott": 0.522,
+      "sg_app": 1.024,
+      "sg_arg": -1.01,
+      "sg_putt": 2.853,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 309.1
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.75,
+        "distance": 302.2
+      },
+      "r3_teetime": "11:10 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "hoey|rico",
+      "player_name": "Rico Hoey",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 66,
+      "r2": 69,
+      "model_rank": 56,
+      "model_tier": "T5",
+      "rank_delta": 24,
+      "sg_ott": 1.113,
+      "sg_app": 1.267,
+      "sg_arg": -0.421,
+      "sg_putt": 1.43,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.78571,
+        "gir": 0.83333,
+        "scrambling": 0.25,
+        "distance": 307.5
+      },
+      "r2_detail": {
+        "today": -1.0,
+        "sg_total": 0.18,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.44444,
+        "distance": 309.4
+      },
+      "r3_teetime": "11:00 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "olesen|rn|thorbj",
+      "player_name": "Thorbjørn Olesen",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "model_rank": null,
+      "model_tier": null,
+      "rank_delta": null,
+      "sg_ott": -1.595,
+      "sg_app": 0.485,
+      "sg_arg": 1.099,
+      "sg_putt": 3.4,
+      "sg_total": 3.389,
+      "r1_detail": null,
+      "r2_detail": null,
+      "r3_teetime": null,
+      "r3_wave": null,
+      "diagnostic_label": "surviving_short_game"
+    },
+    {
+      "player_key": "hideki|matsuyama",
+      "player_name": "Hideki Matsuyama",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "model_rank": 8,
+      "model_tier": "T2",
+      "rank_delta": -24,
+      "sg_ott": 2.53,
+      "sg_app": 4.375,
+      "sg_arg": 1.461,
+      "sg_putt": -4.977,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.64286,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 299.7
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.92857,
+        "gir": 0.83333,
+        "scrambling": 0.83333,
+        "distance": 305.5
+      },
+      "r3_teetime": "10:50 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "highsmith|joe",
+      "player_name": "Joe Highsmith",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 68,
+      "r2": 67,
+      "model_rank": 135,
+      "model_tier": "T5",
+      "rank_delta": 103,
+      "sg_ott": -0.186,
+      "sg_app": 2.213,
+      "sg_arg": -3.503,
+      "sg_putt": 4.865,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.4,
+        "distance": 309.4
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.77778,
+        "distance": 301.8
+      },
+      "r3_teetime": "10:50 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "h|jgaard|nicolai",
+      "player_name": "Nicolai Højgaard",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 66,
+      "r2": 69,
+      "model_rank": null,
+      "model_tier": null,
+      "rank_delta": null,
+      "sg_ott": 0.827,
+      "sg_app": -1.519,
+      "sg_arg": -0.474,
+      "sg_putt": 4.555,
+      "sg_total": 3.389,
+      "r1_detail": null,
+      "r2_detail": null,
+      "r3_teetime": null,
+      "r3_wave": null,
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "austin|eckroat",
+      "player_name": "Austin Eckroat",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "model_rank": 105,
+      "model_tier": "T5",
+      "rank_delta": 73,
+      "sg_ott": -0.283,
+      "sg_app": -0.541,
+      "sg_arg": 0.494,
+      "sg_putt": 3.719,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.78571,
+        "gir": 0.61111,
+        "scrambling": 0.77778,
+        "distance": 311.6
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.57143,
+        "gir": 0.55556,
+        "scrambling": 0.88889,
+        "distance": 307.6
+      },
+      "r3_teetime": "10:35 AM",
+      "r3_wave": "late",
+      "diagnostic_label": "surviving_short_game"
+    },
+    {
+      "player_key": "hank|lebioda",
+      "player_name": "Hank Lebioda",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "model_rank": 118,
+      "model_tier": "T5",
+      "rank_delta": 86,
+      "sg_ott": 3.316,
+      "sg_app": 0.502,
+      "sg_arg": 1.752,
+      "sg_putt": -2.181,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 308.3
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.92857,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 313.1
+      },
+      "r3_teetime": "10:25 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "ben|kohles",
+      "player_name": "Ben Kohles",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 70,
+      "r2": 65,
+      "model_rank": 75,
+      "model_tier": "T5",
+      "rank_delta": 43,
+      "sg_ott": -0.248,
+      "sg_app": 0.556,
+      "sg_arg": 0.161,
+      "sg_putt": 2.92,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": 0.0,
+        "sg_total": -0.8,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 291.6
+      },
+      "r2_detail": {
+        "today": -5.0,
+        "sg_total": 4.18,
+        "accuracy": 0.78571,
+        "gir": 0.66667,
+        "scrambling": 0.8,
+        "distance": 288.7
+      },
+      "r3_teetime": "10:25 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "blair|zac",
+      "player_name": "Zac Blair",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "model_rank": 74,
+      "model_tier": "T5",
+      "rank_delta": 42,
+      "sg_ott": 1.016,
+      "sg_app": 1.01,
+      "sg_arg": 0.999,
+      "sg_putt": 0.364,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.85714,
+        "gir": 0.83333,
+        "scrambling": 0.5,
+        "distance": 293.5
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.85714,
+        "gir": 0.72222,
+        "scrambling": 0.8,
+        "distance": 293.4
+      },
+      "r3_teetime": "10:15 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "finau|tony",
+      "player_name": "Tony Finau",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 68,
+      "r2": 67,
+      "model_rank": 24,
+      "model_tier": "T3",
+      "rank_delta": -8,
+      "sg_ott": 0.718,
+      "sg_app": 3.174,
+      "sg_arg": 2.301,
+      "sg_putt": -2.804,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.64286,
+        "gir": 0.88889,
+        "scrambling": null,
+        "distance": 300.9
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.42857,
+        "gir": 0.72222,
+        "scrambling": 0.83333,
+        "distance": 319.9
+      },
+      "r3_teetime": "10:15 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "kim|si|woo",
+      "player_name": "Si Woo Kim",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "model_rank": 1,
+      "model_tier": "T1",
+      "rank_delta": -31,
+      "sg_ott": 0.882,
+      "sg_app": 2.993,
+      "sg_arg": 1.432,
+      "sg_putt": -1.918,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.57143,
+        "distance": 292.3
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.71429,
+        "gir": 0.88889,
+        "scrambling": 0.66667,
+        "distance": 308.5
+      },
+      "r3_teetime": "10:05 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "adam|schenk",
+      "player_name": "Adam Schenk",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "model_rank": 136,
+      "model_tier": "T5",
+      "rank_delta": 104,
+      "sg_ott": -0.917,
+      "sg_app": -0.348,
+      "sg_arg": 2.417,
+      "sg_putt": 2.237,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.5,
+        "gir": 0.72222,
+        "scrambling": 0.4,
+        "distance": 294.1
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.71429,
+        "gir": 0.61111,
+        "scrambling": 0.875,
+        "distance": 301.7
+      },
+      "r3_teetime": "10:05 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "surviving_short_game"
+    },
+    {
+      "player_key": "nick|taylor",
+      "player_name": "Nick Taylor",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 69,
+      "r2": 66,
+      "model_rank": 33,
+      "model_tier": "T4",
+      "rank_delta": 1,
+      "sg_ott": -0.316,
+      "sg_app": 0.819,
+      "sg_arg": 1.079,
+      "sg_putt": 1.807,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.78571,
+        "gir": 0.83333,
+        "scrambling": 0.75,
+        "distance": 286.3
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.64286,
+        "gir": 0.77778,
+        "scrambling": 1.0,
+        "distance": 306.6
+      },
+      "r3_teetime": "9:55 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "davis|thompson",
+      "player_name": "Davis Thompson",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "model_rank": 46,
+      "model_tier": "T5",
+      "rank_delta": 14,
+      "sg_ott": 1.149,
+      "sg_app": 2.375,
+      "sg_arg": -2.339,
+      "sg_putt": 2.204,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.71429,
+        "gir": 0.83333,
+        "scrambling": 0.25,
+        "distance": 303.8
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.42857,
+        "distance": 304.6
+      },
+      "r3_teetime": "9:55 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "ben|james",
+      "player_name": "Ben James",
+      "lb_pos_display": "T32",
+      "lb_pos_numeric": 32,
+      "total": -5.0,
+      "r1": 67,
+      "r2": 68,
+      "model_rank": 49,
+      "model_tier": "T5",
+      "rank_delta": 17,
+      "sg_ott": 0.628,
+      "sg_app": -0.125,
+      "sg_arg": 1.514,
+      "sg_putt": 1.372,
+      "sg_total": 3.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.75,
+        "distance": 304.9
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.57143,
+        "gir": 0.61111,
+        "scrambling": 0.71429,
+        "distance": 299.9
+      },
+      "r3_teetime": "9:45 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "beau|hossler",
+      "player_name": "Beau Hossler",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "model_rank": 92,
+      "model_tier": "T5",
+      "rank_delta": 44,
+      "sg_ott": 1.93,
+      "sg_app": -1.123,
+      "sg_arg": 2.877,
+      "sg_putt": -1.295,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.71429,
+        "distance": 305.5
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.85714,
+        "distance": 308.0
+      },
+      "r3_teetime": "9:45 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "hisatsune|ryo",
+      "player_name": "Ryo Hisatsune",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 66,
+      "r2": 70,
+      "model_rank": 37,
+      "model_tier": "T4",
+      "rank_delta": -11,
+      "sg_ott": 1.613,
+      "sg_app": 0.098,
+      "sg_arg": -0.127,
+      "sg_putt": 0.805,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.85714,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 300.1
+      },
+      "r2_detail": {
+        "today": 0.0,
+        "sg_total": -0.82,
+        "accuracy": 0.28571,
+        "gir": 0.72222,
+        "scrambling": 0.28571,
+        "distance": 307.9
+      },
+      "r3_teetime": "9:30 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "matt|mccarty",
+      "player_name": "Matt McCarty",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 70,
+      "r2": 66,
+      "model_rank": 23,
+      "model_tier": "T3",
+      "rank_delta": -25,
+      "sg_ott": 0.528,
+      "sg_app": 1.365,
+      "sg_arg": 1.597,
+      "sg_putt": -1.101,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": 0.0,
+        "sg_total": -0.8,
+        "accuracy": 0.64286,
+        "gir": 0.66667,
+        "scrambling": 0.75,
+        "distance": 298.9
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.71429,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 299.0
+      },
+      "r3_teetime": "9:30 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "im|sungjae",
+      "player_name": "Sungjae Im",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 67,
+      "r2": 69,
+      "model_rank": 25,
+      "model_tier": "T3",
+      "rank_delta": -23,
+      "sg_ott": -0.186,
+      "sg_app": 0.546,
+      "sg_arg": -0.09,
+      "sg_putt": 2.119,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.6,
+        "distance": 307.1
+      },
+      "r2_detail": {
+        "today": -1.0,
+        "sg_total": 0.18,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.5,
+        "distance": 301.0
+      },
+      "r3_teetime": "9:20 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "brian|campbell",
+      "player_name": "Brian Campbell",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 68,
+      "r2": 68,
+      "model_rank": 125,
+      "model_tier": "T5",
+      "rank_delta": 77,
+      "sg_ott": 0.038,
+      "sg_app": 5.846,
+      "sg_arg": -2.789,
+      "sg_putt": -0.706,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.71429,
+        "gir": 0.83333,
+        "scrambling": 0.33333,
+        "distance": 295.9
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.85714,
+        "gir": 0.83333,
+        "scrambling": 0.33333,
+        "distance": 286.1
+      },
+      "r3_teetime": "9:20 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "english|harris",
+      "player_name": "Harris English",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 67,
+      "r2": 69,
+      "model_rank": 14,
+      "model_tier": "T3",
+      "rank_delta": -34,
+      "sg_ott": 0.801,
+      "sg_app": -1.604,
+      "sg_arg": 1.098,
+      "sg_putt": 2.094,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.75,
+        "distance": 299.1
+      },
+      "r2_detail": {
+        "today": -1.0,
+        "sg_total": 0.18,
+        "accuracy": 0.42857,
+        "gir": 0.55556,
+        "scrambling": 0.77778,
+        "distance": 298.8
+      },
+      "r3_teetime": "9:10 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "greyserman|max",
+      "player_name": "Max Greyserman",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 68,
+      "r2": 68,
+      "model_rank": 29,
+      "model_tier": "T4",
+      "rank_delta": -19,
+      "sg_ott": -1.681,
+      "sg_app": 2.657,
+      "sg_arg": 0.332,
+      "sg_putt": 1.081,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.57143,
+        "gir": 0.5,
+        "scrambling": 0.77778,
+        "distance": 306.7
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.42857,
+        "gir": 0.77778,
+        "scrambling": 0.66667,
+        "distance": 300.5
+      },
+      "r3_teetime": "9:10 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "dou|zecheng",
+      "player_name": "Zecheng Dou",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "model_rank": 106,
+      "model_tier": "T5",
+      "rank_delta": 58,
+      "sg_ott": 0.817,
+      "sg_app": -0.683,
+      "sg_arg": 0.509,
+      "sg_putt": 1.746,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.57143,
+        "gir": 0.72222,
+        "scrambling": 0.75,
+        "distance": 311.1
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.57143,
+        "gir": 0.77778,
+        "scrambling": 0.5,
+        "distance": 306.3
+      },
+      "r3_teetime": "9:00 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "jackson|koivun",
+      "player_name": "Jackson Koivun",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "model_rank": 11,
+      "model_tier": "T2",
+      "rank_delta": -37,
+      "sg_ott": 2.17,
+      "sg_app": 0.267,
+      "sg_arg": 0.682,
+      "sg_putt": -0.73,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.85714,
+        "gir": 0.77778,
+        "scrambling": 0.4,
+        "distance": 303.3
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.71429,
+        "gir": 0.83333,
+        "scrambling": 0.75,
+        "distance": 298.6
+      },
+      "r3_teetime": "9:00 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "kevin|yu",
+      "player_name": "Kevin Yu",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 66,
+      "r2": 70,
+      "model_rank": 47,
+      "model_tier": "T5",
+      "rank_delta": -1,
+      "sg_ott": 0.944,
+      "sg_app": 2.093,
+      "sg_arg": -0.065,
+      "sg_putt": -0.583,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.71429,
+        "gir": 0.88889,
+        "scrambling": 0.75,
+        "distance": 307.7
+      },
+      "r2_detail": {
+        "today": 0.0,
+        "sg_total": -0.82,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.71429,
+        "distance": 306.3
+      },
+      "r3_teetime": "8:50 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "kuchar|matt",
+      "player_name": "Matt Kuchar",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 68,
+      "r2": 68,
+      "model_rank": 93,
+      "model_tier": "T5",
+      "rank_delta": 45,
+      "sg_ott": -1.438,
+      "sg_app": 4.252,
+      "sg_arg": -0.203,
+      "sg_putt": -0.222,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.64286,
+        "gir": 0.61111,
+        "scrambling": 0.83333,
+        "distance": 275.9
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.78571,
+        "gir": 0.94444,
+        "scrambling": 0.0,
+        "distance": 296.0
+      },
+      "r3_teetime": "8:50 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "karl|vilips",
+      "player_name": "Karl Vilips",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "model_rank": 95,
+      "model_tier": "T5",
+      "rank_delta": 47,
+      "sg_ott": -2.13,
+      "sg_app": 4.184,
+      "sg_arg": 0.934,
+      "sg_putt": -0.599,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.66667,
+        "distance": 298.9
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.5,
+        "gir": 0.77778,
+        "scrambling": 0.8,
+        "distance": 307.9
+      },
+      "r3_teetime": "8:40 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "gordon|sargent",
+      "player_name": "Gordon Sargent",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 67,
+      "r2": 69,
+      "model_rank": 140,
+      "model_tier": "T5",
+      "rank_delta": 92,
+      "sg_ott": 0.102,
+      "sg_app": -2.37,
+      "sg_arg": 1.969,
+      "sg_putt": 2.688,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.5,
+        "gir": 0.83333,
+        "scrambling": 1.0,
+        "distance": 304.5
+      },
+      "r2_detail": {
+        "today": -1.0,
+        "sg_total": 0.18,
+        "accuracy": 0.57143,
+        "gir": 0.77778,
+        "scrambling": 0.6,
+        "distance": 308.2
+      },
+      "r3_teetime": "8:40 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "surviving_short_game"
+    },
+    {
+      "player_key": "keita|nakajima",
+      "player_name": "Keita Nakajima",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 69,
+      "r2": 67,
+      "model_rank": 65,
+      "model_tier": "T5",
+      "rank_delta": 17,
+      "sg_ott": 1.685,
+      "sg_app": 0.286,
+      "sg_arg": 2.248,
+      "sg_putt": -1.83,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.83333,
+        "distance": 302.9
+      },
+      "r2_detail": {
+        "today": -3.0,
+        "sg_total": 2.18,
+        "accuracy": 0.64286,
+        "gir": 0.83333,
+        "scrambling": 0.66667,
+        "distance": 316.4
+      },
+      "r3_teetime": "8:25 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "johnny|keefer",
+      "player_name": "Johnny Keefer",
+      "lb_pos_display": "T48",
+      "lb_pos_numeric": 48,
+      "total": -4.0,
+      "r1": 66,
+      "r2": 70,
+      "model_rank": 20,
+      "model_tier": "T3",
+      "rank_delta": -28,
+      "sg_ott": 3.047,
+      "sg_app": -1.771,
+      "sg_arg": -1.568,
+      "sg_putt": 2.681,
+      "sg_total": 2.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.64286,
+        "gir": 0.72222,
+        "scrambling": 0.71429,
+        "distance": 310.9
+      },
+      "r2_detail": {
+        "today": 0.0,
+        "sg_total": -0.82,
+        "accuracy": 0.78571,
+        "gir": 0.66667,
+        "scrambling": 0.6,
+        "distance": 312.0
+      },
+      "r3_teetime": "8:25 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "jordan|smith",
+      "player_name": "Jordan Smith",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 66,
+      "r2": 71,
+      "model_rank": 55,
+      "model_tier": "T5",
+      "rank_delta": -8,
+      "sg_ott": 1.144,
+      "sg_app": 1.461,
+      "sg_arg": -2.339,
+      "sg_putt": 1.123,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.57143,
+        "gir": 0.83333,
+        "scrambling": 0.66667,
+        "distance": 304.9
+      },
+      "r2_detail": {
+        "today": 1.0,
+        "sg_total": -1.82,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.5,
+        "distance": 304.1
+      },
+      "r3_teetime": "8:15 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "mac|meissner",
+      "player_name": "Mac Meissner",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "model_rank": 58,
+      "model_tier": "T5",
+      "rank_delta": -5,
+      "sg_ott": 2.353,
+      "sg_app": -1.16,
+      "sg_arg": -0.355,
+      "sg_putt": 0.551,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.66667,
+        "distance": 308.6
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.85714,
+        "gir": 0.72222,
+        "scrambling": 0.71429,
+        "distance": 307.8
+      },
+      "r3_teetime": "8:15 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "dylan|wu",
+      "player_name": "Dylan Wu",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 67,
+      "r2": 70,
+      "model_rank": 114,
+      "model_tier": "T5",
+      "rank_delta": 51,
+      "sg_ott": -2.593,
+      "sg_app": 1.506,
+      "sg_arg": 0.548,
+      "sg_putt": 1.928,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.71429,
+        "gir": 0.72222,
+        "scrambling": 0.6,
+        "distance": 297.5
+      },
+      "r2_detail": {
+        "today": 0.0,
+        "sg_total": -0.82,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.8,
+        "distance": 285.0
+      },
+      "r3_teetime": "8:05 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "h|jgaard|rasmus",
+      "player_name": "Rasmus Højgaard",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "model_rank": null,
+      "model_tier": null,
+      "rank_delta": null,
+      "sg_ott": 1.359,
+      "sg_app": -1.777,
+      "sg_arg": -0.164,
+      "sg_putt": 1.971,
+      "sg_total": 1.389,
+      "r1_detail": null,
+      "r2_detail": null,
+      "r3_teetime": null,
+      "r3_wave": null,
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "jackson|suber",
+      "player_name": "Jackson Suber",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 66,
+      "r2": 71,
+      "model_rank": 36,
+      "model_tier": "T4",
+      "rank_delta": -27,
+      "sg_ott": 0.693,
+      "sg_app": 0.844,
+      "sg_arg": -1.135,
+      "sg_putt": 0.987,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -4.0,
+        "sg_total": 3.2,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.6,
+        "distance": 308.6
+      },
+      "r2_detail": {
+        "today": 1.0,
+        "sg_total": -1.82,
+        "accuracy": 0.64286,
+        "gir": 0.66667,
+        "scrambling": 0.625,
+        "distance": 307.4
+      },
+      "r3_teetime": "7:55 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "blanchet|chandler",
+      "player_name": "Chandler Blanchet",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 72,
+      "r2": 65,
+      "model_rank": 96,
+      "model_tier": "T5",
+      "rank_delta": 33,
+      "sg_ott": 0.193,
+      "sg_app": 0.997,
+      "sg_arg": 1.618,
+      "sg_putt": -1.419,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": 2.0,
+        "sg_total": -2.8,
+        "accuracy": 0.5,
+        "gir": 0.61111,
+        "scrambling": 0.44444,
+        "distance": 297.5
+      },
+      "r2_detail": {
+        "today": -5.0,
+        "sg_total": 4.18,
+        "accuracy": 0.78571,
+        "gir": 0.61111,
+        "scrambling": 0.66667,
+        "distance": 292.9
+      },
+      "r3_teetime": "7:55 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "marcelo|rozo",
+      "player_name": "Marcelo Rozo",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "model_rank": 133,
+      "model_tier": "T5",
+      "rank_delta": 70,
+      "sg_ott": -0.682,
+      "sg_app": -0.826,
+      "sg_arg": -0.527,
+      "sg_putt": 3.424,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.64286,
+        "gir": 0.66667,
+        "scrambling": 0.33333,
+        "distance": 302.2
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.71429,
+        "gir": 0.66667,
+        "scrambling": 0.75,
+        "distance": 291.3
+      },
+      "r3_teetime": "7:45 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "surviving_short_game"
+    },
+    {
+      "player_key": "bezuidenhout|christiaan",
+      "player_name": "Christiaan Bezuidenhout",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 68,
+      "r2": 69,
+      "model_rank": 60,
+      "model_tier": "T5",
+      "rank_delta": -3,
+      "sg_ott": -1.267,
+      "sg_app": 1.583,
+      "sg_arg": -1.208,
+      "sg_putt": 2.281,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -2.0,
+        "sg_total": 1.2,
+        "accuracy": 0.71429,
+        "gir": 0.77778,
+        "scrambling": 0.6,
+        "distance": 296.6
+      },
+      "r2_detail": {
+        "today": -1.0,
+        "sg_total": 0.18,
+        "accuracy": 0.57143,
+        "gir": 0.66667,
+        "scrambling": 0.5,
+        "distance": 296.7
+      },
+      "r3_teetime": "7:45 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "mouw|william",
+      "player_name": "William Mouw",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 71,
+      "r2": 66,
+      "model_rank": 62,
+      "model_tier": "T5",
+      "rank_delta": -1,
+      "sg_ott": 0.092,
+      "sg_app": 3.475,
+      "sg_arg": -1.16,
+      "sg_putt": -1.018,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": 1.0,
+        "sg_total": -1.8,
+        "accuracy": 0.64286,
+        "gir": 0.83333,
+        "scrambling": 0.5,
+        "distance": 289.0
+      },
+      "r2_detail": {
+        "today": -4.0,
+        "sg_total": 3.18,
+        "accuracy": 0.64286,
+        "gir": 0.77778,
+        "scrambling": 0.25,
+        "distance": 304.5
+      },
+      "r3_teetime": "7:35 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "adam|svensson",
+      "player_name": "Adam Svensson",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 69,
+      "r2": 68,
+      "model_rank": 100,
+      "model_tier": "T5",
+      "rank_delta": 37,
+      "sg_ott": 0.733,
+      "sg_app": -1.29,
+      "sg_arg": 0.569,
+      "sg_putt": 1.377,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -1.0,
+        "sg_total": 0.2,
+        "accuracy": 0.71429,
+        "gir": 0.66667,
+        "scrambling": 0.625,
+        "distance": 297.0
+      },
+      "r2_detail": {
+        "today": -2.0,
+        "sg_total": 1.18,
+        "accuracy": 0.78571,
+        "gir": 0.83333,
+        "scrambling": 0.8,
+        "distance": 306.7
+      },
+      "r3_teetime": "7:35 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    },
+    {
+      "player_key": "neal|shipley",
+      "player_name": "Neal Shipley",
+      "lb_pos_display": "T63",
+      "lb_pos_numeric": 63,
+      "total": -3.0,
+      "r1": 67,
+      "r2": 70,
+      "model_rank": 89,
+      "model_tier": "T5",
+      "rank_delta": 26,
+      "sg_ott": 2.885,
+      "sg_app": -2.613,
+      "sg_arg": 0.454,
+      "sg_putt": 0.663,
+      "sg_total": 1.389,
+      "r1_detail": {
+        "today": -3.0,
+        "sg_total": 2.2,
+        "accuracy": 0.64286,
+        "gir": 0.88889,
+        "scrambling": 0.5,
+        "distance": 310.1
+      },
+      "r2_detail": {
+        "today": 0.0,
+        "sg_total": -0.82,
+        "accuracy": 0.78571,
+        "gir": 0.72222,
+        "scrambling": 0.57143,
+        "distance": 315.0
+      },
+      "r3_teetime": "7:30 AM",
+      "r3_wave": "early",
+      "diagnostic_label": "structurally_live"
+    }
+  ],
+  "mechanism_leaders": {
+    "sg_total": [
+      {
+        "player_key": "cameron|young",
+        "player_name": "Cameron Young",
+        "lb_pos_display": "T1",
+        "value": 8.389
+      },
+      {
+        "player_key": "cantlay|patrick",
+        "player_name": "Patrick Cantlay",
+        "lb_pos_display": "T1",
+        "value": 8.389
+      },
+      {
+        "player_key": "fishburn|patrick",
+        "player_name": "Patrick Fishburn",
+        "lb_pos_display": "T1",
+        "value": 8.389
+      },
+      {
+        "player_key": "matt|wallace",
+        "player_name": "Matt Wallace",
+        "lb_pos_display": "T4",
+        "value": 7.389
+      },
+      {
+        "player_key": "fowler|rickie",
+        "player_name": "Rickie Fowler",
+        "lb_pos_display": "T4",
+        "value": 7.389
+      },
+      {
+        "player_key": "brennan|michael",
+        "player_name": "Michael Brennan",
+        "lb_pos_display": "T6",
+        "value": 6.389
+      },
+      {
+        "player_key": "kim|michael",
+        "player_name": "Michael Kim",
+        "lb_pos_display": "T6",
+        "value": 6.389
+      },
+      {
+        "player_key": "malnati|peter",
+        "player_name": "Peter Malnati",
+        "lb_pos_display": "T6",
+        "value": 6.389
+      },
+      {
+        "player_key": "chris|kirk",
+        "player_name": "Chris Kirk",
+        "lb_pos_display": "T6",
+        "value": 6.389
+      },
+      {
+        "player_key": "schauffele|xander",
+        "player_name": "Xander Schauffele",
+        "lb_pos_display": "T6",
+        "value": 6.389
+      }
+    ],
+    "sg_ott": [
+      {
+        "player_key": "doug|ghim",
+        "player_name": "Doug Ghim",
+        "lb_pos_display": "T6",
+        "value": 4.426
+      },
+      {
+        "player_key": "marco|penge",
+        "player_name": "Marco Penge",
+        "lb_pos_display": "T21",
+        "value": 3.945
+      },
+      {
+        "player_key": "hank|lebioda",
+        "player_name": "Hank Lebioda",
+        "lb_pos_display": "T32",
+        "value": 3.316
+      },
+      {
+        "player_key": "johnny|keefer",
+        "player_name": "Johnny Keefer",
+        "lb_pos_display": "T48",
+        "value": 3.047
+      },
+      {
+        "player_key": "neal|shipley",
+        "player_name": "Neal Shipley",
+        "lb_pos_display": "T63",
+        "value": 2.885
+      },
+      {
+        "player_key": "castillo|ricky",
+        "player_name": "Ricky Castillo",
+        "lb_pos_display": "T21",
+        "value": 2.728
+      },
+      {
+        "player_key": "hideki|matsuyama",
+        "player_name": "Hideki Matsuyama",
+        "lb_pos_display": "T32",
+        "value": 2.53
+      },
+      {
+        "player_key": "cameron|young",
+        "player_name": "Cameron Young",
+        "lb_pos_display": "T1",
+        "value": 2.52
+      },
+      {
+        "player_key": "michael|thorbjornsen",
+        "player_name": "Michael Thorbjornsen",
+        "lb_pos_display": "T14",
+        "value": 2.504
+      },
+      {
+        "player_key": "conners|corey",
+        "player_name": "Corey Conners",
+        "lb_pos_display": "T21",
+        "value": 2.409
+      }
+    ],
+    "sg_app": [
+      {
+        "player_key": "bradley|keegan",
+        "player_name": "Keegan Bradley",
+        "lb_pos_display": "T14",
+        "value": 7.512
+      },
+      {
+        "player_key": "brian|campbell",
+        "player_name": "Brian Campbell",
+        "lb_pos_display": "T48",
+        "value": 5.846
+      },
+      {
+        "player_key": "emiliano|grillo",
+        "player_name": "Emiliano Grillo",
+        "lb_pos_display": "T14",
+        "value": 5.046
+      },
+      {
+        "player_key": "fowler|rickie",
+        "player_name": "Rickie Fowler",
+        "lb_pos_display": "T4",
+        "value": 4.386
+      },
+      {
+        "player_key": "hideki|matsuyama",
+        "player_name": "Hideki Matsuyama",
+        "lb_pos_display": "T32",
+        "value": 4.375
+      },
+      {
+        "player_key": "brennan|michael",
+        "player_name": "Michael Brennan",
+        "lb_pos_display": "T6",
+        "value": 4.345
+      },
+      {
+        "player_key": "kuchar|matt",
+        "player_name": "Matt Kuchar",
+        "lb_pos_display": "T48",
+        "value": 4.252
+      },
+      {
+        "player_key": "karl|vilips",
+        "player_name": "Karl Vilips",
+        "lb_pos_display": "T48",
+        "value": 4.184
+      },
+      {
+        "player_key": "hubbard|mark",
+        "player_name": "Mark Hubbard",
+        "lb_pos_display": "T21",
+        "value": 3.691
+      },
+      {
+        "player_key": "cameron|young",
+        "player_name": "Cameron Young",
+        "lb_pos_display": "T1",
+        "value": 3.593
+      }
+    ],
+    "sg_arg": [
+      {
+        "player_key": "fishburn|patrick",
+        "player_name": "Patrick Fishburn",
+        "lb_pos_display": "T1",
+        "value": 3.011
+      },
+      {
+        "player_key": "beau|hossler",
+        "player_name": "Beau Hossler",
+        "lb_pos_display": "T48",
+        "value": 2.877
+      },
+      {
+        "player_key": "hubbard|mark",
+        "player_name": "Mark Hubbard",
+        "lb_pos_display": "T21",
+        "value": 2.636
+      },
+      {
+        "player_key": "david|lipsky",
+        "player_name": "David Lipsky",
+        "lb_pos_display": "T21",
+        "value": 2.63
+      },
+      {
+        "player_key": "adam|schenk",
+        "player_name": "Adam Schenk",
+        "lb_pos_display": "T32",
+        "value": 2.417
+      },
+      {
+        "player_key": "finau|tony",
+        "player_name": "Tony Finau",
+        "lb_pos_display": "T32",
+        "value": 2.301
+      },
+      {
+        "player_key": "keita|nakajima",
+        "player_name": "Keita Nakajima",
+        "lb_pos_display": "T48",
+        "value": 2.248
+      },
+      {
+        "player_key": "gordon|sargent",
+        "player_name": "Gordon Sargent",
+        "lb_pos_display": "T48",
+        "value": 1.969
+      },
+      {
+        "player_key": "hank|lebioda",
+        "player_name": "Hank Lebioda",
+        "lb_pos_display": "T32",
+        "value": 1.752
+      },
+      {
+        "player_key": "clanton|luke",
+        "player_name": "Luke Clanton",
+        "lb_pos_display": "T14",
+        "value": 1.638
+      }
+    ],
+    "sg_putt": [
+      {
+        "player_key": "gerard|ryan",
+        "player_name": "Ryan Gerard",
+        "lb_pos_display": "T6",
+        "value": 7.002
+      },
+      {
+        "player_key": "fishburn|patrick",
+        "player_name": "Patrick Fishburn",
+        "lb_pos_display": "T1",
+        "value": 5.749
+      },
+      {
+        "player_key": "jaeger|stephan",
+        "player_name": "Stephan Jaeger",
+        "lb_pos_display": "T14",
+        "value": 5.412
+      },
+      {
+        "player_key": "cantlay|patrick",
+        "player_name": "Patrick Cantlay",
+        "lb_pos_display": "T1",
+        "value": 4.993
+      },
+      {
+        "player_key": "highsmith|joe",
+        "player_name": "Joe Highsmith",
+        "lb_pos_display": "T32",
+        "value": 4.865
+      },
+      {
+        "player_key": "h|jgaard|nicolai",
+        "player_name": "Nicolai Højgaard",
+        "lb_pos_display": "T32",
+        "value": 4.555
+      },
+      {
+        "player_key": "matt|wallace",
+        "player_name": "Matt Wallace",
+        "lb_pos_display": "T4",
+        "value": 4.252
+      },
+      {
+        "player_key": "brennan|michael",
+        "player_name": "Michael Brennan",
+        "lb_pos_display": "T6",
+        "value": 3.854
+      },
+      {
+        "player_key": "austin|eckroat",
+        "player_name": "Austin Eckroat",
+        "lb_pos_display": "T32",
+        "value": 3.719
+      },
+      {
+        "player_key": "kim|michael",
+        "player_name": "Michael Kim",
+        "lb_pos_display": "T6",
+        "value": 3.52
+      }
+    ]
+  },
+  "venue_mechanism_tags": {
+    "cameron|young": [
+      "structurally_live",
+      "model_vindication"
+    ],
+    "cantlay|patrick": [
+      "structurally_live",
+      "model_vindication"
+    ],
+    "fishburn|patrick": [
+      "structurally_live",
+      "surviving_short_game"
+    ],
+    "matt|wallace": [
+      "structurally_live"
+    ],
+    "fowler|rickie": [
+      "structurally_live",
+      "model_vindication"
+    ],
+    "brennan|michael": [
+      "structurally_live"
+    ],
+    "kim|michael": [
+      "structurally_live"
+    ],
+    "malnati|peter": [
+      "structurally_live"
+    ],
+    "chris|kirk": [
+      "structurally_live"
+    ],
+    "schauffele|xander": [
+      "structurally_live",
+      "model_vindication"
+    ],
+    "davis|riley": [
+      "structurally_live"
+    ],
+    "gerard|ryan": [
+      "structurally_live"
+    ],
+    "doug|ghim": [
+      "structurally_live"
+    ],
+    "justin|lower": [
+      "structurally_live"
+    ],
+    "michael|thorbjornsen": [
+      "structurally_live"
+    ],
+    "bridgeman|jacob": [
+      "structurally_live",
+      "model_vindication"
+    ],
+    "clanton|luke": [
+      "structurally_live"
+    ],
+    "emiliano|grillo": [
+      "structurally_live"
+    ],
+    "bradley|keegan": [
+      "structurally_live"
+    ],
+    "jaeger|stephan": [
+      "structurally_live"
+    ],
+    "david|lipsky": [
+      "structurally_live"
+    ],
+    "henley|russell": [
+      "structurally_live"
+    ],
+    "conners|corey": [
+      "structurally_live"
+    ],
+    "j|j|spaun": [
+      "structurally_live"
+    ],
+    "jordan|spieth": [
+      "structurally_live"
+    ],
+    "marco|penge": [
+      "structurally_live"
+    ],
+    "kristoffer|ventura": [
+      "structurally_live"
+    ],
+    "adrien|saddier": [
+      "structurally_live"
+    ],
+    "hubbard|mark": [
+      "structurally_live"
+    ],
+    "castillo|ricky": [
+      "structurally_live"
+    ],
+    "brandt|snedeker": [
+      "structurally_live"
+    ],
+    "kevin|roy": [
+      "structurally_live"
+    ],
+    "hoey|rico": [
+      "structurally_live"
+    ],
+    "olesen|rn|thorbj": [
+      "surviving_short_game",
+      "fragile_survivor"
+    ],
+    "hideki|matsuyama": [
+      "structurally_live"
+    ],
+    "highsmith|joe": [
+      "structurally_live"
+    ],
+    "h|jgaard|nicolai": [
+      "structurally_live",
+      "surviving_short_game"
+    ],
+    "austin|eckroat": [
+      "surviving_short_game"
+    ],
+    "hank|lebioda": [
+      "structurally_live"
+    ],
+    "ben|kohles": [
+      "structurally_live"
+    ],
+    "blair|zac": [
+      "structurally_live"
+    ],
+    "finau|tony": [
+      "structurally_live"
+    ],
+    "kim|si|woo": [
+      "structurally_live"
+    ],
+    "adam|schenk": [
+      "surviving_short_game",
+      "fragile_survivor"
+    ],
+    "nick|taylor": [
+      "structurally_live"
+    ],
+    "davis|thompson": [
+      "structurally_live"
+    ],
+    "ben|james": [
+      "structurally_live"
+    ],
+    "beau|hossler": [
+      "structurally_live"
+    ],
+    "hisatsune|ryo": [
+      "structurally_live"
+    ],
+    "matt|mccarty": [
+      "structurally_live"
+    ],
+    "im|sungjae": [
+      "structurally_live"
+    ],
+    "brian|campbell": [
+      "structurally_live"
+    ],
+    "english|harris": [
+      "structurally_live",
+      "surviving_short_game"
+    ],
+    "greyserman|max": [
+      "structurally_live"
+    ],
+    "dou|zecheng": [
+      "structurally_live"
+    ],
+    "jackson|koivun": [
+      "structurally_live"
+    ],
+    "kevin|yu": [
+      "structurally_live"
+    ],
+    "kuchar|matt": [
+      "structurally_live"
+    ],
+    "karl|vilips": [
+      "structurally_live"
+    ],
+    "gordon|sargent": [
+      "surviving_short_game",
+      "fragile_survivor"
+    ],
+    "keita|nakajima": [
+      "structurally_live"
+    ],
+    "johnny|keefer": [
+      "structurally_live"
+    ],
+    "jordan|smith": [
+      "structurally_live"
+    ],
+    "mac|meissner": [
+      "structurally_live"
+    ],
+    "dylan|wu": [
+      "structurally_live",
+      "surviving_short_game",
+      "fragile_survivor"
+    ],
+    "h|jgaard|rasmus": [
+      "structurally_live",
+      "surviving_short_game"
+    ],
+    "jackson|suber": [
+      "structurally_live"
+    ],
+    "blanchet|chandler": [
+      "structurally_live"
+    ],
+    "marcelo|rozo": [
+      "surviving_short_game",
+      "fragile_survivor"
+    ],
+    "bezuidenhout|christiaan": [
+      "structurally_live"
+    ],
+    "mouw|william": [
+      "structurally_live"
+    ],
+    "adam|svensson": [
+      "structurally_live",
+      "surviving_short_game"
+    ],
+    "neal|shipley": [
+      "structurally_live"
+    ],
+    "chris|gotterup": [
+      "model_miss_watch"
+    ],
+    "clark|wyndham": [
+      "model_miss_watch"
+    ]
+  },
+  "diagnostic_buckets": {
+    "promotion_watch": [
+      "cameron|young",
+      "cantlay|patrick",
+      "fishburn|patrick",
+      "matt|wallace",
+      "fowler|rickie",
+      "brennan|michael",
+      "kim|michael",
+      "malnati|peter",
+      "chris|kirk",
+      "schauffele|xander",
+      "davis|riley",
+      "gerard|ryan",
+      "doug|ghim",
+      "justin|lower",
+      "michael|thorbjornsen",
+      "bridgeman|jacob",
+      "clanton|luke",
+      "emiliano|grillo",
+      "bradley|keegan",
+      "jaeger|stephan",
+      "david|lipsky",
+      "conners|corey",
+      "jordan|spieth",
+      "marco|penge",
+      "kristoffer|ventura",
+      "adrien|saddier",
+      "hubbard|mark",
+      "castillo|ricky",
+      "brandt|snedeker"
+    ],
+    "hold": [
+      "henley|russell",
+      "j|j|spaun",
+      "kevin|roy",
+      "hoey|rico",
+      "hideki|matsuyama",
+      "highsmith|joe",
+      "h|jgaard|nicolai",
+      "austin|eckroat",
+      "hank|lebioda",
+      "ben|kohles",
+      "blair|zac",
+      "finau|tony",
+      "kim|si|woo",
+      "nick|taylor",
+      "davis|thompson",
+      "ben|james",
+      "beau|hossler",
+      "hisatsune|ryo",
+      "matt|mccarty",
+      "im|sungjae",
+      "brian|campbell",
+      "english|harris",
+      "greyserman|max",
+      "dou|zecheng",
+      "jackson|koivun",
+      "kevin|yu",
+      "kuchar|matt",
+      "karl|vilips",
+      "keita|nakajima",
+      "johnny|keefer",
+      "jordan|smith",
+      "mac|meissner",
+      "h|jgaard|rasmus",
+      "jackson|suber",
+      "blanchet|chandler",
+      "bezuidenhout|christiaan",
+      "mouw|william",
+      "adam|svensson",
+      "neal|shipley"
+    ],
+    "downgrade_watch": [
+      "olesen|rn|thorbj",
+      "adam|schenk",
+      "gordon|sargent",
+      "dylan|wu",
+      "marcelo|rozo"
+    ]
+  },
+  "course_observations": {
+    "holes": [
+      {
+        "hole": 1,
+        "par": 4,
+        "yards": 402,
+        "avg": 3.901,
+        "field_rank": 12,
+        "plus_minus": -0.099,
+        "eagles": 0,
+        "birdies": 69,
+        "pars": 187,
+        "bogeys": 34,
+        "dbl_plus": 3
+      },
+      {
+        "hole": 2,
+        "par": 4,
+        "yards": 494,
+        "avg": 4.113,
+        "field_rank": 5,
+        "plus_minus": 0.113,
+        "eagles": 0,
+        "birdies": 39,
+        "pars": 192,
+        "bogeys": 55,
+        "dbl_plus": 7
+      },
+      {
+        "hole": 3,
+        "par": 4,
+        "yards": 373,
+        "avg": 3.785,
+        "field_rank": 15,
+        "plus_minus": -0.215,
+        "eagles": 0,
+        "birdies": 91,
+        "pars": 177,
+        "bogeys": 23,
+        "dbl_plus": 2
+      },
+      {
+        "hole": 4,
+        "par": 5,
+        "yards": 592,
+        "avg": 4.505,
+        "field_rank": 18,
+        "plus_minus": -0.495,
+        "eagles": 11,
+        "birdies": 144,
+        "pars": 119,
+        "bogeys": 17,
+        "dbl_plus": 2
+      },
+      {
+        "hole": 5,
+        "par": 3,
+        "yards": 156,
+        "avg": 2.874,
+        "field_rank": 13,
+        "plus_minus": -0.126,
+        "eagles": 1,
+        "birdies": 65,
+        "pars": 201,
+        "bogeys": 24,
+        "dbl_plus": 2
+      },
+      {
+        "hole": 6,
+        "par": 4,
+        "yards": 501,
+        "avg": 4.051,
+        "field_rank": 7,
+        "plus_minus": 0.051,
+        "eagles": 0,
+        "birdies": 36,
+        "pars": 211,
+        "bogeys": 41,
+        "dbl_plus": 5
+      },
+      {
+        "hole": 7,
+        "par": 4,
+        "yards": 505,
+        "avg": 4.345,
+        "field_rank": 1,
+        "plus_minus": 0.345,
+        "eagles": 0,
+        "birdies": 25,
+        "pars": 171,
+        "bogeys": 77,
+        "dbl_plus": 20
+      },
+      {
+        "hole": 8,
+        "par": 4,
+        "yards": 349,
+        "avg": 3.669,
+        "field_rank": 16,
+        "plus_minus": -0.331,
+        "eagles": 3,
+        "birdies": 114,
+        "pars": 157,
+        "bogeys": 15,
+        "dbl_plus": 4
+      },
+      {
+        "hole": 9,
+        "par": 3,
+        "yards": 205,
+        "avg": 3.007,
+        "field_rank": 9,
+        "plus_minus": 0.007,
+        "eagles": 0,
+        "birdies": 37,
+        "pars": 218,
+        "bogeys": 37,
+        "dbl_plus": 1
+      },
+      {
+        "hole": 10,
+        "par": 4,
+        "yards": 422,
+        "avg": 3.833,
+        "field_rank": 14,
+        "plus_minus": -0.167,
+        "eagles": 1,
+        "birdies": 70,
+        "pars": 199,
+        "bogeys": 23,
+        "dbl_plus": 0
+      },
+      {
+        "hole": 11,
+        "par": 3,
+        "yards": 246,
+        "avg": 3.119,
+        "field_rank": 4,
+        "plus_minus": 0.119,
+        "eagles": 0,
+        "birdies": 34,
+        "pars": 193,
+        "bogeys": 63,
+        "dbl_plus": 3
+      },
+      {
+        "hole": 12,
+        "par": 4,
+        "yards": 481,
+        "avg": 4.072,
+        "field_rank": 6,
+        "plus_minus": 0.072,
+        "eagles": 0,
+        "birdies": 30,
+        "pars": 220,
+        "bogeys": 36,
+        "dbl_plus": 7
+      },
+      {
+        "hole": 13,
+        "par": 4,
+        "yards": 413,
+        "avg": 3.915,
+        "field_rank": 10,
+        "plus_minus": -0.085,
+        "eagles": 0,
+        "birdies": 80,
+        "pars": 169,
+        "bogeys": 35,
+        "dbl_plus": 9
+      },
+      {
+        "hole": 14,
+        "par": 5,
+        "yards": 561,
+        "avg": 4.642,
+        "field_rank": 17,
+        "plus_minus": -0.358,
+        "eagles": 9,
+        "birdies": 134,
+        "pars": 120,
+        "bogeys": 17,
+        "dbl_plus": 13
+      },
+      {
+        "hole": 15,
+        "par": 3,
+        "yards": 163,
+        "avg": 2.904,
+        "field_rank": 11,
+        "plus_minus": -0.096,
+        "eagles": 0,
+        "birdies": 54,
+        "pars": 216,
+        "bogeys": 21,
+        "dbl_plus": 2
+      },
+      {
+        "hole": 16,
+        "par": 4,
+        "yards": 456,
+        "avg": 4.017,
+        "field_rank": 8,
+        "plus_minus": 0.017,
+        "eagles": 0,
+        "birdies": 40,
+        "pars": 212,
+        "bogeys": 37,
+        "dbl_plus": 4
+      },
+      {
+        "hole": 17,
+        "par": 4,
+        "yards": 537,
+        "avg": 4.321,
+        "field_rank": 2,
+        "plus_minus": 0.321,
+        "eagles": 0,
+        "birdies": 14,
+        "pars": 186,
+        "bogeys": 79,
+        "dbl_plus": 14
+      },
+      {
+        "hole": 18,
+        "par": 4,
+        "yards": 472,
+        "avg": 4.123,
+        "field_rank": 3,
+        "plus_minus": 0.123,
+        "eagles": 0,
+        "birdies": 37,
+        "pars": 188,
+        "bogeys": 63,
+        "dbl_plus": 5
+      }
+    ],
+    "easiest_holes": [
+      4,
+      14,
+      8
+    ],
+    "hardest_holes": [
+      7,
+      17,
+      18
+    ],
+    "birdie_heavy": [
+      4,
+      14,
+      8
+    ],
+    "danger_holes": [
+      7,
+      17,
+      18
+    ]
+  },
+  "round3_weather": {
+    "parse_status": "parsed",
+    "raw_text": "Here's the hourly forecast for tomorrow, Friday, July 31, 2026, covering the Rocket Classic's playing window at the North Course at Detroit Golf Club (1st tee times 7:30 AM–1:50 PM, with play likely running into early evening):\n\nMorning\n\n6 AM: 74°F, 7% precip, wind 3 mph ESE\n\n7 AM: 73°F, 8% precip, wind 3 mph E\n\n8 AM: 74°F, 6% precip, wind 4 mph ENE\n\n9 AM: 76°F, 6% precip, wind 6 mph ENE\n\n10 AM: 77°F, 7% precip, wind 7 mph ENE\n\n11 AM: 78°F, 15% precip, wind 7 mph E\n\nAfternoon\n\n12 PM: 79°F, 15% precip, wind 8 mph E\n\n1 PM: 79°F, 12% precip, wind 9 mph ESE\n\n2 PM: 79°F, 15% precip, wind 9 mph ESE\n\n3 PM: 79°F, 15% precip, wind 9 mph E\n\n4 PM: 78°F, 15% precip, wind 9 mph E\n\n5 PM: 78°F, 17% precip, wind 9 mph E\n\nSummary for tournament play: Conditions look favorable for the entire tee-time window (7:30 AM–1:50 PM). Temps climb steadily from the low-70s at first tee off to upper-70s by early afternoon, with light-to-moderate winds out of the E/ENE (3–9 mph) building slightly as the day progresses. Precipitation chances stay low all morning (6–8%) and creep up modestly into early afternoon (12–17%), but nothing suggests a high risk of rain delays — just keep an eye on that gradual increase in precip probability for groups finishing play in the early evening.",
+    "hourly": [
+      {
+        "time_label": "6 AM",
+        "hour_24": 6,
+        "temp_f": 74,
+        "precip_pct": 7,
+        "wind_mph": 3,
+        "wind_dir": "ESE"
+      },
+      {
+        "time_label": "7 AM",
+        "hour_24": 7,
+        "temp_f": 73,
+        "precip_pct": 8,
+        "wind_mph": 3,
+        "wind_dir": "E"
+      },
+      {
+        "time_label": "8 AM",
+        "hour_24": 8,
+        "temp_f": 74,
+        "precip_pct": 6,
+        "wind_mph": 4,
+        "wind_dir": "ENE"
+      },
+      {
+        "time_label": "9 AM",
+        "hour_24": 9,
+        "temp_f": 76,
+        "precip_pct": 6,
+        "wind_mph": 6,
+        "wind_dir": "ENE"
+      },
+      {
+        "time_label": "10 AM",
+        "hour_24": 10,
+        "temp_f": 77,
+        "precip_pct": 7,
+        "wind_mph": 7,
+        "wind_dir": "ENE"
+      },
+      {
+        "time_label": "11 AM",
+        "hour_24": 11,
+        "temp_f": 78,
+        "precip_pct": 15,
+        "wind_mph": 7,
+        "wind_dir": "E"
+      },
+      {
+        "time_label": "12 PM",
+        "hour_24": 12,
+        "temp_f": 79,
+        "precip_pct": 15,
+        "wind_mph": 8,
+        "wind_dir": "E"
+      },
+      {
+        "time_label": "1 PM",
+        "hour_24": 13,
+        "temp_f": 79,
+        "precip_pct": 12,
+        "wind_mph": 9,
+        "wind_dir": "ESE"
+      },
+      {
+        "time_label": "2 PM",
+        "hour_24": 14,
+        "temp_f": 79,
+        "precip_pct": 15,
+        "wind_mph": 9,
+        "wind_dir": "ESE"
+      },
+      {
+        "time_label": "3 PM",
+        "hour_24": 15,
+        "temp_f": 79,
+        "precip_pct": 15,
+        "wind_mph": 9,
+        "wind_dir": "E"
+      },
+      {
+        "time_label": "4 PM",
+        "hour_24": 16,
+        "temp_f": 78,
+        "precip_pct": 15,
+        "wind_mph": 9,
+        "wind_dir": "E"
+      },
+      {
+        "time_label": "5 PM",
+        "hour_24": 17,
+        "temp_f": 78,
+        "precip_pct": 17,
+        "wind_mph": 9,
+        "wind_dir": "E"
+      }
+    ],
+    "temp_range_f": [
+      73,
+      79
+    ],
+    "wind_range_mph": [
+      3,
+      9
+    ],
+    "precip_range_pct": [
+      6,
+      17
+    ],
+    "max_precip_pct": 17,
+    "dominant_wind_dirs": [
+      "E"
+    ],
+    "risk_label": "low",
+    "early_window_summary": "73–77°F, wind 3–7 mph, precip 6–8%",
+    "late_window_summary": "78–79°F, wind 7–9 mph, precip 12–17%",
+    "tee_time_window_summary": "7:30 AM–1:50 PM"
+  },
+  "teetimes": [
+    {
+      "player_key": "azallion|daniel",
+      "player_name": "Daniel Azallion",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "bauchou|zach",
+      "player_name": "Zach Bauchou",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "bezuidenhout|christiaan",
+      "player_name": "Christiaan Bezuidenhout",
+      "r3_teetime": "7:45 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "akshay|bhatia",
+      "player_name": "Akshay Bhatia",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "blair|zac",
+      "player_name": "Zac Blair",
+      "r3_teetime": "10:15 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "blanchet|chandler",
+      "player_name": "Chandler Blanchet",
+      "r3_teetime": "7:55 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "bradley|keegan",
+      "player_name": "Keegan Bradley",
+      "r3_teetime": "12:15 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "brennan|michael",
+      "player_name": "Michael Brennan",
+      "r3_teetime": "1:30 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "bridgeman|jacob",
+      "player_name": "Jacob Bridgeman",
+      "r3_teetime": "12:35 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "brian|campbell",
+      "player_name": "Brian Campbell",
+      "r3_teetime": "9:20 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "campos|rafael",
+      "player_name": "Rafael Campos",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "cantlay|patrick",
+      "player_name": "Patrick Cantlay",
+      "r3_teetime": "1:50 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "castillo|ricky",
+      "player_name": "Ricky Castillo",
+      "r3_teetime": "11:20 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "celano|ryan",
+      "player_name": "Ryan Celano",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "chatfield|davis",
+      "player_name": "Davis Chatfield",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "clanton|luke",
+      "player_name": "Luke Clanton",
+      "r3_teetime": "12:25 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "clark|wyndham",
+      "player_name": "Wyndham Clark",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "cole|eric",
+      "player_name": "Eric Cole",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "conners|corey",
+      "player_name": "Corey Conners",
+      "r3_teetime": "11:55 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "coody|pierceson",
+      "player_name": "Pierceson Coody",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "crowe|trace",
+      "player_name": "Trace Crowe",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "dahmen|joel",
+      "player_name": "Joel Dahmen",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "brad|dalke",
+      "player_name": "Brad Dalke",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "cam|davis",
+      "player_name": "Cam Davis",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "dou|zecheng",
+      "player_name": "Zecheng Dou",
+      "r3_teetime": "9:00 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "adrien|chassart|de|dumont",
+      "player_name": "Adrien Dumont De Chassart",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "dunlap|nick",
+      "player_name": "Nick Dunlap",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "echavarria|nico",
+      "player_name": "Nico Echavarria",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "austin|eckroat",
+      "player_name": "Austin Eckroat",
+      "r3_teetime": "10:35 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "english|harris",
+      "player_name": "Harris English",
+      "r3_teetime": "9:10 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "a|ewart|j",
+      "player_name": "A.J. Ewart",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "finau|tony",
+      "player_name": "Tony Finau",
+      "r3_teetime": "10:15 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "fishburn|patrick",
+      "player_name": "Patrick Fishburn",
+      "r3_teetime": "1:40 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "fisk|steven",
+      "player_name": "Steven Fisk",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "fowler|rickie",
+      "player_name": "Rickie Fowler",
+      "r3_teetime": "1:30 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "brice|garnett",
+      "player_name": "Brice Garnett",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "gerard|ryan",
+      "player_name": "Ryan Gerard",
+      "r3_teetime": "1:00 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "doug|ghim",
+      "player_name": "Doug Ghim",
+      "r3_teetime": "12:45 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "glover|lucas",
+      "player_name": "Lucas Glover",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "chris|gotterup",
+      "player_name": "Chris Gotterup",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "greyserman|max",
+      "player_name": "Max Greyserman",
+      "r3_teetime": "9:10 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "ben|griffin",
+      "player_name": "Ben Griffin",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "griffin|lanto",
+      "player_name": "Lanto Griffin",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "emiliano|grillo",
+      "player_name": "Emiliano Grillo",
+      "r3_teetime": "12:25 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hall|harry",
+      "player_name": "Harry Hall",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "henley|russell",
+      "player_name": "Russell Henley",
+      "r3_teetime": "12:05 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "garrick|higgo",
+      "player_name": "Garrick Higgo",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "highsmith|joe",
+      "player_name": "Joe Highsmith",
+      "r3_teetime": "10:50 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hirata|kensei",
+      "player_name": "Kensei Hirata",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hisatsune|ryo",
+      "player_name": "Ryo Hisatsune",
+      "r3_teetime": "9:30 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hodges|lee",
+      "player_name": "Lee Hodges",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hoey|rico",
+      "player_name": "Rico Hoey",
+      "r3_teetime": "11:00 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hoge|tom",
+      "player_name": "Tom Hoge",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hojgaard|nicolai",
+      "player_name": "Nicolai Hojgaard",
+      "r3_teetime": "10:35 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": false
+    },
+    {
+      "player_key": "hojgaard|rasmus",
+      "player_name": "Rasmus Hojgaard",
+      "r3_teetime": "8:05 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": false
+    },
+    {
+      "player_key": "hooks|joe",
+      "player_name": "Joe Hooks",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "billy|horschel",
+      "player_name": "Billy Horschel",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "beau|hossler",
+      "player_name": "Beau Hossler",
+      "r3_teetime": "9:45 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hubbard|mark",
+      "player_name": "Mark Hubbard",
+      "r3_teetime": "11:20 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hughes|mackenzie",
+      "player_name": "Mackenzie Hughes",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "huskey|keenan",
+      "player_name": "Keenan Huskey",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "im|sungjae",
+      "player_name": "Sungjae Im",
+      "r3_teetime": "9:20 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jaeger|stephan",
+      "player_name": "Stephan Jaeger",
+      "r3_teetime": "12:15 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "ben|james",
+      "player_name": "Ben James",
+      "r3_teetime": "9:45 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jennings|william",
+      "player_name": "William Jennings",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kanaya|takumi",
+      "player_name": "Takumi Kanaya",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jeffrey|kang",
+      "player_name": "Jeffrey Kang",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "johnny|keefer",
+      "player_name": "Johnny Keefer",
+      "r3_teetime": "8:25 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kim|michael",
+      "player_name": "Michael Kim",
+      "r3_teetime": "1:20 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kim|si|woo",
+      "player_name": "Si Woo Kim",
+      "r3_teetime": "10:05 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "chris|kirk",
+      "player_name": "Chris Kirk",
+      "r3_teetime": "1:10 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kizzire|patton",
+      "player_name": "Patton Kizzire",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jake|knapp",
+      "player_name": "Jake Knapp",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "ben|kohles",
+      "player_name": "Ben Kohles",
+      "r3_teetime": "10:25 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jackson|koivun",
+      "player_name": "Jackson Koivun",
+      "r3_teetime": "9:00 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kuchar|matt",
+      "player_name": "Matt Kuchar",
+      "r3_teetime": "8:50 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "christo|lamprecht",
+      "player_name": "Christo Lamprecht",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hank|lebioda",
+      "player_name": "Hank Lebioda",
+      "r3_teetime": "10:25 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "haotong|li",
+      "player_name": "Haotong Li",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "david|lipsky",
+      "player_name": "David Lipsky",
+      "r3_teetime": "12:05 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "justin|lower",
+      "player_name": "Justin Lower",
+      "r3_teetime": "12:45 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "malnati|peter",
+      "player_name": "Peter Malnati",
+      "r3_teetime": "1:20 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hideki|matsuyama",
+      "player_name": "Hideki Matsuyama",
+      "r3_teetime": "10:50 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "mazzoli|stefano",
+      "player_name": "Stefano Mazzoli",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "denny|mccarthy",
+      "player_name": "Denny McCarthy",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "matt|mccarty",
+      "player_name": "Matt McCarty",
+      "r3_teetime": "9:30 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "max|mcgreevy",
+      "player_name": "Max McGreevy",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "mac|meissner",
+      "player_name": "Mac Meissner",
+      "r3_teetime": "8:15 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "mouw|william",
+      "player_name": "William Mouw",
+      "r3_teetime": "7:35 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "keita|nakajima",
+      "player_name": "Keita Nakajima",
+      "r3_teetime": "8:25 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "neergaard|petersen|rasmus",
+      "player_name": "Rasmus Neergaard-Petersen",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "andrew|novak",
+      "player_name": "Andrew Novak",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "nyholm|pontus",
+      "player_name": "Pontus Nyholm",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "olesen|thorbjorn",
+      "player_name": "Thorbjorn Olesen",
+      "r3_teetime": "11:00 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": false
+    },
+    {
+      "player_key": "john|parry",
+      "player_name": "John Parry",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "matthieu|pavon",
+      "player_name": "Matthieu Pavon",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "pendrith|taylor",
+      "player_name": "Taylor Pendrith",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "marco|penge",
+      "player_name": "Marco Penge",
+      "r3_teetime": "11:40 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "chandler|phillips",
+      "player_name": "Chandler Phillips",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "aldrich|potgieter",
+      "player_name": "Aldrich Potgieter",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "power|seamus",
+      "player_name": "Seamus Power",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "andrew|putnam",
+      "player_name": "Andrew Putnam",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "justin|quiban",
+      "player_name": "Justin Quiban",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "chad|ramey",
+      "player_name": "Chad Ramey",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "davis|riley",
+      "player_name": "Davis Riley",
+      "r3_teetime": "1:00 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "patrick|rodgers",
+      "player_name": "Patrick Rodgers",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kevin|roy",
+      "player_name": "Kevin Roy",
+      "r3_teetime": "11:10 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "marcelo|rozo",
+      "player_name": "Marcelo Rozo",
+      "r3_teetime": "7:45 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "ruffels|ryan",
+      "player_name": "Ryan Ruffels",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "adrien|saddier",
+      "player_name": "Adrien Saddier",
+      "r3_teetime": "11:30 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "gordon|sargent",
+      "player_name": "Gordon Sargent",
+      "r3_teetime": "8:40 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "schauffele|xander",
+      "player_name": "Xander Schauffele",
+      "r3_teetime": "1:10 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "adam|schenk",
+      "player_name": "Adam Schenk",
+      "r3_teetime": "10:05 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "matti|schmid",
+      "player_name": "Matti Schmid",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "neal|shipley",
+      "player_name": "Neal Shipley",
+      "r3_teetime": "7:30 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "ben|silverman",
+      "player_name": "Ben Silverman",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "simpson|webb",
+      "player_name": "Webb Simpson",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jordan|smith",
+      "player_name": "Jordan Smith",
+      "r3_teetime": "8:15 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "austin|smotherman",
+      "player_name": "Austin Smotherman",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "brandt|snedeker",
+      "player_name": "Brandt Snedeker",
+      "r3_teetime": "11:10 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "j|j|spaun",
+      "player_name": "J.J. Spaun",
+      "r3_teetime": "11:55 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jordan|spieth",
+      "player_name": "Jordan Spieth",
+      "r3_teetime": "11:40 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "hayden|springer",
+      "player_name": "Hayden Springer",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jimmy|stanger",
+      "player_name": "Jimmy Stanger",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "sam|stevens",
+      "player_name": "Sam Stevens",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kevin|streelman",
+      "player_name": "Kevin Streelman",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jackson|suber",
+      "player_name": "Jackson Suber",
+      "r3_teetime": "7:55 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "adam|svensson",
+      "player_name": "Adam Svensson",
+      "r3_teetime": "7:35 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "jesper|svensson",
+      "player_name": "Jesper Svensson",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "nick|taylor",
+      "player_name": "Nick Taylor",
+      "r3_teetime": "9:55 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "davis|thompson",
+      "player_name": "Davis Thompson",
+      "r3_teetime": "9:55 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "michael|thorbjornsen",
+      "player_name": "Michael Thorbjornsen",
+      "r3_teetime": "12:35 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "brendon|todd",
+      "player_name": "Brendon Todd",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "alejandro|tosti",
+      "player_name": "Alejandro Tosti",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "erik|rooyen|van",
+      "player_name": "Erik Van Rooyen",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "john|vanderlaan",
+      "player_name": "John VanDerLaan",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kristoffer|ventura",
+      "player_name": "Kristoffer Ventura",
+      "r3_teetime": "11:30 AM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "karl|vilips",
+      "player_name": "Karl Vilips",
+      "r3_teetime": "8:40 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "danny|walker",
+      "player_name": "Danny Walker",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "matt|wallace",
+      "player_name": "Matt Wallace",
+      "r3_teetime": "1:40 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "vince|whaley",
+      "player_name": "Vince Whaley",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "krier|patrick|wilkes",
+      "player_name": "Patrick Wilkes-Krier",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "aaron|wise",
+      "player_name": "Aaron Wise",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "dylan|wu",
+      "player_name": "Dylan Wu",
+      "r3_teetime": "8:05 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "sudarshan|yellamaraju",
+      "player_name": "Sudarshan Yellamaraju",
+      "r3_teetime": null,
+      "r3_wave": null,
+      "r3_starthole": null,
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "cameron|young",
+      "player_name": "Cameron Young",
+      "r3_teetime": "1:50 PM",
+      "r3_wave": "late",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    },
+    {
+      "player_key": "kevin|yu",
+      "player_name": "Kevin Yu",
+      "r3_teetime": "8:50 AM",
+      "r3_wave": "early",
+      "r3_starthole": "1",
+      "matched_leaderboard": true
+    }
+  ],
+  "match_issues": [
+    {
+      "source_file": "round2_leaderboard.csv",
+      "raw_name": "William Jennings",
+      "normalized_key_attempt": null,
+      "reason": "amateur_marker_in_total_slot_total_unknown"
+    },
+    {
+      "source_file": "round1_round2_player_strokes_gained.csv",
+      "raw_name": "William Jennings",
+      "normalized_key_attempt": "jennings|william",
+      "reason": "amateur_row_sg_values_unreliable_nulled"
+    },
+    {
+      "source_file": "pga_field_r3_teetimes.csv",
+      "raw_name": "Nicolai Hojgaard",
+      "normalized_key_attempt": "hojgaard|nicolai",
+      "reason": "no_leaderboard_match"
+    },
+    {
+      "source_file": "pga_field_r3_teetimes.csv",
+      "raw_name": "Rasmus Hojgaard",
+      "normalized_key_attempt": "hojgaard|rasmus",
+      "reason": "no_leaderboard_match"
+    },
+    {
+      "source_file": "pga_field_r3_teetimes.csv",
+      "raw_name": "Thorbjorn Olesen",
+      "normalized_key_attempt": "olesen|thorbjorn",
+      "reason": "no_leaderboard_match"
+    },
+    {
+      "source_file": "live_stats_r1_values.csv",
+      "raw_name": "olesen|thorbjorn",
+      "normalized_key_attempt": "olesen|thorbjorn",
+      "reason": "live_stats_row_not_in_leaderboard"
+    },
+    {
+      "source_file": "live_stats_r1_values.csv",
+      "raw_name": "hojgaard|nicolai",
+      "normalized_key_attempt": "hojgaard|nicolai",
+      "reason": "live_stats_row_not_in_leaderboard"
+    },
+    {
+      "source_file": "live_stats_r1_values.csv",
+      "raw_name": "hojgaard|rasmus",
+      "normalized_key_attempt": "hojgaard|rasmus",
+      "reason": "live_stats_row_not_in_leaderboard"
+    },
+    {
+      "source_file": "live_stats_r2_values.csv",
+      "raw_name": "olesen|thorbjorn",
+      "normalized_key_attempt": "olesen|thorbjorn",
+      "reason": "live_stats_row_not_in_leaderboard"
+    },
+    {
+      "source_file": "live_stats_r2_values.csv",
+      "raw_name": "hojgaard|nicolai",
+      "normalized_key_attempt": "hojgaard|nicolai",
+      "reason": "live_stats_row_not_in_leaderboard"
+    },
+    {
+      "source_file": "live_stats_r2_values.csv",
+      "raw_name": "hojgaard|rasmus",
+      "normalized_key_attempt": "hojgaard|rasmus",
+      "reason": "live_stats_row_not_in_leaderboard"
+    },
+    {
+      "source_file": "2026_rocket_classic_event_payload.json",
+      "raw_name": "hojgaard|nicolai",
+      "normalized_key_attempt": "hojgaard|nicolai",
+      "reason": "model_player_not_in_leaderboard"
+    },
+    {
+      "source_file": "2026_rocket_classic_event_payload.json",
+      "raw_name": "moore|taylor",
+      "normalized_key_attempt": "moore|taylor",
+      "reason": "model_player_not_in_leaderboard"
+    },
+    {
+      "source_file": "2026_rocket_classic_event_payload.json",
+      "raw_name": "hojgaard|rasmus",
+      "normalized_key_attempt": "hojgaard|rasmus",
+      "reason": "model_player_not_in_leaderboard"
+    },
+    {
+      "source_file": "2026_rocket_classic_event_payload.json",
+      "raw_name": "olesen|thorbjorn",
+      "normalized_key_attempt": "olesen|thorbjorn",
+      "reason": "model_player_not_in_leaderboard"
+    }
+  ]
+}
