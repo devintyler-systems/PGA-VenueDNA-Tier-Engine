@@ -1,6 +1,6 @@
 # 02 — PGA VenueDNA Scoring Specification
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Canonical
 **Implements:** Dual-Vector True SG pipeline as deployed in engine/enrich_cards.py
 
@@ -284,3 +284,106 @@ Output validation:
 - All top20Pct ≥ top10Pct ≥ top5Pct ≥ winPct
 - All makeCutPct in [20.0, 98.0]
 - All vts_final and neutralSkillIndex in [0.0, 100.0]
+
+---
+
+## 16. LIVE LAYER
+
+Round-based diagnostics layered on top of the pre-tournament VTS board. The live layer is additive and read-only against §1–§15: it never recomputes or overwrites `vts_final`, `VenueDNA_rank`, or `VenueDNA_tier`. It produces overlay fields only, consumed by the live-round UX (see `standards/ux/claude-code/claude-code-prompt-04-live-round-layer.md`).
+
+Live layer components:
+
+- **Live SG splits** — per-round strokes-gained by category (Off-the-Tee, Approach, Around-the-Green, Putting), sourced from round scorecards.
+- **Shrinkage projections** — forward-looking forecast blending pre-event `vts_final` with in-tournament live SG, using `w_live = n / (n + 8)` where `n` is completed rounds.
+- **Structurally_live eligibility** — the `diagnostic_label: "structurally_live"` gate marking players whose shrinkage-projected finish keeps them within mathematical range of contention. This is an eligibility gate, not a conviction ranking (see §18).
+- **Live badges** — Alpha/Beta/Gamma tiers built from `LiveConvictionScore` and `CeilingIndex` (§17, §18), applied only to players already flagged `structurally_live`.
+
+---
+
+## 17. ROCKET CLASSIC 2026 SCORING ADJUSTMENTS
+
+**Status:** Permanent scoring rules derived from Rocket Classic 2026 (see `03_PGA_VENUEDNA_LEARNING_LOOP.md` §10). Apply globally where the venue variance class and trait context match; venue-specific overrides must be documented.
+
+### 17.1 CeilingIndex
+
+**Inputs:**
+- Recent tee-to-green form (last-12 / last-24 SG splits).
+- Volatility (round-to-round spread, L5 arrays).
+- Venue scoring fit (par-5 scoring, wedge/approach windows, penalty structure).
+
+**Outputs:**
+- `CeilingIndex` — 0–100.
+- `vtsceil` — CeilingIndex-adjusted ceiling score, distinct from `vts_final`.
+
+**Usage:**
+- Pre-event: compute `CeilingIndex` for all players and set `vtsceil` alongside `vts_final`. T3–T5 players with high `CeilingIndex` may carry an elevated `vtsceil` even when `vts_final` is modest.
+- Live layer: `CeilingIndex` and live SG feed `LiveConvictionScore` (§18), which drives Alpha/Beta/Gamma badge assignment.
+
+### 17.2 Badge Governance
+
+**Categories:**
+
+| Category          | Badges                              |
+|--------------------|--------------------------------------|
+| Validated Support   | Iron Surgeon, Detroit Veteran        |
+| Neutral              | Putter                               |
+| Probation             | Hot Streak, Par-5 Predator, Bomber  |
+
+**Rules:**
+- Iron Surgeon and Detroit Veteran may contribute to `VenueFitDelta` / `VenueHistoryDelta` only when structural traits and venue rules align. They cannot rescue a structurally poor profile alone.
+- Hot Streak, Par-5 Predator, and Bomber are low-weight or narrative-only and must not drive Tier 1/T2 designation until multi-event back-testing improves their predictive value.
+- Badge hit/miss rates at top-20 and cut line must be logged per event to inform future promotion/demotion between categories.
+
+### 17.3 Approach Deficit Flag Recency
+
+- Full `ApproachDeficit` penalty applies only when both the long-window (last-24) and short-window (last-12) SG:APP data show weakness.
+- When the long-window shows weakness but the short-window is neutral or positive, downgrade to a watchlist flag and reduce the penalty weight accordingly.
+- Live SG:APP during the event can further confirm or relax the flag.
+
+### 17.4 Trait Concentration Cap
+
+- Hard max: no single trait, or tightly coupled trait pair (e.g., SG:APP + App 150–200), may exceed **0.50 combined VTS weight** without an explicit, documented venue-specific override.
+- Minimum combined weight for short game + putting in birdie-race venue contexts: **0.20–0.25** of VTS.
+- Venue-specific overrides above the cap must document rationale, expected outcome shape, and be tested against past events.
+
+### 17.5 T2RiskTag
+
+**Trigger:**
+- Player is Tier 2 by `VenueDNA_rank`.
+- No individual trait score exceeds a high threshold (e.g., 70 on the 0–100 trait scale).
+- Player carries multiple narrative/probation badges (Bomber, Hot Streak, Veteran, etc.) without a standout structural trait.
+
+**Effect:**
+- Widens the player's confidence band (wider make-cut / finish-probability uncertainty).
+- Player starts in Beta or Gamma live badge tier (§18) regardless of pre-event `vts_final`, unless live performance justifies promotion to Alpha.
+
+---
+
+## 18. LIVE-LAYER BADGE IMPLEMENTATION (ALPHA/BETA/GAMMA)
+
+### LiveConvictionScore
+
+**Inputs:**
+- `vtsceil` (CeilingIndex-adjusted, §17.1).
+- Live SG (Tee-to-Green, Approach, Putting).
+- Current score vs. projected winning total.
+- Tee-time / weather.
+- Volatility index.
+- Penalties / gates (anti-pattern flags, `T2RiskTag`).
+
+**Output:** `LiveConvictionScore` — 0–100 per player.
+
+### Badge Thresholds
+
+| Badge       | Definition                                                                                                   |
+|-------------|-----------------------------------------------------------------------------------------------------------------|
+| Alpha Live  | Highest `LiveConvictionScore` cluster among `structurally_live` players; typically the top 3–5 names with a real win path. |
+| Beta Live   | Credible contenders with at least one constraint (draw, ceiling, or trait gap).                                |
+| Gamma Live  | Remaining `structurally_live` players with a mathematical but weak practical win path.                        |
+
+### Rules
+
+- `structurally_live` is eligibility, not the final label — it gates who is scored for `LiveConvictionScore`; it does not rank them.
+- Live badges are diagnostic overlays. They never rewrite pre-event `VenueDNA_tier` or `vts_final`.
+- Every promotion or downgrade between Alpha/Beta/Gamma must be traceable to a change in `LiveConvictionScore` and name the mechanism (e.g., "Alpha → Beta: tee-time downgrade + SG:APP drop").
+- `T2RiskTag` players (§17.5) start no higher than Beta regardless of `LiveConvictionScore`, unless live SG demonstrates a genuine breakout.

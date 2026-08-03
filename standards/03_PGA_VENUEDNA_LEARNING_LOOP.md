@@ -1,6 +1,6 @@
 # 03 — PGA VenueDNA Learning Loop
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Canonical
 **Implements:** Post-round analysis pipeline as deployed in engine/build_round_analysis.py
 
@@ -214,3 +214,51 @@ pytest tests/  # all engine tests must still pass
 ```
 
 Spearman rho below 0.20 for two consecutive rounds is a model health flag requiring council review before R3 or R4 analysis proceeds.
+
+---
+
+## 10. ROCKET CLASSIC 2026 LEARNING ENTRY
+
+**Status:** Permanent until superseded by future multi-event evidence.
+**Mirrored in:** `02_PGA_VENUEDNA_SCORING_SPEC.md` §17 (Rocket Classic 2026 Scoring Adjustments) and §18 (Live-Layer Badge Implementation — Alpha/Beta/Gamma).
+
+**Context:** 2026 Rocket Classic (Detroit Golf Club). Approach-driven venue with renovated corridors and bunker pressure, bentgrass greens, birdie-heavy upside but real penalty strokes off the tee. Variance class: medium–high (birdie race with punishment).
+
+### 10.1 Variance and CeilingIndex
+
+**Problem:** The winner and key podium finishers (Thorbjornsen, Riley, Højgaard) came from T4/T5 with modest VTS but real upside that the pre-event model did not capture.
+
+**Change:** Define a `CeilingIndex` from recent tee-to-green form, volatility, and venue scoring fit; use it to set `vtsceil` and feed live badges.
+
+**Rule:** T3–T5 players with high CeilingIndex can receive elevated live badges and higher `vtsceil` even when baseline VTS is modest.
+
+### 10.2 Badge Governance
+
+**Finding:** Iron Surgeon and Detroit Veteran validated as strong support signals in Rocket. Hot Streak and Par-5 Predator underperformed.
+
+**Rule:** Iron Surgeon and Detroit Veteran increase confidence only when structural traits and venue rules agree; Hot Streak and Par-5 Predator are on probation (low-weight / narrative only) until cross-event back-testing shows better hit rates.
+
+### 10.3 Approach Deficit Flag Recency
+
+**Problem:** Højgaard's "Approach Deficit" flag contradicted his actual SG:APP and recent form.
+
+**Rule:** Apply full approach-deficit penalty only when both long- and short-window data show weakness; downgrade to watchlist when the most recent window is neutral/positive.
+
+### 10.4 Trait Concentration Cap
+
+**Problem:** SG:APP + App 150–200 consumed ~65% of VTS at Detroit.
+
+**Rule:** Cap any single trait or tight pair at 0.50 combined weight unless a venue-specific override is explicitly documented; maintain minimum weights for short game + putting.
+
+### 10.5 T2 Tier Risk Tag
+
+**Problem:** T2 "average-good, badge-inflated" profiles (Clark, Gotterup, Spaun) busted more than tiers suggested.
+
+**Rule:** Introduce a `T2RiskTag` for Tier 2 players with no trait score above a high threshold and multiple badges; widen confidence and start them in lower live badge tiers unless live SG demonstrates a true breakout.
+
+### Deployment Rules
+
+- These rules are **permanent until superseded** by future multi-event evidence.
+- Each rule must be mirrored in `02_PGA_VENUEDNA_SCORING_SPEC.md` before it is treated as authoritative for engine implementation.
+- Council governance tracks whether these changes improve Tier 1/T2 accuracy, and whether ceiling/variance handling reduces "winner from T4/T5 with no conviction" misses.
+- Rocket Classic 2027 (if played) is the primary test venue for these Detroit-specific learnings; other medium–high variance, approach-driven venues are secondary test beds.
