@@ -672,13 +672,24 @@ def run_council(players: list[dict], briefs: dict, dgd: dict) -> dict:
 
 # ── Main build ────────────────────────────────────────────────────────────────
 
+def _resolve_event_dir(slug: str) -> Path:
+    """Find an event's folder whether it's still active or already archived."""
+    flat = _ROOT / "events" / slug
+    if flat.exists():
+        return flat
+    archived = _ROOT / "events" / "2026_Finished_Events" / slug
+    if archived.exists():
+        return archived
+    return flat  # preserve old behavior / error message if truly missing
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build canonical 3M Open event package")
     parser.add_argument("--event", default="2026_3m_open")
     args = parser.parse_args()
 
     slug       = args.event
-    event_dir  = _ROOT / "events" / slug
+    event_dir  = _resolve_event_dir(slug)
     input_dir  = event_dir / "input"
     output_dir = event_dir / "output"
     deploy_dir = event_dir / "deploy"

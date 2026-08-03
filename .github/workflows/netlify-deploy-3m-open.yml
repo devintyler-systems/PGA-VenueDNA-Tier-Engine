@@ -1,7 +1,8 @@
 name: Deploy 3M Open Board to Netlify
 
-# Auto-deploys events/2026_3m_open/deploy/ to Netlify whenever that folder
-# changes on main. Replaces manual app.netlify.com/drop drag-and-drop.
+# Auto-deploys events/2026_Finished_Events/2026_3m_open/deploy/ to Netlify
+# whenever that folder changes on main. Replaces manual app.netlify.com/drop
+# drag-and-drop.
 #
 # To add this pattern for a future active event: copy this file, change the
 # `paths` filter and NETLIFY_SITE_ID to the new event's deploy/ folder and
@@ -12,7 +13,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "events/2026_3m_open/deploy/**"
+      - "events/2026_Finished_Events/2026_3m_open/deploy/**"
   workflow_dispatch: {}
 
 concurrency:
@@ -35,7 +36,7 @@ jobs:
           NETLIFY_SITE_ID: 9151811d-09cc-4d42-99cc-e4e509f48249
         run: |
           netlify deploy \
-            --dir=events/2026_3m_open/deploy \
+            --dir=events/2026_Finished_Events/2026_3m_open/deploy \
             --site="$NETLIFY_SITE_ID" \
             --prod \
             --message "Auto-deploy from ${{ github.sha }}"

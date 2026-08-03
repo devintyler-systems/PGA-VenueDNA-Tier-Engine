@@ -5,7 +5,7 @@ import pytest
 
 _VAL_PATH = (
     Path(__file__).resolve().parent.parent
-    / "events" / "2026_rocket_classic" / "output" / "validate_badge_emission.py"
+    / "events" / "2026_Finished_Events" / "2026_rocket_classic" / "output" / "validate_badge_emission.py"
 )
 _spec = importlib.util.spec_from_file_location("badge_validator", _VAL_PATH)
 _mod  = importlib.util.module_from_spec(_spec)
