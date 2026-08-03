@@ -10,6 +10,9 @@ import re
 from pathlib import Path
 from typing import Any
 
+FETCH_CALL_PATTERN = r"""\b(?:fetch|d3\.(?:csv|json))\(\s*([^,\r\n)]*)"""
+META_REFRESH_PATTERN = r"""<meta\s+http-equiv=[\"']refresh[\"']\s+content=[\"'][^\"']*url=([^\"']+)[\"']"""
+DYNAMIC_PATTERN_PLACEHOLDER = re.compile(r"\\\{[^{}]+\\\}")
 FETCH_PATTERNS = (
     r"""fetch\(\s*[`'"]([^`'"]+)[`'"]""",
     r"""d3\.csv\(\s*[`'"]([^`'"]+)[`'"]""",
@@ -37,6 +40,22 @@ def extract_fetch_targets(app_js: str) -> list[str]:
     return targets
 
 
+def extract_nonliteral_fetch_targets(app_js: str) -> list[str]:
+    """Return fetch expressions that cannot be resolved statically."""
+    targets: list[str] = []
+
+    for expression in re.findall(FETCH_CALL_PATTERN, app_js):
+        target = expression.strip()
+
+        if target.startswith(("'", '"', "`")):
+            continue
+
+        if target and target not in targets:
+            targets.append(target)
+
+    return targets
+
+
 def local_target(target: str) -> str | None:
     clean_target = target.split("?", 1)[0].split("#", 1)[0]
 
@@ -51,6 +70,16 @@ def resolve_target(deploy_root: Path, target: str) -> Path:
         return deploy_root / target.lstrip("/")
 
     return deploy_root / target
+
+
+def is_deploy_relative_path(target: str) -> bool:
+    path = Path(target)
+    return (
+        local_target(target) == target
+        and not path.is_absolute()
+        and not path.drive
+        and ".." not in path.parts
+    )
 
 
 def validate_json(path: Path) -> str | None:
@@ -77,6 +106,123 @@ def validate_csv(path: Path) -> str | None:
     return None
 
 
+def validate_payload(path: Path) -> str | None:
+    if path.suffix.lower() == ".json":
+        return validate_json(path)
+
+    if path.suffix.lower() == ".csv":
+        return validate_csv(path)
+
+    return None
+
+
+def pattern_matches(pattern: str, value: str) -> bool:
+    expression = DYNAMIC_PATTERN_PLACEHOLDER.sub("[^/]+", re.escape(pattern))
+    return re.fullmatch(expression, value) is not None
+
+
+def load_dynamic_payload_manifest(
+    deploy_root: Path, manifest_arg: str | None, errors: list[str], warnings: list[str]
+) -> dict[str, dict[str, Any]]:
+    manifest_path = deploy_root / (manifest_arg or "payload_manifest.json")
+
+    if not manifest_path.is_file():
+        if manifest_arg:
+            errors.append(f"Payload manifest does not exist: {manifest_path}")
+        return {}
+
+    try:
+        manifest = load_manifest(manifest_path)
+    except Exception as exc:
+        errors.append(f"Invalid payload manifest {manifest_path}: {exc}")
+        return {}
+
+    if manifest.get("schema_version") != "1.0":
+        errors.append(
+            f"Payload manifest {manifest_path} requires schema_version '1.0'"
+        )
+
+    entries = manifest.get("dynamic_fetches")
+
+    if not isinstance(entries, list):
+        errors.append(f"Payload manifest {manifest_path} requires dynamic_fetches list")
+        return {}
+
+    declarations: dict[str, dict[str, Any]] = {}
+
+    for index, entry in enumerate(entries):
+        label = f"Payload manifest dynamic_fetches[{index}]"
+
+        if not isinstance(entry, dict):
+            errors.append(f"{label} must be an object")
+            continue
+
+        expression = entry.get("expression")
+        pattern = entry.get("pattern")
+        expected_files = entry.get("expected_files")
+
+        if not isinstance(expression, str) or not expression:
+            errors.append(f"{label} requires non-empty expression")
+            continue
+
+        if expression in declarations:
+            errors.append(f"{label} duplicates expression: {expression}")
+            continue
+
+        if not isinstance(pattern, str) or not pattern:
+            errors.append(f"{label} requires non-empty pattern")
+            continue
+
+        if not isinstance(expected_files, list) or not expected_files:
+            errors.append(f"{label} requires non-empty expected_files list")
+            continue
+
+        valid = True
+
+        for expected_file in expected_files:
+            if not isinstance(expected_file, str) or not expected_file:
+                errors.append(f"{label} expected_files entries must be non-empty strings")
+                valid = False
+                continue
+
+            if not is_deploy_relative_path(expected_file):
+                errors.append(f"{label} expected file must be a local path: {expected_file}")
+                valid = False
+                continue
+
+            if not pattern_matches(pattern, expected_file):
+                errors.append(
+                    f"{label} expected file does not match pattern: {expected_file}"
+                )
+                valid = False
+                continue
+
+            payload_path = resolve_target(deploy_root, expected_file)
+
+            if not payload_path.is_file():
+                errors.append(
+                    f"Declared dynamic payload missing: {expected_file} -> {payload_path}"
+                )
+                valid = False
+                continue
+
+            validation_error = validate_payload(payload_path)
+
+            if validation_error:
+                errors.append(
+                    f"Invalid declared dynamic payload: {payload_path} ({validation_error})"
+                )
+                valid = False
+
+        if valid:
+            declarations[expression] = entry
+
+    if not declarations and not errors:
+        warnings.append(f"Payload manifest {manifest_path} declares no dynamic fetches")
+
+    return declarations
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -98,6 +244,14 @@ def main() -> int:
         "--app-js",
         default="app.js",
         help="Path to app.js relative to deploy root",
+    )
+    parser.add_argument(
+        "--payload-manifest",
+        default=None,
+        help=(
+            "Optional manifest path relative to deploy root. Defaults to "
+            "payload_manifest.json when present."
+        ),
     )
     parser.add_argument(
         "--strict",
@@ -176,11 +330,32 @@ def main() -> int:
 
     app_text = app_js.read_text(encoding="utf-8", errors="replace")
     fetch_targets = extract_fetch_targets(app_text)
+    nonliteral_targets = extract_nonliteral_fetch_targets(app_text)
+    dynamic_targets = list(nonliteral_targets)
+
+    for target in fetch_targets:
+        if ("${" in target or "{" in target) and target not in dynamic_targets:
+            dynamic_targets.append(target)
+
+    dynamic_declarations = load_dynamic_payload_manifest(
+        deploy_root, args.payload_manifest, errors, warnings
+    )
 
     if not fetch_targets:
         warnings.append(
             "No literal fetch(), d3.csv(), or d3.json() targets detected in app.js"
         )
+
+    for target in dynamic_targets:
+        if target in dynamic_declarations:
+            continue
+
+        message = f"Dynamic target requires manual review: {target}"
+
+        if args.strict:
+            errors.append(message)
+        else:
+            warnings.append(message)
 
     for target in fetch_targets:
         target_value = local_target(target)
@@ -190,13 +365,6 @@ def main() -> int:
             continue
 
         if "${" in target_value or "{" in target_value:
-            message = f"Dynamic target requires manual review: {target}"
-
-            if args.strict:
-                errors.append(message)
-            else:
-                warnings.append(message)
-
             continue
 
         payload_path = resolve_target(deploy_root, target_value)
@@ -207,35 +375,43 @@ def main() -> int:
             )
             continue
 
-        suffix = payload_path.suffix.lower()
+        validation_error = validate_payload(payload_path)
 
-        if suffix == ".json":
-            validation_error = validate_json(payload_path)
+        if validation_error:
+            errors.append(f"Invalid payload: {payload_path} ({validation_error})")
 
-            if validation_error:
-                errors.append(
-                    f"Invalid JSON payload: {payload_path} ({validation_error})"
-                )
-
-        elif suffix == ".csv":
-            validation_error = validate_csv(payload_path)
-
-            if validation_error:
-                errors.append(
-                    f"Invalid CSV payload: {payload_path} ({validation_error})"
-                )
-
+    entry_html = index_html
     html_text = index_html.read_text(encoding="utf-8", errors="replace")
+    meta_refresh = re.search(META_REFRESH_PATTERN, html_text, flags=re.IGNORECASE)
+
+    if meta_refresh:
+        refresh_target = local_target(meta_refresh.group(1).strip())
+
+        if refresh_target is None:
+            warnings.append(
+                "index.html redirects externally; entry-document assets were not checked"
+            )
+        else:
+            redirect_path = resolve_target(deploy_root, refresh_target)
+
+            if redirect_path.is_file():
+                entry_html = redirect_path
+                html_text = entry_html.read_text(encoding="utf-8", errors="replace")
+            else:
+                errors.append(
+                    "index.html meta-refresh target missing: "
+                    f"{meta_refresh.group(1).strip()} -> {redirect_path}"
+                )
 
     if "app.js" not in html_text:
         warnings.append(
-            "index.html has no literal app.js reference. "
+            f"{entry_html.name} has no literal app.js reference. "
             "Verify module or bundled script loading."
         )
 
     if "styles.css" not in html_text:
         warnings.append(
-            "index.html has no literal styles.css reference. "
+            f"{entry_html.name} has no literal styles.css reference. "
             "Verify stylesheet loading."
         )
 

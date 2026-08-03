@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "dynamic_fetches": [
+    {
+      "expression": "data/r${round}_analysis.json",
+      "pattern": "data/r{round}_analysis.json",
+      "expected_files": [
+        "data/r1_analysis.json",
+        "data/r2_analysis.json",
+        "data/r3_analysis.json",
+        "data/r4_analysis.json"
+      ]
+    }
+  ]
+}

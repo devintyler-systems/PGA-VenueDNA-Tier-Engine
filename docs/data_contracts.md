@@ -248,6 +248,49 @@ Before changing a deploy payload:
 5. Validate the fixture harness or browser board.
 6. Do not place raw data, temporary exports, notes, or planning documents in `deploy/data/`.
 
+### Dynamic Payload Manifest
+
+Boards may use dynamic local fetches only when their deploy root contains an optional
+`payload_manifest.json`. Its presence is additive: boards without one retain normal
+dynamic-target warnings and fail strict validation.
+
+The manifest declares the exact runtime expression, a generic local-file pattern, and
+the complete expected local files. Every expected file must exist and pass the normal
+JSON or CSV validation before strict validation accepts the dynamic expression.
+
+```json
+{
+  "schema_version": "1.0",
+  "dynamic_fetches": [
+    {
+      "expression": "data/r${round}_analysis.json",
+      "pattern": "data/r{round}_analysis.json",
+      "expected_files": [
+        "data/r1_analysis.json",
+        "data/r2_analysis.json",
+        "data/r3_analysis.json",
+        "data/r4_analysis.json"
+      ]
+    }
+  ]
+}
+```
+
+`expression` must exactly match the dynamic first argument found in `app.js`.
+`pattern` uses named placeholders such as `{round}`; it is not an executable path
+template. `expected_files` is the authoritative enumeration and must use local,
+deploy-root-relative paths that match the pattern. Do not use this manifest to
+authorize external URLs or undeclared runtime paths.
+
+Validate a dynamic board with:
+
+```powershell
+python tools/validate_deploy_contract.py --deploy-root events/{event_slug}/deploy --strict
+```
+
+Use `--payload-manifest path/to/manifest.json` only when the event intentionally
+stores the manifest outside the default deploy-root location.
+
 ### Board Rules
 
 - Static-board code displays approved artifacts.
