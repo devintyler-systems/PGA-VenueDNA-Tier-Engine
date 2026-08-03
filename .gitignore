@@ -41,7 +41,26 @@ env/
 # (QA records CSV can be rebuilt by qa_trait_validation.py)
 output/*_qa_records.csv
 
+# DataGolf API harvester cache — local working store, absent from clean clone
+# (production master is data/venuedna_master.db, which IS tracked)
+data/venue_dna.db
+
 # Event-local output and deploy artifacts (governance rule: untracked, rebuilt from pipeline)
-events/2026_rocket_classic/output/
-events/2026_rocket_classic/deploy/data/
-events/2026_rocket_classic/output/_dry_run/
+events/2026_Finished_Events/2026_rocket_classic/output/
+events/2026_Finished_Events/2026_rocket_classic/deploy/data/
+events/2026_Finished_Events/2026_rocket_classic/output/_dry_run/
+
+# AI-tool skill/config scaffolding (generic, not project-specific; keep local, never track)
+.agent/
+.codebuddy/
+.codex/
+.continue/
+.cursor/
+.gemini/
+.github/prompts/
+.kiro/
+.opencode/
+.qoder/
+.roo/
+.trae/
+.windsurf/

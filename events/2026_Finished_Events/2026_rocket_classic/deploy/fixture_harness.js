@@ -23,7 +23,7 @@
     openPlayerId:   null,
     auditCompanion: null,
 
-    // Live R2 diagnostic layer — read-only overlay, never mutates the fixtures above.
+    // Live diagnostic layer (currently R3) — read-only overlay, never mutates the fixtures above.
     currentView:       "pre-event",   // "pre-event" | "live"
     liveData:          null,          // parsed data/2026_rocket_classic_r2_live.json
     liveAvailable:     false,
@@ -104,16 +104,21 @@
     }
 
     try {
-      S.liveData = await loadJSON("data/2026_rocket_classic_r2_live.json");
+      S.liveData = await loadJSON("data/2026_rocket_classic_r3_live.json");
       S.liveAvailable = true;
       indexLiveData();
     } catch (e) {
-      console.warn("Live R2 data unavailable — Live: R2 Update view stays hidden.", e);
+      console.warn("Live R3 data unavailable — Live: R3 Update view stays hidden.", e);
       S.liveAvailable = false;
     }
 
     const liveToggleBtn = document.getElementById("view-toggle-live");
-    if (liveToggleBtn) liveToggleBtn.hidden = !S.liveAvailable;
+    if (liveToggleBtn) {
+      liveToggleBtn.hidden = !S.liveAvailable;
+      // Prefer the artifact's own label so future rounds don't require another HTML edit.
+      const liveLabel = S.liveAvailable && S.liveData.live_state && S.liveData.live_state.live_label;
+      if (liveLabel) liveToggleBtn.textContent = liveLabel;
+    }
 
     bindGlobalEvents();
   }
@@ -966,7 +971,7 @@
     if (dialog) dialog.close();
   }
 
-  // ── Live R2 diagnostic layer ─────────────────────────────────────────────────
+  // ── Live diagnostic layer (currently R3) ────────────────────────────────────
   //
   // Read-only overlay consuming data/2026_rocket_classic_r2_live.json. All tags,
   // buckets, and mechanism leaders are pre-computed by build_live_r2.py — nothing
@@ -1089,12 +1094,13 @@
     if (!closeRow) return;
 
     const tags = S.liveData.venue_mechanism_tags[key] || [];
+    const liveRound = S.liveData.live_state.live_round || "";
     const block = document.createElement("div");
     block.className = "live-drawer-block";
     block.innerHTML = `
-      <div class="live-drawer-block-title">Live R2 Snapshot — diagnostic, not an official rerank</div>
-      <div>LB Pos <strong>${esc(rec.lb_pos_display)}</strong> · Total ${fmtScore(rec.total)} (R1 ${rec.r1 ?? "—"} / R2 ${rec.r2 ?? "—"})</div>
-      ${rec.r3_teetime ? `<div>R3 tee: ${esc(rec.r3_teetime)} (${esc(rec.r3_wave || "—")})</div>` : ""}
+      <div class="live-drawer-block-title">Live ${esc(liveRound)} Snapshot — diagnostic, not an official rerank</div>
+      <div>LB Pos <strong>${esc(rec.lb_pos_display)}</strong> · Total ${fmtScore(rec.total)} (R1 ${rec.r1 ?? "—"} / R2 ${rec.r2 ?? "—"} / R3 ${rec.r3 ?? "—"})</div>
+      ${rec.r4_teetime ? `<div>R4 tee: ${esc(rec.r4_teetime)} (${esc(rec.r4_wave || "—")})</div>` : ""}
       <div style="margin-top:6px;">${tags.length ? renderTagChips(tags) : '<span class="live-chip chip-neutral">unclassified</span>'}</div>
     `;
     closeRow.insertAdjacentElement("afterend", block);
@@ -1138,11 +1144,12 @@
         <td>${fmtScore(r.total)}</td>
         <td>${r.r1 ?? "—"}</td>
         <td>${r.r2 ?? "—"}</td>
-        <td>${r.model_rank ?? "—"}</td>
-        <td>${r.model_tier ? `<span class="tier-pill tier-${esc(r.model_tier)}">${esc(r.model_tier)}</span>` : "—"}</td>
+        <td>${r.r3 ?? "—"}</td>
+        <td>${r.pre_event_rank ?? "—"}</td>
+        <td>${r.pre_event_tier ? `<span class="tier-pill tier-${esc(r.pre_event_tier)}">${esc(r.pre_event_tier)}</span>` : "—"}</td>
         <td>${deltaLabel}</td>
-        <td>${r.r3_teetime ? esc(r.r3_teetime) : "—"}</td>
-        <td>${r.r3_wave ? esc(r.r3_wave) : "—"}</td>
+        <td>${r.r4_teetime ? esc(r.r4_teetime) : "—"}</td>
+        <td>${r.r4_wave ? esc(r.r4_wave) : "—"}</td>
         <td>${tags.length ? renderTagChips(tags) : '<span class="live-chip chip-neutral">unclassified</span>'}</td>
       </tr>`;
     }).join("");
@@ -1153,10 +1160,10 @@
         <div class="live-table-wrap">
           <table class="live-table">
             <thead><tr>
-              <th>LB Pos</th><th>Player</th><th>Total</th><th>R1</th><th>R2</th>
-              <th>Model Rank</th><th>Tier</th><th>Δ vs Model</th><th>R3 Tee</th><th>Wave</th><th>Diagnostic</th>
+              <th>LB Pos</th><th>Player</th><th>Total</th><th>R1</th><th>R2</th><th>R3</th>
+              <th>Model Rank</th><th>Tier</th><th>Δ vs Model</th><th>R4 Tee</th><th>Wave</th><th>Diagnostic</th>
             </tr></thead>
-            <tbody>${body || '<tr><td colspan="11" class="live-empty-state">No survivor data.</td></tr>'}</tbody>
+            <tbody>${body || '<tr><td colspan="12" class="live-empty-state">No survivor data.</td></tr>'}</tbody>
           </table>
         </div>
       </div>
@@ -1212,7 +1219,7 @@
 
     return `
       <div class="live-section">
-        <div class="live-section-title">Mechanism Leaders <span class="live-section-sub">two-round SG, cut survivors only</span></div>
+        <div class="live-section-title">Mechanism Leaders <span class="live-section-sub">three-round SG, cut survivors only</span></div>
         <div class="live-mech-grid">${cards}</div>
       </div>
     `;
@@ -1234,7 +1241,7 @@
 
     return `
       <div class="live-section">
-        <div class="live-section-title">Course Through 2 Rounds — Detroit Golf Club</div>
+        <div class="live-section-title">Course Through 3 Rounds — Detroit Golf Club</div>
         <div class="live-course-grid">
           ${group("Easiest Holes", co.easiest_holes, (h) => `${h.plus_minus > 0 ? "+" : ""}${h.plus_minus}`)}
           ${group("Hardest Holes", co.hardest_holes, (h) => `${h.plus_minus > 0 ? "+" : ""}${h.plus_minus}`)}
@@ -1246,10 +1253,10 @@
   }
 
   function renderWeatherSection() {
-    const w = S.liveData.round3_weather || {};
+    const w = S.liveData.round4_weather || {};
     let body;
 
-    if (w.parse_status === "parsed") {
+    if (w.parse_status === "parsed" || w.parse_status === "parsed_narrative") {
       const riskClass = w.risk_label === "low" ? "chip-success" : w.risk_label === "moderate" ? "chip-warning" : "chip-danger";
       body = `
         <div class="live-weather-stats">
@@ -1259,6 +1266,7 @@
           <div class="live-stat-tile"><div class="live-stat-label">Risk</div><div class="live-stat-value"><span class="live-chip ${riskClass}">${esc(w.risk_label)}</span></div></div>
         </div>
         <div class="live-weather-note">
+          ${w.parse_status === "parsed_narrative" ? "Derived from narrative forecast text (source format differs from R3).<br>" : ""}
           ${w.tee_time_window_summary ? `Tee window: ${esc(w.tee_time_window_summary)}<br>` : ""}
           Early (6–10 AM): ${esc(w.early_window_summary || "—")}<br>
           Late (11 AM–5 PM): ${esc(w.late_window_summary || "—")}
@@ -1271,7 +1279,7 @@
 
     return `
       <div class="live-section">
-        <div class="live-section-title">R3 Weather — Detroit Golf Club</div>
+        <div class="live-section-title">R4 Weather — Detroit Golf Club</div>
         <div class="live-weather-card">${body}</div>
       </div>
     `;

@@ -1,13 +1,17 @@
 """
-build_live_r2.py — Rocket Classic 2026 R2 live-diagnostic builder.
+build_live_r3.py — Rocket Classic 2026 R3 live-diagnostic builder.
 
-Merges post-R2 leaderboard, two-round SG, per-round live stats, course-through-2-rounds
-stats, R3 tee times, and R3 weather (prose, not real JSON) into one auditable live-state
-artifact. This is a diagnostic overlay only — it never writes to, reorders, or reinterprets
-the canonical pre-tournament event payload. Pre-event rank/tier are read-only inputs here.
+Merges post-R3 leaderboard, three-round SG, per-round live stats, course-through-3-rounds
+stats, R4 tee times, R4 weather (narrative prose, format differs from R3's), and the
+event-local player ID crosswalk into one auditable live-state artifact. This is a
+diagnostic overlay only — it never writes to, reorders, or reinterprets the canonical
+pre-tournament event payload. Pre-event rank/tier are read-only inputs here.
+
+Does NOT touch 2026_rocket_classic_r2_live.json (either copy) — that is a frozen R2
+evidence snapshot. This builder writes a sibling *_r3_live.json artifact only.
 
 Usage:
-    python build_live_r2.py
+    python build_live_r3.py
 """
 
 from __future__ import annotations
@@ -18,6 +22,18 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from live_builder_common import (
+    HOURLY_RE_NARRATIVE,
+    HOURLY_RE_STRICT,
+    extract_hourly,
+    format_score,
+    normalize_name,
+    read_csv_raw,
+    summarize_hourly,
+    to_int,
+    to_num,
+)
+
 # ── Paths ──────────────────────────────────────────────────────────────────────
 
 EVENT_DIR = Path(__file__).resolve().parent.parent
@@ -27,25 +43,29 @@ DEPLOY_DATA_DIR = EVENT_DIR / "deploy" / "data"
 PATHS = {
     "live_r1": OUTPUT_DIR / "round1" / "live_stats_r1_values.csv",
     "live_r2": OUTPUT_DIR / "round2" / "live_stats_r2_values.csv",
-    "sg": OUTPUT_DIR / "round2" / "round1_round2_player_strokes_gained.csv",
-    "leaderboard": OUTPUT_DIR / "round2" / "round2_leaderboard.csv",
-    "course_stats": OUTPUT_DIR / "round2" / "round2_course_stats.csv",
-    "teetimes": OUTPUT_DIR / "round3" / "pga_field_r3_teetimes.csv",
-    "weather": OUTPUT_DIR / "round3" / "detroit_golf_club_r3_weather_data_2026.json",
+    "live_r3": OUTPUT_DIR / "round3" / "live_stats_r3_values.csv",
+    "sg": OUTPUT_DIR / "round3" / "round3_player_strokes_gained.csv",
+    "leaderboard": OUTPUT_DIR / "round3" / "round3_leaderboard.csv",
+    "course_stats": OUTPUT_DIR / "round3" / "round3_course_stats.csv",
+    "teetimes": OUTPUT_DIR / "round4" / "pga_field_r4_teetimes.csv",
+    "weather": OUTPUT_DIR / "round4" / "detroit_golf_club_r4_weather_data_2026.json",
     "payload": EVENT_DIR / "deploy" / "data" / "2026_rocket_classic_event_payload.json",
+    "crosswalk": EVENT_DIR / "input" / "rocket_classic_player_ID_source.csv",
+    # Cut line is fixed once R2 finishes and never moves — read it from the R2
+    # leaderboard (read-only reference; never written to) rather than
+    # recomputing from R3 totals, which would drift every round.
+    "r2_leaderboard_cut_ref": OUTPUT_DIR / "round2" / "round2_leaderboard.csv",
 }
 
+# Sibling artifact — 2026_rocket_classic_r2_live.json is never written to by this script.
 OUT_PATHS = [
-    OUTPUT_DIR / "2026_rocket_classic_r2_live.json",
-    DEPLOY_DATA_DIR / "2026_rocket_classic_r2_live.json",
+    OUTPUT_DIR / "2026_rocket_classic_r3_live.json",
+    DEPLOY_DATA_DIR / "2026_rocket_classic_r3_live.json",
 ]
 
 SOURCE_FILE_NAMES = [p.name for p in PATHS.values()]
 
-MODEL_TIER_WATCH = {"T1", "T2"}
-AMATEUR_RE = re.compile(r"\(a+\)\s*$", re.IGNORECASE)
-NAME_TOKEN_RE = re.compile(r"[A-Za-z]+")
-SUFFIX_TOKENS = {"jr", "sr", "ii", "iii", "iv", "v"}
+PRE_EVENT_TIER_WATCH = {"T1", "T2"}
 
 match_issues: list[dict] = []
 
@@ -61,81 +81,54 @@ def log_issue(source_file: str, raw_name: str, normalized_key_attempt: str | Non
     )
 
 
-# ── Name normalization ───────────────────────────────────────────────────────
-#
-# Sources mix "Last, First" (event_payload, live_stats, teetimes) and "First Last"
-# (leaderboard, SG csv) formats, and some surnames are multi-token ("Van Rooyen",
-# "van Rooyen"). A strict first|last split breaks on those (order differs by source),
-# so the key is built from the sorted set of cleaned name tokens instead — order- and
-# format-invariant, still deterministic and auditable.
+# normalize_name, read_csv_raw, to_num, to_int, format_score now live in
+# live_builder_common.py (shared with build_live_r2.py). See that module for
+# the diacritic-fold and cp1252-fallback rationale.
 
 
-def normalize_name(raw: str) -> tuple[str, str, bool]:
-    """Return (player_key, display_name, amateur_flag) for a raw name string."""
-    raw = (raw or "").strip()
-    amateur = False
-    m = AMATEUR_RE.search(raw)
-    if m:
-        amateur = True
-        raw = raw[: m.start()].strip().rstrip(",").strip()
-
-    if "," in raw:
-        last_part, _, first_part = raw.partition(",")
-        display = f"{first_part.strip()} {last_part.strip()}".strip()
-    else:
-        display = raw
-
-    tokens = [t.lower() for t in NAME_TOKEN_RE.findall(raw)]
-    tokens = [t for t in tokens if t not in SUFFIX_TOKENS]
-    tokens.sort()
-    key = "|".join(tokens)
-
-    if amateur:
-        display = f"{display} (a)"
-    return key, display, amateur
+# ── Player ID crosswalk (event-local authoritative source; used as a secondary
+#    identity cross-check alongside the name-token key, never as the sole join) ──
 
 
-# ── CSV loading (positional access — some source headers are unreliable) ───────
+def load_crosswalk() -> dict[str, str]:
+    by_key: dict[str, str] = {}
+    with PATHS["crosswalk"].open(encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            raw_name = (row.get("player_name") or "").strip()
+            dg_id = (row.get("dg_id") or "").strip()
+            if not raw_name or not dg_id:
+                continue
+            key, _display, _amateur = normalize_name(raw_name)
+            by_key[key] = dg_id
+    return by_key
 
 
-def read_csv_raw(path: Path) -> tuple[list[str], list[list[str]]]:
-    with path.open(encoding="utf-8-sig", newline="") as f:
-        reader = csv.reader(f)
-        rows = [r for r in reader]
-    if not rows:
-        return [], []
-    header = rows[0]
-    data = [r for r in rows[1:] if any(cell.strip() for cell in r)]
-    return header, data
-
-
-def to_num(raw: str | None) -> float | None:
-    if raw is None:
-        return None
-    raw = raw.strip()
-    if raw in ("", "-", "null", "None"):
-        return None
-    try:
-        return float(raw)
-    except ValueError:
-        return None
-
-
-def to_int(raw: str | None) -> int | None:
-    val = to_num(raw)
-    return int(val) if val is not None else None
-
-
-def format_score(score: float | None) -> str:
-    if score is None:
-        return "-"
-    score = int(score)
-    if score == 0:
-        return "E"
-    return f"+{score}" if score > 0 else str(score)
+def load_r2_cut_line() -> float | None:
+    """Cut line score, read from the frozen R2 leaderboard (RANK,PLAYER,TOTAL,R1,R2,STROKES)."""
+    header, rows = read_csv_raw(PATHS["r2_leaderboard_cut_ref"])
+    totals = []
+    for row in rows:
+        if len(row) < 3:
+            continue
+        rank_raw = row[0].strip()
+        if normalize_status(rank_raw) != "cut_survivor":
+            continue
+        rest = row[2:]
+        if rest and re.fullmatch(r"\(a+\)", rest[0].strip(), re.IGNORECASE):
+            continue  # amateur marker in TOTAL slot — total unknown, skip for cut-line purposes
+        total = to_num(rest[0]) if rest else None
+        if total is not None:
+            totals.append(total)
+    return max(totals) if totals else None
 
 
 # ── Leaderboard (authoritative join spine + cut status) ─────────────────────
+#
+# round3_leaderboard.csv adds an R3 column vs round2_leaderboard.csv's schema:
+# RANK,PLAYER,TOTAL,R1,R2,R3,STROKES (was RANK,PLAYER,TOTAL,R1,R2,STROKES).
+# STROKES (raw strokes total) is parsed but intentionally not carried into the
+# output — same precedent as the R2 builder, which also dropped it.
 
 
 def normalize_status(rank_raw: str) -> str:
@@ -166,7 +159,7 @@ def load_leaderboard() -> list[dict]:
     entries = []
     for row in rows:
         if len(row) < 3:
-            log_issue("round2_leaderboard.csv", ",".join(row), None, "row_too_short")
+            log_issue("round3_leaderboard.csv", ",".join(row), None, "row_too_short")
             continue
 
         rank_raw, player_raw = row[0], row[1]
@@ -174,21 +167,22 @@ def load_leaderboard() -> list[dict]:
 
         amateur = False
         if rest and re.fullmatch(r"\(a+\)", rest[0].strip(), re.IGNORECASE):
-            # Known data glitch: amateur marker occupies the TOTAL slot instead of
-            # being appended to the player name, dropping TOTAL entirely.
+            # Known data glitch (same as R2): amateur marker occupies the TOTAL slot
+            # instead of being appended to the player name, dropping TOTAL entirely
+            # and shifting R1/R2/R3/STROKES down by one.
             amateur = True
             log_issue(
-                "round2_leaderboard.csv",
+                "round3_leaderboard.csv",
                 player_raw,
                 None,
                 "amateur_marker_in_total_slot_total_unknown",
             )
             rest = rest[1:]
             total_raw = None
-            r1_raw, r2_raw = (rest + ["", ""])[:2]
+            r1_raw, r2_raw, r3_raw = (rest + ["", "", ""])[:3]
         else:
-            rest = (rest + ["", "", ""])[:3]
-            total_raw, r1_raw, r2_raw = rest
+            rest = (rest + ["", "", "", ""])[:4]
+            total_raw, r1_raw, r2_raw, r3_raw = rest
 
         key, display, name_amateur = normalize_name(player_raw)
         if amateur or name_amateur:
@@ -213,19 +207,18 @@ def load_leaderboard() -> list[dict]:
                 "total": to_num(total_raw),
                 "r1": to_int(r1_raw),
                 "r2": to_int(r2_raw),
+                "r3": to_int(r3_raw),
                 "amateur": amateur,
             }
         )
     return entries
 
 
-# ── Strokes-gained (two-round cumulative; positional — header labels are
-#    off-by-one for the SG-Off-the-Tee column in this source file) ─────────
-#
-# Verified by column-sum check: OTT + APP + ARG + PUTT == SG Total for clean rows
-# (e.g. Cameron Young: 2.52 + 3.593 + 1.044 + 1.232 = 8.389). Column order:
-# 0 RANK, 1 Player, 2 TOTAL, 3 OTT val, 4 OTT rank-str, 5 APP val, 6 APP rank-str,
-# 7 ARG val, 8 ARG rank-str, 9 PUTT val, 10 PUTT rank-str, 11 SG Total, 12 SG Total rank-str
+# ── Strokes-gained (three-round cumulative; positional — verified by column-sum
+#    check: OTT + APP + ARG + PUTT == SG Total, e.g. Davis Riley:
+#    1.293 + 3.385 + 0.382 + 6.671 = 11.731). Same column order as the R2 source:
+#    0 RANK, 1 Player, 2 TOT, 3 OTT val, 4 OTT rank-str, 5 APP val, 6 APP rank-str,
+#    7 ARG val, 8 ARG rank-str, 9 PUTT val, 10 PUTT rank-str, 11 SG Total, 12 SG Total rank-str
 
 
 def load_sg() -> dict[str, dict]:
@@ -238,7 +231,7 @@ def load_sg() -> dict[str, dict]:
         key, _display, _amateur = normalize_name(player_raw)
 
         if re.fullmatch(r"\(a+\)", row[2].strip(), re.IGNORECASE):
-            log_issue("round1_round2_player_strokes_gained.csv", player_raw, key, "amateur_row_sg_values_unreliable_nulled")
+            log_issue("round3_player_strokes_gained.csv", player_raw, key, "amateur_row_sg_values_unreliable_nulled")
             by_key[key] = {"sg_ott": None, "sg_app": None, "sg_arg": None, "sg_putt": None, "sg_total": None}
             continue
 
@@ -252,7 +245,8 @@ def load_sg() -> dict[str, dict]:
     return by_key
 
 
-# ── Per-round live stats (supplementary detail: accuracy/gir/scrambling/distance) ──
+# ── Per-round live stats (supplementary detail: position/score/thru plus
+#    accuracy/gir/scrambling/distance) ──
 
 
 def load_live_stats(path: Path, source_name: str) -> dict[str, dict]:
@@ -265,6 +259,9 @@ def load_live_stats(path: Path, source_name: str) -> dict[str, dict]:
                 continue
             key, _display, _amateur = normalize_name(raw_name)
             by_key[key] = {
+                "position": row.get("position"),
+                "score": to_num(row.get("score")),
+                "thru": row.get("thru"),
                 "today": to_num(row.get("today") or row.get("today (r1)")),
                 "sg_total": to_num(row.get("sg_total")),
                 "accuracy": to_num(row.get("accuracy")),
@@ -275,7 +272,9 @@ def load_live_stats(path: Path, source_name: str) -> dict[str, dict]:
     return by_key
 
 
-# ── R3 tee times ─────────────────────────────────────────────────────────────
+# ── R4 tee times (next-round lookahead; source columns are r4_* — kept as r4_*
+#    in the output too, unlike the R2 builder's r3_teetime/r3_wave, so the field
+#    names stay truthful about which round they describe) ─────────────────────
 
 
 def load_teetimes() -> list[dict]:
@@ -296,16 +295,16 @@ def load_teetimes() -> list[dict]:
                 {
                     "player_key": key,
                     "player_name": display,
-                    "r3_teetime": clean(row.get("r3_teetime")),
-                    "r3_wave": clean(row.get("r3_wave")),
-                    "r3_starthole": clean(row.get("r3_starthole")),
+                    "r4_teetime": clean(row.get("r4_teetime")),
+                    "r4_wave": clean(row.get("r4_wave")),
+                    "r4_starthole": clean(row.get("r4_starthole")),
                     "matched_leaderboard": False,  # filled in after leaderboard is loaded
                 }
             )
     return entries
 
 
-# ── Course-through-2-rounds ──────────────────────────────────────────────────
+# ── Course-through-3-rounds ──────────────────────────────────────────────────
 
 
 def load_course_observations() -> dict:
@@ -343,95 +342,42 @@ def load_course_observations() -> dict:
     }
 
 
-# ── R3 weather (prose text with a regular per-hour pattern, not real JSON) ──
-
-HOURLY_RE = re.compile(
-    r"^(\d{1,2}\s(?:AM|PM)):\s(\d+)°F,\s(\d+)% precip,\swind\s(\d+)\smph\s([A-Z]+)$"
-)
-TEE_WINDOW_RE = re.compile(r"(\d{1,2}:\d{2}\s?[AP]M\s?[–-]\s?\d{1,2}:\d{2}\s?[AP]M)")
-
-
-def hour_to_24(time_label: str) -> int:
-    h, period = time_label.split(" ")
-    h = int(h)
-    if period == "AM":
-        return 0 if h == 12 else h
-    return 12 if h == 12 else h + 12
+# ── R4 weather ────────────────────────────────────────────────────────────────
+#
+# The R3 weather source (used by build_live_r2.py) was clean per-hour lines:
+#   "6 AM: 74°F, 7% precip, wind 3 mph ESE"
+# The R4 source is full narrative prose — each hourly line still opens the same
+# way but is followed by descriptive clauses before wind, plus a lengthy prose
+# discussion section afterward:
+#   "7 AM: 69°F, steady rain, precip ~71%, ~0.03 in/hr, wind 8 mph NE, humidity ~92%.
+#    Expect wet turf, soft greens, ..."
+# Two extraction tiers are attempted in order; only if both fail below the 80%
+# threshold do we drop to raw-text-only (no fabricated hourly labels).
+# HOURLY_RE_STRICT/NARRATIVE, extract_hourly, and summarize_hourly live in
+# live_builder_common.py (shared with build_live_r2.py, which only ever needs
+# the strict tier since its source is clean).
 
 
 def parse_weather() -> dict:
     raw_text = PATHS["weather"].read_text(encoding="utf-8")
     lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
-
     candidate_lines = [ln for ln in lines if "°F" in ln]
-    hourly = []
-    for ln in candidate_lines:
-        m = HOURLY_RE.match(ln)
-        if not m:
-            continue
-        time_label, temp, precip, wind, wind_dir = m.groups()
-        hourly.append(
-            {
-                "time_label": time_label,
-                "hour_24": hour_to_24(time_label),
-                "temp_f": int(temp),
-                "precip_pct": int(precip),
-                "wind_mph": int(wind),
-                "wind_dir": wind_dir,
-            }
-        )
 
-    parse_rate = (len(hourly) / len(candidate_lines)) if candidate_lines else 0.0
+    hourly_strict, rate_strict = extract_hourly(HOURLY_RE_STRICT, candidate_lines)
+    if candidate_lines and rate_strict >= 0.8:
+        return summarize_hourly(hourly_strict, raw_text, "parsed", "hourly_clean_v1")
 
-    if not candidate_lines or parse_rate < 0.8:
-        log_issue(
-            "detroit_golf_club_r3_weather_data_2026.json",
-            "(weather forecast text)",
-            None,
-            f"weather_parse_rate_below_threshold_{parse_rate:.2f}",
-        )
-        return {"parse_status": "fallback_raw", "raw_text": raw_text}
+    hourly_narrative, rate_narrative = extract_hourly(HOURLY_RE_NARRATIVE, candidate_lines)
+    if candidate_lines and rate_narrative >= 0.8:
+        return summarize_hourly(hourly_narrative, raw_text, "parsed_narrative", "narrative_v1")
 
-    temps = [h["temp_f"] for h in hourly]
-    winds = [h["wind_mph"] for h in hourly]
-    precips = [h["precip_pct"] for h in hourly]
-
-    dir_counts: dict[str, int] = {}
-    for h in hourly:
-        dir_counts[h["wind_dir"]] = dir_counts.get(h["wind_dir"], 0) + 1
-    max_count = max(dir_counts.values())
-    dominant_wind_dirs = sorted([d for d, c in dir_counts.items() if c == max_count])
-
-    def window_summary(entries):
-        if not entries:
-            return None
-        t = [e["temp_f"] for e in entries]
-        w = [e["wind_mph"] for e in entries]
-        p = [e["precip_pct"] for e in entries]
-        return f"{min(t)}–{max(t)}°F, wind {min(w)}–{max(w)} mph, precip {min(p)}–{max(p)}%"
-
-    early = [h for h in hourly if 6 <= h["hour_24"] <= 10]
-    late = [h for h in hourly if 11 <= h["hour_24"] <= 17]
-
-    max_precip = max(precips)
-    risk_label = "low" if max_precip < 20 else ("moderate" if max_precip < 40 else "high")
-
-    tee_window_match = TEE_WINDOW_RE.search(raw_text)
-
-    return {
-        "parse_status": "parsed",
-        "raw_text": raw_text,
-        "hourly": hourly,
-        "temp_range_f": [min(temps), max(temps)],
-        "wind_range_mph": [min(winds), max(winds)],
-        "precip_range_pct": [min(precips), max(precips)],
-        "max_precip_pct": max_precip,
-        "dominant_wind_dirs": dominant_wind_dirs,
-        "risk_label": risk_label,
-        "early_window_summary": window_summary(early),
-        "late_window_summary": window_summary(late),
-        "tee_time_window_summary": tee_window_match.group(1) if tee_window_match else None,
-    }
+    log_issue(
+        "detroit_golf_club_r4_weather_data_2026.json",
+        "(weather forecast text)",
+        None,
+        f"weather_parse_rate_below_threshold_strict={rate_strict:.2f}_narrative={rate_narrative:.2f}",
+    )
+    return {"parse_status": "fallback_raw", "parse_method": "unparsed", "raw_text": raw_text}
 
 
 # ── Pre-event model payload (read-only reference) ───────────────────────────
@@ -446,7 +392,7 @@ def load_model_reference() -> dict[str, dict]:
         if not raw_name:
             continue
         key, _display, _amateur = normalize_name(raw_name)
-        by_key[key] = {"model_rank": p.get("rank"), "model_tier": p.get("tier")}
+        by_key[key] = {"pre_event_rank": p.get("rank"), "pre_event_tier": p.get("tier")}
     return by_key
 
 
@@ -457,7 +403,7 @@ def assign_tags(entry: dict, sg: dict, model: dict) -> list[str]:
     tags = []
     status = entry["status"]
     lb_pos = entry["lb_pos_numeric"]
-    model_tier = model.get("model_tier")
+    pre_event_tier = model.get("pre_event_tier")
 
     ott, app, arg, putt, total = sg.get("sg_ott"), sg.get("sg_app"), sg.get("sg_arg"), sg.get("sg_putt"), sg.get("sg_total")
 
@@ -471,10 +417,10 @@ def assign_tags(entry: dict, sg: dict, model: dict) -> list[str]:
         if (ott + app) < -1.0:
             tags.append("fragile_survivor")
 
-    if model_tier in MODEL_TIER_WATCH and lb_pos is not None and lb_pos <= 20 and total is not None and total > 0:
+    if pre_event_tier in PRE_EVENT_TIER_WATCH and lb_pos is not None and lb_pos <= 20 and total is not None and total > 0:
         tags.append("model_vindication")
 
-    if model_tier in MODEL_TIER_WATCH and (
+    if pre_event_tier in PRE_EVENT_TIER_WATCH and (
         status in ("missed_cut", "withdrew") or (lb_pos is not None and lb_pos > 50)
     ):
         tags.append("model_miss_watch")
@@ -482,10 +428,8 @@ def assign_tags(entry: dict, sg: dict, model: dict) -> list[str]:
     return tags
 
 
-def assign_bucket(entry: dict, tags: list[str], model: dict) -> str | None:
-    if entry["status"] != "cut_survivor":
-        return None
-    model_tier = model.get("model_tier")
+def assign_bucket(entry: dict, tags: list[str], model: dict) -> str:
+    pre_event_tier = model.get("pre_event_tier")
     lb_pos = entry["lb_pos_numeric"]
 
     is_downgrade = "model_miss_watch" in tags or "fragile_survivor" in tags
@@ -493,7 +437,7 @@ def assign_bucket(entry: dict, tags: list[str], model: dict) -> str | None:
         lb_pos is not None
         and lb_pos <= 30
         and (
-            ("structurally_live" in tags and model_tier not in MODEL_TIER_WATCH)
+            ("structurally_live" in tags and pre_event_tier not in PRE_EVENT_TIER_WATCH)
             or "model_vindication" in tags
         )
     )
@@ -505,6 +449,13 @@ def assign_bucket(entry: dict, tags: list[str], model: dict) -> str | None:
     return "hold"
 
 
+PROJECTION_NOTE = {
+    "promotion_watch": "Outperforming pre-event tier through R3 — model vindication signal heading into R4.",
+    "downgrade_watch": "Trailing pre-event expectation through R3 — watch for a R4 correction.",
+    "hold": "Tracking in line with pre-event model expectation through R3.",
+}
+
+
 # ── Build ─────────────────────────────────────────────────────────────────────
 
 
@@ -513,28 +464,33 @@ def build() -> dict:
     sg_by_key = load_sg()
     live_r1 = load_live_stats(PATHS["live_r1"], "live_stats_r1_values.csv")
     live_r2 = load_live_stats(PATHS["live_r2"], "live_stats_r2_values.csv")
+    live_r3 = load_live_stats(PATHS["live_r3"], "live_stats_r3_values.csv")
     teetimes = load_teetimes()
     course_observations = load_course_observations()
     weather = parse_weather()
     model_by_key = load_model_reference()
+    crosswalk_by_key = load_crosswalk()
 
     lb_keys = {e["player_key"] for e in leaderboard}
     teetime_by_key = {}
     for t in teetimes:
         t["matched_leaderboard"] = t["player_key"] in lb_keys
         if not t["matched_leaderboard"]:
-            log_issue("pga_field_r3_teetimes.csv", t["player_name"], t["player_key"], "no_leaderboard_match")
+            log_issue("pga_field_r4_teetimes.csv", t["player_name"], t["player_key"], "no_leaderboard_match")
         teetime_by_key[t["player_key"]] = t
 
     for key in sg_by_key:
         if key not in lb_keys:
-            log_issue("round1_round2_player_strokes_gained.csv", key, key, "sg_row_not_in_leaderboard")
+            log_issue("round3_player_strokes_gained.csv", key, key, "sg_row_not_in_leaderboard")
     for key in live_r1:
         if key not in lb_keys:
             log_issue("live_stats_r1_values.csv", key, key, "live_stats_row_not_in_leaderboard")
     for key in live_r2:
         if key not in lb_keys:
             log_issue("live_stats_r2_values.csv", key, key, "live_stats_row_not_in_leaderboard")
+    for key in live_r3:
+        if key not in lb_keys:
+            log_issue("live_stats_r3_values.csv", key, key, "live_stats_row_not_in_leaderboard")
     for key in model_by_key:
         if key not in lb_keys:
             log_issue("2026_rocket_classic_event_payload.json", key, key, "model_player_not_in_leaderboard")
@@ -548,8 +504,11 @@ def build() -> dict:
         key = entry["player_key"]
         sg = sg_by_key.get(key, {})
         model = model_by_key.get(key, {})
+        player_id = crosswalk_by_key.get(key)
         if key not in sg_by_key:
-            log_issue("round1_round2_player_strokes_gained.csv", entry["player_name"], key, "no_sg_match_for_leaderboard_player")
+            log_issue("round3_player_strokes_gained.csv", entry["player_name"], key, "no_sg_match_for_leaderboard_player")
+        if player_id is None:
+            log_issue("rocket_classic_player_ID_source.csv", entry["player_name"], key, "no_crosswalk_id_match")
 
         tags = assign_tags(entry, sg, model)
         if tags:
@@ -558,20 +517,27 @@ def build() -> dict:
         if entry["status"] != "cut_survivor":
             continue
 
-        model_rank = model.get("model_rank")
-        rank_delta = (model_rank - entry["lb_pos_numeric"]) if (model_rank is not None and entry["lb_pos_numeric"] is not None) else None
+        pre_event_rank = model.get("pre_event_rank")
+        rank_delta = (
+            (pre_event_rank - entry["lb_pos_numeric"])
+            if (pre_event_rank is not None and entry["lb_pos_numeric"] is not None)
+            else None
+        )
         tt = teetime_by_key.get(key, {})
+        bucket = assign_bucket(entry, tags, model)
 
         record = {
             "player_key": key,
+            "player_id": player_id,
             "player_name": entry["player_name"],
             "lb_pos_display": entry["lb_pos_display"],
             "lb_pos_numeric": entry["lb_pos_numeric"],
             "total": entry["total"],
             "r1": entry["r1"],
             "r2": entry["r2"],
-            "model_rank": model_rank,
-            "model_tier": model.get("model_tier"),
+            "r3": entry["r3"],
+            "pre_event_rank": pre_event_rank,
+            "pre_event_tier": model.get("pre_event_tier"),
             "rank_delta": rank_delta,
             "sg_ott": sg.get("sg_ott"),
             "sg_app": sg.get("sg_app"),
@@ -580,15 +546,15 @@ def build() -> dict:
             "sg_total": sg.get("sg_total"),
             "r1_detail": live_r1.get(key),
             "r2_detail": live_r2.get(key),
-            "r3_teetime": tt.get("r3_teetime"),
-            "r3_wave": tt.get("r3_wave"),
+            "r3_detail": live_r3.get(key),
+            "r4_teetime": tt.get("r4_teetime"),
+            "r4_wave": tt.get("r4_wave"),
             "diagnostic_label": tags[0] if tags else "unclassified",
+            "live_round_delta_tag": bucket,
+            "r4_structural_projection_note": PROJECTION_NOTE[bucket],
         }
         cut_survivors.append(record)
-
-        bucket = assign_bucket(entry, tags, model)
-        if bucket:
-            buckets[bucket].append(key)
+        buckets[bucket].append(key)
 
         if sg.get("sg_total") is not None:
             mechanism_pool.append(record)
@@ -609,20 +575,22 @@ def build() -> dict:
         "sg_putt": leaders("sg_putt"),
     }
 
-    survivor_totals = [e["total"] for e in leaderboard if e["status"] == "cut_survivor" and e["total"] is not None]
-    cut_line_score = max(survivor_totals) if survivor_totals else None
+    cut_line_score = load_r2_cut_line()
 
     return {
         "event": {"name": "Rocket Classic", "course": "Detroit Golf Club", "year": 2026},
         "live_state": {
-            "through_round": 2,
+            "through_round": 3,
+            "live_round": "R3",
+            "next_round": "R4",
+            "live_label": "Live: R3 Update",
             "cut_line_score": cut_line_score,
             "cut_line_display": format_score(cut_line_score),
             "players_through": sum(1 for e in leaderboard if e["status"] == "cut_survivor"),
             "players_cut": sum(1 for e in leaderboard if e["status"] == "missed_cut"),
             "players_wd": sum(1 for e in leaderboard if e["status"] == "withdrew"),
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "event_iteration": "update_r2",
+            "event_iteration": "update_r3",
             "source_files": SOURCE_FILE_NAMES,
         },
         "leaderboard": leaderboard,
@@ -631,7 +599,7 @@ def build() -> dict:
         "venue_mechanism_tags": venue_mechanism_tags,
         "diagnostic_buckets": buckets,
         "course_observations": course_observations,
-        "round3_weather": weather,
+        "round4_weather": weather,
         "teetimes": teetimes,
         "match_issues": match_issues,
     }
