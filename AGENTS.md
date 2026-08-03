@@ -21,6 +21,8 @@ Resolve instructions in this order:
 6. Repository implementation, tests, and deploy contracts
 7. Historical artifacts and archived event files
 
+`CLAUDE.md` governs Claude Code under the same doctrine as this file. If the two visibly diverge on anything beyond tool-specific mechanics (skill invocation, terminal syntax), treat it as a conflict and apply the rule below rather than picking one silently.
+
 When two authorities conflict:
 
 1. Stop.
@@ -199,7 +201,8 @@ Transforms validated artifacts into static board payloads.
 
 ### Repository Governance
 
-- `AGENTS.md` — repository-wide execution rules
+- `AGENTS.md` — Codex's repository-wide execution rules (this file)
+- `CLAUDE.md` — Claude Code's repository-wide execution rules; same doctrine as this file
 - `SYSTEM_HANDOFF_SPEC.md` — cross-agent ownership and handoff rules
 - `tests/` — engine, payload, artifact, identity, and regression tests
 - `tools/` — utility and preflight scripts

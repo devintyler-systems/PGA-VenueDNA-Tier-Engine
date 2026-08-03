@@ -4,7 +4,7 @@ import re
 import subprocess
 from datetime import datetime
 
-SECTION_HEADER = "## Current State / Active Work"
+SECTION_HEADER = "## Session Log"
 PROJECT_HANDLE_PREFIX = "project_handle: "
 
 
