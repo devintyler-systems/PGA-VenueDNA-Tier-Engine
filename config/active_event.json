@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "NO_ACTIVE_EVENT",
+  "year": 2026,
+  "event_slug": null,
+  "event_name": null,
+  "venue_slug": null,
+  "venue_name": null,
+  "event_root": null,
+  "venue_profile": null,
+  "event_context_file": null,
+  "field_file": null,
+  "weather_file": null,
+  "tee_times_file": null,
+  "pre_event_artifact": null,
+  "live_round": null,
+  "live_artifact": null,
+  "deploy_root": null,
+  "audit_root": null,
+  "source_of_truth": {
+    "standards_root": "standards",
+    "venue_library_root": "library/venues",
+    "production_database": "data/venuedna_master.db",
+    "raw_cache_database": "data/venue_dna.db"
+  },
+  "lifecycle_rules": {
+    "pre_event_artifact_immutable_after_live_start": true,
+    "live_artifacts_must_be_round_specific": true,
+    "post_event_writebacks_require_operator_approval": true,
+    "archive_completed_event_after_final_audit": true
+  },
+  "updated_at": "2026-08-03T14:59:00-07:00",
+  "updated_by": "operator",
+  "notes": "No event is active. Do not create event-bound projections or live artifacts until this manifest is updated."
+}
