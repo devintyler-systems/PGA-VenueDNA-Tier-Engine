@@ -431,6 +431,13 @@ def write_profile_atomic(output_path: Path, rendered: bytes) -> None:
         raise
 
 
+def _resolved_paths_equal(repo: Path, first_arg: str, second_arg: str) -> bool:
+    """True iff both CLI-supplied paths resolve to the same repo-contained file."""
+    first = vdc.resolve_repo_relative_cli_path(repo, first_arg)
+    second = vdc.resolve_repo_relative_cli_path(repo, second_arg)
+    return first is not None and second is not None and first == second
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -496,6 +503,20 @@ def main() -> int:
         if args.repo_root
         else Path(__file__).resolve().parents[1]
     )
+
+    if (
+        args.dynamic_declarations
+        and not args.dry_run
+        and not args.check
+        and _resolved_paths_equal(repo, args.output, args.dynamic_declarations)
+    ):
+        resolved_output = vdc.resolve_repo_relative_cli_path(repo, args.output)
+        print("BUILD FAILED")
+        print(
+            "- Output profile must not overwrite the dynamic declarations input: "
+            f"{resolved_output}"
+        )
+        return 1
 
     result = build_profile(
         repo=repo,

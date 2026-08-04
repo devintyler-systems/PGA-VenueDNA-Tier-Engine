@@ -802,6 +802,152 @@ class CliLevelTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 1)
         self.assertIn("mutually exclusive", proc.stdout)
 
+    def test_cli_normal_write_alias_fails_without_mutation(self) -> None:
+        self.fixture.write_static_tree(app_js=self.fixture.DYNAMIC_APP_JS)
+        (self.fixture.data_dir / "r1_analysis.json").write_bytes(
+            self.fixture.R1_JSON.encode("utf-8")
+        )
+
+        output = self.fixture.output_path()
+        output.parent.mkdir(parents=True)
+        declarations = {
+            "dynamic_fetches": [
+                {
+                    "expression": "data/r${r}_analysis.json",
+                    "pattern": "data/r{r}_analysis.json",
+                    "targets": [
+                        {"path": "data/r1_analysis.json", "availability": "required"},
+                        {"path": "data/r3_analysis.json", "availability": "optional_pending"},
+                    ],
+                }
+            ]
+        }
+        decl_bytes = json.dumps(declarations).encode("utf-8")
+        output.write_bytes(decl_bytes)
+        before_mtime = output.stat().st_mtime_ns
+        parent_before = sorted(p.name for p in output.parent.iterdir())
+        output_rel = output.relative_to(self.fixture.repo).as_posix()
+
+        proc = subprocess.run(
+            [
+                sys.executable, str(BUILDER),
+                "--repo-root", str(self.fixture.repo),
+                "--deploy-root", "deploy",
+                "--output", output_rel,
+                "--event-slug", "2026_example",
+                "--board-mode", "static_app",
+                "--entry-html", "index.html",
+                "--script", "app.js",
+                "--stylesheet", "styles.css",
+                "--data-root", "data",
+                "--dynamic-declarations", output_rel,
+            ],
+            check=False, capture_output=True, text=True,
+        )
+
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("BUILD FAILED", proc.stdout)
+        self.assertIn(
+            "must not overwrite the dynamic declarations input", proc.stdout
+        )
+        self.assertEqual(output.read_bytes(), decl_bytes)
+        self.assertEqual(output.stat().st_mtime_ns, before_mtime)
+        self.assertEqual(sorted(p.name for p in output.parent.iterdir()), parent_before)
+        self.assertEqual(list(output.parent.glob("*.tmp")), [])
+        self.assertEqual(json.loads(output.read_text(encoding="utf-8")), declarations)
+
+    def test_cli_check_self_referential_declarations_succeeds(self) -> None:
+        self.fixture.write_static_tree(app_js=self.fixture.DYNAMIC_APP_JS)
+        (self.fixture.data_dir / "r1_analysis.json").write_bytes(
+            self.fixture.R1_JSON.encode("utf-8")
+        )
+        decl_path = self.fixture.repo / "dynamic_declarations.json"
+        decl_path.write_bytes(
+            json.dumps(
+                {
+                    "dynamic_fetches": [
+                        {
+                            "expression": "data/r${r}_analysis.json",
+                            "pattern": "data/r{r}_analysis.json",
+                            "targets": [
+                                {"path": "data/r1_analysis.json", "availability": "required"},
+                            ],
+                        }
+                    ]
+                }
+            ).encode("utf-8")
+        )
+
+        output = self.fixture.output_path()
+        output_rel = output.relative_to(self.fixture.repo).as_posix()
+        decl_rel = decl_path.relative_to(self.fixture.repo).as_posix()
+
+        base_args = [
+            sys.executable, str(BUILDER),
+            "--repo-root", str(self.fixture.repo),
+            "--deploy-root", "deploy",
+            "--output", output_rel,
+            "--event-slug", "2026_example",
+            "--board-mode", "static_app",
+            "--entry-html", "index.html",
+            "--script", "app.js",
+            "--stylesheet", "styles.css",
+            "--data-root", "data",
+        ]
+
+        build_proc = subprocess.run(
+            [*base_args, "--dynamic-declarations", decl_rel],
+            check=False, capture_output=True, text=True,
+        )
+        self.assertEqual(build_proc.returncode, 0, build_proc.stdout + build_proc.stderr)
+
+        rendered_before = output.read_bytes()
+        mtime_before = output.stat().st_mtime_ns
+
+        check_proc = subprocess.run(
+            [*base_args, "--dynamic-declarations", output_rel, "--check"],
+            check=False, capture_output=True, text=True,
+        )
+
+        self.assertEqual(
+            check_proc.returncode, 0, check_proc.stdout + check_proc.stderr
+        )
+        self.assertIn("up to date", check_proc.stdout)
+        self.assertEqual(output.read_bytes(), rendered_before)
+        self.assertEqual(output.stat().st_mtime_ns, mtime_before)
+
+    def test_cli_dry_run_alias_remains_read_only(self) -> None:
+        self.fixture.write_static_tree()
+        output = self.fixture.output_path()
+        output.parent.mkdir(parents=True)
+        decl_bytes = json.dumps({"dynamic_fetches": []}).encode("utf-8")
+        output.write_bytes(decl_bytes)
+        before_mtime = output.stat().st_mtime_ns
+        output_rel = output.relative_to(self.fixture.repo).as_posix()
+
+        proc = subprocess.run(
+            [
+                sys.executable, str(BUILDER),
+                "--repo-root", str(self.fixture.repo),
+                "--deploy-root", "deploy",
+                "--output", output_rel,
+                "--event-slug", "2026_example",
+                "--board-mode", "static_app",
+                "--entry-html", "index.html",
+                "--script", "app.js",
+                "--stylesheet", "styles.css",
+                "--data-root", "data",
+                "--dynamic-declarations", output_rel,
+                "--dry-run",
+            ],
+            check=False, capture_output=True, text=True,
+        )
+
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn('"schema_version": "1.1"', proc.stdout)
+        self.assertEqual(output.read_bytes(), decl_bytes)
+        self.assertEqual(output.stat().st_mtime_ns, before_mtime)
+
     def test_cli_help(self) -> None:
         proc = subprocess.run(
             [sys.executable, str(BUILDER), "--help"],
