@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.1",
+  "profile_type": "archived_deploy",
+  "event_slug": "2026_the_open_championship",
+  "deploy_root": "events/2026_Finished_Events/2026_the_open_championship/deploy",
+  "board": {
+    "mode": "inline_styled_app",
+    "entry_html": "open_2026_venuedna.html",
+    "scripts": [
+      "app.js"
+    ],
+    "stylesheets": [],
+    "data_roots": [
+      "data"
+    ]
+  },
+  "dynamic_fetches": [
+    {
+      "expression": "data/r${r}_analysis.json",
+      "pattern": "data/r{r}_analysis.json",
+      "targets": [
+        {
+          "path": "data/r1_analysis.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/r2_analysis.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/r3_analysis.json",
+          "availability": "optional_pending"
+        },
+        {
+          "path": "data/r4_analysis.json",
+          "availability": "optional_pending"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "path": "app.js",
+        "sha256": "660cc20d4dea8d7620b0c9a98ee9735a77ec997f0e4926e69ab0dbe0d53760b0"
+      },
+      {
+        "path": "data/board_export.json",
+        "sha256": "20b241577abf57a8e31f0155b56dd76ba28a96ce8eec966669ca7fccc8a31d82"
+      },
+      {
+        "path": "data/cumulative_learning.json",
+        "sha256": "e777caebd107516326d954ae87520dca821836f3aae4f826eccfb3658605213b"
+      },
+      {
+        "path": "data/final_analysis.json",
+        "sha256": "9b239cc68e317aeba43ede4b7f9f52076f5a309f33a13eb4a1d8fe87002e1345"
+      },
+      {
+        "path": "data/open_2026_board_export.json",
+        "sha256": "20b241577abf57a8e31f0155b56dd76ba28a96ce8eec966669ca7fccc8a31d82"
+      },
+      {
+        "path": "data/player_briefs.json",
+        "sha256": "3cad2d18c7ab90445d6cbcbdb907639bdaabe3873ee0b61bdd4481827f67a4f4"
+      },
+      {
+        "path": "data/post_mortem_analysis.json",
+        "sha256": "d1d1b81e50e87392420bfba7fed4eac3cc66111a2281b661b72baddf48d44690"
+      },
+      {
+        "path": "data/r1_analysis.json",
+        "sha256": "53662173871b80bf6c360beafc1aa9ae9369e35504ef9b18a4ff9fc838624704"
+      },
+      {
+        "path": "data/r2_analysis.json",
+        "sha256": "eea9fcba16e01161ff2bb487173d493b240068adcb815ea6ef91a67d714b53bb"
+      },
+      {
+        "path": "data/weather_forecast.json",
+        "sha256": "f8abd11f427da312daff352262d4ecfeb98f3ce512168e8f14359e8d21d4c50e"
+      },
+      {
+        "path": "open_2026_venuedna.html",
+        "sha256": "f999fed729570d8343bd7dc6de100f33477b52943fe3ab7c64426a4e4a576205"
+      }
+    ]
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.1",
+  "profile_type": "archived_deploy",
+  "event_slug": "2026_rocket_classic",
+  "deploy_root": "events/2026_Finished_Events/2026_rocket_classic/deploy",
+  "board": {
+    "mode": "harness",
+    "entry_html": "fixture_harness.html",
+    "scripts": [
+      "fixture_harness.js"
+    ],
+    "stylesheets": [
+      "fixture_harness.css"
+    ],
+    "data_roots": [
+      "config",
+      "data",
+      "fixtures"
+    ]
+  },
+  "dynamic_fetches": [
+    {
+      "expression": "path",
+      "pattern": "{root}/{file}",
+      "targets": [
+        {
+          "path": "config/badge_policy.v1.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/2026_rocket_classic_event_payload.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/2026_rocket_classic_player_briefs.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/2026_rocket_classic_r3_live.json",
+          "availability": "optional_pending"
+        },
+        {
+          "path": "data/2026_rocket_classic_tripod_audit.json",
+          "availability": "optional_pending"
+        },
+        {
+          "path": "fixtures/fixture_elite_001_input.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_elite_001_narrative.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_structural_failure_001_input.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_structural_failure_001_narrative.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_thin_001_input.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_thin_001_narrative.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_volatile_001_input.json",
+          "availability": "required"
+        },
+        {
+          "path": "fixtures/fixture_volatile_001_narrative.json",
+          "availability": "required"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "path": "config/badge_policy.v1.json",
+        "sha256": "d6f144f8e2380ff729a6c806fa9db5f315bf42ff35800af78b8ad0fb6528a5dc"
+      },
+      {
+        "path": "data/2026_rocket_classic_event_payload.json",
+        "sha256": "f132e9616fe70ab679bd68e8fb2c98e41c237f22b4db4b63b8df7db5ae051c57"
+      },
+      {
+        "path": "data/2026_rocket_classic_player_briefs.json",
+        "sha256": "6bdf774eeaea9992e2c7db84f9842c1c8f972341786ed5302b9f8882ad445324"
+      },
+      {
+        "path": "data/2026_rocket_classic_r3_live.json",
+        "sha256": "c41537a4ebf5e9adc2ad724337ef636716ad74bc7ed062e6a00a0c61f84ebd70"
+      },
+      {
+        "path": "data/2026_rocket_classic_tripod_audit.json",
+        "sha256": "cb38252c9b4ff5a95f4968b85cdd6eda531c7b2048be58ed3ba289df0cc24b76"
+      },
+      {
+        "path": "fixture_harness.css",
+        "sha256": "07f6bcc53efd46664b81427301663af8e8e953ac6acb82675da8304af113682c"
+      },
+      {
+        "path": "fixture_harness.html",
+        "sha256": "e7c1c675810773cfc0bc9cc2a785f20b9ecb2c61e9a9057eb44caf322b82cd7f"
+      },
+      {
+        "path": "fixture_harness.js",
+        "sha256": "729264a642f7b0bac4d5a0dfb2a85883eec9b15d9edc4fee7f88b54fb6be68bd"
+      },
+      {
+        "path": "fixtures/fixture_elite_001_input.json",
+        "sha256": "651ae388a4018f94133ffabc58aa221b7bea4ccfaac5909a160d06155900829e"
+      },
+      {
+        "path": "fixtures/fixture_elite_001_narrative.json",
+        "sha256": "c3eb1a945a978191ce61a19be0880dca12b7ecda0dd5923b1dfbf23c2b29998a"
+      },
+      {
+        "path": "fixtures/fixture_structural_failure_001_input.json",
+        "sha256": "9ba3bddddc0d36aaabc5eb0e964aba94f68d2ba8ebb8e19f7059e8970a21f1df"
+      },
+      {
+        "path": "fixtures/fixture_structural_failure_001_narrative.json",
+        "sha256": "b1b13d1ee1b09d6cd7e0114e3b23351fbe3b75c396fb866b152a8ccf62cc5c50"
+      },
+      {
+        "path": "fixtures/fixture_thin_001_input.json",
+        "sha256": "eeb951a4bef223779a294b90050f5382b38a6d4ffa5a7a12cb11f471bf55c615"
+      },
+      {
+        "path": "fixtures/fixture_thin_001_narrative.json",
+        "sha256": "c00c16de90591463b57674aa08b4311972283c958ef79b5237f4646f08341a69"
+      },
+      {
+        "path": "fixtures/fixture_volatile_001_input.json",
+        "sha256": "f6289573c23bdbfcdf0baa02b206eeed0d474002da0fcd9d189b229bd11e3aaa"
+      },
+      {
+        "path": "fixtures/fixture_volatile_001_narrative.json",
+        "sha256": "e7eee2fc5afe1fe155261e31f9b8fe10de27a6a98e79713d0c31c2540e0faf7f"
+      }
+    ]
+  }
+}

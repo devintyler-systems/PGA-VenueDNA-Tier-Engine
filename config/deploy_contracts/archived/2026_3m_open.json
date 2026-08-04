@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.1",
+  "profile_type": "archived_deploy",
+  "event_slug": "2026_3m_open",
+  "deploy_root": "events/2026_Finished_Events/2026_3m_open/deploy",
+  "board": {
+    "mode": "static_app",
+    "entry_html": "2026_3m_open_board.html",
+    "scripts": [
+      "app.js"
+    ],
+    "stylesheets": [
+      "styles.css"
+    ],
+    "data_roots": [
+      "data"
+    ]
+  },
+  "dynamic_fetches": [
+    {
+      "expression": "data/r${r}_analysis.json",
+      "pattern": "data/r{r}_analysis.json",
+      "targets": [
+        {
+          "path": "data/r1_analysis.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/r2_analysis.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/r3_analysis.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/r4_analysis.json",
+          "availability": "required"
+        }
+      ]
+    },
+    {
+      "expression": "url",
+      "pattern": "data/2026_3m_open_{round}_payload.json",
+      "targets": [
+        {
+          "path": "data/2026_3m_open_final_payload.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/2026_3m_open_rd1_payload.json",
+          "availability": "required"
+        },
+        {
+          "path": "data/2026_3m_open_rd2_payload.json",
+          "availability": "optional_pending"
+        },
+        {
+          "path": "data/2026_3m_open_rd3_payload.json",
+          "availability": "optional_pending"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "sha256",
+    "files": [
+      {
+        "path": "2026_3m_open_board.html",
+        "sha256": "84dfa59d7ba940887cbc885b0d4630cf6c7c522b60c0dcc7ba06457b460c417c"
+      },
+      {
+        "path": "app.js",
+        "sha256": "d945d3f75036eefde116a847c2bcaae47a90420a356490c7ecd02c756678c4a0"
+      },
+      {
+        "path": "data/2026_3m_open_event_payload.json",
+        "sha256": "28200b98e62d86f57041c5d4c555bfefa93a94f741926c47ce7991b9fa017799"
+      },
+      {
+        "path": "data/2026_3m_open_final_payload.json",
+        "sha256": "2631c5c3185851b2ba8bad3a180f8349ee08fb6720b58096ea6d4ee7b0f232a0"
+      },
+      {
+        "path": "data/2026_3m_open_player_briefs.json",
+        "sha256": "fab4900d95587b5bf2a8e7060192582a28dad20cf433226a969cf55e8f9d323e"
+      },
+      {
+        "path": "data/2026_3m_open_rd1_payload.json",
+        "sha256": "c8489d5b38b584d30161ddee0875e78b2527e6da5bad5eb386aa85ebd2935be9"
+      },
+      {
+        "path": "data/2026_3m_open_weather_forecast.json",
+        "sha256": "0c497495bcb0687d1214a069780e83f9c53d377c586a230d5d785ca0da599bf0"
+      },
+      {
+        "path": "data/cumulative_learning.json",
+        "sha256": "d96dc43fa3351cfc6074bf80732901127b4649edfff19a16772eba964601b094"
+      },
+      {
+        "path": "data/final_analysis.json",
+        "sha256": "0aa9256aafffe0dad16139c1b71a67a24eb767f601830e8322f0167fa34be8cb"
+      },
+      {
+        "path": "data/post_mortem_analysis.json",
+        "sha256": "67da49fd4c140a9e908ba1dc83ed529225ac33753e286c5c7016072a643f92a5"
+      },
+      {
+        "path": "data/r1_analysis.json",
+        "sha256": "752694908d6701adab90b7b2081064eb8659c24e381162ec7a5d4f74cd1a0a73"
+      },
+      {
+        "path": "data/r2_analysis.json",
+        "sha256": "9fd9d5a559a954537cd7282e016bf77861aa542bc582115f8cbca31868273587"
+      },
+      {
+        "path": "data/r3_analysis.json",
+        "sha256": "a29b85094aef5a91aff1e62a969949b4b1a24a56bfa54ebacac65378416c3287"
+      },
+      {
+        "path": "data/r4_analysis.json",
+        "sha256": "65168e8f112325e364a4204ec57b7e8e4257920b2bc2dd0a4f7aaa6f8c6cc0d0"
+      },
+      {
+        "path": "data/round3_tee_times.json",
+        "sha256": "eda4d3fda5f75269b1c7997d05e1a22359fbc509368bb40488b6e4c6dcfd881c"
+      },
+      {
+        "path": "styles.css",
+        "sha256": "14491de2cc40fca23b537117f1a0f8d129dfebc1a21db8811ef0c94734bc4b5d"
+      }
+    ]
+  }
+}
