@@ -4,7 +4,7 @@ VenueDNA 3M Open 2026 — monolithic dual-vector + venue-trait enrichment pipeli
 Sections
   §1  Imports & constants
   §2  CSV loaders
-  §3  Name matching
+  §3  Identity resolution (delegates to engine/identity_resolver.py)
   §4  Dual-vector SG composites
   §5  Venue trait calculations
   §6  Anti-pattern gates
@@ -17,15 +17,24 @@ from __future__ import annotations
 
 import argparse
 import csv
-import difflib
 import json
 import math
 import sys
-import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from identity_resolver import (  # noqa: E402
+    FieldIndex,
+    SourceFamilyResult,
+    SourceRow,
+    build_field_index,
+    build_player_provenance,
+    build_release_report,
+)
+from identity_resolver import normalize_name as _canonical_normalize_name  # noqa: E402
 
 # ── §1  Constants ──────────────────────────────────────────────────────────────
 
@@ -108,186 +117,274 @@ def safe_float(v: object, default: float = 0.0) -> float:
 
 
 def normalize_name(s: str | None) -> str:
-    if not s:
-        return ""
-    s = str(s).strip().strip('"').strip("'")
-    s = unicodedata.normalize("NFD", s)
-    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
-    return s.lower().replace(".", "").strip()
+    """Compatibility wrapper — delegates to the canonical identity resolver.
+
+    Retained because non-identity logic in this file (live-round tee-time
+    and R1 SG joins) and existing tests import ``normalize_name`` directly
+    from this module. All identity-resolution behavior itself lives in
+    ``engine/identity_resolver.py``.
+    """
+    return _canonical_normalize_name(s)
 
 
-def load_field(path: Path) -> list[str]:
-    """Ordered canonical player names from pga_field.csv."""
+def load_field_rows(path: Path) -> list[dict]:
+    """Raw ordered rows from pga_field.csv, for canonical field-index
+    construction. Unlike the pre-resolver loaders, this preserves every
+    column rather than projecting down to name/id only."""
     if not path.exists():
         return []
-    names = []
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            n = row.get("player_name", "").strip().strip('"')
-            if n:
-                names.append(n)
-    return names
+        return list(csv.DictReader(f))
 
 
-def load_field_ids(path: Path) -> dict[str, str]:
-    """Returns {player_name: dg_id} from pga_field.csv. Names are 'Last, First' format."""
-    result: dict[str, str] = {}
+def load_sg_csv(path: Path) -> list[SourceRow]:
+    """Row-preserving loader for one SG-query horizon file.
+
+    Duplicate rows (same or colliding raw/normalized names) are preserved
+    intact -- the identity resolver, not this loader, decides whether a
+    duplicate is a release blocker. ``payload`` is ``{rounds, total_mean}``.
+    """
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            n = row.get("player_name", "").strip().strip('"')
-            fid = row.get("dg_id", "").strip()
-            if n and fid and fid.lower() != "null":
-                result[n] = fid
-    return result
-
-
-def load_sg_csv(path: Path) -> dict[str, dict]:
-    """{name: {rounds, total_mean}}"""
-    result: dict[str, dict] = {}
-    if not path.exists():
-        return result
-    with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
+            if not name:
+                continue
+            rows.append(SourceRow(
+                source_name=name,
+                dg_id=None,
+                payload={
                     "rounds":     int(safe_float(row.get("rounds_played", 0))),
                     "total_mean": safe_float(row.get("total_mean", 0)),
-                }
-    return result
+                },
+                row_number=i,
+            ))
+    return rows
 
 
-def load_app_skill(path: Path) -> dict[str, dict]:
-    """{name: {sg_50_100, sg_100_150, sg_150_200, sg_200plus}} from sg-per-shot rows."""
-    result: dict[str, dict] = {}
+def load_app_skill(path: Path) -> list[SourceRow]:
+    """Row-preserving loader for sg-per-shot rows.
+
+    ``payload`` is ``{sg_50_100, sg_100_150, sg_150_200, sg_200plus}``.
+    """
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             if row.get("stat", "").strip().lower() != "sg per shot":
                 continue
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
+            if not name:
+                continue
+            rows.append(SourceRow(
+                source_name=name,
+                dg_id=None,
+                payload={
                     "sg_50_100":  safe_float(row.get("50_100_fw_value")),
                     "sg_100_150": safe_float(row.get("100_150_fw_value")),
                     "sg_150_200": safe_float(row.get("150_200_fw_value")),
                     "sg_200plus": safe_float(row.get("over_200_fw_value")),
-                }
-    return result
+                },
+                row_number=i,
+            ))
+    return rows
 
 
-def load_app_prox(path: Path) -> dict[str, float]:
-    """{name: prox_150_200_ft}  lower = closer = better."""
-    result: dict[str, float] = {}
+def load_app_prox(path: Path) -> list[SourceRow]:
+    """Row-preserving loader for proximity rows. ``payload`` is a bare
+    float (prox_150_200_ft); lower = closer = better."""
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             if row.get("stat", "").strip().lower() != "proximity (ft)":
                 continue
             name = row.get("player_name", "").strip().strip('"')
             raw  = row.get("150_200_fw_value", "")
             if name and str(raw).strip().lower() not in ("", "null", "none"):
-                result[name] = safe_float(raw)
-    return result
+                rows.append(SourceRow(
+                    source_name=name, dg_id=None, payload=safe_float(raw), row_number=i,
+                ))
+    return rows
 
 
-def load_performance(path: Path) -> dict[str, dict]:
-    """{name: {putt_true, arg_true, app_true, ott_true}}"""
-    result: dict[str, dict] = {}
+def load_performance(path: Path) -> list[SourceRow]:
+    """Row-preserving loader. ``payload`` is
+    ``{putt_true, arg_true, app_true, ott_true}``."""
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
+            if not name:
+                continue
+            rows.append(SourceRow(
+                source_name=name,
+                dg_id=None,
+                payload={
                     "putt_true": safe_float(row.get("putt_true")),
                     "arg_true":  safe_float(row.get("arg_true")),
                     "app_true":  safe_float(row.get("app_true")),
                     "ott_true":  safe_float(row.get("ott_true")),
-                }
-    return result
+                },
+                row_number=i,
+            ))
+    return rows
 
 
-def load_decomp(path: Path) -> dict[str, dict]:
-    """{name: {driving_acc_adj, driving_dist_adj, std_dev}}"""
-    result: dict[str, dict] = {}
+def load_decomp(path: Path) -> list[SourceRow]:
+    """Row-preserving loader. ``payload`` is
+    ``{driving_acc_adj, driving_dist_adj, std_dev}``."""
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
+            if not name:
+                continue
+            rows.append(SourceRow(
+                source_name=name,
+                dg_id=None,
+                payload={
                     "driving_acc_adj":  safe_float(row.get("driving_acc_adj")),
                     "driving_dist_adj": safe_float(row.get("driving_dist_adj")),
                     "std_dev":          safe_float(row.get("std_dev"), default=3.0),
-                }
-    return result
+                },
+                row_number=i,
+            ))
+    return rows
 
 
-def load_ch(path: Path) -> dict[str, dict]:
-    """{name: {ch_adjustment, experience_adj}}"""
-    result: dict[str, dict] = {}
+def load_ch(path: Path) -> list[SourceRow]:
+    """Row-preserving loader. ``payload`` is
+    ``{ch_adjustment, experience_adj}``."""
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
+            if not name:
+                continue
+            rows.append(SourceRow(
+                source_name=name,
+                dg_id=None,
+                payload={
                     "ch_adjustment":  safe_float(row.get("ch_adjustment")),
                     "experience_adj": safe_float(row.get("experience_adjustment")),
-                }
-    return result
+                },
+                row_number=i,
+            ))
+    return rows
 
 
-def load_trending(path: Path) -> dict[str, dict]:
-    """{name: {true_sg_l20, l5_starts}}"""
-    result: dict[str, dict] = {}
+def load_trending(path: Path) -> list[SourceRow]:
+    """Row-preserving loader. ``payload`` is ``{true_sg_l20, l5_starts}``.
+
+    ``dg_id`` (raw, not-yet-normalized) is captured on the ``SourceRow``
+    itself when present -- pga_field_trending_table.csv is one of only two
+    source families that carries it. It is not otherwise consumed by scoring.
+    """
+    rows: list[SourceRow] = []
     if not path.exists():
-        return result
+        return rows
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for i, row in enumerate(csv.DictReader(f), start=1):
             name = row.get("player_name", "").strip().strip('"')
-            if name:
-                result[name] = {
+            if not name:
+                continue
+            rows.append(SourceRow(
+                source_name=name,
+                dg_id=row.get("dg_id", "").strip() or None,
+                payload={
                     "true_sg_l20": safe_float(row.get("true_sg_l20")),
                     "l5_starts":   row.get("l5_starts", "").strip(),
-                }
-    return result
+                },
+                row_number=i,
+            ))
+    return rows
 
 
-# ── §3  Name Matching ──────────────────────────────────────────────────────────
+# ── §3  Identity Resolution ────────────────────────────────────────────────────
+#
+# All ID-first / name-fallback / fuzzy-diagnostic / mapping-integrity logic
+# lives in engine/identity_resolver.py. This section only adapts this file's
+# row-preserving `list[SourceRow]` loader shape into the resolver's row-
+# sequence input, and reads results back out directly from the accepted
+# match's own row -- never through a name-keyed re-lookup that could
+# silently resolve to a different, later-loaded duplicate. It contains no
+# matching logic of its own.
 
-def build_lookup(data_dict: dict) -> dict[str, str]:
-    """Return {norm_name: original_name} for fast exact-match lookup."""
-    return {normalize_name(k): k for k in data_dict}
+def _rows_for_resolution(source_rows: list[SourceRow]) -> list[dict]:
+    """Adapt a ``list[SourceRow]`` into rows for ``resolve_source_family()``,
+    carrying the original ``SourceRow`` through under ``_source_row`` so the
+    accepted match's payload can be read back without any dict lookup keyed
+    by (possibly duplicated) display name.
+    """
+    return [
+        {"player_name": r.source_name, "dg_id": r.dg_id, "_source_row": r}
+        for r in source_rows
+    ]
 
 
-def resolve(name: str, data_dict: dict, lookup: dict,
-            threshold: float = 0.85) -> object | None:
-    """Left-join: exact match first, then difflib fuzzy at threshold."""
-    norm = normalize_name(name)
+def resolve_all_source_families(
+    field_index: FieldIndex,
+    *,
+    all_sg: dict, sim_sg: dict,
+    app_skill_data: list[SourceRow], app_prox_data: list[SourceRow],
+    perf_data: list[SourceRow], decomp_data: list[SourceRow],
+    ch_data: list[SourceRow], trending_data: list[SourceRow],
+) -> dict[str, SourceFamilyResult]:
+    """Resolve every supplementary source family against the canonical field
+    index. Returns {family_name: SourceFamilyResult}, in a fixed, documented
+    order (dict insertion order == iteration order == provenance order)."""
+    from identity_resolver import resolve_source_family
 
-    # Exact
-    if norm in lookup:
-        return data_dict[lookup[norm]]
+    results: dict[str, SourceFamilyResult] = {}
+    for horizon, rows in all_sg.items():
+        results[f"all_{horizon}"] = resolve_source_family(
+            f"all_{horizon}", field_index, _rows_for_resolution(rows)
+        )
+    for horizon, rows in sim_sg.items():
+        results[f"sim_{horizon}"] = resolve_source_family(
+            f"sim_{horizon}", field_index, _rows_for_resolution(rows)
+        )
+    results["skill"] = resolve_source_family(
+        "skill", field_index, _rows_for_resolution(app_skill_data)
+    )
+    results["prox"] = resolve_source_family(
+        "prox", field_index, _rows_for_resolution(app_prox_data)
+    )
+    results["perf"] = resolve_source_family(
+        "perf", field_index, _rows_for_resolution(perf_data)
+    )
+    results["decomp"] = resolve_source_family(
+        "decomp", field_index, _rows_for_resolution(decomp_data)
+    )
+    results["ch"] = resolve_source_family(
+        "ch", field_index, _rows_for_resolution(ch_data)
+    )
+    results["trend"] = resolve_source_family(
+        "trend", field_index, _rows_for_resolution(trending_data),
+        dg_id_field="dg_id",
+    )
+    return results
 
-    # Fuzzy — short Korean/hyphenated names survive because exact pass fires first
-    best_r, best_orig = 0.0, None
-    for norm_key, orig_key in lookup.items():
-        r = difflib.SequenceMatcher(None, norm, norm_key).ratio()
-        if r > best_r:
-            best_r, best_orig = r, orig_key
-    if best_r >= threshold and best_orig is not None:
-        return data_dict[best_orig]
 
-    return None
+def _matched_value(result: SourceFamilyResult, dg_id: str) -> object | None:
+    """Return the accepted match's own preserved payload, read directly off
+    the resolver's ``source_row`` -- never a name-keyed re-lookup."""
+    match = result.matches_by_dg_id().get(dg_id)
+    if match is None or match.source_row is None:
+        return None
+    source_row = match.source_row.get("_source_row")
+    return source_row.payload if source_row is not None else None
 
 
 # ── §4  Dual-Vector SG Composites ─────────────────────────────────────────────
@@ -593,19 +690,6 @@ def build_live_r1_narrative(player: str, r1_score: str, sg_approach: float,
 
 # ── §10  Main Pipeline ─────────────────────────────────────────────────────────
 
-def check_field_completeness(field_names: list[str], trending_data: dict, lookup: dict) -> list[str]:
-    """Return canonical-field players (by pga_field.csv) with no row in
-    pga_field_trending_table.csv, using the same exact+fuzzy resolve()
-    logic the rest of the pipeline uses — not a raw name diff, so this
-    doesn't false-flag players the fuzzy matcher would have caught anyway.
-    """
-    missing = []
-    for name in field_names:
-        if resolve(name, trending_data, lookup, threshold=0.85) is None:
-            missing.append(name)
-    return missing
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="VenueDNA enrichment pipeline")
     parser.add_argument("--event", default="2026_3m_open")
@@ -618,18 +702,13 @@ def main() -> None:
     output_dir = event_dir / "output"
     deploy_dir = event_dir / "deploy" / "data"
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-    deploy_dir.mkdir(parents=True, exist_ok=True)
-
     # ── Load all source files ──────────────────────────────────────────────────
     print("[enrich_cards] Loading source files…")
 
-    field_names = load_field(input_dir / "pga_field.csv")
-    if not field_names:
+    field_rows = load_field_rows(input_dir / "pga_field.csv")
+    if not field_rows:
         print("[enrich_cards] ERROR — pga_field.csv missing or empty", file=sys.stderr)
         sys.exit(1)
-    field_ids = load_field_ids(input_dir / "pga_field.csv")
-    print(f"  Field: {len(field_names)} players, {len(field_ids)} with dg_id")
 
     all_sg = {h: load_sg_csv(input_dir / f) for h, f in ALL_COURSES_FILES.items()}
     sim_sg = {h: load_sg_csv(input_dir / f) for h, f in SIM_COURSES_FILES.items()}
@@ -641,57 +720,63 @@ def main() -> None:
     ch_data        = load_ch(input_dir        / "tpc_twin_cities_CH.csv")
     trending_data  = load_trending(input_dir  / "pga_field_trending_table.csv")
 
-    _missing_trend = check_field_completeness(field_names, trending_data, build_lookup(trending_data))
-    if _missing_trend:
-        print(f"[enrich_cards] WARNING — {len(_missing_trend)} field player(s) missing from "
-              f"pga_field_trending_table.csv (likely late field additions; Form/l5 data will "
-              f"render blank, this is expected): {', '.join(_missing_trend)}", file=sys.stderr)
+    # ── Identity resolution (ID-first; fuzzy is diagnostic-only) ────────────────
+    print("[enrich_cards] Resolving player identity…")
 
-    # Build name-lookup tables once (exact pass; fuzzy fires per-player only on misses)
-    lk = {
-        "all_6m":  build_lookup(all_sg["6m"]),
-        "all_12m": build_lookup(all_sg["12m"]),
-        "all_24m": build_lookup(all_sg["24m"]),
-        "sim_6m":  build_lookup(sim_sg["6m"]),
-        "sim_12m": build_lookup(sim_sg["12m"]),
-        "sim_24m": build_lookup(sim_sg["24m"]),
-        "skill":   build_lookup(app_skill_data),
-        "prox":    build_lookup(app_prox_data),
-        "perf":    build_lookup(perf_data),
-        "decomp":  build_lookup(decomp_data),
-        "ch":      build_lookup(ch_data),
-        "trend":   build_lookup(trending_data),
-    }
+    field_index = build_field_index(field_rows, name_field="player_name", dg_id_field="dg_id")
+    source_results = (
+        resolve_all_source_families(
+            field_index,
+            all_sg=all_sg, sim_sg=sim_sg,
+            app_skill_data=app_skill_data, app_prox_data=app_prox_data,
+            perf_data=perf_data, decomp_data=decomp_data,
+            ch_data=ch_data, trending_data=trending_data,
+        )
+        if field_index.is_valid else {}
+    )
+    release_report = build_release_report(field_index, list(source_results.values()))
 
-    # Field-level proximity stats for prox→z-raw conversion
-    prox_values          = list(app_prox_data.values())
-    prox_mean, prox_std  = field_stats(prox_values) if prox_values else (30.0, 4.0)
+    print(f"  Field: {len(field_index.identities)} players, "
+          f"{len(field_index.identities)} with dg_id")
 
-    # Field-level std_dev fallback
-    std_vals         = [v["std_dev"] for v in decomp_data.values() if v["std_dev"] > 0]
-    field_std_mean   = sum(std_vals) / len(std_vals) if std_vals else 3.0
+    if release_report.is_release_blocked:
+        print("[enrich_cards] IDENTITY RELEASE BLOCKED", file=sys.stderr)
+        print(release_report.render(), file=sys.stderr)
+        sys.exit(1)
+
+    for w in release_report.warnings:
+        print(f"[enrich_cards] WARNING [{w.code}] {w.family or '-'}: {w.message}", file=sys.stderr)
 
     # ── Per-player raw computation ─────────────────────────────────────────────
     print("[enrich_cards] Computing latent scores…")
 
     _EMPTY_SKILL  = {"sg_50_100": 0.0, "sg_100_150": 0.0, "sg_150_200": 0.0, "sg_200plus": 0.0}
     _EMPTY_PERF   = {"putt_true": 0.0, "arg_true": 0.0, "app_true": 0.0, "ott_true": 0.0}
-    _EMPTY_DECOMP = {"driving_acc_adj": 0.0, "driving_dist_adj": 0.0, "std_dev": field_std_mean}
+    _EMPTY_DECOMP = {"driving_acc_adj": 0.0, "driving_dist_adj": 0.0}
     _EMPTY_TREND  = {"true_sg_l20": 0.0, "l5_starts": ""}
+
+    # Field-level std_dev fallback
+    std_vals       = [r.payload["std_dev"] for r in decomp_data if r.payload["std_dev"] > 0]
+    field_std_mean = sum(std_vals) / len(std_vals) if std_vals else 3.0
+    _EMPTY_DECOMP["std_dev"] = field_std_mean
+
+    # Field-level proximity stats for prox→z-raw conversion
+    prox_values          = [r.payload for r in app_prox_data]
+    prox_mean, prox_std  = field_stats(prox_values) if prox_values else (30.0, 4.0)
 
     players_raw: list[dict] = []
 
-    for name in field_names:
+    for ident in field_index.identities:
+        name = ident.display_name
+
         # Dual-vector SG composites
         all_r = {
-            "6m":  resolve(name, all_sg["6m"],  lk["all_6m"])  or debut_row(),
-            "12m": resolve(name, all_sg["12m"], lk["all_12m"]) or debut_row(),
-            "24m": resolve(name, all_sg["24m"], lk["all_24m"]) or debut_row(),
+            h: (_matched_value(source_results[f"all_{h}"], ident.dg_id) or debut_row())
+            for h in all_sg
         }
         sim_r = {
-            "6m":  resolve(name, sim_sg["6m"],  lk["sim_6m"])  or debut_row(),
-            "12m": resolve(name, sim_sg["12m"], lk["sim_12m"]) or debut_row(),
-            "24m": resolve(name, sim_sg["24m"], lk["sim_24m"]) or debut_row(),
+            h: (_matched_value(source_results[f"sim_{h}"], ident.dg_id) or debut_row())
+            for h in sim_sg
         }
 
         any_sim    = any(sim_r[h]["rounds"] > 0 for h in ("6m", "12m", "24m"))
@@ -700,12 +785,12 @@ def main() -> None:
         sg_base_comp, sg_sim_comp, delta_fit = make_composites(all_r, sim_r)
 
         # Supplementary data
-        skill  = resolve(name, app_skill_data, lk["skill"])  or _EMPTY_SKILL.copy()
-        prox   = resolve(name, app_prox_data,  lk["prox"])
-        perf   = resolve(name, perf_data,      lk["perf"])   or _EMPTY_PERF.copy()
-        decomp = resolve(name, decomp_data,    lk["decomp"]) or _EMPTY_DECOMP.copy()
-        ch     = resolve(name, ch_data,        lk["ch"])
-        trend  = resolve(name, trending_data,  lk["trend"])  or _EMPTY_TREND.copy()
+        skill  = _matched_value(source_results["skill"],  ident.dg_id) or _EMPTY_SKILL.copy()
+        prox   = _matched_value(source_results["prox"],   ident.dg_id)
+        perf   = _matched_value(source_results["perf"],   ident.dg_id) or _EMPTY_PERF.copy()
+        decomp = _matched_value(source_results["decomp"], ident.dg_id) or _EMPTY_DECOMP.copy()
+        ch     = _matched_value(source_results["ch"],     ident.dg_id)
+        trend  = _matched_value(source_results["trend"],  ident.dg_id) or _EMPTY_TREND.copy()
 
         course_debut = (ch is None)
         if ch is None:
@@ -723,9 +808,9 @@ def main() -> None:
         # Trait raw values
         trait_approach_raw  = compute_trait_approach(skill)
         trait_long_iron_raw = compute_trait_long_iron(skill, prox_z_raw)
-        ott_true            = perf["ott_true"]
-        app_true            = perf["app_true"]
-        true_sg_l20         = trend["true_sg_l20"]
+        ott_true             = perf["ott_true"]
+        app_true             = perf["app_true"]
+        true_sg_l20           = trend["true_sg_l20"]
 
         # Combined latent (addends in SG-compatible units; z-scored after full field)
         combined_raw = (
@@ -747,7 +832,9 @@ def main() -> None:
         players_raw.append({
             # Identity
             "player":               name,
-            "player_id":            field_ids.get(name),  # dg_id — immutable numeric join key
+            "player_id":            ident.dg_id,  # deprecated compatibility alias of dg_id
+            "dg_id":                ident.dg_id,
+            "_identity_provenance": build_player_provenance(ident, list(source_results.values())),
             "data_depth":           data_depth,
             "course_debut":         course_debut,
             # Dual-vector SG
@@ -962,7 +1049,8 @@ def main() -> None:
              "_live_vts", "_r2_wave", "_r2_teetime"}
 
     _first = [
-        "rank", "player", "player_name", "player_id", "tier", "vts_final", "live_vts",
+        "rank", "player", "player_name", "player_id", "dg_id", "tier",
+        "vts_final", "live_vts",
         "neutralSkillIndex",
         "sg_base_composite", "sg_similar_composite", "delta_fit", "data_depth",
         "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
@@ -975,9 +1063,12 @@ def main() -> None:
         "app_true", "ott_true", "ch_adjustment", "true_sg_l20",
         "trait_approach_raw", "trait_long_iron_raw",
         "r2_wave", "r2_teetime",
+        "identity_provenance",
     ]
 
     def reorder(p: dict) -> dict:
+        p = dict(p)
+        p["identity_provenance"] = p.pop("_identity_provenance")
         out: dict = {}
         for k in _first:
             if k in p:
@@ -989,7 +1080,7 @@ def main() -> None:
 
     ordered = [reorder(p) for p in players_raw]
 
-    # ── Write outputs ──────────────────────────────────────────────────────────
+    # ── Write outputs (only after identity validation succeeded above) ─────────
     _live_suffix = {"r1": "rd1", "r2": "rd2", "r3": "rd3", "r4": "rd4"}
     file_base = (f"2026_3m_open_{_live_suffix[args.live]}_payload.json"
                  if args.live else "2026_3m_open_event_payload.json")
@@ -1004,6 +1095,9 @@ def main() -> None:
         "players":       ordered,
     }
     json_str = json.dumps(payload, indent=2)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    deploy_dir.mkdir(parents=True, exist_ok=True)
 
     deploy_path = deploy_dir / file_base
     output_path = output_dir / file_base

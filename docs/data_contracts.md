@@ -43,7 +43,16 @@ A historical payload is not canonical merely because an older board consumed it.
 ### Canonical Keys
 
 - `dg_id` is the canonical external player key.
-- `player_id` is the canonical internal player key.
+- `player_id` is the canonical internal player key. **Interim exception:**
+  in the `engine/enrich_cards.py` producer, no internal player identity
+  exists yet. `player_id` in that producer's payload is a temporary,
+  deprecated, backward-compatible alias of `dg_id` — for every
+  successfully resolved player, `player_id == dg_id`. This alias exists
+  only so existing consumers (`app.js` boards that already read
+  `player_id`) continue to work unchanged. It is not, and must not be
+  read as, a real internal database identity. A future, explicitly
+  authorized migration is required before `player_id` can mean anything
+  other than `dg_id` in this producer.
 - `player_name` is display data and a fallback join field only.
 - `event_slug` and `venue_slug` use lowercase snake_case.
 - `year` is a four-digit integer.
@@ -51,11 +60,194 @@ A historical payload is not canonical merely because an older board consumed it.
 ### Identity Rules
 
 1. Join by DataGolf ID whenever both sources contain it.
-2. Use the `players` crosswalk before falling back to player name.
+2. Use the `players` crosswalk before falling back to player name. **Current
+   state:** no canonical `players` crosswalk table exists in
+   `data/venuedna_master.db` today. `engine/identity_resolver.py` accepts an
+   optional in-memory crosswalk mapping for this precedence stage, but no
+   producer currently supplies one, and this crosswalk stage must not be
+   backed by a persistent file or database table without a separate,
+   explicitly authorized migration.
 3. Normalize display names only as a fallback: whitespace trim, case normalization, diacritic folding, and documented encoding fallback.
 4. Log unresolved and ambiguous matches.
 5. Never silently duplicate a player because source spellings differ.
 6. Never discard a source row because a display-name join fails.
+
+### Identity Resolver (`engine/identity_resolver.py`)
+
+`engine/enrich_cards.py` resolves every player through
+`engine/identity_resolver.py`, a narrowly scoped, database-free module
+shared by that producer. It replaces an earlier fuzzy-first matcher that
+could silently auto-join a probable spelling match with no ambiguity
+check, no provenance, and no release gate.
+
+**Resolution precedence per source family:**
+
+1. Exact canonical `dg_id` (only meaningful for source families that carry
+   a `dg_id` column — most supplementary source families do not).
+2. Optional explicit in-memory crosswalk (currently unconfigured; see
+   Identity Rule 2 above).
+3. Unique exact canonical normalized name.
+4. Documented encoding/punctuation-normalized exact name (diacritic
+   folding, hyphen/comma word-separator folding, apostrophe/period
+   removal).
+5. Unresolved or ambiguous.
+
+**Fuzzy matching is diagnostic-only.** A fuzzy candidate — at or above the
+`0.85` similarity threshold used as the initial diagnostic bar — is never
+authorization to join. It is recorded (best and second-best candidate,
+deterministic ordering) and classified as either a probable-misspelling
+blocker or a close-competing-candidates blocker; it never silently
+populates a player record.
+
+**Raw source rows are preserved until identity validation.** Every
+identity-participating loader in `engine/enrich_cards.py` returns a
+row-preserving `list[SourceRow]` (defined in `engine/identity_resolver.py`)
+— one entry per CSV data row, including duplicates — never a `dict[name,
+value]` collapsed at load time. A duplicate raw name, a duplicate
+normalized name, or a duplicate source `dg_id` cannot be silently erased
+by loader indexing before the resolver ever sees it; the resolver, not the
+loader, decides whether a duplicate is a release blocker. After a row is
+accepted, its scoring payload is read back directly off the accepted
+match (`MatchDiagnostic.source_row`) — never through a second, name-keyed
+lookup that could resolve to a different, later-loaded duplicate.
+
+**Source-row ownership is enforced uniformly across every resolution
+method.** Each raw source row has a stable identity — its ordinal position
+within its source family — independent of its display name. For every
+accepted method (`exact_dg_id`, `crosswalk`, `exact_name`,
+`encoding_fallback`), one source row maps to at most one field player and
+one field player is accepted from at most one source row per family. This
+guarantee is checked uniformly, not only after name/encoding fallback:
+two field players reaching the same row through *different* methods (for
+example one via `exact_name` and another via `encoding_fallback`) are
+both rejected as a blocker, never resolved by "first match wins."
+
+**Exact-ID remains canonical; crosswalk cannot override it.** A valid
+unique exact-`dg_id` match is authoritative. If a source row's own `dg_id`
+exactly identifies field player A, no lower-precedence method (crosswalk,
+exact name, or encoding fallback) may claim that same row for a different
+field player B — the exact-ID match for A is retained, and the
+conflicting lower-precedence proposal for B is rejected as a blocking
+conflict, not a silent override. **Crosswalk conflicts always block
+release** — even though the correctly-identified player's match is
+retained in the source family's own diagnostics, `IdentityReleaseReport`
+still blocks the whole release (no artifact is written) whenever any
+other field player's crosswalk, name, or fallback proposal conflicts with
+that row's own exact-ID evidence.
+
+**A separate source row that also exact-name-matches an already
+exact-ID-owned player never discards that exact-ID acceptance — including
+when the accepted row's own display name does not itself match the field
+player's normalized name.** The accepted `dg_id` row is retained exactly
+as matched; the *separate* row is evaluated on its own, independent
+merits (see the field-ownership-conflict rule below) and, if it has no
+other legitimate owner, becomes its own blocker attached to that row —
+never a reason to un-accept the exact-ID row. A blocker prevents artifact
+writes; it does not retroactively change which row won identity
+precedence.
+
+**Exact-ID acceptance does not suppress contradictory lower-precedence
+rows targeting the same player — but only after every row's global
+ownership is known.** Resolution happens in four ordered stages within
+each source family: (1) every row's candidate claims are gathered
+(`exact_dg_id`, `crosswalk`, `exact_normalized_name`,
+`encoding_normalized_name`, fuzzy-diagnostic); (2) claims are ranked by
+the canonical precedence above; (3) row ownership is adjudicated
+globally — every field player's exact-`dg_id`, crosswalk, and
+exact-normalized-name claims are resolved first, so each row's strongest
+valid owner (if any) is known; only *after* that is field-ownership
+conflict-checking performed. A row that a *different* field player has
+already validly and uniquely accepted through any method — including
+`exact_name` or `crosswalk` — is never re-flagged as a conflict against
+an unrelated exact-ID-owned player merely because it also happens to
+encoding-fallback-resemble that unrelated player's name: a stronger, or
+equally authoritative, already-accepted claim always suppresses an
+incidental weaker one. Only a row with **no other legitimate owner** that
+still independently targets an exact-ID-owned player's exact normalized
+name, encoding-normalized name, or crosswalk target is rejected and
+reported — never accepted, never merely `unused_source` — as a
+release-blocking field-ownership conflict, while the original exact-ID
+match is retained unchanged for diagnostic truth. This is detected
+uniformly whether the conflicting evidence is a single extra
+unowned row, two or more unowned rows sharing one duplicate normalized
+name, or a punctuation/encoding-normalized variant of the owned player's
+name. A source row that has no exact, encoding, crosswalk, or
+probable-fuzzy relationship to any field player remains an ordinary
+`unused_source` warning — this rule does not turn every extra row in a
+family into a blocker, only rows that actually claim an exact-ID-owned
+identity and have no stronger, already-accepted owner of their own. The
+same source row is therefore never emitted as both an accepted match for
+one field player and a blocking conflict for another.
+
+**Release-blocking identity failures** (gathered in full before failing;
+no partial output is ever written): a field player missing a valid
+`dg_id`; a duplicate field `dg_id`; a duplicate source `dg_id` within one
+source family (row ordinals included in the diagnostic); one source
+`dg_id` resolving to multiple field players; two field players resolving
+to one source row; a different field player's crosswalk, exact-name, or
+encoding-fallback proposal targeting a row already exact-ID-owned by
+someone else (the original exact-ID match is retained; only the
+conflicting proposal is rejected); conflicting crosswalk and exact-name
+evidence for the same field player (many-to-one through mixed methods);
+one source row proposed for multiple field players through mixed methods
+(one-to-many); a second source row independently targeting an already
+exact-ID-owned field player via exact name, duplicate normalized name,
+encoding fallback, or crosswalk (the exact-ID match is retained
+unchanged; only the extra row is flagged); a malformed or unresolvable
+crosswalk target; multiple names collapsing to the same normalized key; a
+fuzzy-only probable match that would previously have been auto-joined;
+close competing fuzzy candidates; and malformed identity values that
+cannot be safely normalized. None of these failures nullify or retract an
+already-accepted exact-`dg_id` match — a blocker prevents the release
+from being written, it does not undo identity precedence that was
+already correctly resolved.
+
+**Missing supplementary coverage is not, by itself, an identity failure.**
+When a supplementary source family has no row for a field player, no
+source row ambiguously targets that player, and no near-threshold fuzzy
+candidate suggests a likely spelling mismatch, this is reported as a
+`missing_source` warning and existing missing-data handling (zero-valued
+component defaults, confidence widening) applies exactly as it did before
+this resolver existed. This distinction is deliberate: identity
+resolution and missing-data handling are separate concerns, and this
+resolver does not redesign the latter.
+
+**Compact player provenance.** Every successfully resolved player carries
+an additive `identity_provenance` object:
+
+```json
+{
+  "schema_version": "1.0",
+  "canonical_key": "dg_id",
+  "field_source": "pga_field.csv",
+  "field_method": "exact_dg_id",
+  "source_matches": {
+    "all_6m": {
+      "status": "matched",
+      "method": "exact_dg_id",
+      "source_name": "Example, Player"
+    }
+  }
+}
+```
+
+`source_matches` entries use `status: "matched"` with a `method` of
+`exact_dg_id`, `crosswalk`, `exact_name`, or `encoding_fallback`, or
+`status: "missing"` when that source family has no row for this player.
+Detailed fuzzy-candidate lists, rejected-candidate diagnostics, and
+per-family score breakdowns are never placed in this compact object —
+they belong to the in-memory release report printed to `stderr` at build
+time, not to the player payload.
+
+**Migration impact.** This is an additive migration: `dg_id` and
+`identity_provenance` are new fields; `player_id`, `player_name`, all
+score fields, tier boundaries, and output ordering are unchanged. It
+requires no archive rewrite and no database migration — `engine/
+identity_resolver.py` performs no filesystem or database I/O beyond the
+CSV rows it is given. A future internal-ID migration (replacing the
+`player_id == dg_id` alias with a real internal identity) must update
+every producer and every consumer together in one coordinated change, not
+piecemeal.
 
 ## Event State
 
