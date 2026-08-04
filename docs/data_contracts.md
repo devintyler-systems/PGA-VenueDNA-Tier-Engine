@@ -248,7 +248,7 @@ Before changing a deploy payload:
 5. Validate the fixture harness or browser board.
 6. Do not place raw data, temporary exports, notes, or planning documents in `deploy/data/`.
 
-### Dynamic Payload Manifest
+### Dynamic Payload Manifest (Legacy, Schema 1.0)
 
 Boards may use dynamic local fetches only when their deploy root contains an optional
 `payload_manifest.json`. Its presence is additive: boards without one retain normal
@@ -290,6 +290,178 @@ python tools/validate_deploy_contract.py --deploy-root events/{event_slug}/deplo
 
 Use `--payload-manifest path/to/manifest.json` only when the event intentionally
 stores the manifest outside the default deploy-root location.
+
+This schema-1.0 manifest and the `--deploy-root`/`--payload-manifest` CLI flow remain
+fully supported. It is a legacy compatibility path, retained alongside schema 1.1
+below, not superseded by it.
+
+### External Deploy Profile v1.1
+
+**Purpose.** A schema-1.0 payload manifest lives inside a live event's own deploy
+root and is meant for a board that is still being produced. Once an event is
+archived, its deploy files become read-only history: nothing should write into
+`events/2026_Finished_Events/{event_slug}/`, including a manifest. Schema 1.1
+introduces an `archived_deploy` profile that lives entirely outside the archive and
+only references and hashes existing archive files. It never rewrites or
+synchronizes them.
+
+**`profile_type: "archived_deploy"`.** The profile is a standalone JSON document
+identified by `schema_version: "1.1"` and `profile_type: "archived_deploy"`. It
+declares the board's asset inventory, dynamic fetch expressions, and a complete
+SHA-256 integrity manifest for everything the board can load.
+
+**External historical profile location.**
+
+```text
+config/deploy_contracts/archived/
+```
+
+One profile per inspected archive, named for the archived event slug (for example
+`config/deploy_contracts/archived/2026_example.json`).
+
+**Board modes.** `board.mode` is one of:
+
+- `static_app` — external `app.js` and `styles.css`; requires at least one script and
+  one stylesheet.
+- `harness` — a fixture-harness board with the same asset-count rules as
+  `static_app`; filenames may differ from the `index.html`/`app.js`/`styles.css`
+  convention.
+- `inline_styled_app` — an entry document with inline styling; requires at least one
+  script but `board.stylesheets` may be empty.
+
+Every declared `entry_html`, `scripts`, `stylesheets`, and `data_roots` entry must
+exist under `deploy_root` before the profile is generated or accepted.
+
+**Required versus optional-pending targets.** Every dynamic fetch target declares an
+`availability` of `required` or `optional_pending`. A `required` target must exist,
+parse, and hash-match. An `optional_pending` target may be absent — that is reported
+separately and never inferred from absence — but a present optional-pending target
+must still parse and hash-match.
+
+**SHA-256 integrity rules.** `integrity.algorithm` is `"sha256"`. `integrity.files`
+covers, at minimum: the entry document, every script, every stylesheet, every
+present local literal fetch target, every present required dynamic target, and every
+present optional-pending dynamic target. Digests are raw-byte SHA-256, lowercase hex,
+64 characters. Validation never writes a hash back into any file.
+
+**Path safety.** `deploy_root` and every runtime path declared inside the profile
+(`board.entry_html`, `board.scripts`, `board.stylesheets`, `board.data_roots`,
+dynamic target paths, `integrity.files[].path`) is a forward-slash path relative to
+its base directory. Absolute paths, drive prefixes, UNC paths, backslashes, and any
+`..` segment are rejected. Containment is checked with `Path.resolve()` plus
+`relative_to()`, not string prefixes, so a symlink escape is also rejected.
+
+**Full example profile.**
+
+```json
+{
+  "schema_version": "1.1",
+  "profile_type": "archived_deploy",
+  "event_slug": "2026_example",
+  "deploy_root": "events/2026_Finished_Events/2026_example/deploy",
+  "board": {
+    "mode": "static_app",
+    "entry_html": "index.html",
+    "scripts": ["app.js"],
+    "stylesheets": ["styles.css"],
+    "data_roots": ["data"]
+  },
+  "dynamic_fetches": [
+    {
+      "expression": "data/r${r}_analysis.json",
+      "pattern": "data/r{r}_analysis.json",
+      "targets": [
+        {"path": "data/r1_analysis.json", "availability": "required"},
+        {"path": "data/r4_analysis.json", "availability": "optional_pending"}
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "sha256",
+    "files": [
+      {"path": "app.js", "sha256": "…64 lowercase hex characters…"},
+      {"path": "data/r1_analysis.json", "sha256": "…64 lowercase hex characters…"},
+      {"path": "index.html", "sha256": "…64 lowercase hex characters…"},
+      {"path": "styles.css", "sha256": "…64 lowercase hex characters…"}
+    ]
+  }
+}
+```
+
+**Validator command.**
+
+```powershell
+python tools/validate_deploy_contract.py --deploy-profile config/deploy_contracts/archived/2026_example.json
+```
+
+`--deploy-profile` is mutually exclusive with `--deploy-root` and `--payload-manifest`.
+
+**Builder command.** `tools/build_deploy_profile.py` is a deterministic,
+standard-library-only generator. It reads an existing deploy tree, discovers literal
+and dynamic fetch targets in the declared scripts, computes integrity hashes, and
+writes a profile that already passes `validate_deploy_profile()`. It never writes
+into `deploy_root`.
+
+```powershell
+python tools\build_deploy_profile.py `
+  --deploy-root events/2026_Finished_Events/2026_example/deploy `
+  --output config/deploy_contracts/archived/2026_example.json `
+  --event-slug 2026_example `
+  --board-mode static_app `
+  --entry-html index.html `
+  --script app.js `
+  --stylesheet styles.css `
+  --data-root data `
+  --dynamic-declarations path\to\dynamic_declarations.json
+```
+
+A dynamic-fetch expression detected in a declared script always requires an explicit
+`--dynamic-declarations` file; the builder never guesses `required` versus
+`optional_pending` status.
+
+`data_roots` generation rule (stricter than the structural validator): empty
+`data_roots` is permitted only when the board consumes no local payloads. Every local
+literal or dynamic target must be contained beneath a declared data root. The builder
+enforces this before it will generate a profile; the structural validator itself does
+not require a minimum `data_roots` count, only that every declared root exists.
+
+**Dry-run command.** Builds and validates the profile in memory and prints the exact
+JSON that would be written; writes no file and creates no output directory.
+
+```powershell
+python tools\build_deploy_profile.py --deploy-root ... --output ... --event-slug ... `
+  --board-mode static_app --entry-html index.html --script app.js --stylesheet styles.css `
+  --data-root data --dry-run
+```
+
+**Check command.** Regenerates the expected profile in memory and compares it
+byte-for-byte against the existing output file; writes nothing; exits nonzero when
+the file is stale or missing.
+
+```powershell
+python tools\build_deploy_profile.py --deploy-root ... --output ... --event-slug ... `
+  --board-mode static_app --entry-html index.html --script app.js --stylesheet styles.css `
+  --data-root data --check
+```
+
+**Historical archive immutability.** A profile under
+`config/deploy_contracts/archived/` may reference and hash files that already exist
+inside `events/2026_Finished_Events/{event_slug}/deploy/`. Neither the builder nor the
+validator ever writes into an archived event directory. Adding a file inside an
+archived event requires separate explicit operator authorization outside this
+tooling.
+
+**Future profiles should be generated before archival.** A live event's deploy
+builder should emit its schema-1.1 profile as part of the release, before the event
+moves to `events/2026_Finished_Events/`, so the archive already carries its own
+integrity manifest.
+
+**Builder and validator never synchronize or rewrite archive contents.** Both tools
+are read-only against `deploy_root`. If a hash mismatch or missing file is found, the
+fix is to correct the producer that created the archive, not to have the builder or
+validator patch the archive in place.
+
+**Legacy schema-1.0 manifests remain supported**, unchanged, alongside schema 1.1.
 
 ### Board Rules
 
