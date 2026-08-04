@@ -1,0 +1,11 @@
+# Prioritized Backlog
+
+| Priority / objective | Future authorized files | Protected files | Dependencies / acceptance | Validation / contract / migration | Lane / stop condition |
+|---|---|---|---|---|---|
+| P0 Strict deploy release contract | `tools/validate_deploy_contract.py`, `docs/data_contracts.md`, `tests/` | engine, archives, boards | Declare board mode and payload manifest; every declared target/hash exists. | strict validator per fixture; contract changes require migration plan. | Codex; stop if archive needs mutation. |
+| P0 ID-first resolver and provenance | `engine/enrich_cards.py`, `tests/`, docs | database, payload archives | Exact `dg_id` wins; ambiguity/unresolved rows block release; no fuzzy silent join. | identity fixtures; payload adds provenance fields → migration required. | Claude Code; stop on unresolved source mapping. |
+| P1 Score-decomposition parity harness | engine, tests, docs | standards until doctrine approval | Report actual trait/paired weights, source confidence, and formula version; no score change. | golden fixtures; additive metadata migration. | Claude Code; stop if doctrine conflict remains. |
+| P1 Walk-forward calibration sidecar | new `tools/`, tests, docs/audits | scoring engine, archives | Out-of-sample Brier/log loss/reliability/intercept/slope, field and venue segmentation, bootstrap CI. | deterministic historical split test; new sidecar schema/version. | Codex; stop if outcomes/source IDs cannot be matched. |
+| P2 Shared board platform contract | new shared board source, tests, docs | archived boards, payloads | One app consumes canonical payload and manifest; filters/charts registry; no in-browser VTS math. | fetch/hash fixture, visual/a11y suite; migration required. | Claude Code; stop unless a new-event implementation is authorized. |
+| P3 Player-card/course explorer | shared board, docs, tests | scoring, archived payloads | Accessible dialog, deep links, source provenance, official links, comparison tray. | keyboard/screen-reader/mobile tests; additive payload migration. | Codex; stop if fields are unavailable. |
+| P4 CI quality gate | `.github/workflows/`, tools, tests, docs | engine/data/events | Contract, identity, probability invariant, a11y, JS syntax, and visual gate. | CI run; no migration itself. | Codex; stop on environment-only browser dependency. |
