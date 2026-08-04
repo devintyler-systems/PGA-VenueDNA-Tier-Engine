@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -18,6 +19,13 @@ FETCH_PATTERNS = (
     r"""d3\.csv\(\s*[`'"]([^`'"]+)[`'"]""",
     r"""d3\.json\(\s*[`'"]([^`'"]+)[`'"]""",
 )
+
+PROFILE_SCHEMA_VERSION = "1.1"
+PROFILE_TYPE = "archived_deploy"
+BOARD_MODES = {"static_app", "harness", "inline_styled_app"}
+DYNAMIC_AVAILABILITY = {"required", "optional_pending"}
+HEX64_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+DRIVE_PREFIX_PATTERN = re.compile(r"^[A-Za-z]:")
 
 
 def repo_path(repo: Path, value: str) -> Path:
@@ -223,6 +231,605 @@ def load_dynamic_payload_manifest(
     return declarations
 
 
+def is_safe_declared_path(value: Any) -> bool:
+    """Validate a forward-slash, repo/deploy-root-relative path from a profile.
+
+    Rejects empty values, backslashes, leading slashes, Windows drive
+    prefixes, and any ``..`` segment. Callers still must resolve the
+    candidate and verify containment against the intended base directory.
+    """
+
+    if not isinstance(value, str) or not value:
+        return False
+
+    if "\\" in value:
+        return False
+
+    if value.startswith("/"):
+        return False
+
+    if DRIVE_PREFIX_PATTERN.match(value):
+        return False
+
+    parts = value.split("/")
+
+    if any(part in ("", "..") for part in parts):
+        return False
+
+    return True
+
+
+def normalize_relative(value: str) -> str:
+    parts = [part for part in value.split("/") if part not in ("", ".")]
+    return "/".join(parts)
+
+
+def resolve_safe_path(base: Path, value: Any) -> Path | None:
+    """Resolve ``value`` against ``base`` iff it is safe and stays contained."""
+
+    if not is_safe_declared_path(value):
+        return None
+
+    resolved_base = base.resolve()
+    candidate = (resolved_base / value).resolve()
+
+    try:
+        candidate.relative_to(resolved_base)
+    except ValueError:
+        return None
+
+    return candidate
+
+
+def resolve_repo_relative_cli_path(repo: Path, value: str) -> Path | None:
+    """Resolve a CLI-supplied path (OS-native syntax allowed) inside the repo."""
+
+    if not value:
+        return None
+
+    candidate = Path(value)
+
+    if not candidate.is_absolute():
+        candidate = repo / candidate
+
+    resolved_repo = repo.resolve()
+    candidate = candidate.resolve()
+
+    try:
+        candidate.relative_to(resolved_repo)
+    except ValueError:
+        return None
+
+    return candidate
+
+
+def compute_sha256(path: Path) -> str:
+    hasher = hashlib.sha256()
+
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            hasher.update(chunk)
+
+    return hasher.hexdigest()
+
+
+def load_deploy_profile(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def validate_deploy_profile(
+    profile: dict[str, Any], profile_path: Path, repo: Path
+) -> tuple[list[str], list[str], list[str]]:
+    """Validate a schema-1.1 external deploy profile.
+
+    Returns ``(errors, warnings, report_lines)``. Read-only: never writes,
+    hashes-in-place, or mutates deploy files.
+    """
+
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    if not isinstance(profile, dict):
+        errors.append("Deploy profile must be a JSON object")
+        return errors, warnings, [f"Profile path: {profile_path}"]
+
+    for field in (
+        "schema_version",
+        "profile_type",
+        "event_slug",
+        "deploy_root",
+        "board",
+        "dynamic_fetches",
+        "integrity",
+    ):
+        if field not in profile:
+            errors.append(f"Deploy profile missing required field: {field}")
+
+    if profile.get("schema_version") != PROFILE_SCHEMA_VERSION:
+        errors.append(
+            "Deploy profile schema_version must be "
+            f"'{PROFILE_SCHEMA_VERSION}', got: {profile.get('schema_version')!r}"
+        )
+
+    if profile.get("profile_type") != PROFILE_TYPE:
+        errors.append(
+            f"Deploy profile profile_type must be '{PROFILE_TYPE}', "
+            f"got: {profile.get('profile_type')!r}"
+        )
+
+    event_slug = profile.get("event_slug")
+
+    if not isinstance(event_slug, str) or not event_slug:
+        errors.append("Deploy profile event_slug must be a non-empty string")
+
+    integrity = profile.get("integrity")
+
+    if not isinstance(integrity, dict):
+        errors.append("Deploy profile integrity must be an object")
+        integrity = {}
+    elif integrity.get("algorithm") != "sha256":
+        errors.append(
+            "Deploy profile integrity.algorithm must be 'sha256', "
+            f"got: {integrity.get('algorithm')!r}"
+        )
+
+    deploy_root_value = profile.get("deploy_root")
+    deploy_root: Path | None = None
+
+    if not isinstance(deploy_root_value, str) or not deploy_root_value:
+        errors.append("Deploy profile deploy_root must be a non-empty string")
+    else:
+        deploy_root = resolve_safe_path(repo, deploy_root_value)
+
+        if deploy_root is None:
+            errors.append(
+                "Deploy profile deploy_root is unsafe or outside the "
+                f"repository: {deploy_root_value}"
+            )
+        elif not deploy_root.is_dir():
+            errors.append(f"Deploy profile deploy_root does not exist: {deploy_root}")
+            deploy_root = None
+
+    board = profile.get("board")
+
+    if not isinstance(board, dict):
+        errors.append("Deploy profile board must be an object")
+        board = {}
+
+    mode = board.get("mode")
+
+    if mode not in BOARD_MODES:
+        errors.append(f"Deploy profile board.mode is unsupported: {mode!r}")
+        mode = None
+
+    entry_html_value = board.get("entry_html")
+    entry_path: Path | None = None
+
+    if not isinstance(entry_html_value, str) or not entry_html_value:
+        errors.append("Deploy profile board.entry_html must be a non-empty string")
+        entry_html_value = None
+    elif deploy_root is not None:
+        entry_path = resolve_safe_path(deploy_root, entry_html_value)
+
+        if entry_path is None:
+            errors.append(f"Deploy profile board.entry_html path is unsafe: {entry_html_value}")
+        elif not entry_path.is_file():
+            errors.append(
+                f"Deploy profile entry document missing: {entry_html_value} -> {entry_path}"
+            )
+            entry_path = None
+
+    scripts_value = board.get("scripts")
+
+    if not isinstance(scripts_value, list) or len(scripts_value) < 1:
+        errors.append("Deploy profile board.scripts requires at least one entry")
+        scripts_value = []
+
+    stylesheets_value = board.get("stylesheets")
+
+    if not isinstance(stylesheets_value, list):
+        errors.append("Deploy profile board.stylesheets must be a list")
+        stylesheets_value = []
+
+    if mode in ("static_app", "harness") and len(stylesheets_value) < 1:
+        errors.append(
+            f"Deploy profile board.stylesheets requires at least one entry for mode {mode}"
+        )
+
+    data_roots_value = board.get("data_roots")
+
+    if not isinstance(data_roots_value, list):
+        errors.append("Deploy profile board.data_roots must be a list")
+        data_roots_value = []
+
+    def resolve_declared_list(
+        values: list[Any], kind: str, require_file: bool
+    ) -> list[tuple[str, Path]]:
+        resolved: list[tuple[str, Path]] = []
+        seen: set[str] = set()
+
+        if deploy_root is None:
+            return resolved
+
+        for value in values:
+            if not isinstance(value, str) or not value:
+                errors.append(f"Deploy profile board.{kind} entries must be non-empty strings")
+                continue
+
+            norm = normalize_relative(value)
+
+            if norm in seen:
+                errors.append(f"Deploy profile board.{kind} duplicates path: {value}")
+                continue
+
+            candidate = resolve_safe_path(deploy_root, value)
+
+            if candidate is None:
+                errors.append(f"Deploy profile board.{kind} path is unsafe: {value}")
+                continue
+
+            seen.add(norm)
+
+            exists = candidate.is_file() if require_file else candidate.is_dir()
+
+            if not exists:
+                label = "file" if require_file else "directory"
+                errors.append(f"Deploy profile {kind} {label} missing: {value} -> {candidate}")
+                continue
+
+            resolved.append((value, candidate))
+
+        return resolved
+
+    resolved_scripts = resolve_declared_list(scripts_value, "scripts", require_file=True)
+    resolved_stylesheets = resolve_declared_list(
+        stylesheets_value, "stylesheets", require_file=True
+    )
+    resolved_data_roots = resolve_declared_list(
+        data_roots_value, "data_roots", require_file=False
+    )
+
+    literal_local_targets: list[tuple[str, Path]] = []
+    detected_dynamic_expressions: list[str] = []
+    seen_literal: set[str] = set()
+
+    for _, script_path in resolved_scripts:
+        text = script_path.read_text(encoding="utf-8", errors="replace")
+        fetch_targets = extract_fetch_targets(text)
+        nonliteral_targets = extract_nonliteral_fetch_targets(text)
+
+        for target in nonliteral_targets:
+            if target not in detected_dynamic_expressions:
+                detected_dynamic_expressions.append(target)
+
+        for target in fetch_targets:
+            if "${" in target or "{" in target:
+                if target not in detected_dynamic_expressions:
+                    detected_dynamic_expressions.append(target)
+                continue
+
+            local_value = local_target(target)
+
+            if local_value is None:
+                warnings.append(f"External target not checked: {target}")
+                continue
+
+            if local_value in seen_literal:
+                continue
+
+            seen_literal.add(local_value)
+
+            if deploy_root is None:
+                continue
+
+            resolved = resolve_safe_path(deploy_root, local_value)
+
+            if resolved is None:
+                errors.append(f"Literal fetch target path is unsafe: {target}")
+                continue
+
+            if not resolved.is_file():
+                errors.append(f"Literal fetch target missing: {target} -> {resolved}")
+                continue
+
+            validation_error = validate_payload(resolved)
+
+            if validation_error:
+                errors.append(f"Invalid literal fetch target: {resolved} ({validation_error})")
+
+            literal_local_targets.append((local_value, resolved))
+
+    dynamic_fetches_value = profile.get("dynamic_fetches")
+
+    if not isinstance(dynamic_fetches_value, list):
+        errors.append("Deploy profile dynamic_fetches must be a list")
+        dynamic_fetches_value = []
+
+    declared_expressions: set[str] = set()
+    declared_target_paths: set[str] = set()
+    dynamic_target_records: list[tuple[str, Path, str]] = []
+
+    for index, entry in enumerate(dynamic_fetches_value):
+        label = f"Deploy profile dynamic_fetches[{index}]"
+
+        if not isinstance(entry, dict):
+            errors.append(f"{label} must be an object")
+            continue
+
+        expression = entry.get("expression")
+        pattern = entry.get("pattern")
+        targets = entry.get("targets")
+
+        if not isinstance(expression, str) or not expression:
+            errors.append(f"{label} requires non-empty expression")
+            continue
+
+        if expression in declared_expressions:
+            errors.append(f"{label} duplicates expression: {expression}")
+            continue
+
+        declared_expressions.add(expression)
+
+        if not isinstance(pattern, str) or not pattern:
+            errors.append(f"{label} requires non-empty pattern")
+            continue
+
+        if not isinstance(targets, list) or len(targets) < 1:
+            errors.append(f"{label} requires non-empty targets list")
+            continue
+
+        seen_target_paths: set[str] = set()
+
+        for target_index, target in enumerate(targets):
+            target_label = f"{label}.targets[{target_index}]"
+
+            if not isinstance(target, dict):
+                errors.append(f"{target_label} must be an object")
+                continue
+
+            target_path_value = target.get("path")
+            availability = target.get("availability")
+
+            if not isinstance(target_path_value, str) or not target_path_value:
+                errors.append(f"{target_label} requires non-empty path")
+                continue
+
+            if availability not in DYNAMIC_AVAILABILITY:
+                errors.append(f"{target_label} has unknown availability: {availability!r}")
+                continue
+
+            norm = normalize_relative(target_path_value)
+
+            if norm in seen_target_paths:
+                errors.append(f"{target_label} duplicates target path: {target_path_value}")
+                continue
+
+            if norm in declared_target_paths:
+                errors.append(
+                    f"{target_label} duplicates target path across dynamic declarations: "
+                    f"{target_path_value}"
+                )
+                continue
+
+            seen_target_paths.add(norm)
+            declared_target_paths.add(norm)
+
+            if not pattern_matches(pattern, target_path_value):
+                errors.append(
+                    f"{target_label} does not match pattern {pattern}: {target_path_value}"
+                )
+                continue
+
+            if deploy_root is None:
+                continue
+
+            resolved_target = resolve_safe_path(deploy_root, target_path_value)
+
+            if resolved_target is None:
+                errors.append(f"{target_label} path is unsafe: {target_path_value}")
+                continue
+
+            dynamic_target_records.append((target_path_value, resolved_target, availability))
+
+    for expression in detected_dynamic_expressions:
+        if expression not in declared_expressions:
+            errors.append(f"Undeclared dynamic expression detected in scripts: {expression}")
+
+    for expression in declared_expressions:
+        if expression not in detected_dynamic_expressions:
+            errors.append(
+                f"Declared dynamic expression not found in any declared script: {expression}"
+            )
+
+    required_targets_checked = 0
+    optional_present = 0
+    optional_absent = 0
+    targets_needing_integrity: list[tuple[str, Path]] = []
+
+    for path_value, resolved_target, availability in dynamic_target_records:
+        exists = resolved_target.is_file()
+
+        if availability == "required":
+            required_targets_checked += 1
+
+            if not exists:
+                errors.append(f"Required dynamic target missing: {path_value} -> {resolved_target}")
+                continue
+
+            validation_error = validate_payload(resolved_target)
+
+            if validation_error:
+                errors.append(
+                    f"Invalid required dynamic target: {resolved_target} ({validation_error})"
+                )
+
+            targets_needing_integrity.append((path_value, resolved_target))
+        else:
+            if not exists:
+                optional_absent += 1
+                continue
+
+            optional_present += 1
+            validation_error = validate_payload(resolved_target)
+
+            if validation_error:
+                errors.append(
+                    f"Invalid optional-pending dynamic target: {resolved_target} "
+                    f"({validation_error})"
+                )
+
+            targets_needing_integrity.append((path_value, resolved_target))
+
+    integrity_files_value = integrity.get("files") if isinstance(integrity, dict) else None
+
+    if not isinstance(integrity_files_value, list):
+        errors.append("Deploy profile integrity.files must be a list")
+        integrity_files_value = []
+
+    integrity_map: dict[str, str] = {}
+    integrity_paths: dict[str, Path] = {}
+    seen_integrity_paths: set[str] = set()
+
+    for index, entry in enumerate(integrity_files_value):
+        label = f"Deploy profile integrity.files[{index}]"
+
+        if not isinstance(entry, dict):
+            errors.append(f"{label} must be an object")
+            continue
+
+        path_value = entry.get("path")
+        digest_value = entry.get("sha256")
+
+        if not isinstance(path_value, str) or not path_value:
+            errors.append(f"{label} requires non-empty path")
+            continue
+
+        if not isinstance(digest_value, str) or not HEX64_PATTERN.match(digest_value):
+            errors.append(
+                f"{label} sha256 must be exactly 64 lowercase hexadecimal characters: {path_value}"
+            )
+            continue
+
+        norm = normalize_relative(path_value)
+
+        if norm in seen_integrity_paths:
+            errors.append(f"{label} duplicates integrity path: {path_value}")
+            continue
+
+        seen_integrity_paths.add(norm)
+
+        if deploy_root is None:
+            continue
+
+        resolved = resolve_safe_path(deploy_root, path_value)
+
+        if resolved is None:
+            errors.append(f"{label} path is unsafe: {path_value}")
+            continue
+
+        if not resolved.is_file():
+            errors.append(f"Integrity target missing: {path_value} -> {resolved}")
+            continue
+
+        integrity_map[norm] = digest_value
+        integrity_paths[norm] = resolved
+
+    verified_integrity_paths: set[str] = set()
+
+    for norm, digest in integrity_map.items():
+        actual = compute_sha256(integrity_paths[norm])
+
+        if actual != digest:
+            errors.append(
+                f"Hash mismatch for {norm}: expected {digest}, got {actual}"
+            )
+            continue
+
+        verified_integrity_paths.add(norm)
+
+    coverage_targets: list[tuple[str, Path]] = []
+
+    if entry_html_value is not None and entry_path is not None:
+        coverage_targets.append((entry_html_value, entry_path))
+
+    coverage_targets.extend(resolved_scripts)
+    coverage_targets.extend(resolved_stylesheets)
+    coverage_targets.extend(literal_local_targets)
+    coverage_targets.extend(targets_needing_integrity)
+
+    hashes_verified = len(verified_integrity_paths)
+
+    for value, path in coverage_targets:
+        norm = normalize_relative(value)
+        digest = integrity_map.get(norm)
+
+        if digest is None:
+            errors.append(f"Missing mandatory integrity coverage: {value}")
+            continue
+
+
+    report_lines = [
+        f"Profile path: {profile_path}",
+        f"Deploy root: {deploy_root if deploy_root is not None else deploy_root_value}",
+        f"Board mode: {mode if mode is not None else board.get('mode')}",
+        f"Entry document: {entry_html_value if entry_html_value is not None else 'MISSING'}",
+        f"Scripts checked: {len(resolved_scripts)}",
+        f"Stylesheets checked: {len(resolved_stylesheets)}",
+        f"Data roots checked: {len(resolved_data_roots)}",
+        f"Literal local targets checked: {len(literal_local_targets)}",
+        f"Dynamic expressions checked: {len(declared_expressions)}",
+        f"Required dynamic targets checked: {required_targets_checked}",
+        f"Optional-pending targets present: {optional_present}",
+        f"Optional-pending targets absent: {optional_absent}",
+        f"Hashes verified: {hashes_verified}",
+    ]
+
+    return errors, warnings, report_lines
+
+
+def run_profile_validation(deploy_profile_arg: str, repo: Path) -> int:
+    profile_path = resolve_repo_relative_cli_path(repo, deploy_profile_arg)
+
+    if profile_path is None:
+        print("DEPLOY PROFILE FAILED")
+        print(
+            "- Deploy profile path must resolve inside the repository: "
+            f"{deploy_profile_arg}"
+        )
+        return 1
+
+    if not profile_path.is_file():
+        print("DEPLOY PROFILE FAILED")
+        print(f"- Deploy profile does not exist: {profile_path}")
+        return 1
+
+    try:
+        profile_data = load_deploy_profile(profile_path)
+    except Exception as exc:
+        print("DEPLOY PROFILE FAILED")
+        print(f"- Cannot read deploy profile {profile_path}: {exc}")
+        return 1
+
+    errors, warnings, report_lines = validate_deploy_profile(profile_data, profile_path, repo)
+
+    for line in report_lines:
+        print(line)
+
+    if warnings:
+        print("WARNINGS:")
+        for warning in warnings:
+            print(f"- {warning}")
+
+    if errors:
+        print("DEPLOY PROFILE FAILED:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+
+    print("DEPLOY PROFILE PASSED")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -239,6 +846,14 @@ def main() -> int:
         "--deploy-root",
         default=None,
         help="Deploy root relative to repository. Overrides active manifest.",
+    )
+    parser.add_argument(
+        "--deploy-profile",
+        default=None,
+        help=(
+            "Path to an external schema-1.1 deploy profile. Mutually exclusive "
+            "with --deploy-root and --payload-manifest."
+        ),
     )
     parser.add_argument(
         "--app-js",
@@ -265,6 +880,19 @@ def main() -> int:
         if args.repo_root
         else Path(__file__).resolve().parents[1]
     )
+
+    if args.deploy_profile:
+        if args.deploy_root:
+            print("DEPLOY PROFILE FAILED")
+            print("- --deploy-profile and --deploy-root are mutually exclusive")
+            return 1
+
+        if args.payload_manifest:
+            print("DEPLOY PROFILE FAILED")
+            print("- --deploy-profile and --payload-manifest are mutually exclusive")
+            return 1
+
+        return run_profile_validation(args.deploy_profile, repo)
 
     errors: list[str] = []
     warnings: list[str] = []
