@@ -303,6 +303,34 @@ def resolve_repo_relative_cli_path(repo: Path, value: str) -> Path | None:
     return candidate
 
 
+def scan_script_fetch_targets(text: str) -> tuple[list[str], list[str]]:
+    """Split fetch()/d3 targets in a script into (literal_targets, dynamic_expressions).
+
+    A literal target is a quoted fetch/d3 argument without a template
+    placeholder. Everything else -- template-literal targets and bare
+    non-quoted arguments -- is a dynamic expression. Shared by the
+    schema-1.1 validator and the deploy-profile builder so both agree on
+    what counts as literal versus dynamic.
+    """
+    dynamic_expressions: list[str] = []
+
+    for target in extract_nonliteral_fetch_targets(text):
+        if target not in dynamic_expressions:
+            dynamic_expressions.append(target)
+
+    literal_targets: list[str] = []
+
+    for target in extract_fetch_targets(text):
+        if "${" in target or "{" in target:
+            if target not in dynamic_expressions:
+                dynamic_expressions.append(target)
+            continue
+
+        literal_targets.append(target)
+
+    return literal_targets, dynamic_expressions
+
+
 def compute_sha256(path: Path) -> str:
     hasher = hashlib.sha256()
 
@@ -495,19 +523,13 @@ def validate_deploy_profile(
 
     for _, script_path in resolved_scripts:
         text = script_path.read_text(encoding="utf-8", errors="replace")
-        fetch_targets = extract_fetch_targets(text)
-        nonliteral_targets = extract_nonliteral_fetch_targets(text)
+        literal_targets, dynamic_expressions = scan_script_fetch_targets(text)
 
-        for target in nonliteral_targets:
+        for target in dynamic_expressions:
             if target not in detected_dynamic_expressions:
                 detected_dynamic_expressions.append(target)
 
-        for target in fetch_targets:
-            if "${" in target or "{" in target:
-                if target not in detected_dynamic_expressions:
-                    detected_dynamic_expressions.append(target)
-                continue
-
+        for target in literal_targets:
             local_value = local_target(target)
 
             if local_value is None:
