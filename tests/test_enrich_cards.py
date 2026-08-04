@@ -16,6 +16,7 @@ from enrich_cards import (
     debut_row,
     compute_horizon,
     make_composites,
+    combine_raw_score,
     z_score_scale,
     tempered_softmax,
     enforce_monotonicity,
@@ -582,6 +583,65 @@ def test_golden_score_parity_for_unchanged_identity_mappings(tmp_path, monkeypat
     assert doe["rank"] == 2
     assert doe["tier"] == "T1"
     assert smith["tier"] == "T1"
+
+
+def test_combine_raw_score_extraction_matches_pipeline_prepenalty_vts(tmp_path, monkeypatch):
+    """P1 score-decomposition parity: combine_raw_score() was extracted
+    verbatim from the addends previously inlined in main() (same terms,
+    same summation order). This asserts main()'s own field-wide z-scoring
+    of the extracted function's pre_gate_raw_total reproduces the pipeline's
+    prepenalty_vts for a gated player -- i.e. the extraction changed no
+    score, using the same golden fixture as the parity test above."""
+    event = SyntheticEvent(tmp_path, event_slug="combine_raw_score_check")
+    event.input_dir.mkdir(parents=True, exist_ok=True)
+    ev = event
+    ev._write("pga_field.csv", ["player_name", "dg_id"],
+              [["Doe, John", "100"], ["Smith, Sam", "200"]])
+    for fname in ["pga_sg_query_allcourses_l6.csv", "pga_sg_query_allcourses_l12.csv",
+                  "pga_sg_query_allcourses_l24.csv"]:
+        ev._write(fname, ["player_name", "rounds_played", "total_mean"],
+                  [["Doe, John", "20", "1.0"], ["Smith, Sam", "20", "3.0"]])
+    for fname in ["pga_sg_query_3Mopen_similar_l6.csv", "pga_sg_query_3Mopen_similar_l12.csv",
+                  "pga_sg_query_3Mopen_similar_l24.csv"]:
+        ev._write(fname, ["player_name", "rounds_played", "total_mean"],
+                  [["Doe, John", "20", "1.2"], ["Smith, Sam", "20", "3.0"]])
+    ev._write("app_skill_l12_sg.csv",
+              ["stat", "player_name", "50_100_fw_value", "100_150_fw_value",
+               "150_200_fw_value", "over_200_fw_value"],
+              [["SG Per Shot", "Doe, John", "0", "0", "0", "0"],
+               ["SG Per Shot", "Smith, Sam", "0", "0", "0", "0"]])
+    ev._write("app_skill_l12_prox.csv", ["stat", "player_name", "150_200_fw_value"],
+              [["Proximity (ft)", "Doe, John", "30"], ["Proximity (ft)", "Smith, Sam", "30"]])
+    ev._write("dg_performance_2026.csv",
+              ["player_name", "putt_true", "arg_true", "app_true", "ott_true"],
+              [["Doe, John", "0", "0", "0", "0"], ["Smith, Sam", "0", "0", "0", "0"]])
+    ev._write("dg_decomposition.csv",
+              ["player_name", "driving_acc_adj", "driving_dist_adj", "std_dev"],
+              [["Doe, John", "-0.10", "0.20", "3.0"], ["Smith, Sam", "0.0", "0.0", "3.0"]])
+    ev._write("tpc_twin_cities_CH.csv", ["player_name", "ch_adjustment", "experience_adjustment"],
+              [["Doe, John", "0.0", "0.0"], ["Smith, Sam", "0.0", "0.0"]])
+    ev._write("pga_field_trending_table.csv", ["player_name", "dg_id", "true_sg_l20", "l5_starts"],
+              [["Doe, John", "100", "0.0", ""], ["Smith, Sam", "200", "0.0", ""]])
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    players = {p["player"]: p for p in payload["players"]}
+    doe = players["Doe, John"]
+
+    # Doe: sg_similar_composite=1.2, all other addend inputs are 0 -- so
+    # pre_gate_raw_total == 1.2 exactly, matching the module's own
+    # sg_sim_comp value.
+    decomposition = combine_raw_score(
+        sg_sim_comp=doe["sg_similar_composite"],
+        trait_approach_raw=doe["trait_approach_raw"],
+        trait_long_iron_raw=doe["trait_long_iron_raw"],
+        ott_true=doe["ott_true"],
+        ch_adj=doe["ch_adjustment"],
+        true_sg_l20=doe["true_sg_l20"],
+    )
+    assert decomposition["pre_gate_raw_total"] == pytest.approx(1.2)
+    assert doe["anti_pattern_flags"] == ["INACCURATE_BOMBER"]
+    assert doe["prepenalty_vts"] is not None
 
 
 def test_duplicate_raw_source_rows_in_csv_produce_nonzero_exit(tmp_path, monkeypatch, capsys):

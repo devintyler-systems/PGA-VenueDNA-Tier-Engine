@@ -51,6 +51,12 @@ SIM_COURSES_FILES = {
 
 DELTA_CLAMP = 0.50
 
+# Composite blending weights (scoring spec §6) — named so the parity/
+# decomposition layer (engine/scoring_decomposition.py) can import them
+# instead of redeclaring the same numbers.
+BASE_WEIGHT_6M,  BASE_WEIGHT_12M,  BASE_WEIGHT_24M  = 0.20, 0.30, 0.50
+DELTA_WEIGHT_6M, DELTA_WEIGHT_12M, DELTA_WEIGHT_24M = 0.50, 0.30, 0.20
+
 TEMPS       = {"win": 3.5, "top5": 5.0, "top10": 7.0, "top20": 10.0}
 N_POSITIONS = {"win": 1,   "top5": 5,   "top10": 10,  "top20": 20}
 
@@ -401,12 +407,12 @@ def compute_horizon(base: dict, sim: dict) -> dict:
 
 def make_composites(all_resolved: dict, sim_resolved: dict) -> tuple[float, float, float]:
     """Return (sg_base_comp, sg_sim_comp, delta_fit_comp) from resolved horizon dicts."""
-    sg_base = (0.20 * all_resolved["6m"]["total_mean"]
-             + 0.30 * all_resolved["12m"]["total_mean"]
-             + 0.50 * all_resolved["24m"]["total_mean"])
-    delta = (0.50 * compute_horizon(all_resolved["6m"],  sim_resolved["6m"])["delta_fit"]
-           + 0.30 * compute_horizon(all_resolved["12m"], sim_resolved["12m"])["delta_fit"]
-           + 0.20 * compute_horizon(all_resolved["24m"], sim_resolved["24m"])["delta_fit"])
+    sg_base = (BASE_WEIGHT_6M  * all_resolved["6m"]["total_mean"]
+             + BASE_WEIGHT_12M * all_resolved["12m"]["total_mean"]
+             + BASE_WEIGHT_24M * all_resolved["24m"]["total_mean"])
+    delta = (DELTA_WEIGHT_6M  * compute_horizon(all_resolved["6m"],  sim_resolved["6m"])["delta_fit"]
+           + DELTA_WEIGHT_12M * compute_horizon(all_resolved["12m"], sim_resolved["12m"])["delta_fit"]
+           + DELTA_WEIGHT_24M * compute_horizon(all_resolved["24m"], sim_resolved["24m"])["delta_fit"])
     delta = max(-DELTA_CLAMP, min(DELTA_CLAMP, delta))
     return sg_base, sg_base + delta, delta
 
@@ -429,6 +435,56 @@ def compute_trait_long_iron(skill: dict, prox_z_raw: float) -> float:
 def prox_to_z_raw(prox: float, field_mean: float, field_std: float) -> float:
     """Lower proximity (ft) = better. Negate so higher return = better player."""
     return -(prox - field_mean) / (field_std + 1e-9)
+
+
+def combine_raw_score(
+    sg_sim_comp: float,
+    trait_approach_raw: float,
+    trait_long_iron_raw: float,
+    ott_true: float,
+    ch_adj: float,
+    true_sg_l20: float,
+) -> dict:
+    """Decomposition of the pre-gate combined-raw VTS input.
+
+    ``pre_gate_raw_total`` is calculated through the same direct,
+    left-associated ``a + b + c + d + e + f`` expression -- same operand
+    order, same grouping, same numeric literals -- as the addends
+    previously inlined in ``main()``. It is calculated directly from the
+    six terms below, never through the returned dict, ``sum()``, a loop,
+    or any other reduction over a (re)ordered collection: those paths
+    insert an implicit leading ``0 + …`` that silently normalizes an
+    all-``-0.0`` input's signed-zero result to ``+0.0``, which the literal
+    expression does not do. The per-component values are exposed in the
+    returned dict for diagnostics/reporting only; that dict does not
+    itself compute or alter the production total. Consumed directly by
+    ``main()`` and by the read-only parity layer in
+    ``engine/scoring_decomposition.py``; contains no I/O.
+    """
+    approach_term       = VW_APPROACH  * trait_approach_raw
+    long_iron_term      = VW_LONG_IRON * trait_long_iron_raw
+    ott_term            = VW_OTT       * ott_true
+    course_history_term = VW_CH        * ch_adj
+    recent_form_term    = VW_FORM      * true_sg_l20
+
+    pre_gate_raw_total = (
+        sg_sim_comp
+        + approach_term
+        + long_iron_term
+        + ott_term
+        + course_history_term
+        + recent_form_term
+    )
+
+    return {
+        "sg_similar_composite": sg_sim_comp,
+        "approach":             approach_term,
+        "long_iron":            long_iron_term,
+        "ott":                  ott_term,
+        "course_history":       course_history_term,
+        "recent_form":          recent_form_term,
+        "pre_gate_raw_total":   pre_gate_raw_total,
+    }
 
 
 # ── §6  Anti-Pattern Gates ─────────────────────────────────────────────────────
@@ -813,14 +869,11 @@ def main() -> None:
         true_sg_l20           = trend["true_sg_l20"]
 
         # Combined latent (addends in SG-compatible units; z-scored after full field)
-        combined_raw = (
-            sg_sim_comp
-            + VW_APPROACH  * trait_approach_raw
-            + VW_LONG_IRON * trait_long_iron_raw
-            + VW_OTT       * ott_true
-            + VW_CH        * ch_adj
-            + VW_FORM      * true_sg_l20
+        _decomposition = combine_raw_score(
+            sg_sim_comp, trait_approach_raw, trait_long_iron_raw,
+            ott_true, ch_adj, true_sg_l20,
         )
+        combined_raw = _decomposition["pre_gate_raw_total"]
 
         prepenalty_raw = combined_raw
         combined_raw, gate_flags = apply_gates(combined_raw, perf, decomp)
