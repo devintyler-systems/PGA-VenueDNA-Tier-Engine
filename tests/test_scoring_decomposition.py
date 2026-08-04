@@ -33,6 +33,15 @@ from scoring_decomposition import (  # noqa: E402
     PRODUCTION_GATE_ORDER,
     CANONICAL_COUPLED_TRAIT_CAP,
     CANONICAL_SHORT_GAME_PUTTING_FLOOR,
+    CANONICAL_V2_FORMULA_ID,
+    CANONICAL_V2_FORMULA_VERSION,
+    CANONICAL_V2_PENALTY_GATE_SET_ID,
+    CANONICAL_V2_ACTIVE_PENALTY_IDS,
+    CANONICAL_V2_ACTIVE_GATE_IDS,
+    CANONICAL_V2_CORE_INPUTS,
+    HISTORICAL_PRODUCTION_GATE_CONFIGURATION_ID,
+    LEGACY_PRODUCTION_NONCORE_ADDENDS,
+    PRODUCTION_DIVERGENCE_REASON_CODES,
     decompose_player,
     gate_effect_from_flags,
     apply_gate_sequence_to_total,
@@ -41,6 +50,7 @@ from scoring_decomposition import (  # noqa: E402
 from test_enrich_cards import SyntheticEvent, _run_main, _output_path  # noqa: E402
 
 _ROOT = Path(__file__).resolve().parent.parent
+_SCORING_SPEC = _ROOT / "standards" / "02_PGA_VENUEDNA_SCORING_SPEC.md"
 _ARCHIVED_3M_PAYLOAD = (
     _ROOT / "events" / "2026_Finished_Events" / "2026_3m_open"
     / "deploy" / "data" / "2026_3m_open_event_payload.json"
@@ -96,19 +106,19 @@ def test_as_dict_does_not_mutate_descriptor():
     assert FORMULA.component_weights["approach"] == enrich_cards.VW_APPROACH
 
 
-# ── Known finding: coupled-pair weight vs. canonical cap ────────────────────
+# ── Legacy trait diagnostic facts (not formula-v2 core authority) ───────────
 
 def test_coupled_approach_long_iron_weight_is_065():
     assert FORMULA.coupled_approach_long_iron_weight == pytest.approx(0.65)
 
 
-def test_coupled_weight_exceeds_canonical_cap():
+def test_legacy_coupled_weight_exceeds_direct_trait_cap_reference():
     assert FORMULA.coupled_approach_long_iron_weight > FORMULA.canonical_coupled_trait_cap
     assert FORMULA.canonical_coupled_trait_cap == pytest.approx(CANONICAL_COUPLED_TRAIT_CAP)
     assert CANONICAL_COUPLED_TRAIT_CAP == pytest.approx(0.50)
 
 
-def test_direct_putting_and_around_the_green_weight_is_zero():
+def test_legacy_direct_putting_and_around_the_green_weight_is_zero():
     assert FORMULA.direct_putting_weight == 0.0
     assert FORMULA.direct_around_the_green_weight == 0.0
     lo, hi = CANONICAL_SHORT_GAME_PUTTING_FLOOR
@@ -117,12 +127,156 @@ def test_direct_putting_and_around_the_green_weight_is_zero():
 
 
 def test_conformity_status_is_nonconformant():
-    assert "NONCONFORMANT" in FORMULA.canonical_conformity_status
+    status = FORMULA.canonical_conformity_status.lower()
+    assert "conformant" not in status
+    assert "historical_3m_inline_gates" in status
+    assert "production gate configuration is venuedna_v2_none" not in status
 
 
 def test_event_specificity_flags_root_producer_as_event_hardcoded():
     assert "event-hardcoded" in FORMULA.event_specificity.lower()
     assert "not a reusable canonical engine" in FORMULA.event_specificity.lower()
+
+
+# ── Doctrine v2.0.0 is intentionally distinct from production parity ───────
+
+def _scoring_doctrine_v2_metadata() -> dict[str, str]:
+    """Read only the deliberately stable metadata marker, never broad prose."""
+    marker = re.search(
+        r"<!-- scoring-doctrine-v2\n(?P<body>.*?)\n-->",
+        _SCORING_SPEC.read_text(encoding="utf-8"),
+        flags=re.DOTALL,
+    )
+    assert marker, "missing stable scoring-doctrine-v2 metadata marker"
+    return dict(line.split("=", 1) for line in marker.group("body").splitlines())
+
+
+def _marker_component_set(metadata: dict[str, str], key: str) -> tuple[str, ...]:
+    """Parse one compact, ordered component list from the stable marker."""
+    return tuple(item for item in metadata[key].split(",") if item)
+
+
+def test_canonical_doctrine_marker_identifies_exact_v2_contract():
+    metadata = _scoring_doctrine_v2_metadata()
+    assert metadata == {
+        "formula_id": "venuedna_dual_vector_decomposed",
+        "formula_version": "2.0.0",
+        "comparable_score_family": "dual_vector_sg_per_round_v2",
+        "penalty_gate_set_id": "venuedna_v2_none",
+        "canonical_core_inputs": "SG_Base_Comp,Delta_Fit_Comp,VenueHistoryDeltaRaw",
+        "excluded_legacy_noncore_addends": "trait_approach_raw,trait_long_iron_raw,ott_true,ch_adjustment,true_sg_l20",
+    }
+    assert metadata["formula_id"] == "venuedna_dual_vector_decomposed"
+    assert metadata["formula_version"] == "2.0.0"
+    assert metadata["comparable_score_family"] == "dual_vector_sg_per_round_v2"
+    assert metadata["penalty_gate_set_id"] == "venuedna_v2_none"
+
+
+def test_current_production_descriptor_remains_nonconforming_to_doctrine_v2():
+    metadata = _scoring_doctrine_v2_metadata()
+    assert FORMULA.formula_identifier == "3m-enriched-v2.0"
+    assert FORMULA.formula_identifier != metadata["formula_id"]
+    assert "conformant" not in FORMULA.canonical_conformity_status.lower()
+    assert "FORMULA_IDENTITY_MISMATCH" in FORMULA.production_divergence_reason_codes
+
+
+def test_canonical_v2_core_component_set_is_exact_in_marker_and_diagnostics():
+    metadata = _scoring_doctrine_v2_metadata()
+    expected = ("SG_Base_Comp", "Delta_Fit_Comp", "VenueHistoryDeltaRaw")
+    assert CANONICAL_V2_FORMULA_ID == "venuedna_dual_vector_decomposed"
+    assert CANONICAL_V2_FORMULA_VERSION == "2.0.0"
+    assert _marker_component_set(metadata, "canonical_core_inputs") == expected
+    assert CANONICAL_V2_CORE_INPUTS == expected
+    assert FORMULA.canonical_core_inputs == expected
+
+
+def test_legacy_noncore_addend_set_is_exact_in_marker_and_diagnostics():
+    metadata = _scoring_doctrine_v2_metadata()
+    expected = (
+        "trait_approach_raw",
+        "trait_long_iron_raw",
+        "ott_true",
+        "ch_adjustment",
+        "true_sg_l20",
+    )
+    assert _marker_component_set(metadata, "excluded_legacy_noncore_addends") == expected
+    assert LEGACY_PRODUCTION_NONCORE_ADDENDS == expected
+    assert FORMULA.legacy_production_noncore_addends == expected
+
+
+def test_canonical_core_and_legacy_noncore_sets_are_disjoint():
+    metadata = _scoring_doctrine_v2_metadata()
+    assert set(_marker_component_set(metadata, "canonical_core_inputs")).isdisjoint(
+        _marker_component_set(metadata, "excluded_legacy_noncore_addends")
+    )
+
+
+def test_no_legacy_addend_is_authorized_as_v2_core_input():
+    metadata = _scoring_doctrine_v2_metadata()
+    canonical = set(_marker_component_set(metadata, "canonical_core_inputs"))
+    excluded = set(_marker_component_set(metadata, "excluded_legacy_noncore_addends"))
+    assert not canonical.intersection(excluded)
+    assert FORMULA.as_dict()["canonical_core_inputs"] == list(CANONICAL_V2_CORE_INPUTS)
+
+
+def test_current_producer_has_structured_nonconformance_reasons():
+    assert FORMULA.production_divergence_reason_codes == (
+        "FORMULA_IDENTITY_MISMATCH",
+        "LEGACY_NONCORE_ADDITIVE_COMPONENTS",
+        "CANONICAL_THREE_LAYER_DECOMPOSITION_NOT_EXPOSED",
+        "HISTORICAL_3M_EVENT_SPECIFIC_IMPLEMENTATION",
+        "FORMULA_V2_MIGRATION_PENDING",
+        "PENALTY_GATE_SET_ID_MISMATCH",
+    )
+    assert FORMULA.production_divergence_reason_codes == PRODUCTION_DIVERGENCE_REASON_CODES
+
+
+def test_canonical_and_production_formula_identities_remain_distinct():
+    assert FORMULA.formula_identifier == "3m-enriched-v2.0"
+    assert FORMULA.formula_identifier != FORMULA.canonical_formula_id
+    assert FORMULA.canonical_formula_id == CANONICAL_V2_FORMULA_ID
+
+
+def test_canonical_penalty_gate_identity_is_not_historical_production_configuration():
+    metadata = _scoring_doctrine_v2_metadata()
+    assert metadata["penalty_gate_set_id"] == CANONICAL_V2_PENALTY_GATE_SET_ID == "venuedna_v2_none"
+    assert CANONICAL_V2_ACTIVE_PENALTY_IDS == ()
+    assert CANONICAL_V2_ACTIVE_GATE_IDS == ()
+    assert FORMULA.canonical_penalty_gate_set_id == CANONICAL_V2_PENALTY_GATE_SET_ID
+    assert FORMULA.production_gate_configuration_id == HISTORICAL_PRODUCTION_GATE_CONFIGURATION_ID
+    assert FORMULA.production_gate_configuration_id != FORMULA.canonical_penalty_gate_set_id
+
+
+def test_structured_divergence_includes_penalty_gate_set_mismatch():
+    assert "PENALTY_GATE_SET_ID_MISMATCH" in FORMULA.production_divergence_reason_codes
+    assert FORMULA.as_dict()["production_gate_configuration_id"] == "historical_3m_inline_gates"
+
+
+def test_structured_doctrine_metadata_is_descriptive_not_production_arithmetic():
+    """Production arithmetic and archived parity remain independently covered below."""
+    result = decompose_player(2.0, 1.0, 1.0, 1.0, 1.0, 1.0, [])
+    assert result["pre_gate_raw_total"] == pytest.approx(3.0)
+    assert result["post_gate_raw_total"] == pytest.approx(3.0)
+
+
+def test_legacy_diagnostics_keep_all_five_noncore_addends_visible():
+    """The five current addends remain observable for parity, not doctrine."""
+    production_components = FORMULA.component_weights
+    assert {
+        "approach", "long_iron", "ott", "course_history", "recent_form"
+    } <= set(production_components)
+    decomposition = decompose_player(
+        sg_sim_comp=2.0,
+        trait_approach_raw=1.0,
+        trait_long_iron_raw=1.0,
+        ott_true=1.0,
+        ch_adj=1.0,
+        true_sg_l20=1.0,
+        gate_flags=[],
+    )
+    assert {
+        "approach", "long_iron", "ott", "course_history", "recent_form"
+    } <= set(decomposition["contributions"])
 
 
 # ── combine_raw_score / decompose_player: hand-derived expectations ─────────

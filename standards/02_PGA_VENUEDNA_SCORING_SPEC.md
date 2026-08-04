@@ -1,22 +1,33 @@
 # 02 — PGA VenueDNA Scoring Specification
 
-**Version:** 1.2
-**Status:** Canonical
-**Implements:** Dual-Vector True SG pipeline as deployed in engine/enrich_cards.py
+**Version:** 2.0-draft
+**Status:** Canonical target doctrine — not implemented in the root producer
+**Target formula:** `venuedna_dual_vector_decomposed` v2.0.0; `engine/enrich_cards.py` remains a historical divergent 3M-specific implementation
+
+<!-- scoring-doctrine-v2
+formula_id=venuedna_dual_vector_decomposed
+formula_version=2.0.0
+comparable_score_family=dual_vector_sg_per_round_v2
+penalty_gate_set_id=venuedna_v2_none
+canonical_core_inputs=SG_Base_Comp,Delta_Fit_Comp,VenueHistoryDeltaRaw
+excluded_legacy_noncore_addends=trait_approach_raw,trait_long_iron_raw,ott_true,ch_adjustment,true_sg_l20
+-->
 
 ---
 
 ## 1. OVERVIEW
 
-VenueDNA scoring produces `VenueDNA_final_projection` (VTS) for each player by:
+Formula v2.0.0 defines the canonical pre-penalty score from separately represented NeutralSkill, VenueFitDelta, and VenueHistoryDelta layers. It does not authorize a direct trait block. The root producer has not yet been migrated; its historical 3M output remains valid only as a production-parity record.
+
+The dual-vector source layer computes per-horizon SG vectors by:
 1. Computing per-horizon SG vectors from All Courses and Similar Courses CSVs
 2. Applying sample-weight regression to suppress thin venue samples
 3. Blending across three time horizons with decoupled decay weights
 4. Z-score scaling to a fixed normal (mean=50, std=15, clamped [0,100])
-5. Computing tempered softmax probability vectors for Win/Top5/Top10/Top20
-6. Deriving Make Cut probability and enforcing monotonicity
+5. Producing downstream field-normalized projections and probability vectors only after a separately authorized producer migration implements this doctrine
+6. Deriving Make Cut probability and enforcing monotonicity in that producer
 
-All steps are implemented in `engine/enrich_cards.py`. This document is the authoritative specification; the Python implementation must match it exactly.
+This document is the authoritative canonical target doctrine. It does not authorize production implementation. `engine/enrich_cards.py` remains a historical divergent 3M-specific implementation; a reusable-engine migration requires separate operator authorization after this doctrine package is committed and a migration task is explicitly scoped.
 
 ---
 
@@ -40,7 +51,7 @@ pga_sg_query_{slug}_similar_l12.csv — Similar Courses, last 12 months
 pga_sg_query_{slug}_similar_l24.csv — Similar Courses, last 24 months
 ```
 
-If `total_mean` contains the string `"null"` or `"none"`, treat as 0.0.
+Missing `total_mean` is missing data, not numeric `0.0`. Valid numeric zero remains a valid measurement.
 
 ---
 
@@ -57,26 +68,26 @@ Canonical format: `"Last, First"` (DataGolf convention). All lookups use normali
 
 ## 4. PLAYER UNIVERSE
 
-Union of all player names appearing in any of the 6 input CSVs. Players missing from a given file receive a debut row: `{rounds: 0, total_mean: 0.0}`.
+The player universe is the union of names appearing in source files. A missing source row is not synthesized as `{rounds: 0, total_mean: 0.0}`. A valid similar-course row with `rounds_played: 0` is the distinct, legitimate `DEBUT` state.
 
 ---
 
 ## 5. PER-HORIZON COMPUTATION
 
-For each time horizon h ∈ {6m, 12m, 24m}:
+For each time horizon h ∈ {6m, 12m, 24m}, when its required source is valid:
 
 ```
-SG_Base_h   = total_mean from allcourses_lh CSV (debut: 0.0)
-N_Sim_h     = rounds_played from similar_lh CSV (debut: 0)
-SG_Sim_h    = total_mean from similar_lh CSV (debut: 0.0)
+SG_Base_h   = total_mean from allcourses_lh CSV
+N_Sim_h     = rounds_played from a valid similar_lh CSV row
+SG_Sim_h    = total_mean from a valid similar_lh CSV row
 
 Sample weight:
   W_h = min(1.0, N_Sim_h / 20.0)
-  Interpretation: 0 when no similar-course rounds; 1.0 when ≥20 rounds
+  Interpretation: 0 for a valid DEBUT row with no similar-course rounds; 1.0 when ≥20 rounds
 
 Regressed similar-course SG:
   SG_Sim_Reg_h = (W_h × SG_Sim_h) + ((1 - W_h) × SG_Base_h)
-  Interpretation: Falls back to baseline when N_Sim is thin
+  Interpretation: Falls back to baseline for a valid DEBUT row or when N_Sim is thin
 
 Delta Fit per horizon:
   Delta_Fit_h = SG_Sim_Reg_h - SG_Base_h
@@ -101,6 +112,8 @@ Delta_Fit_Comp = clamp(Delta_Fit_Raw, -0.50, +0.50)
 ```
 Rationale: Recent venue-type performance is a stronger signal than historical. The ±0.50 clamp prevents extreme thin-sample outliers from dominating.
 
+When one NeutralSkill horizon is missing but two valid horizons remain, omit the missing horizon and renormalize the remaining NeutralSkill horizon weights. With fewer than two valid NeutralSkill horizons, the player is `UNSCORED`. Missing values are never represented as legitimate numeric zero.
+
 **SG Similar Composite:**
 ```
 SG_Sim_Comp = SG_Base_Comp + Delta_Fit_Comp
@@ -108,22 +121,98 @@ SG_Sim_Comp = SG_Base_Comp + Delta_Fit_Comp
 
 ---
 
-## 7. VTS RAW SCORE
+## 7. CANONICAL DECOMPOSED DUAL-VECTOR FORMULA
 
-```
-VTS_Raw = SG_Sim_Comp  (same as SG_Base_Comp + Delta_Fit_Comp)
+### 7.1 Formula metadata
+
+```text
+formula_id: venuedna_dual_vector_decomposed
+formula_version: 2.0.0
+comparable_score_family: dual_vector_sg_per_round_v2
+penalty_gate_set_id: venuedna_v2_none
 ```
 
-VTS_Raw is the latent ranking signal. It is not exposed directly; it is only used as input to Z-score scaling and probability computation.
+### 7.2 Canonical core formula
+
+```text
+NeutralSkillRaw = SG_Base_Comp
+VenueFitDeltaRaw = Delta_Fit_Comp
+VenueHistoryDeltaRaw = 0.0 until a separately approved bounded transform exists
+
+PrePenaltyRaw =
+    NeutralSkillRaw
+  + VenueFitDeltaRaw
+  + VenueHistoryDeltaRaw
+```
+
+`PrePenaltyRaw` is the canonical latent score before separately authorized penalties and gates. It is not exposed directly.
+
+### 7.3 Penalty, gate, and normalization sequence
+
+```text
+PrePenaltyRaw =
+    NeutralSkillRaw
+  + VenueFitDeltaRaw
+  + VenueHistoryDeltaRaw
+
+PostPenaltyRaw =
+    result after applying authorized explicit penalties to PrePenaltyRaw
+
+PostGateRaw =
+    result after applying authorized gates to PostPenaltyRaw
+
+VenueDNA_final_projection =
+    approved within-event normalization of PostGateRaw
+```
+
+Formula v2.0.0 currently declares `penalty_gate_set_id: venuedna_v2_none`; `PostPenaltyRaw` and `PostGateRaw` are therefore identity transformations. A future formula version may activate a penalty or gate set only after the applicable evidence threshold, Model Council approval, and separate operator authorization; it must then declare its versioned `penalty_gate_set_id` and penalty/gate application order. Penalties and gates do not alter the definitions of NeutralSkillRaw, VenueFitDeltaRaw, or VenueHistoryDeltaRaw. This doctrine does not assert that the historical 3M producer implements this sequence.
+
+### 7.4 Component authority
+
+| Field or source | Formula v2.0.0 authority | Direct core addend? |
+|---|---|---|
+| `SG_Base_Comp` | NeutralSkillRaw | Yes |
+| `Delta_Fit_Comp` | VenueFitDeltaRaw | Yes |
+| Venue history | VenueHistoryDeltaRaw = `0.0` pending bounded transform approval | Yes, at `0.0` only |
+| `trait_approach_raw` | Structural evidence | No |
+| `trait_long_iron_raw` | Candidate future VenueFitDelta input | No |
+| `ott_true` | Venue-specific penalty/gate input | No |
+| `ch_adjustment` | Future VenueHistoryDelta input | No |
+| `true_sg_l20` | NeutralSkill/confidence/narrative context | No |
+
+The five named production addends are visible diagnostic evidence in the legacy producer, not authorized formula v2.0.0 core inputs.
+
+### 7.5 Missing-data behavior
+
+- Missing values must not be represented as legitimate numeric zero.
+- With two valid NeutralSkill horizons, omit the missing horizon and renormalize within NeutralSkill; with fewer than two, the player is `UNSCORED`.
+- A valid similar-course row with zero rounds is `DEBUT`, produces `VenueFitDeltaRaw = 0.0`, and has `THIN` venue-fit confidence.
+- Missing raw venue-history data remains missing and produces `THIN` venue-history confidence; the canonical `VenueHistoryDeltaRaw = 0.0` is an explicit neutral contribution pending an approved bounded transform, not conversion of raw-source missingness into observed zero data.
+- Missing optional trait data does not redistribute weight into other layers.
+- Missing mandatory gate evidence produces an `UNKNOWN` gate evaluation.
+
+### 7.6 Confidence decomposition
+
+Confidence is separately represented for `neutral_skill`, `venue_fit`, `venue_history`, `penalty_gate`, `data_completeness`, and `conditions`. Confidence is neither a generic collapsed label nor an unapproved raw-score addend.
+
+### 7.7 Production implementation divergence
+
+`engine/enrich_cards.py` remains a historical divergent 3M-specific implementation. It currently adds `trait_approach_raw`, `trait_long_iron_raw`, `ott_true`, `ch_adjustment`, and `true_sg_l20` to its raw score. That arithmetic remains unchanged by this specification update. Formula v2.0.0 is the approved canonical target doctrine for a possible later reusable-engine migration; this specification does not authorize that migration.
+
+The hardcoded 3M behavior is not a doctrine blocker, is a Wyndham initialization blocker, and remains an implementation blocker until a separately authorized migration is completed. No event, artifact, payload, database, deploy, or scoring migration is authorized by this specification.
+
+### 7.8 Cross-event comparability and historical records
+
+`VenueDNA_final_projection` is field-normalized and directly comparable only within an event. The cross-event comparable family is `dual_vector_sg_per_round_v2`, not field-normalized VTS. Archived 3M enriched and Open v3 artifacts remain valid historical event records but are not cross-event VTS benchmarks.
 
 ---
 
 ## 8. Z-SCORE SCALING
 
-Applied independently to VTS_Raw and SG_Base_Comp to produce the two display scores:
+In a formula-v2.0.0-conforming producer, applied independently to `PostGateRaw` and `SG_Base_Comp` to produce the two display scores:
 
 ```
-vts_final         = z_score_scale(all VTS_Raw values)
+VenueDNA_final_projection = z_score_scale(all PostGateRaw values)
 neutralSkillIndex = z_score_scale(all SG_Base_Comp values)
 ```
 
@@ -139,13 +228,13 @@ def z_score_scale(values, mean=50.0, std=15.0):
 
 Output range: [0, 100], hard-clamped. Mean of the field maps to exactly 50.0.
 
-`vts_final` is what the UI displays as "VTS". It is the official ranking signal for `VenueDNA_rank` (descending sort on vts_final).
+`VenueDNA_final_projection` is field-normalized and directly comparable only within its event. A conforming UI may display it as VTS; it is the official ranking signal for `VenueDNA_rank` (descending sort). The cross-event comparable family is `dual_vector_sg_per_round_v2`, not this normalized display score.
 
 ---
 
 ## 9. PROBABILITY VECTORS — TEMPERED SOFTMAX
 
-Four independent probability vectors are computed over the full field using VTS_Raw scores:
+In a conforming producer, four independent probability vectors are computed over the full field using `PostGateRaw` scores:
 
 | Output     | Temperature T | N_positions |
 |------------|--------------|-------------|
@@ -201,16 +290,13 @@ T5: ranks 41+
 
 ## 12. DATA DEPTH FLAG
 
-```
-data_depth = "FULL"  if any similar-course CSV had rounds > 0 for this player
-data_depth = "DEBUT" if no similar-course CSV had any rounds for this player
-```
-
-DEBUT players receive W_h = 0 for all horizons, meaning SG_Sim_Comp collapses to SG_Base_Comp and Delta_Fit_Comp = 0.
+`DEBUT` is valid only when a similar-course source row exists and reports zero rounds. It produces `VenueFitDeltaRaw = 0.0` and `THIN` venue-fit confidence. A missing source row is missing data, not `DEBUT`, and may require `UNSCORED` status under §7.4. The legacy `data_depth` field is an implementation field and is not sufficient by itself to establish formula-v2.0.0 missing-data conformance.
 
 ---
 
 ## 13. BOARD EXPORT SCHEMA
+
+The example below is the protected historical 3M export shape. It is not evidence that its producer conforms to formula v2.0.0; no payload migration is authorized by this specification update.
 
 `deploy/data/board_export.json` envelope:
 ```json
@@ -271,14 +357,14 @@ DG fields must never be used to derive official ranks. If VenueDNA and DG disagr
 
 ## 15. VERIFICATION
 
-After running `engine/enrich_cards.py --event {slug}`:
+For the historical root producer, after running `engine/enrich_cards.py --event {slug}`:
 
 ```
 pytest tests/test_enrich_cards.py   # 27 pure-function tests must pass
 node --check events/{slug}/deploy/app.js  # JS syntax must be clean
 ```
 
-Output validation:
+This validates legacy production parity only. Formula-v2.0.0 implementation validation requires a later authorized reusable-producer migration. Legacy output validation:
 - Player count must match union of all 6 SG CSVs
 - Rank 1 must have highest vts_final
 - All top20Pct ≥ top10Pct ≥ top5Pct ≥ winPct
@@ -296,32 +382,32 @@ Live layer components:
 - **Live SG splits** — per-round strokes-gained by category (Off-the-Tee, Approach, Around-the-Green, Putting), sourced from round scorecards.
 - **Shrinkage projections** — forward-looking forecast blending pre-event `vts_final` with in-tournament live SG, using `w_live = n / (n + 8)` where `n` is completed rounds.
 - **Structurally_live eligibility** — the `diagnostic_label: "structurally_live"` gate marking players whose shrinkage-projected finish keeps them within mathematical range of contention. This is an eligibility gate, not a conviction ranking (see §18).
-- **Live badges** — Alpha/Beta/Gamma tiers built from `LiveConvictionScore` and `CeilingIndex` (§17, §18), applied only to players already flagged `structurally_live`.
+- **Rocket-derived live-badge research** — the `CeilingIndex`, `LiveConvictionScore`, Alpha/Beta/Gamma, and `T2RiskTag` concepts in §17–§18 are inactive hypotheses. They are not current live outputs and do not alter formula-v2 scores, confidence, tiers, probabilities, badges, or ranks.
 
 ---
 
-## 17. ROCKET CLASSIC 2026 SCORING ADJUSTMENTS
+## 17. ROCKET CLASSIC 2026 INACTIVE RESEARCH HYPOTHESES
 
-**Status:** Permanent scoring rules derived from Rocket Classic 2026 (see `03_PGA_VENUEDNA_LEARNING_LOOP.md` §10). Apply globally where the venue variance class and trait context match; venue-specific overrides must be documented.
+**Status:** Inactive provisional hypotheses based on one Rocket Classic event. They preserve historical observations and may inform future bounded research, but they are not formula-v2.0.0 scoring rules. They do not alter `PrePenaltyRaw`, `PostPenaltyRaw`, `PostGateRaw`, confidence, tiers, probabilities, badges, or ranks; they activate no penalty or gate and do not override `penalty_gate_set_id: venuedna_v2_none`. Any implementation requires at least three relevant or sufficiently similar events by default (unless a higher governing standard applies), Model Council approval, explicit operator authorization, and an activated future formula, penalty/gate-set, or trait-submodel version.
 
 ### 17.1 CeilingIndex
 
-**Inputs:**
+**Historical research inputs:**
 - Recent tee-to-green form (last-12 / last-24 SG splits).
 - Volatility (round-to-round spread, L5 arrays).
 - Venue scoring fit (par-5 scoring, wedge/approach windows, penalty structure).
 
-**Outputs:**
-- `CeilingIndex` — 0–100.
-- `vtsceil` — CeilingIndex-adjusted ceiling score, distinct from `vts_final`.
+**Potential future research outputs:**
+- A future approved model may evaluate a `CeilingIndex` (0–100).
+- A future approved model may evaluate a distinct ceiling display value; no `vtsceil` field or score effect is active under formula v2.0.0.
 
-**Usage:**
-- Pre-event: compute `CeilingIndex` for all players and set `vtsceil` alongside `vts_final`. T3–T5 players with high `CeilingIndex` may carry an elevated `vtsceil` even when `vts_final` is modest.
-- Live layer: `CeilingIndex` and live SG feed `LiveConvictionScore` (§18), which drives Alpha/Beta/Gamma badge assignment.
+**Inactive status:**
+- No current producer is directed to compute `CeilingIndex`, emit `vtsceil`, or assign a score, tier, probability, confidence, rank, or badge effect from this hypothesis.
+- A future separately authorized live or trait-submodel version may evaluate the relationship between this evidence and live diagnostics; formula v2.0.0 has no such effect.
 
 ### 17.2 Badge Governance
 
-**Categories:**
+**Historical research categories:**
 
 | Category          | Badges                              |
 |--------------------|--------------------------------------|
@@ -329,51 +415,52 @@ Live layer components:
 | Neutral              | Putter                               |
 | Probation             | Hot Streak, Par-5 Predator, Bomber  |
 
-**Rules:**
-- Iron Surgeon and Detroit Veteran may contribute to `VenueFitDelta` / `VenueHistoryDelta` only when structural traits and venue rules align. They cannot rescue a structurally poor profile alone.
-- Hot Streak, Par-5 Predator, and Bomber are low-weight or narrative-only and must not drive Tier 1/T2 designation until multi-event back-testing improves their predictive value.
-- Badge hit/miss rates at top-20 and cut line must be logged per event to inform future promotion/demotion between categories.
+**Inactive status:**
+- A future approved trait-submodel may evaluate whether these labels provide structural evidence. No badge may contribute to `VenueFitDelta`, `VenueHistoryDelta`, or any other formula-v2.0.0 layer.
+- No label may drive a current tier, probability, confidence, rank, score, penalty, or gate effect.
+- Historical hit/miss observations may be retained for future multi-event evaluation; they do not authorize badge promotion, demotion, or implementation.
 
-### 17.3 Approach Deficit Flag Recency
+### 17.3 Approach Deficit hypothesis
 
-- Full `ApproachDeficit` penalty applies only when both the long-window (last-24) and short-window (last-12) SG:APP data show weakness.
-- When the long-window shows weakness but the short-window is neutral or positive, downgrade to a watchlist flag and reduce the penalty weight accordingly.
-- Live SG:APP during the event can further confirm or relax the flag.
+- A future approved model may evaluate whether simultaneous long-window (last-24) and short-window (last-12) SG:APP weakness is useful evidence for an `ApproachDeficit` hypothesis.
+- A future model may compare that hypothesis with a watchlist-only treatment when the short window is neutral or positive.
+- No `ApproachDeficit` penalty, reduced weight, watchlist effect, live confirmation effect, or gate is active under formula v2.0.0.
 
 ### 17.4 Trait Concentration Cap
 
-- Hard max: no single trait, or tightly coupled trait pair (e.g., SG:APP + App 150–200), may exceed **0.50 combined VTS weight** without an explicit, documented venue-specific override.
-- Minimum combined weight for short game + putting in birdie-race venue contexts: **0.20–0.25** of VTS.
-- Venue-specific overrides above the cap must document rationale, expected outcome shape, and be tested against past events.
+- If a future separately authorized direct-trait submodel is activated, its normalized direct-trait weights and maximum marginal contribution must observe the **0.50** cap; raw source measurements are not capped.
+- Approach plus long iron remains a tightly coupled research pair for any such future submodel.
+- No direct trait block, putting/ARG floor, or direct putting/ARG allocation is active under formula version 2.0.0; the pure dual-vector formula validly has zero direct allocation.
+- A future venue-specific direct-trait submodel requires a documented rationale, expected outcome shape, multi-event validation, Model Council approval, explicit operator authorization, and an activated version before implementation.
 
-### 17.5 T2RiskTag
+### 17.5 T2RiskTag hypothesis
 
-**Trigger:**
+**Potential future research trigger:**
 - Player is Tier 2 by `VenueDNA_rank`.
 - No individual trait score exceeds a high threshold (e.g., 70 on the 0–100 trait scale).
 - Player carries multiple narrative/probation badges (Bomber, Hot Streak, Veteran, etc.) without a standout structural trait.
 
-**Effect:**
-- Widens the player's confidence band (wider make-cut / finish-probability uncertainty).
-- Player starts in Beta or Gamma live badge tier (§18) regardless of pre-event `vts_final`, unless live performance justifies promotion to Alpha.
+**Inactive status:**
+- A future approved study may test whether the trigger pattern has confidence or live-diagnostic value.
+- No `T2RiskTag` confidence, probability, score, tier, rank, badge, penalty, or gate effect is active under formula v2.0.0.
 
 ---
 
-## 18. LIVE-LAYER BADGE IMPLEMENTATION (ALPHA/BETA/GAMMA)
+## 18. INACTIVE ROCKET-DERIVED LIVE-BADGE HYPOTHESIS (ALPHA/BETA/GAMMA)
 
 ### LiveConvictionScore
 
-**Inputs:**
-- `vtsceil` (CeilingIndex-adjusted, §17.1).
+**Potential future research inputs:**
+- A future approved ceiling diagnostic (formerly described as `vtsceil`, §17.1).
 - Live SG (Tee-to-Green, Approach, Putting).
 - Current score vs. projected winning total.
 - Tee-time / weather.
 - Volatility index.
-- Penalties / gates (anti-pattern flags, `T2RiskTag`).
+- Potential future penalty/gate research evidence, including anti-pattern flags or `T2RiskTag`.
 
-**Output:** `LiveConvictionScore` — 0–100 per player.
+**Potential future research output:** `LiveConvictionScore` — 0–100 per player only in a separately authorized future version.
 
-### Badge Thresholds
+### Potential future badge thresholds
 
 | Badge       | Definition                                                                                                   |
 |-------------|-----------------------------------------------------------------------------------------------------------------|
@@ -381,9 +468,8 @@ Live layer components:
 | Beta Live   | Credible contenders with at least one constraint (draw, ceiling, or trait gap).                                |
 | Gamma Live  | Remaining `structurally_live` players with a mathematical but weak practical win path.                        |
 
-### Rules
+### Inactive status
 
-- `structurally_live` is eligibility, not the final label — it gates who is scored for `LiveConvictionScore`; it does not rank them.
-- Live badges are diagnostic overlays. They never rewrite pre-event `VenueDNA_tier` or `vts_final`.
-- Every promotion or downgrade between Alpha/Beta/Gamma must be traceable to a change in `LiveConvictionScore` and name the mechanism (e.g., "Alpha → Beta: tee-time downgrade + SG:APP drop").
-- `T2RiskTag` players (§17.5) start no higher than Beta regardless of `LiveConvictionScore`, unless live SG demonstrates a genuine breakout.
+- `structurally_live` remains an eligibility concept, but formula v2.0.0 does not activate `LiveConvictionScore` or Alpha/Beta/Gamma scoring.
+- No current live badge, promotion, downgrade, or `T2RiskTag` restriction is authorized; none may rewrite or supplement pre-event score, confidence, tier, probability, rank, penalty, or gate behavior.
+- These retained threshold descriptions are historical research material only and require the §17 status conditions before any future implementation.

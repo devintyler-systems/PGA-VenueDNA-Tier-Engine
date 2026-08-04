@@ -219,8 +219,8 @@ Spearman rho below 0.20 for two consecutive rounds is a model health flag requir
 
 ## 10. ROCKET CLASSIC 2026 LEARNING ENTRY
 
-**Status:** Permanent until superseded by future multi-event evidence.
-**Mirrored in:** `02_PGA_VENUEDNA_SCORING_SPEC.md` §17 (Rocket Classic 2026 Scoring Adjustments) and §18 (Live-Layer Badge Implementation — Alpha/Beta/Gamma).
+**Status:** Provisional one-event evidence and guidance; not a permanent global engine rule.
+**Mirrored in:** `02_PGA_VENUEDNA_SCORING_SPEC.md` §17 (ROCKET CLASSIC 2026 INACTIVE RESEARCH HYPOTHESES) and §18 (INACTIVE ROCKET-DERIVED LIVE-BADGE HYPOTHESIS (ALPHA/BETA/GAMMA)).
 
 **Context:** 2026 Rocket Classic (Detroit Golf Club). Approach-driven venue with renovated corridors and bunker pressure, bentgrass greens, birdie-heavy upside but real penalty strokes off the tee. Variance class: medium–high (birdie race with punishment).
 
@@ -228,37 +228,39 @@ Spearman rho below 0.20 for two consecutive rounds is a model health flag requir
 
 **Problem:** The winner and key podium finishers (Thorbjornsen, Riley, Højgaard) came from T4/T5 with modest VTS but real upside that the pre-event model did not capture.
 
-**Change:** Define a `CeilingIndex` from recent tee-to-green form, volatility, and venue scoring fit; use it to set `vtsceil` and feed live badges.
+**Provisional guidance:** Evaluate a `CeilingIndex` hypothesis from recent tee-to-green form, volatility, and venue scoring fit; it may be tested as `vtsceil` and live-badge context in a separately authorized implementation.
 
-**Rule:** T3–T5 players with high CeilingIndex can receive elevated live badges and higher `vtsceil` even when baseline VTS is modest.
+**Hypothesis:** T3–T5 players with high CeilingIndex may warrant provisional review for elevated live badges or `vtsceil` context even when baseline VTS is modest.
 
 ### 10.2 Badge Governance
 
 **Finding:** Iron Surgeon and Detroit Veteran validated as strong support signals in Rocket. Hot Streak and Par-5 Predator underperformed.
 
-**Rule:** Iron Surgeon and Detroit Veteran increase confidence only when structural traits and venue rules agree; Hot Streak and Par-5 Predator are on probation (low-weight / narrative only) until cross-event back-testing shows better hit rates.
+**Provisional guidance:** Iron Surgeon and Detroit Veteran are support hypotheses only when structural traits and venue rules agree; Hot Streak and Par-5 Predator remain low-weight or narrative candidates until cross-event back-testing shows better hit rates.
 
 ### 10.3 Approach Deficit Flag Recency
 
 **Problem:** Højgaard's "Approach Deficit" flag contradicted his actual SG:APP and recent form.
 
-**Rule:** Apply full approach-deficit penalty only when both long- and short-window data show weakness; downgrade to watchlist when the most recent window is neutral/positive.
+**Provisional guidance:** Test full approach-deficit treatment only when both long- and short-window data show weakness; otherwise retain a watchlist hypothesis when the most recent window is neutral or positive.
 
 ### 10.4 Trait Concentration Cap
 
 **Problem:** SG:APP + App 150–200 consumed ~65% of VTS at Detroit.
 
-**Rule:** Cap any single trait or tight pair at 0.50 combined weight unless a venue-specific override is explicitly documented; maintain minimum weights for short game + putting.
+**Provisional guidance:** Treat the concentration finding as a candidate for a future direct-trait submodel; it does not override formula v2.0.0, which has no active direct trait block.
 
 ### 10.5 T2 Tier Risk Tag
 
 **Problem:** T2 "average-good, badge-inflated" profiles (Clark, Gotterup, Spaun) busted more than tiers suggested.
 
-**Rule:** Introduce a `T2RiskTag` for Tier 2 players with no trait score above a high threshold and multiple badges; widen confidence and start them in lower live badge tiers unless live SG demonstrates a true breakout.
+**Provisional guidance:** Evaluate a `T2RiskTag` candidate for Tier 2 players with no trait score above a high threshold and multiple badges; any confidence or live-badge treatment requires separately authorized testing.
 
-### Deployment Rules
+### Governance and deployment rules
 
-- These rules are **permanent until superseded** by future multi-event evidence.
-- Each rule must be mirrored in `02_PGA_VENUEDNA_SCORING_SPEC.md` before it is treated as authoritative for engine implementation.
-- Council governance tracks whether these changes improve Tier 1/T2 accuracy, and whether ceiling/variance handling reduces "winner from T4/T5 with no conviction" misses.
+- One event cannot create a permanent global engine rule. Rocket findings may become venue-specific hypotheses, provisional guidance, audit flags, or candidates for future testing.
+- Global scoring-weight, schema, gate, or doctrine changes require the applicable multi-event threshold: at least three relevant or sufficiently similar events by default, unless a higher governing standard applies.
+- Model Council approval and explicit operator authorization remain required before an authorized implementation change. Mirroring a rule in `02_PGA_VENUEDNA_SCORING_SPEC.md` alone is not implementation authority.
+- Formula v2.0.0 is not overridden by Rocket observations. The evidence may support future bounded research but does not directly alter canonical v2 scoring.
+- Council governance tracks whether these hypotheses improve Tier 1/T2 accuracy and whether ceiling/variance handling reduces "winner from T4/T5 with no conviction" misses.
 - Rocket Classic 2027 (if played) is the primary test venue for these Detroit-specific learnings; other medium–high variance, approach-driven venues are secondary test beds.

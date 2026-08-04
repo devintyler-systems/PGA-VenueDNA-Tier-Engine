@@ -41,6 +41,36 @@ from enrich_cards import (  # noqa: E402
 CANONICAL_COUPLED_TRAIT_CAP = 0.50
 CANONICAL_SHORT_GAME_PUTTING_FLOOR = (0.20, 0.25)
 
+# Formula-v2 doctrine markers. These immutable values are diagnostic metadata
+# only: they identify the canonical doctrine against which the current 3M
+# production pathway is audited; they do not participate in any arithmetic.
+CANONICAL_V2_FORMULA_ID = "venuedna_dual_vector_decomposed"
+CANONICAL_V2_FORMULA_VERSION = "2.0.0"
+CANONICAL_V2_PENALTY_GATE_SET_ID = "venuedna_v2_none"
+CANONICAL_V2_ACTIVE_PENALTY_IDS: tuple[str, ...] = ()
+CANONICAL_V2_ACTIVE_GATE_IDS: tuple[str, ...] = ()
+HISTORICAL_PRODUCTION_GATE_CONFIGURATION_ID = "historical_3m_inline_gates"
+CANONICAL_V2_CORE_INPUTS: tuple[str, ...] = (
+    "SG_Base_Comp",
+    "Delta_Fit_Comp",
+    "VenueHistoryDeltaRaw",
+)
+LEGACY_PRODUCTION_NONCORE_ADDENDS: tuple[str, ...] = (
+    "trait_approach_raw",
+    "trait_long_iron_raw",
+    "ott_true",
+    "ch_adjustment",
+    "true_sg_l20",
+)
+PRODUCTION_DIVERGENCE_REASON_CODES: tuple[str, ...] = (
+    "FORMULA_IDENTITY_MISMATCH",
+    "LEGACY_NONCORE_ADDITIVE_COMPONENTS",
+    "CANONICAL_THREE_LAYER_DECOMPOSITION_NOT_EXPOSED",
+    "HISTORICAL_3M_EVENT_SPECIFIC_IMPLEMENTATION",
+    "FORMULA_V2_MIGRATION_PENDING",
+    "PENALTY_GATE_SET_ID_MISMATCH",
+)
+
 # ── Gate multiplier registry ────────────────────────────────────────────────
 # Mirrors engine/enrich_cards.py apply_gates()'s flag -> multiplier mapping.
 # The *decision* to fire a gate (threshold comparisons against perf/decomp
@@ -85,6 +115,15 @@ class ScoringFormulaDescriptor:
     source_confidence_availability: str
     dg_benchmark_dependency: str
     canonical_conformity_status: str
+    canonical_formula_id: str
+    canonical_formula_version: str
+    canonical_penalty_gate_set_id: str
+    canonical_active_penalty_ids: tuple[str, ...]
+    canonical_active_gate_ids: tuple[str, ...]
+    production_gate_configuration_id: str
+    canonical_core_inputs: tuple[str, ...]
+    legacy_production_noncore_addends: tuple[str, ...]
+    production_divergence_reason_codes: tuple[str, ...]
 
     def as_dict(self) -> dict:
         """Plain-dict snapshot for reporting; does not mutate this descriptor."""
@@ -106,6 +145,15 @@ class ScoringFormulaDescriptor:
             "source_confidence_availability": self.source_confidence_availability,
             "dg_benchmark_dependency": self.dg_benchmark_dependency,
             "canonical_conformity_status": self.canonical_conformity_status,
+            "canonical_formula_id": self.canonical_formula_id,
+            "canonical_formula_version": self.canonical_formula_version,
+            "canonical_penalty_gate_set_id": self.canonical_penalty_gate_set_id,
+            "canonical_active_penalty_ids": list(self.canonical_active_penalty_ids),
+            "canonical_active_gate_ids": list(self.canonical_active_gate_ids),
+            "production_gate_configuration_id": self.production_gate_configuration_id,
+            "canonical_core_inputs": list(self.canonical_core_inputs),
+            "legacy_production_noncore_addends": list(self.legacy_production_noncore_addends),
+            "production_divergence_reason_codes": list(self.production_divergence_reason_codes),
         }
 
 
@@ -173,17 +221,24 @@ FORMULA = ScoringFormulaDescriptor(
         "field into vts_final."
     ),
     canonical_conformity_status=(
-        "NONCONFORMANT against standards/02_PGA_VENUEDNA_SCORING_SPEC.md: "
-        "(1) VTS_Raw here is SG_Sim_Comp plus five additional weighted "
-        "addends (approach, long_iron, ott, course_history, recent_form); "
-        "§7 defines VTS_Raw as SG_Sim_Comp alone. (2) approach + long_iron "
-        "= 0.65 exceeds the §17.4 coupled-trait-pair cap of 0.50, with no "
-        "documented venue-specific override on file. (3) direct putting + "
-        "around-the-green weight in the combined score is 0.00, below the "
-        "§17.4 birdie-race-context floor of 0.20-0.25 (putting/ARG appear "
-        "only as display traits and gate inputs, never as combined-score "
-        "addends)."
+        "DIVERGENT from standards/02_PGA_VENUEDNA_SCORING_SPEC.md: "
+        "production formula identity is 3m-enriched-v2.0 rather than "
+        "venuedna_dual_vector_decomposed v2.0.0; it uses historical_3m_inline_gates "
+        "rather than canonical venuedna_v2_none; it adds five legacy "
+        "noncore components to its raw total, does not expose the canonical "
+        "NeutralSkill/VenueFitDelta/VenueHistoryDelta decomposition as its "
+        "production formula, is a historical 3M-specific implementation, "
+        "and has not migrated to formula v2.0.0."
     ),
+    canonical_formula_id=CANONICAL_V2_FORMULA_ID,
+    canonical_formula_version=CANONICAL_V2_FORMULA_VERSION,
+    canonical_penalty_gate_set_id=CANONICAL_V2_PENALTY_GATE_SET_ID,
+    canonical_active_penalty_ids=CANONICAL_V2_ACTIVE_PENALTY_IDS,
+    canonical_active_gate_ids=CANONICAL_V2_ACTIVE_GATE_IDS,
+    production_gate_configuration_id=HISTORICAL_PRODUCTION_GATE_CONFIGURATION_ID,
+    canonical_core_inputs=CANONICAL_V2_CORE_INPUTS,
+    legacy_production_noncore_addends=LEGACY_PRODUCTION_NONCORE_ADDENDS,
+    production_divergence_reason_codes=PRODUCTION_DIVERGENCE_REASON_CODES,
 )
 
 

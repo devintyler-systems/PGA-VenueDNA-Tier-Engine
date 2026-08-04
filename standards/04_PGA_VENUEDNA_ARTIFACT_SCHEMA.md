@@ -80,7 +80,9 @@ player_name, rounds_played, total_mean
 ```
 
 Additional columns may exist and are ignored. Only these three are consumed by `enrich_cards.py`.
-Values of `"null"`, `"none"`, or `""` in `total_mean` are treated as 0.0.
+Genuine numeric `0.0` in `total_mean` is valid observed data. `null`, `none`, empty, absent, unparseable, or otherwise unavailable `total_mean` values remain missing and must not be silently converted to numeric zero. Represent unavailable values using the schema's applicable missing-value convention (`null` for optional JSON scalars, blank or documented null-equivalent for CSV numeric fields, or `"unknown"` where this schema requires that string for a required field). Missingness may affect eligibility, confidence, completeness, or layer-specific fallback rules, but must not masquerade as observed zero performance.
+
+A valid similar-course row with `rounds_played: 0` is a distinct DEBUT observation, not missing `total_mean`. Likewise, formula-v2.0.0's neutral `VenueHistoryDeltaRaw = 0.0` is an explicit canonical contribution pending an approved bounded history transform; it is not raw-history zero filling. Any zero-filling in historical production behavior is legacy nonconforming implementation behavior only.
 
 ### 2D. datagolf.csv
 
