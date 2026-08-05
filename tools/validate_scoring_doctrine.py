@@ -734,14 +734,32 @@ def _validate_active_event(repo_root: Path, text: str) -> list[Finding]:
             )
         )
 
-    non_null = [key for key in NULL_EVENT_BINDINGS if manifest.get(key) is not None]
-    if non_null:
+    missing_bindings = [
+        key for key in NULL_EVENT_BINDINGS
+        if key not in manifest
+    ]
+    if missing_bindings:
+        findings.append(
+            _finding(
+                "ACTIVE_EVENT_BINDINGS_REQUIRED",
+                ACTIVE_EVENT,
+                "NO_ACTIVE_EVENT requires every event and venue binding key: "
+                + ", ".join(missing_bindings)
+                + ".",
+            )
+        )
+
+    non_null_bindings = [
+        key for key in NULL_EVENT_BINDINGS
+        if key in manifest and manifest[key] is not None
+    ]
+    if non_null_bindings:
         findings.append(
             _finding(
                 "ACTIVE_EVENT_BINDINGS_NULL",
                 ACTIVE_EVENT,
                 "NO_ACTIVE_EVENT requires null event and venue bindings: "
-                + ", ".join(non_null)
+                + ", ".join(non_null_bindings)
                 + ".",
             )
         )

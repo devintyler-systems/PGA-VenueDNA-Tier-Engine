@@ -397,6 +397,14 @@ def test_invalid_active_event_bindings(doctrine_repo: Path) -> None:
     assert "ACTIVE_EVENT_BINDINGS_NULL" in ids
 
 
+def test_missing_active_event_binding_key_is_rejected(doctrine_repo: Path) -> None:
+    path = _path(doctrine_repo, "config/active_event.json")
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest.pop("event_slug")
+    path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    assert "ACTIVE_EVENT_BINDINGS_REQUIRED" in _rule_ids(doctrine_repo)
+
+
 def test_wyndham_directory_is_rejected(doctrine_repo: Path) -> None:
     (doctrine_repo / "events" / "2026_wyndham_championship").mkdir(parents=True)
     assert "ACTIVE_EVENT_WYNDHAM_ABSENT" in _rule_ids(doctrine_repo)
@@ -468,3 +476,22 @@ def test_execution_failure_uses_exit_code_two(tmp_path: Path) -> None:
         text=True,
     )
     assert completed.returncode == 2
+
+
+def test_contract_failure_uses_exit_code_one(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        FIXTURE_FILES[0],
+        "formula_version=2.0.0",
+        "formula_version=9.9.9",
+    )
+    completed = subprocess.run(
+        [sys.executable, str(VALIDATOR_PATH), "--repo-root", str(doctrine_repo)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 1
+    assert "SCORING DOCTRINE FAILED" in completed.stdout
+    assert "MARKER_FORMULA_VERSION" in completed.stdout
