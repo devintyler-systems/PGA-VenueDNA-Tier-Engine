@@ -35,6 +35,13 @@ from identity_resolver import (  # noqa: E402
     build_release_report,
 )
 from identity_resolver import normalize_name as _canonical_normalize_name  # noqa: E402
+from venuedna_scoring import (  # noqa: E402
+    FORMULA_METADATA as CANONICAL_FORMULA_METADATA,
+    assign_tier as canonical_assign_tier,
+    compute_player_projection,
+    compute_probability_vectors as canonical_compute_probability_vectors,
+    z_score_scale as canonical_z_score_scale,
+)
 
 # ── §1  Constants ──────────────────────────────────────────────────────────────
 
@@ -122,6 +129,24 @@ def safe_float(v: object, default: float = 0.0) -> float:
         return default
 
 
+def optional_float(v: object) -> float | None:
+    """Parse a finite numeric source value without turning absence into zero."""
+    try:
+        s = str(v).strip().lower()
+        value = float(v) if s not in ("", "null", "none", "n/a", "nan") else None
+        return value if value is not None and math.isfinite(value) else None
+    except (ValueError, TypeError):
+        return None
+
+
+def optional_rounds(v: object) -> int | None:
+    """Parse a non-negative integral round count while preserving missingness."""
+    value = optional_float(v)
+    if value is None or value < 0 or not value.is_integer():
+        return None
+    return int(value)
+
+
 def normalize_name(s: str | None) -> str:
     """Compatibility wrapper — delegates to the canonical identity resolver.
 
@@ -162,8 +187,8 @@ def load_sg_csv(path: Path) -> list[SourceRow]:
                 source_name=name,
                 dg_id=None,
                 payload={
-                    "rounds":     int(safe_float(row.get("rounds_played", 0))),
-                    "total_mean": safe_float(row.get("total_mean", 0)),
+                    "rounds":     optional_rounds(row.get("rounds_played")),
+                    "total_mean": optional_float(row.get("total_mean")),
                 },
                 row_number=i,
             ))
@@ -405,6 +430,35 @@ def compute_horizon(base: dict, sim: dict) -> dict:
     return {"delta_fit": sg_sim_reg - base["total_mean"]}
 
 
+def adapt_to_v2_neutral_skill_horizons(all_resolved_raw: dict) -> dict:
+    """Adapt resolved all-course rows to canonical NeutralSkill inputs.
+
+    Takes per-horizon rows exactly as returned by ``_matched_value()`` --
+    each either a row dict with ``total_mean``, or ``None`` when that source
+    family has no row for this player -- and adapts them into
+    ``compute_neutral_skill()``'s input shape, preserving the missing-vs-
+    present distinction through the official producer path.
+    """
+    return {h: (row["total_mean"] if row is not None else None) for h, row in all_resolved_raw.items()}
+
+
+def adapt_to_v2_similar_course_rows(sim_resolved_raw: dict) -> dict:
+    """Adapt resolved similar-course rows to canonical VenueFit inputs.
+
+    Takes per-horizon rows exactly as returned by ``_matched_value()`` and
+    adapts them into ``compute_venue_fit()``'s input shape: a present row
+    becomes a ``SimilarCourseRow`` (rounds 0 is a valid DEBUT row), a
+    missing row stays ``None``.  Blank and malformed source cells remain
+    ``None`` inside a present row for the canonical scorer to evaluate.
+    """
+    from venuedna_scoring import SimilarCourseRow
+
+    return {
+        h: (SimilarCourseRow(row["rounds"], row["total_mean"]) if row is not None else None)
+        for h, row in sim_resolved_raw.items()
+    }
+
+
 def make_composites(all_resolved: dict, sim_resolved: dict) -> tuple[float, float, float]:
     """Return (sg_base_comp, sg_sim_comp, delta_fit_comp) from resolved horizon dicts."""
     sg_base = (BASE_WEIGHT_6M  * all_resolved["6m"]["total_mean"]
@@ -415,6 +469,20 @@ def make_composites(all_resolved: dict, sim_resolved: dict) -> tuple[float, floa
            + DELTA_WEIGHT_24M * compute_horizon(all_resolved["24m"], sim_resolved["24m"])["delta_fit"])
     delta = max(-DELTA_CLAMP, min(DELTA_CLAMP, delta))
     return sg_base, sg_base + delta, delta
+
+
+def historical_gate_diagnostics(perf: dict, decomp: dict) -> list[str]:
+    """Expose historical 3M anti-pattern labels for narrative diagnostics only.
+
+    This intentionally does not call ``apply_gates`` and never changes a
+    canonical score, rank, tier, or probability.
+    """
+    flags: list[str] = []
+    if decomp.get("driving_dist_adj", 0.0) > BOMB_DIST_THRESH and decomp.get("driving_acc_adj", 0.0) < BOMB_ACC_THRESH:
+        flags.append("INACCURATE_BOMBER")
+    if perf.get("app_true", 0.0) < SG_APP_THRESH and (perf.get("putt_true", 0.0) + perf.get("arg_true", 0.0)) > SG_SUM_THRESH:
+        flags.append("SHORT_GAME_RELIANT")
+    return flags
 
 
 # ── §5  Venue Trait Calculations ───────────────────────────────────────────────
@@ -744,6 +812,215 @@ def build_live_r1_narrative(player: str, r1_score: str, sg_approach: float,
     )
 
 
+CANONICAL_PROBABILITY_FIELDS = (
+    "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
+)
+_OUTPUT_PRIVATE_FIELDS = {
+    "_post_gate_raw", "_nsi_raw", "gate_flags", "course_debut",
+    "_d_approach", "_d_long_iron", "_d_ott", "_d_ch", "_d_form",
+    "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure",
+}
+_OUTPUT_FIRST_FIELDS = [
+    "rank", "player", "player_name", "player_id", "dg_id", "tier",
+    "vts_final", "live_vts",
+    "neutralSkillIndex",
+    "sg_base_composite", "sg_similar_composite", "delta_fit", "data_depth",
+    "formula_id", "formula_version", "scoring_spec_version", "comparable_score_family", "penalty_gate_set_id",
+    "penalties_applied", "gates_applied",
+    "scoring_status", "confidence_by_source",
+    "neutral_skill_raw", "venue_fit_delta_raw", "venue_history_delta_raw",
+    "pre_penalty_raw", "post_penalty_raw", "post_gate_raw",
+    "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
+    "win_prob", "top_5_prob", "top_10_prob", "top_20_prob",
+    "make_cut_prob", "miss_cut_prob",
+    "prepenalty_vts", "vts_floor", "vts_ceil", "std_dev",
+    "l5_array", "strength_tags", "weakness_tags", "headline", "win_case",
+    "scouting_report",
+    "trait_scores", "archetype_tags", "anti_pattern_flags",
+    "app_true", "ott_true", "ch_adjustment", "true_sg_l20",
+    "trait_approach_raw", "trait_long_iron_raw",
+    "r2_wave", "r2_teetime",
+    "identity_provenance",
+]
+
+
+def finalize_canonical_official_records(
+    prepared_records: list[dict],
+    *,
+    live_mode: str | None,
+    live_tee_times: dict[str, dict],
+    live_r1_sg: dict[str, dict],
+) -> list[dict]:
+    """Pure canonical finalization boundary for prepared player records.
+
+    The caller supplies already-resolved player evidence and display-only
+    trait scores.  This helper owns every official score, probability, rank,
+    tier, and final-record decision; it neither reads external state nor
+    mutates the caller-owned prepared records.
+    """
+    scored_players = [record for record in prepared_records if record["post_gate_raw"] is not None]
+    canonical_raw_scores = [record["post_gate_raw"] for record in scored_players]
+    normalized_scores = canonical_z_score_scale(canonical_raw_scores)
+    neutral_skill_scores = canonical_z_score_scale([record["_nsi_raw"] for record in scored_players])
+    prepenalty_scores = canonical_z_score_scale([record["pre_penalty_raw"] for record in scored_players])
+    probability_vectors = canonical_compute_probability_vectors(canonical_raw_scores)
+    scored_index_by_dg_id = {record["dg_id"]: index for index, record in enumerate(scored_players)}
+    display_keys = [
+        "_d_approach", "_d_long_iron", "_d_ott", "_d_ch", "_d_form",
+        "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure",
+    ]
+    display_scores = {
+        key: z_score_scale([record[key] for record in prepared_records])
+        for key in display_keys
+    }
+
+    pre_rank_records: list[dict] = []
+    for raw_index, prepared in enumerate(prepared_records):
+        scored_index = scored_index_by_dg_id.get(prepared["dg_id"])
+        if scored_index is not None:
+            canonical_vts = round(normalized_scores[scored_index], 1)
+            probabilities = {
+                key: round(value, 1)
+                for key, value in probability_vectors[scored_index].items()
+            }
+            record = {
+                **prepared,
+                "vts_final": canonical_vts,
+                "neutralSkillIndex": round(neutral_skill_scores[scored_index], 1),
+                "prepenalty_vts": round(prepenalty_scores[scored_index], 1),
+                **probabilities,
+            }
+        else:
+            record = {
+                **prepared,
+                "vts_final": None,
+                "neutralSkillIndex": None,
+                "prepenalty_vts": None,
+                **{key: None for key in CANONICAL_PROBABILITY_FIELDS},
+            }
+
+        record["win_prob"] = record["winPct"]
+        record["top_5_prob"] = record["top5Pct"]
+        record["top_10_prob"] = record["top10Pct"]
+        record["top_20_prob"] = record["top20Pct"]
+        record["make_cut_prob"] = record["makeCutPct"]
+        record["miss_cut_prob"] = record["missCutPct"]
+
+        spread = round(record["std_dev"] * STD_VTS_SCALE, 1)
+        record["vts_floor"] = (
+            round(max(0.0, record["vts_final"] - spread), 1)
+            if record["vts_final"] is not None else None
+        )
+        record["vts_ceil"] = (
+            round(min(100.0, record["vts_final"] + spread), 1)
+            if record["vts_final"] is not None else None
+        )
+        record["trait_scores"] = [
+            {
+                "label": label,
+                "weight": weight,
+                "score": round(display_scores[display_keys[index]][raw_index], 1),
+            }
+            for index, (label, weight) in enumerate(TRAIT_DISPLAY_CFG)
+        ]
+
+        arc_dist = display_scores["_d_drv_dist"][raw_index]
+        arc_acc = display_scores["_d_drv_acc"][raw_index]
+        arc_app = display_scores["_d_approach"][raw_index]
+        arc_long_iron = display_scores["_d_long_iron"][raw_index]
+        arc_putt = display_scores["_d_putt"][raw_index]
+        arc_composure = display_scores["_d_composure"][raw_index]
+        archetype_tags: list[str] = []
+        if arc_dist >= 75 and arc_acc <= 30:
+            archetype_tags.append("Erratic Bomber")
+        if arc_putt >= 70 and arc_composure >= 70 and arc_app <= 40:
+            archetype_tags.append("Short-Game Specialist")
+        putt_value = record.get("_d_putt") or 0.0
+        positive_sg = sum(value for value in [
+            record.get("app_true", 0.0), record.get("ott_true", 0.0),
+            putt_value, record.get("ch_adjustment", 0.0),
+        ] if value and value > 0)
+        if positive_sg > 0 and putt_value > 0 and putt_value >= 0.6 * positive_sg:
+            archetype_tags.append("Putting Reliant")
+        if arc_long_iron <= 30:
+            archetype_tags.append("Weak Long-Iron")
+        record["archetype_tags"] = archetype_tags
+
+        strength = build_strength_tags(
+            record["app_true"], record["delta_fit"] or 0.0, record["ott_true"],
+            record["ch_adjustment"], record["true_sg_l20"]
+        )
+        weakness = build_weakness_tags(
+            record["app_true"], record["trait_long_iron_raw"],
+            record["data_depth"], record["course_debut"], record["gate_flags"]
+        )
+        record["strength_tags"] = strength
+        record["weakness_tags"] = weakness
+        record["headline"] = build_headline(strength, weakness)
+        record["win_case"] = build_win_case(
+            record["player"], record["app_true"], record["delta_fit"] or 0.0,
+            record["ott_true"], strength, weakness
+        )
+        record["anti_pattern_flags"] = record["gate_flags"]
+        record["player_name"] = record["player"]
+
+        if live_mode == "r1":
+            wave_info = live_tee_times.get(normalize_name(record["player"]), {})
+            wave = wave_info.get("r2_wave", "")
+            live_base = normalized_scores[scored_index] if scored_index is not None else 50.0
+            if wave == "early":
+                live_value = min(100.0, max(0.0, live_base + WAVE_MODIFIER))
+            elif wave == "late":
+                live_value = min(100.0, max(0.0, live_base - WAVE_MODIFIER))
+            else:
+                live_value = live_base
+            record["live_vts"] = round(live_value, 1)
+            record["r2_wave"] = wave
+            record["r2_teetime"] = wave_info.get("r2_teetime", "")
+            sg_info = live_r1_sg.get(normalize_name(lastname_first_to_first_last(record["player"])), {})
+            if wave and sg_info:
+                narrative = build_live_r1_narrative(
+                    record["player"],
+                    sg_info.get("r1_score", "—"),
+                    sg_info.get("sg_approach", 0.0),
+                    wave,
+                )
+                record["win_case"] = narrative + " " + record["win_case"]
+        record["scouting_report"] = record["win_case"]
+        pre_rank_records.append(record)
+
+    ordered_scored_records = sorted(
+        (record for record in pre_rank_records if record["post_gate_raw"] is not None),
+        key=lambda record: record["vts_final"],
+        reverse=True,
+    )
+    unscored_records = [
+        record for record in pre_rank_records if record["post_gate_raw"] is None
+    ]
+    final_records = [
+        {"rank": rank, **record, "tier": canonical_assign_tier(rank)}
+        for rank, record in enumerate(ordered_scored_records, 1)
+    ] + [
+        {"rank": None, **record, "tier": None}
+        for record in unscored_records
+    ]
+
+    def reorder_record(record: dict) -> dict:
+        source = dict(record)
+        source["identity_provenance"] = source.pop("_identity_provenance")
+        output: dict = {}
+        for key in _OUTPUT_FIRST_FIELDS:
+            if key in source:
+                output[key] = source[key]
+        for key, value in source.items():
+            if key not in output and key not in _OUTPUT_PRIVATE_FIELDS:
+                output[key] = value
+        return output
+
+    ordered_records = [reorder_record(record) for record in final_records]
+    return ordered_records
+
+
 # ── §10  Main Pipeline ─────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -825,20 +1102,23 @@ def main() -> None:
     for ident in field_index.identities:
         name = ident.display_name
 
-        # Dual-vector SG composites
-        all_r = {
-            h: (_matched_value(source_results[f"all_{h}"], ident.dg_id) or debut_row())
-            for h in all_sg
-        }
-        sim_r = {
-            h: (_matched_value(source_results[f"sim_{h}"], ident.dg_id) or debut_row())
-            for h in sim_sg
-        }
-
-        any_sim    = any(sim_r[h]["rounds"] > 0 for h in ("6m", "12m", "24m"))
-        data_depth = "FULL" if any_sim else "DEBUT"
-
-        sg_base_comp, sg_sim_comp, delta_fit = make_composites(all_r, sim_r)
+        # Canonical v2 inputs retain absent rows and invalid source cells as
+        # missing.  Do not route these through the historical debut fallback.
+        all_raw = {h: _matched_value(source_results[f"all_{h}"], ident.dg_id) for h in all_sg}
+        sim_raw = {h: _matched_value(source_results[f"sim_{h}"], ident.dg_id) for h in sim_sg}
+        projection = compute_player_projection(
+            adapt_to_v2_neutral_skill_horizons(all_raw),
+            adapt_to_v2_similar_course_rows(sim_raw),
+            venue_history_evidence=None,
+        )
+        sg_base_comp = projection.neutral_skill_raw
+        delta_fit = projection.venue_fit_delta_raw
+        sg_sim_comp = (
+            sg_base_comp + delta_fit
+            if sg_base_comp is not None and delta_fit is not None
+            else None
+        )
+        data_depth = projection.data_depth
 
         # Supplementary data
         skill  = _matched_value(source_results["skill"],  ident.dg_id) or _EMPTY_SKILL.copy()
@@ -848,12 +1128,8 @@ def main() -> None:
         ch     = _matched_value(source_results["ch"],     ident.dg_id)
         trend  = _matched_value(source_results["trend"],  ident.dg_id) or _EMPTY_TREND.copy()
 
-        course_debut = (ch is None)
-        if ch is None:
-            # DEBUT haircut on course history; non-debuts with no CH data get neutral
-            ch_adj = DEBUT_CH_HAIRCUT if data_depth == "DEBUT" else 0.0
-        else:
-            ch_adj = ch["ch_adjustment"]
+        course_debut = data_depth == "DEBUT"
+        ch_adj = ch["ch_adjustment"] if ch is not None else 0.0
 
         # Proximity z-raw (inverted: lower prox in feet → higher score)
         if prox is not None:
@@ -868,15 +1144,10 @@ def main() -> None:
         app_true             = perf["app_true"]
         true_sg_l20           = trend["true_sg_l20"]
 
-        # Combined latent (addends in SG-compatible units; z-scored after full field)
-        _decomposition = combine_raw_score(
-            sg_sim_comp, trait_approach_raw, trait_long_iron_raw,
-            ott_true, ch_adj, true_sg_l20,
-        )
-        combined_raw = _decomposition["pre_gate_raw_total"]
-
-        prepenalty_raw = combined_raw
-        combined_raw, gate_flags = apply_gates(combined_raw, perf, decomp)
+        # Historical 3M anti-pattern labels remain diagnostic only.  Canonical
+        # v2 declares an identity penalty/gate set and derives all official
+        # score outputs below from projection.post_gate_raw.
+        gate_flags = historical_gate_diagnostics(perf, decomp)
 
         # Raw values for display trait z-scoring (after full field collected)
         par5_raw      = 0.55 * ott_true + 0.45 * app_true
@@ -891,15 +1162,29 @@ def main() -> None:
             "data_depth":           data_depth,
             "course_debut":         course_debut,
             # Dual-vector SG
-            "sg_base_composite":    round(sg_base_comp,    4),
-            "sg_similar_composite": round(sg_sim_comp,     4),
-            "delta_fit":            round(delta_fit,        4),
-            # Gate state
+            "sg_base_composite":    round(sg_base_comp, 4) if sg_base_comp is not None else None,
+            "sg_similar_composite": round(sg_sim_comp, 4) if sg_sim_comp is not None else None,
+            "delta_fit":            round(delta_fit, 4) if delta_fit is not None else None,
+            # Historical diagnostic gate state (not canonical score input)
             "gate_flags":           gate_flags,
-            # Latent scores (private; z-scored after loop)
-            "_vts_raw":             combined_raw,
+            # Canonical decomposition and latent score (field-normalized after loop)
+            "formula_id":           projection.formula_metadata["formula_id"],
+            "formula_version":      projection.formula_metadata["formula_version"],
+            "scoring_spec_version": projection.formula_metadata["scoring_spec_version"],
+            "comparable_score_family": projection.formula_metadata["comparable_score_family"],
+            "penalty_gate_set_id":  projection.formula_metadata["penalty_gate_set_id"],
+            "penalties_applied":    list(projection.penalties_applied),
+            "gates_applied":        list(projection.gates_applied),
+            "scoring_status":       projection.status,
+            "confidence_by_source": dict(projection.confidence_by_source),
+            "neutral_skill_raw":    projection.neutral_skill_raw,
+            "venue_fit_delta_raw":  projection.venue_fit_delta_raw,
+            "venue_history_delta_raw": projection.venue_history_delta_raw,
+            "pre_penalty_raw":      projection.pre_penalty_raw,
+            "post_penalty_raw":     projection.post_penalty_raw,
+            "post_gate_raw":        projection.post_gate_raw,
+            "_post_gate_raw":       projection.post_gate_raw,
             "_nsi_raw":             sg_base_comp,
-            "_prepenalty_raw":      prepenalty_raw,
             # Narrative inputs
             "app_true":             app_true,
             "ott_true":             ott_true,
@@ -923,23 +1208,10 @@ def main() -> None:
             "std_dev":              round(decomp["std_dev"], 3),
         })
 
-    # ── Field-level z-scoring ─────────────────────────────────────────────────
-    print("[enrich_cards] Z-scoring…")
+    # ── Canonical finalization boundary ───────────────────────────────────────
+    print("[enrich_cards] Finalizing canonical records…")
 
-    vts_scaled = z_score_scale([p["_vts_raw"]        for p in players_raw])
-    nsi_scaled = z_score_scale([p["_nsi_raw"]        for p in players_raw])
-    pre_scaled = z_score_scale([p["_prepenalty_raw"] for p in players_raw])
-
-    d_keys = ["_d_approach", "_d_long_iron", "_d_ott", "_d_ch", "_d_form",
-              "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure"]
-    d_scaled = {k: z_score_scale([p[k] for p in players_raw]) for k in d_keys}
-
-    # ── Probability matrices ───────────────────────────────────────────────────
-    print("[enrich_cards] Computing probability matrices…")
-
-    raw_scores = [p["_vts_raw"] for p in players_raw]
-
-    # ── Live round enrichment ─────────────────────────────────────────────────
+    # ── Live inputs (the pure finalization boundary receives prepared data) ────
     live_tee_times: dict = {}
     live_r1_sg: dict     = {}
 
@@ -951,187 +1223,12 @@ def main() -> None:
             event_dir / "output" / "round1" / "round1_player_strokes_gained.csv")
         print(f"  Tee times: {len(live_tee_times)} | R1 SG: {len(live_r1_sg)}")
 
-        # Softmax on wave-adjusted VTS (0-100); scale temps proportionally so
-        # the distribution width matches what raw-score temps produce.
-        raw_std    = field_stats(raw_scores)[1]
-        temp_scale = ZNORM_STD / max(raw_std, 0.01)
-
-        wave_vts: list[float] = []
-        for i, p in enumerate(players_raw):
-            norm = normalize_name(p["player"])
-            wave_info = live_tee_times.get(norm, {})
-            wave      = wave_info.get("r2_wave", "")
-            base      = vts_scaled[i]
-            if wave == "early":
-                adjusted = min(100.0, max(0.0, base + WAVE_MODIFIER))
-            elif wave == "late":
-                adjusted = min(100.0, max(0.0, base - WAVE_MODIFIER))
-            else:
-                adjusted = base
-            wave_vts.append(adjusted)
-            p["_live_vts"]   = round(adjusted, 1)
-            p["_r2_wave"]    = wave
-            p["_r2_teetime"] = wave_info.get("r2_teetime", "")
-
-        win_probs  = tempered_softmax(wave_vts, TEMPS["win"]   * temp_scale, N_POSITIONS["win"])
-        t5_probs   = tempered_softmax(wave_vts, TEMPS["top5"]  * temp_scale, N_POSITIONS["top5"])
-        t10_probs  = tempered_softmax(wave_vts, TEMPS["top10"] * temp_scale, N_POSITIONS["top10"])
-        t20_probs  = tempered_softmax(wave_vts, TEMPS["top20"] * temp_scale, N_POSITIONS["top20"])
-    else:
-        win_probs  = tempered_softmax(raw_scores, TEMPS["win"],   N_POSITIONS["win"])
-        t5_probs   = tempered_softmax(raw_scores, TEMPS["top5"],  N_POSITIONS["top5"])
-        t10_probs  = tempered_softmax(raw_scores, TEMPS["top10"], N_POSITIONS["top10"])
-        t20_probs  = tempered_softmax(raw_scores, TEMPS["top20"], N_POSITIONS["top20"])
-
-    # ── Assemble final records ─────────────────────────────────────────────────
-    print("[enrich_cards] Assembling player records…")
-
-    for i, p in enumerate(players_raw):
-        vts = round(vts_scaled[i], 1)
-        nsi = round(nsi_scaled[i], 1)
-        pre = round(pre_scaled[i], 1)
-
-        p["vts_final"]         = vts
-        p["neutralSkillIndex"] = nsi
-        p["prepenalty_vts"]    = pre if p["gate_flags"] else None
-
-        # Probabilities — camelCase for app.js compat
-        p["winPct"]   = round(win_probs[i],  1)
-        p["top5Pct"]  = round(t5_probs[i],   1)
-        p["top10Pct"] = round(t10_probs[i],  1)
-        p["top20Pct"] = round(t20_probs[i],  1)
-        enforce_monotonicity(p)
-        p["makeCutPct"] = round(make_cut_prob(p["top20Pct"]), 1)
-        p["missCutPct"] = round(100.0 - p["makeCutPct"], 1)
-
-        # Snake-case aliases for verification scripts
-        p["win_prob"]      = p["winPct"]
-        p["top_5_prob"]    = p["top5Pct"]
-        p["top_10_prob"]   = p["top10Pct"]
-        p["top_20_prob"]   = p["top20Pct"]
-        p["make_cut_prob"] = p["makeCutPct"]
-        p["miss_cut_prob"] = p["missCutPct"]
-
-        # VTS floor/ceiling: ±(std_dev × scale), clamped
-        spread        = round(p["std_dev"] * STD_VTS_SCALE, 1)
-        p["vts_floor"] = round(max(0.0,   vts - spread), 1)
-        p["vts_ceil"]  = round(min(100.0, vts + spread), 1)
-
-        # Display trait scores
-        trait_scores = []
-        for j, (label, weight) in enumerate(TRAIT_DISPLAY_CFG):
-            trait_scores.append({
-                "label":  label,
-                "weight": weight,
-                "score":  round(d_scaled[d_keys[j]][i], 1),
-            })
-        p["trait_scores"] = trait_scores
-
-        # Archetype tag classification using z-scored trait percentiles
-        _arc_dist = d_scaled["_d_drv_dist"][i]
-        _arc_acc  = d_scaled["_d_drv_acc"][i]
-        _arc_app  = d_scaled["_d_approach"][i]
-        _arc_li   = d_scaled["_d_long_iron"][i]
-        _arc_putt = d_scaled["_d_putt"][i]
-        _arc_comp = d_scaled["_d_composure"][i]   # closing-holes / scrambling proxy for ARG
-        archetype_tags: list[str] = []
-        if _arc_dist >= 75 and _arc_acc <= 30:
-            archetype_tags.append("Erratic Bomber")
-        if _arc_putt >= 70 and _arc_comp >= 70 and _arc_app <= 40:
-            archetype_tags.append("Short-Game Specialist")
-        # Putting Reliant: raw sg_putt ≥ 60% of player's total positive SG
-        _putt_v = p.get("_d_putt") or 0.0
-        _pos_sg = sum(v for v in [
-            p.get("app_true", 0.0), p.get("ott_true", 0.0),
-            _putt_v, p.get("ch_adjustment", 0.0),
-        ] if v and v > 0)
-        if _pos_sg > 0 and _putt_v > 0 and _putt_v >= 0.6 * _pos_sg:
-            archetype_tags.append("Putting Reliant")
-        if _arc_li <= 30:
-            archetype_tags.append("Weak Long-Iron")
-        p["archetype_tags"] = archetype_tags
-
-        # Narratives
-        strength = build_strength_tags(
-            p["app_true"], p["delta_fit"], p["ott_true"],
-            p["ch_adjustment"], p["true_sg_l20"]
-        )
-        weakness = build_weakness_tags(
-            p["app_true"], p["trait_long_iron_raw"],
-            p["data_depth"], p["course_debut"], p["gate_flags"]
-        )
-        p["strength_tags"] = strength
-        p["weakness_tags"] = weakness
-        p["headline"]      = build_headline(strength, weakness)
-        p["win_case"]      = build_win_case(
-            p["player"], p["app_true"], p["delta_fit"],
-            p["ott_true"], strength, weakness
-        )
-        p["anti_pattern_flags"] = p["gate_flags"]
-
-        # Live fields + narrative injection
-        p["player_name"] = p["player"]
-        if args.live == "r1":
-            # r1_sg keys are "First Last" (from SG CSV); field names are "Last, First"
-            norm_fl = normalize_name(lastname_first_to_first_last(p["player"]))
-            sg_info = live_r1_sg.get(norm_fl, {})
-            wave    = p.get("_r2_wave", "")
-            p["live_vts"]   = p.get("_live_vts", vts)
-            p["r2_wave"]    = wave
-            p["r2_teetime"] = p.get("_r2_teetime", "")
-            if wave and sg_info:
-                narrative = build_live_r1_narrative(
-                    p["player"],
-                    sg_info.get("r1_score", "—"),
-                    sg_info.get("sg_approach", 0.0),
-                    wave,
-                )
-                p["win_case"] = narrative + " " + p["win_case"]
-        p["scouting_report"] = p["win_case"]
-
-    # ── Sort + rank ────────────────────────────────────────────────────────────
-    players_raw.sort(key=lambda p: p["vts_final"], reverse=True)
-    for i, p in enumerate(players_raw, 1):
-        p["rank"] = i
-        p["tier"] = assign_tier(i)
-
-    # ── Canonical output schema (drop private fields) ──────────────────────────
-    _drop = {"_vts_raw", "_nsi_raw", "_prepenalty_raw", "gate_flags", "course_debut",
-             "_d_approach", "_d_long_iron", "_d_ott", "_d_ch", "_d_form",
-             "_d_par5", "_d_drv_acc", "_d_drv_dist", "_d_putt", "_d_composure",
-             "_live_vts", "_r2_wave", "_r2_teetime"}
-
-    _first = [
-        "rank", "player", "player_name", "player_id", "dg_id", "tier",
-        "vts_final", "live_vts",
-        "neutralSkillIndex",
-        "sg_base_composite", "sg_similar_composite", "delta_fit", "data_depth",
-        "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
-        "win_prob", "top_5_prob", "top_10_prob", "top_20_prob",
-        "make_cut_prob", "miss_cut_prob",
-        "prepenalty_vts", "vts_floor", "vts_ceil", "std_dev",
-        "l5_array", "strength_tags", "weakness_tags", "headline", "win_case",
-        "scouting_report",
-        "trait_scores", "archetype_tags", "anti_pattern_flags",
-        "app_true", "ott_true", "ch_adjustment", "true_sg_l20",
-        "trait_approach_raw", "trait_long_iron_raw",
-        "r2_wave", "r2_teetime",
-        "identity_provenance",
-    ]
-
-    def reorder(p: dict) -> dict:
-        p = dict(p)
-        p["identity_provenance"] = p.pop("_identity_provenance")
-        out: dict = {}
-        for k in _first:
-            if k in p:
-                out[k] = p[k]
-        for k, v in p.items():
-            if k not in out and k not in _drop:
-                out[k] = v
-        return out
-
-    ordered = [reorder(p) for p in players_raw]
+    ordered_records = finalize_canonical_official_records(
+        players_raw,
+        live_mode=args.live,
+        live_tee_times=live_tee_times,
+        live_r1_sg=live_r1_sg,
+    )
 
     # ── Write outputs (only after identity validation succeeded above) ─────────
     _live_suffix = {"r1": "rd1", "r2": "rd2", "r3": "rd3", "r4": "rd4"}
@@ -1141,11 +1238,18 @@ def main() -> None:
 
     payload = {
         "schemaVersion": schema_ver,
+        "formulaMetadata": {
+            key: CANONICAL_FORMULA_METADATA[key]
+            for key in (
+                "formula_id", "formula_version", "scoring_spec_version",
+                "comparable_score_family", "penalty_gate_set_id",
+            )
+        },
         "generatedAt":   datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "event":         "2026 3M Open",
         "venue":         "TPC Twin Cities",
-        "fieldSize":     len(ordered),
-        "players":       ordered,
+        "fieldSize":     len(ordered_records),
+        "players":       ordered_records,
     }
     json_str = json.dumps(payload, indent=2)
 
@@ -1158,15 +1262,15 @@ def main() -> None:
     deploy_path.write_text(json_str, encoding="utf-8")
     output_path.write_text(json_str, encoding="utf-8")
 
-    print(f"[enrich_cards] Done — {len(ordered)} players written")
+    print(f"[enrich_cards] Done — {len(ordered_records)} players written")
     print(f"  Deploy : {deploy_path}")
     print(f"  Output : {output_path}")
 
-    debuts  = sum(1 for p in ordered if p["data_depth"] == "DEBUT")
-    bombers = sum(1 for p in ordered if "INACCURATE_BOMBER" in (p["anti_pattern_flags"] or []))
-    sgdeps  = sum(1 for p in ordered if "SHORT_GAME_RELIANT" in (p["anti_pattern_flags"] or []))
+    debuts  = sum(1 for p in ordered_records if p["data_depth"] == "DEBUT")
+    bombers = sum(1 for p in ordered_records if "INACCURATE_BOMBER" in (p["anti_pattern_flags"] or []))
+    sgdeps  = sum(1 for p in ordered_records if "SHORT_GAME_RELIANT" in (p["anti_pattern_flags"] or []))
     print(f"  DEBUT:{debuts}  Bomber gates:{bombers}  SG-Reliant gates:{sgdeps}")
-    print(f"  Top 5: {', '.join(p['player'] for p in ordered[:5])}")
+    print(f"  Top 5: {', '.join(p['player'] for p in ordered_records[:5])}")
 
 
 if __name__ == "__main__":

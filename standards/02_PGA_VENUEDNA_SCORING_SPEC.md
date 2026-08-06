@@ -1,8 +1,8 @@
 # 02 — PGA VenueDNA Scoring Specification
 
 **Version:** 2.0-draft
-**Status:** Canonical target doctrine — not implemented in the root producer
-**Target formula:** `venuedna_dual_vector_decomposed` v2.0.0; `engine/enrich_cards.py` remains a historical divergent 3M-specific implementation
+**Status:** Canonical doctrine — implemented by the reusable root producer through `engine/venuedna_scoring.py`
+**Formula:** `venuedna_dual_vector_decomposed` v2.0.0; historical 3M arithmetic remains diagnostic-only
 
 <!-- scoring-doctrine-v2
 formula_id=venuedna_dual_vector_decomposed
@@ -17,17 +17,17 @@ excluded_legacy_noncore_addends=trait_approach_raw,trait_long_iron_raw,ott_true,
 
 ## 1. OVERVIEW
 
-Formula v2.0.0 defines the canonical pre-penalty score from separately represented NeutralSkill, VenueFitDelta, and VenueHistoryDelta layers. It does not authorize a direct trait block. The root producer has not yet been migrated; its historical 3M output remains valid only as a production-parity record.
+Formula v2.0.0 defines the canonical pre-penalty score from separately represented NeutralSkill, VenueFitDelta, and VenueHistoryDelta layers. It does not authorize a direct trait block. The reusable root producer derives official output from canonical `PostGateRaw`; archived historical 3M output remains a production-parity record only.
 
 The dual-vector source layer computes per-horizon SG vectors by:
 1. Computing per-horizon SG vectors from All Courses and Similar Courses CSVs
 2. Applying sample-weight regression to suppress thin venue samples
 3. Blending across three time horizons with decoupled decay weights
 4. Z-score scaling to a fixed normal (mean=50, std=15, clamped [0,100])
-5. Producing downstream field-normalized projections and probability vectors only after a separately authorized producer migration implements this doctrine
-6. Deriving Make Cut probability and enforcing monotonicity in that producer
+5. Producing downstream field-normalized projections and probability vectors from the scored field's canonical `PostGateRaw`
+6. Deriving Make Cut probability and enforcing monotonicity in the reusable root producer
 
-This document is the authoritative canonical target doctrine. It does not authorize production implementation. `engine/enrich_cards.py` remains a historical divergent 3M-specific implementation; a reusable-engine migration requires separate operator authorization after this doctrine package is committed and a migration task is explicitly scoped.
+This document is the authoritative canonical doctrine. The separately scoped, operator-authorized Phase 3 migration makes `engine/enrich_cards.py` the reusable root producer for v2.0.0 official scoring. It does not authorize event initialization, historical-artifact rewriting, deploy, database, or payload-contract migration.
 
 ---
 
@@ -165,7 +165,7 @@ VenueDNA_final_projection =
     approved within-event normalization of PostGateRaw
 ```
 
-Formula v2.0.0 currently declares `penalty_gate_set_id: venuedna_v2_none`; `PostPenaltyRaw` and `PostGateRaw` are therefore identity transformations. A future formula version may activate a penalty or gate set only after the applicable evidence threshold, Model Council approval, and separate operator authorization; it must then declare its versioned `penalty_gate_set_id` and penalty/gate application order. Penalties and gates do not alter the definitions of NeutralSkillRaw, VenueFitDeltaRaw, or VenueHistoryDeltaRaw. This doctrine does not assert that the historical 3M producer implements this sequence.
+Formula v2.0.0 currently declares `penalty_gate_set_id: venuedna_v2_none`; `PostPenaltyRaw` and `PostGateRaw` are therefore identity transformations. A future formula version may activate a penalty or gate set only after the applicable evidence threshold, Model Council approval, and separate operator authorization; it must then declare its versioned `penalty_gate_set_id` and penalty/gate application order. Penalties and gates do not alter the definitions of NeutralSkillRaw, VenueFitDeltaRaw, or VenueHistoryDeltaRaw. This doctrine does not assert that archived historical 3M artifacts implement this sequence.
 
 ### 7.4 Component authority
 
@@ -187,7 +187,9 @@ The five named production addends are visible diagnostic evidence in the legacy 
 - Missing values must not be represented as legitimate numeric zero.
 - With two valid NeutralSkill horizons, omit the missing horizon and renormalize within NeutralSkill; with fewer than two, the player is `UNSCORED`.
 - A valid similar-course row with zero rounds is `DEBUT`, produces `VenueFitDeltaRaw = 0.0`, and has `THIN` venue-fit confidence.
+- VenueFitDelta has a fixed three-horizon formula. Incomplete VenueFit evidence is non-computable and is not weight-renormalized.
 - Missing raw venue-history data remains missing and produces `THIN` venue-history confidence; the canonical `VenueHistoryDeltaRaw = 0.0` is an explicit neutral contribution pending an approved bounded transform, not conversion of raw-source missingness into observed zero data.
+- Venue-history confidence is `THIN` below eight relevant starts or when that structured evidence is absent; the neutral-zero contribution is not high-confidence evidence.
 - Missing optional trait data does not redistribute weight into other layers.
 - Missing mandatory gate evidence produces an `UNKNOWN` gate evaluation.
 
@@ -197,13 +199,21 @@ Confidence is separately represented for `neutral_skill`, `venue_fit`, `venue_hi
 
 ### 7.7 Production implementation divergence
 
-`engine/enrich_cards.py` remains a historical divergent 3M-specific implementation. It currently adds `trait_approach_raw`, `trait_long_iron_raw`, `ott_true`, `ch_adjustment`, and `true_sg_l20` to its raw score. That arithmetic remains unchanged by this specification update. Formula v2.0.0 is the approved canonical target doctrine for a possible later reusable-engine migration; this specification does not authorize that migration.
+`engine/enrich_cards.py` is the canonical v2.0.0 reusable root producer. Its official raw score, normalization, rank, tier, and probability vectors derive from canonical `PostGateRaw`. Historical 3M formulas remain diagnostic-only in explicitly historical helpers and archived parity records; the five legacy noncore addends and historical 3M gates do not affect official output.
 
-The hardcoded 3M behavior is not a doctrine blocker, is a Wyndham initialization blocker, and remains an implementation blocker until a separately authorized migration is completed. No event, artifact, payload, database, deploy, or scoring migration is authorized by this specification.
+Wyndham initialization remains blocked. No event, artifact, payload, database, deploy, or Wyndham migration occurred in this Phase 3 work. Historical artifacts remain historical and are not relabeled as v2-conforming.
 
 ### 7.8 Cross-event comparability and historical records
 
 `VenueDNA_final_projection` is field-normalized and directly comparable only within an event. The cross-event comparable family is `dual_vector_sg_per_round_v2`, not field-normalized VTS. Archived 3M enriched and Open v3 artifacts remain valid historical event records but are not cross-event VTS benchmarks.
+
+### 7.9 Reusable root-producer implementation status (2026-08-04 addendum)
+
+A pure, I/O-free implementation of formula v2.0.0 exists at `engine/venuedna_scoring.py`. It computes `NeutralSkillRaw`, `VenueFitDeltaRaw`, `VenueHistoryDeltaRaw`, the §7.5 missing-data and `UNSCORED`/`DEBUT` rules, the §7.6 decomposed confidence bands, and the §8-§11 normalization, probability, and tier math, independent of any event, venue, or the historical 3M pathway. It has no dependency on `engine/enrich_cards.py` or `engine/identity_resolver.py` and performs no file, event, deploy, or database I/O.
+
+The producer calls this implementation for each resolved player. Official score, rank, tier, and probability vectors derive from its `PostGateRaw`; the producer emits the canonical decomposition, decomposed confidence, scoring status, `formula_id`, `formula_version`, `scoring_spec_version`, `comparable_score_family`, `penalty_gate_set_id`, `penalties_applied`, and `gates_applied`. Under `venuedna_v2_none`, the last two values are known empty arrays, not missing configuration. `UNSCORED` is a status: its official score, rank, tier, and probabilities are null and excluded from scored-field pools.
+
+This is a producer implementation alignment to existing canonical contracts, not a new artifact-schema or data-contract version migration. Prospective root-producer payload semantics now carry canonical v2 metadata and decomposition; no previously generated or archived payload was rewritten. Future event output must carry this canonical v2 metadata and decomposition. No event, deploy, database, archived-artifact, active-event, canonical-schema-file, or Wyndham migration occurred; historical 3M helpers and records remain diagnostic or archival context only.
 
 ---
 
@@ -296,7 +306,7 @@ T5: ranks 41+
 
 ## 13. BOARD EXPORT SCHEMA
 
-The example below is the protected historical 3M export shape. It is not evidence that its producer conforms to formula v2.0.0; no payload migration is authorized by this specification update.
+The example below is the protected historical 3M export shape. It is not evidence that its archived producer conformed to formula v2.0.0. The root producer's prospective canonical-v2 field emission aligns implementation with the existing canonical contracts; it does not rewrite historical payloads or create an artifact-schema or data-contract version migration.
 
 `deploy/data/board_export.json` envelope:
 ```json
@@ -357,14 +367,15 @@ DG fields must never be used to derive official ranks. If VenueDNA and DG disagr
 
 ## 15. VERIFICATION
 
-For the historical root producer, after running `engine/enrich_cards.py --event {slug}`:
+For the reusable root producer, validate canonical-v2 behavior without creating an event artifact:
 
 ```
-pytest tests/test_enrich_cards.py   # 27 pure-function tests must pass
-node --check events/{slug}/deploy/app.js  # JS syntax must be clean
+python -m pytest -q tests/test_enrich_cards.py
+python -m pytest -q tests/test_venuedna_scoring.py
+python tools/validate_scoring_doctrine.py --strict
 ```
 
-This validates legacy production parity only. Formula-v2.0.0 implementation validation requires a later authorized reusable-producer migration. Legacy output validation:
+The producer-level runtime tests must execute `engine/enrich_cards.py::main()` and prove canonical `PostGateRaw` feeds official score, rank, tier, and probability output. The static doctrine validator separately checks the approved structural dataflow and must not be treated as runtime proof. Historical diagnostics may be validated separately, but do not define official v2 output. Canonical output validation:
 - Player count must match union of all 6 SG CSVs
 - Rank 1 must have highest vts_final
 - All top20Pct ≥ top10Pct ≥ top5Pct ≥ winPct

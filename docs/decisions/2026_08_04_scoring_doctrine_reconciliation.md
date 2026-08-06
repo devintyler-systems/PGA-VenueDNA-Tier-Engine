@@ -2,11 +2,11 @@
 
 ## Decision
 
-VenueDNA adopts the decomposed dual-vector formula family below as the canonical target doctrine. This is a doctrine decision only: it does not authorize production implementation or a reusable-engine migration, and it does not change production arithmetic in this task. A later migration requires separate operator authorization after this doctrine package is committed and a migration task is explicitly scoped.
+VenueDNA adopts the decomposed dual-vector formula family below as canonical doctrine. The separately scoped, operator-authorized Phase 3 migration now applies v2.0.0 in the reusable root producer; official score, rank, tier, and probabilities derive from canonical `PostGateRaw`.
 
 ## Context
 
-The root `engine/enrich_cards.py` producer is an event-hardcoded 3M implementation whose raw score combines `SG_Sim_Comp` with five additional weighted addends. The score-decomposition audit established exact parity for that historical behavior and identified it as nonconforming to the intended decomposed doctrine. The active-event manifest is `NO_ACTIVE_EVENT`; no event, deploy, archive, or data artifact is in scope.
+The root producer historically contained an event-hardcoded 3M path whose raw score combined `SG_Sim_Comp` with five additional weighted addends. The score-decomposition audit established exact parity for that historical behavior and identified it as nonconforming to the intended decomposed doctrine. The active-event manifest is `NO_ACTIVE_EVENT`; no event, deploy, archive, or data artifact is in scope.
 
 ## Authorities reviewed
 
@@ -51,7 +51,7 @@ PostGateRaw = result after applying authorized gates to PostPenaltyRaw
 VenueDNA_final_projection = approved within-event normalization of PostGateRaw
 ```
 
-Formula v2.0.0 currently declares `penalty_gate_set_id: venuedna_v2_none`; its post-penalty and post-gate layers are identity transformations. This is the canonical identity penalty/gate set, not the historical production configuration. A future formula version may activate a set only after the applicable evidence threshold, Model Council approval, and separate operator authorization; it must declare its versioned identifier and penalty/gate order. These layers do not redefine NeutralSkillRaw, VenueFitDeltaRaw, or assert current 3M production conformance.
+Formula v2.0.0 currently declares `penalty_gate_set_id: venuedna_v2_none`; its post-penalty and post-gate layers are identity transformations. This is the canonical identity penalty/gate set, not the historical production configuration. A future formula version may activate a set only after the applicable evidence threshold, Model Council approval, and separate operator authorization; it must declare its versioned identifier and penalty/gate order. These layers do not redefine NeutralSkillRaw or VenueFitDeltaRaw, and they do not retroactively assert archived 3M artifact conformance.
 
 ## Formula/version metadata
 
@@ -77,16 +77,16 @@ penalty_gate_set_id: venuedna_v2_none
 
 ## Production divergence
 
-`engine/enrich_cards.py` remains a historical divergent 3M-specific implementation. Its current inline gate behavior is separate historical behavior, not `venuedna_v2_none`. Its current arithmetic, scores, ranks, tiers, probabilities, gates, artifacts, deploy behavior, and historical records are unchanged by this decision. Formula v2.0.0 is the canonical target doctrine for a possible later reusable-engine migration; this decision does not authorize that migration.
+`engine/enrich_cards.py` is the canonical v2.0.0 reusable root producer. Its official arithmetic uses only NeutralSkill, VenueFitDelta, and neutral VenueHistoryDelta, with the v2 identity penalty/gate set. Historical inline 3M gates and five-addend arithmetic remain explicitly historical diagnostics only and do not affect official scores, ranks, tiers, or probabilities.
 
-Diagnostic metadata now records, without changing arithmetic, the canonical v2 core-input set, the five legacy noncore addends, and structured production-divergence reason codes. The current producer has a different formula identity, adds the five legacy components, does not expose the canonical three-layer formula, is 3M-specific, and has not migrated to v2.0.0.
+Diagnostic metadata records the canonical v2 core-input set and the five legacy noncore addends. The historical helpers retain their distinct identity for archival parity; official producer metadata identifies formula v2.0.0 and the governing scoring-spec version, carries the canonical decomposition and decomposed confidence, and emits known empty `penalties_applied` and `gates_applied` arrays for `venuedna_v2_none`.
 
-The hardcoded 3M behavior is:
+Historical 3M behavior is:
 
 ```text
-not a doctrine blocker
-a Wyndham initialization blocker
-an implementation blocker after doctrine approval
+diagnostic-only
+not an official producer input
+not a relabeling of archived artifacts
 ```
 
 ## Trait concentration rules
@@ -125,20 +125,24 @@ Rocket Classic one-event observations are inactive provisional hypotheses only. 
 
 ## Wyndham prerequisites
 
-Do not initialize Wyndham from the hardcoded 3M producer. Wyndham initialization remains blocked. Only a separately authorized migration task may implement formula v2.0.0 in a reusable root producer; it must preserve the declared missing-data and confidence behavior and validate score, rank, tier, probability, gate, artifact, deploy, and event-state effects before any event initialization.
+Wyndham initialization remains blocked. Phase 3 does not initialize an event or create event/deploy artifacts. Any future initialization must preserve declared missing-data and confidence behavior and validate score, rank, tier, probability, gate, artifact, deploy, and event-state effects.
 
 ## Deferred issues
 
 1. Implement a bounded VenueHistoryDelta transform with separate approval and evidence threshold.
 2. Define and validate any direct trait-weight submodel, including its normalized cap and birdie-race putting/ARG floor.
-3. Migrate the root producer from its 3M-specific arithmetic to formula v2.0.0.
-4. Add approved confidence metadata to payloads and artifacts without conflating it with raw score.
-5. Establish cross-event validation on the comparable SG-per-round family rather than field-normalized VTS.
+3. Establish cross-event validation on the comparable SG-per-round family rather than field-normalized VTS.
 
 ## Council findings
 
-The five unresolved audit findings remain recorded as distinct implementation and validation work: formula reconciliation, coupled-trait concentration, putting/ARG treatment, reusable-engine migration, and source-confidence representation. This decision resolves their doctrine direction only; it does not authorize arithmetic, artifact, payload, deploy, archive, or event changes.
+The remaining audit findings cover coupled-trait concentration, putting/ARG treatment, source-confidence representation, and cross-event validation. Phase 3 resolves reusable-root-producer migration only; it does not authorize an event, deploy, database, artifact-contract, archive, or historical-output migration.
 
 ## Approval status
 
-Formula v2.0.0 is approved as canonical target doctrine only. No event, artifact, payload, database, deploy, scoring, or reusable-engine migration is authorized by this package. Operator approval for a separately scoped subsequent engine migration is **pending**.
+Formula v2.0.0 is approved as canonical doctrine and is implemented in the reusable root producer. This is a producer implementation alignment to existing canonical contracts, not an artifact-schema or data-contract version migration: prospective producer payload semantics now use canonical v2 metadata and decomposition, while no previously generated or archived payload was rewritten. No event initialization, historical-artifact relabeling, database, deploy, active-event, canonical-schema-file, or Wyndham migration is authorized by this package.
+
+## 2026-08-04 implementation-status addendum
+
+Operator authorized a separately scoped Phase 3 migration task (branch `migration/canonical-v2-root-producer`, governing SHA `e4e2d6e42f1c8650a9f8f776db738707fb3739eb`) to implement formula v2.0.0 as a pure, reusable reference module at `engine/venuedna_scoring.py` and wire it into `engine/enrich_cards.py::main()`. The scorer performs no file, event, deploy, or database I/O; the producer preserves identity resolution and constructs canonical inputs before field-level output.
+
+Official output now derives from canonical `PostGateRaw`, including normalized score, rank, tier, win/top-N probabilities, and make/miss-cut probabilities. The producer emits canonical decomposition, decomposed confidence, scoring status, formula metadata, and known canonical penalty/gate arrays. Historical formulas remain diagnostic-only; archived 3M and Open artifacts are not retroactively called v2 artifacts. No event initialization, event/deploy artifact, database, deploy, active-event, canonical-schema-file, or Wyndham migration occurred; this is not a new artifact-schema or data-contract version migration, and Wyndham initialization remains blocked.
