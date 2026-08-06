@@ -446,9 +446,9 @@ All three must be `True` for a player to be ELIGIBLE. UNSCORED players (`data_de
 
 ---
 
-## 9. SOURCE MANIFEST CONTRACT (schema_version 1.0) — Phase 4.1, CONTRACT ONLY
+## 9. SOURCE MANIFEST CONTRACT (schema_version 1.0) — Phase 4.1 contract, Phase 4.2 narrow producer integration
 
-**Status: defined here, not yet implemented.** No parser, resolver, producer change, event package, or artifact exists for this schema as of this section's authoring. `engine/enrich_cards.py` continues to read event input files by hardcoded physical filename (`ALL_COURSES_FILES`, `SIM_COURSES_FILES`, `tpc_twin_cities_CH.csv`, etc.) exactly as before. This section defines the target contract a future, separately-authorized phase may implement; it changes no current producer behavior, payload shape, `schemaVersion`, deploy filename, formula metadata, rank, tier, probability, penalty, gate, or scoring rule. The physical input-file references in `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §2 remain accurate, current documentation of what `engine/enrich_cards.py` actually reads today; nothing in this section implies that any current producer reads a `source_manifest.json` file. Reconciling this contract with either pre-existing use of the term "source_manifest" (below) happens only inside a separately authorized resolver-migration decision — not here.
+**Status: contract canonical since Phase 4.1; a narrow, event-neutral producer integration is implemented as of Phase 4.2.** The resolver/validator at `engine/source_manifest_resolver.py` (Phase 4.2, standalone, no event/producer dependency) and its integration into `engine/enrich_cards.py`'s path-binding step (also Phase 4.2) both exist. After `EventContext` validation and the existing capability gate (`require_supported_context()`, still scoped to `2026_3m_open` / `tpc_twin_cities`, unchanged by this integration) succeed, `engine/enrich_cards.py` reads and JSON-decodes a `source_manifest.json` at the active event's own `input/` root (§9.2), resolves it via `resolve_source_manifest()`, and binds every one of the thirteen required logical source roles (§9.5) to its manifest-declared physical path — never a hardcoded physical filename (`ALL_COURSES_FILES`, `SIM_COURSES_FILES`, `tpc_twin_cities_CH.csv`, etc., which remain defined only as historical/illustrative reference, per `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §2A) and never a filename inferred, constructed, or guessed from `event_slug`/`venue_slug`. A missing manifest, unreadable manifest, invalid JSON, non-object JSON root, or any resolver blocker fails release before any source file is opened, before identity resolution, before scoring, and before output/deploy directory creation or any write. This integration changes no payload shape, `schemaVersion`, deploy filename, formula metadata, rank, tier, probability, penalty, gate, or scoring rule; creates no real `source_manifest.json` instance under any event directory (synthetic instances exist only inside `tests/test_enrich_cards.py`'s `tmp_path` fixtures); and does not generalize this producer to another event or venue — the capability gate above still fails a mismatched event/venue before source-manifest lookup is ever attempted. The physical input-file references in `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §2 remain accurate, current documentation of the historical export shape. Reconciling this contract with either pre-existing use of the term "source_manifest" (below) remains a separately authorized, still-deferred decision — not resolved by this integration.
 
 **Naming note — do not confuse with two pre-existing, unrelated uses of "source_manifest":**
 1. This document's own §3D lists a `"source_manifest": {}` key inside the aspirational `{slug}_event_payload.json` *output* shape. That key, if ever implemented, is an output-side summary embedded in the payload. It is not this schema and is not required to have this shape.
@@ -460,13 +460,13 @@ Reconciling either of those with this schema is an explicitly deferred, separate
 
 A `source_manifest` maps event-neutral **logical source roles** (what the scoring pipeline needs) to **physical event input files** (what a specific event's DataGolf/manual export happens to be named). Physical filenames are event-specific and historically accreted ad hoc (`pga_sg_query_3Mopen_similar_l6.csv`, `tpc_twin_cities_CH.csv`); logical roles are not. A source manifest is the seam a future producer would read instead of a hardcoded filename dict, without requiring every event's exports to share one venue's naming convention.
 
-### 9.2 Location (proposed, not yet authorized)
+### 9.2 Location (approved default; no instance authorized)
 
 ```text
 events/{event_slug}/input/source_manifest.json
 ```
 
-No file of this name may be created under any real `events/` directory as part of defining this contract. Creation of an actual manifest instance is a separate, explicitly authorized step.
+This is the sole location `engine/enrich_cards.py` reads after Phase 4.2's integration — derived directly from `EventContext.event_root / "input"`, with no `config/active_event.json` pointer field, no CLI argument, and no fallback location. No file of this name may be created under any real `events/` directory by this contract or by the Phase 4.2 integration. Creation of an actual manifest instance for a real event remains a separate, explicitly authorized step.
 
 ### 9.3 Top-level shape
 

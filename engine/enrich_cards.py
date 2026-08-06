@@ -52,18 +52,29 @@ from venuedna_scoring import (  # noqa: E402
     compute_probability_vectors as canonical_compute_probability_vectors,
     z_score_scale as canonical_z_score_scale,
 )
+from source_manifest_resolver import (  # noqa: E402
+    SourceManifestContext,
+    SourceManifestResolution,
+    resolve_source_manifest,
+)
 
 # ── §1  Constants ──────────────────────────────────────────────────────────────
 
 # Temporary capability gate (see require_supported_context() call in main()):
-# SIM_COURSES_FILES below and the tpc_twin_cities_CH.csv loader, plus the
-# narrative copy in build_headline()/build_win_case(), remain hardcoded to
-# this one event/venue pending a separately authorized venue-generalization
-# migration. Do not run this producer's remaining logic for another event or
-# venue by editing these two constants alone.
+# the narrative copy in build_headline()/build_win_case() and the venue
+# trait weights below remain hardcoded to this one event/venue pending a
+# separately authorized venue-generalization migration. Do not run this
+# producer's remaining logic for another event or venue by editing these
+# two constants alone.
 SUPPORTED_EVENT_SLUG = "2026_3m_open"
 SUPPORTED_VENUE_SLUG = "tpc_twin_cities"
 
+# Historical/illustrative reference only (standards/04 §9.5's illustrative
+# 2026_3m_open mapping table). Since the source-manifest migration below,
+# main() binds every physical source path through resolve_source_manifest()
+# and never reads these dicts for production path construction -- they are
+# retained only as a documentation cross-reference for engine/
+# scoring_decomposition.py's own historical-pathway commentary.
 ALL_COURSES_FILES = {
     "6m":  "pga_sg_query_allcourses_l6.csv",
     "12m": "pga_sg_query_allcourses_l12.csv",
@@ -1042,6 +1053,26 @@ def finalize_canonical_official_records(
 
 # ── §10  Main Pipeline ─────────────────────────────────────────────────────────
 
+def _resolved_source_path(
+    resolution: SourceManifestResolution, input_root: Path, role: str,
+) -> Path:
+    """Physical path for one logical source role, per the validated
+    source_manifest.json resolution -- never a hardcoded legacy filename and
+    never constructed from event_slug or venue_slug. When the manifest
+    declares no usable source for ``role`` (an optional role's absence is
+    already reported as a resolver finding, not necessarily a release
+    blocker), this returns a guaranteed-nonexistent placeholder path under
+    the event's own input root so the existing loader's own
+    ``path.exists()`` check reports the source as missing -- exactly as it
+    already does for a literal missing file -- never a fallback to a real
+    hardcoded filename.
+    """
+    resolved = resolution.resolved_sources.get(role)
+    if resolved is not None:
+        return resolved.resolved_path
+    return input_root / f".unresolved_source_manifest_role__{role.replace('.', '_')}"
+
+
 def main(*, _context: EventContext | None = None, _live_mode: str | None = None) -> None:
     """Production entry point.
 
@@ -1080,6 +1111,50 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
             sys.exit(1)
         live_mode = None
 
+    # ── Source-manifest resolution (standards/04 §9) ────────────────────────
+    #
+    # Applies to both the production CLI path and the internal test-
+    # injection seam above, since both set `context` before reaching here.
+    # After EventContext validation and the capability gate succeed, a
+    # validated source_manifest.json at the event's own input root is the
+    # sole, authoritative physical-path lookup mechanism for every one of
+    # the thirteen logical source roles -- no config pointer, no CLI flag,
+    # no fallback location, and no hardcoded-filename rescue. A missing
+    # manifest, unreadable manifest, invalid JSON, non-object JSON root, or
+    # any resolver blocker fails release before any source file is opened,
+    # before identity resolution, before scoring, and before output/deploy
+    # directory creation or any write.
+    manifest_path = context.event_root / "input" / "source_manifest.json"
+    try:
+        manifest_text = manifest_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        print(f"[enrich_cards] ERROR — source_manifest.json could not be read "
+              f"at {manifest_path}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    try:
+        manifest_obj = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        print(f"[enrich_cards] ERROR — source_manifest.json is not valid JSON "
+              f"at {manifest_path}: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    manifest_context = SourceManifestContext(
+        event_slug=context.event_slug,
+        venue_slug=context.venue_slug,
+        event_root=context.event_root,
+        repo_root=_ROOT,
+    )
+    manifest_resolution = resolve_source_manifest(manifest_obj, context=manifest_context)
+    if manifest_resolution.is_release_blocked:
+        print("[enrich_cards] SOURCE MANIFEST RELEASE BLOCKED", file=sys.stderr)
+        for finding in manifest_resolution.blockers:
+            print(f"[enrich_cards] BLOCKER [{finding.code}] {finding.role or '-'}: "
+                  f"{finding.message}", file=sys.stderr)
+        sys.exit(1)
+    for finding in manifest_resolution.warnings:
+        print(f"[enrich_cards] WARNING [{finding.code}] {finding.role or '-'}: "
+              f"{finding.message}", file=sys.stderr)
+
     event_slug = context.event_slug
     event_name = context.event_name
     venue_name = context.venue_name
@@ -1092,20 +1167,32 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
     # ── Load all source files ──────────────────────────────────────────────────
     print("[enrich_cards] Loading source files…")
 
-    field_rows = load_field_rows(input_dir / "pga_field.csv")
+    field_rows = load_field_rows(_resolved_source_path(manifest_resolution, input_dir, "field"))
     if not field_rows:
-        print("[enrich_cards] ERROR — pga_field.csv missing or empty", file=sys.stderr)
+        print("[enrich_cards] ERROR — field roster is empty or unresolved", file=sys.stderr)
         sys.exit(1)
 
-    all_sg = {h: load_sg_csv(input_dir / f) for h, f in ALL_COURSES_FILES.items()}
-    sim_sg = {h: load_sg_csv(input_dir / f) for h, f in SIM_COURSES_FILES.items()}
+    all_sg = {
+        h: load_sg_csv(_resolved_source_path(manifest_resolution, input_dir, f"neutral_skill.sg_total.{h}"))
+        for h in ("6m", "12m", "24m")
+    }
+    sim_sg = {
+        h: load_sg_csv(_resolved_source_path(manifest_resolution, input_dir, f"venue_fit.similar_sg.{h}"))
+        for h in ("6m", "12m", "24m")
+    }
 
-    app_skill_data = load_app_skill(input_dir / "app_skill_l12_sg.csv")
-    app_prox_data  = load_app_prox(input_dir  / "app_skill_l12_prox.csv")
-    perf_data      = load_performance(input_dir / "dg_performance_2026.csv")
-    decomp_data    = load_decomp(input_dir    / "dg_decomposition.csv")
-    ch_data        = load_ch(input_dir        / "tpc_twin_cities_CH.csv")
-    trending_data  = load_trending(input_dir  / "pga_field_trending_table.csv")
+    app_skill_data = load_app_skill(_resolved_source_path(
+        manifest_resolution, input_dir, "traits.approach.sg_per_shot.12m"))
+    app_prox_data  = load_app_prox(_resolved_source_path(
+        manifest_resolution, input_dir, "traits.approach.proximity.12m"))
+    perf_data      = load_performance(_resolved_source_path(
+        manifest_resolution, input_dir, "performance.sg_categories.season"))
+    decomp_data    = load_decomp(_resolved_source_path(
+        manifest_resolution, input_dir, "benchmark.decomposition"))
+    ch_data        = load_ch(_resolved_source_path(
+        manifest_resolution, input_dir, "venue_history"))
+    trending_data  = load_trending(_resolved_source_path(
+        manifest_resolution, input_dir, "recent_form.trending"))
 
     # ── Identity resolution (ID-first; fuzzy is diagnostic-only) ────────────────
     print("[enrich_cards] Resolving player identity…")

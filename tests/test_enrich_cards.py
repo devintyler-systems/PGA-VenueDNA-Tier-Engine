@@ -1,5 +1,6 @@
 """Tests for engine/enrich_cards.py — pure-function coverage."""
 import csv
+import hashlib
 import json
 import math
 import sys
@@ -30,6 +31,12 @@ from identity_resolver import SourceRow
 from identity_resolver import normalize_name as _canonical_normalize_name
 from venuedna_scoring import SimilarCourseRow
 from event_context import EventContext
+from source_manifest_resolver import (
+    ROLE_MISSING_BEHAVIOR,
+    ROLE_REQUIRED,
+    REQUIRED_ROLES,
+    SIMILAR_SG_HORIZON_MONTHS,
+)
 
 
 def test_normalize_name_strips_quotes():
@@ -273,6 +280,111 @@ def test_make_cut_prob_midrange():
     assert make_cut_prob(50.0) == pytest.approx(72.5)
 
 
+# ── Synthetic source_manifest.json helpers (Phase 4.2 producer integration) ─
+#
+# These build a schema-1.0 source_manifest.json for a synthetic event tree,
+# reusing the resolver's own ROLE_REQUIRED/ROLE_MISSING_BEHAVIOR/
+# SIMILAR_SG_HORIZON_MONTHS tables so the manifest's required/missing_behavior
+# combinations can never silently drift from standards/04 §9.5A. sha256 and
+# row_count default to null (not_asserted) so tests that overwrite a
+# declared file's content after the manifest is written -- a common existing
+# fixture pattern -- never trip an unintended integrity mismatch; only the
+# tests that specifically exercise integrity validation supply real values.
+
+DEFAULT_MANIFEST_ROLE_FILES: dict[str, str] = {
+    "field": "pga_field.csv",
+    "neutral_skill.sg_total.6m": "pga_sg_query_allcourses_l6.csv",
+    "neutral_skill.sg_total.12m": "pga_sg_query_allcourses_l12.csv",
+    "neutral_skill.sg_total.24m": "pga_sg_query_allcourses_l24.csv",
+    "venue_fit.similar_sg.6m": "pga_sg_query_3Mopen_similar_l6.csv",
+    "venue_fit.similar_sg.12m": "pga_sg_query_3Mopen_similar_l12.csv",
+    "venue_fit.similar_sg.24m": "pga_sg_query_3Mopen_similar_l24.csv",
+    "traits.approach.sg_per_shot.12m": "app_skill_l12_sg.csv",
+    "traits.approach.proximity.12m": "app_skill_l12_prox.csv",
+    "performance.sg_categories.season": "dg_performance_2026.csv",
+    "benchmark.decomposition": "dg_decomposition.csv",
+    "venue_history": "tpc_twin_cities_CH.csv",
+    "recent_form.trending": "pga_field_trending_table.csv",
+}
+
+
+def _sha256_of(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _row_count_of(path: Path, encoding: str = "utf-8") -> int:
+    lines = path.read_text(encoding=encoding).splitlines()
+    return max(0, len(lines) - 1)
+
+
+def _manifest_source_entry(
+    role: str, filename: str, *, venue_slug: str,
+    sha256: str | None = None, row_count: int | None = None,
+) -> dict:
+    entry = {
+        "role": role,
+        "path": filename,
+        "required": ROLE_REQUIRED[role],
+        "missing_behavior": ROLE_MISSING_BEHAVIOR[role],
+        "schema_id": f"venuedna.source.synthetic.{role}.v1",
+        "identity_key": "player_name",
+        "encoding": "utf-8",
+        "sha256": sha256,
+        "row_count": row_count,
+        "metadata": {},
+    }
+    if role in SIMILAR_SG_HORIZON_MONTHS:
+        entry["metadata"] = {
+            "similar_course_set_id": "synthetic_similar_v1",
+            "set_version": 1,
+            "set_provenance": "synthetic_test_fixture",
+            "horizon_months": SIMILAR_SG_HORIZON_MONTHS[role],
+        }
+    elif role == "venue_history":
+        entry["metadata"] = {"venue_slug": venue_slug}
+    return entry
+
+
+def write_synthetic_source_manifest(
+    input_dir: Path, *, event_slug: str, venue_slug: str,
+    role_files: dict[str, str] | None = None,
+    omit_roles: tuple[str, ...] = (),
+    integrity_overrides: dict[str, dict] | None = None,
+) -> None:
+    """Writes a schema-1.0 source_manifest.json into a synthetic event's
+    input/ directory, declaring every one of the thirteen required roles by
+    default (pointing at the same legacy-compatible filenames existing
+    fixtures already write), so pre-existing tests need no rewriting.
+    ``role_files`` overrides the declared filename per role (for arbitrary-
+    filename tests); ``omit_roles`` drops a role from ``sources`` entirely
+    (for missing-source tests); ``integrity_overrides`` supplies
+    ``{role: {"sha256": ..., "row_count": ...}}`` for tests that specifically
+    exercise integrity validation.
+    """
+    role_files = role_files if role_files is not None else DEFAULT_MANIFEST_ROLE_FILES
+    integrity_overrides = integrity_overrides or {}
+    sources = []
+    for role in REQUIRED_ROLES:
+        if role in omit_roles:
+            continue
+        filename = role_files.get(role)
+        if filename is None:
+            continue
+        overrides = integrity_overrides.get(role, {})
+        sources.append(_manifest_source_entry(
+            role, filename, venue_slug=venue_slug,
+            sha256=overrides.get("sha256"), row_count=overrides.get("row_count"),
+        ))
+    manifest = {
+        "schema_version": "1.0",
+        "event_slug": event_slug,
+        "venue_slug": venue_slug,
+        "as_of": "2026-01-01T00:00:00Z",
+        "sources": sources,
+    }
+    (input_dir / "source_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+
 # ── Identity integration (synthetic temporary events only) ─────────────────
 
 class SyntheticEvent:
@@ -285,9 +397,11 @@ class SyntheticEvent:
         "pga_sg_query_3Mopen_similar_l12.csv", "pga_sg_query_3Mopen_similar_l24.csv",
     ]
 
-    def __init__(self, tmp_path: Path, event_slug: str = "synthetic_event") -> None:
+    def __init__(self, tmp_path: Path, event_slug: str = "synthetic_event",
+                 venue_slug: str = "synthetic_test_venue") -> None:
         self.root = tmp_path
         self.event_slug = event_slug
+        self.venue_slug = venue_slug
         self.input_dir = tmp_path / "events" / event_slug / "input"
         self.input_dir.mkdir(parents=True)
 
@@ -297,7 +411,12 @@ class SyntheticEvent:
             w.writerow(header)
             w.writerows(rows)
 
-    def write_all(self, field_rows: list[tuple[str, str]]) -> None:
+    def write_source_manifest(self, **kwargs) -> None:
+        kwargs.setdefault("event_slug", self.event_slug)
+        kwargs.setdefault("venue_slug", self.venue_slug)
+        write_synthetic_source_manifest(self.input_dir, **kwargs)
+
+    def write_all(self, field_rows: list[tuple[str, str]], *, write_manifest: bool = True) -> None:
         """field_rows: list of (player_name, dg_id) tuples."""
         self._write("pga_field.csv", ["player_name", "dg_id"], [list(r) for r in field_rows])
         names = [r[0] for r in field_rows]
@@ -336,6 +455,8 @@ class SyntheticEvent:
             ["player_name", "dg_id", "true_sg_l20", "l5_starts"],
             [[n, dg_id, "0.2", ""] for n, dg_id in field_rows],
         )
+        if write_manifest:
+            self.write_source_manifest()
 
 
 def _make_context(tmp_path, event_slug, *, venue_slug="synthetic_test_venue",
@@ -567,6 +688,7 @@ def test_golden_score_parity_for_unchanged_identity_mappings(tmp_path, monkeypat
     # other family above exercises exact_name fallback for a name-only source.
     ev._write("pga_field_trending_table.csv", ["player_name", "dg_id", "true_sg_l20", "l5_starts"],
               [["Doe, John", "100", "0.0", ""], ["Smith, Sam", "200", "0.0", ""]])
+    ev.write_source_manifest()
 
     _run_main(monkeypatch, tmp_path, event.event_slug)
     payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
@@ -687,6 +809,7 @@ def test_combine_raw_score_extraction_matches_pipeline_prepenalty_vts(tmp_path, 
               [["Doe, John", "0.0", "0.0"], ["Smith, Sam", "0.0", "0.0"]])
     ev._write("pga_field_trending_table.csv", ["player_name", "dg_id", "true_sg_l20", "l5_starts"],
               [["Doe, John", "100", "0.0", ""], ["Smith, Sam", "200", "0.0", ""]])
+    ev.write_source_manifest()
 
     _run_main(monkeypatch, tmp_path, event.event_slug)
     payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
@@ -1256,7 +1379,7 @@ def test_valid_manifest_derives_paths_and_metadata(tmp_path, monkeypatch):
     from the manifest itself -- not from a hardcoded literal."""
     manifest = _write_manifest(tmp_path)
     event_slug = manifest["event_slug"]
-    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug=manifest["venue_slug"])
     event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
 
     _run_main_from_manifest(monkeypatch, tmp_path)
@@ -1279,7 +1402,7 @@ def test_existing_output_unchanged_after_context_validation_failure(tmp_path, mo
     same bytes, same mtime, for both the output and deploy copies."""
     manifest = _write_manifest(tmp_path)
     event_slug = manifest["event_slug"]
-    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug=manifest["venue_slug"])
     event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
     _run_main_from_manifest(monkeypatch, tmp_path)
 
@@ -1310,15 +1433,19 @@ def test_wyndham_like_manifest_fails_before_any_3m_or_tpc_input_read(
     """A valid-shaped PRE_EVENT manifest for a completely different event
     and venue must be rejected by the capability gate before any 3M-named
     similar-course reader or TPC course-history reader is invoked, and must
-    create no output or deploy artifact."""
+    create no output or deploy artifact. No source_manifest.json is written
+    at all for this event -- proving the capability gate fails before the
+    producer ever attempts to locate or parse a source manifest, since the
+    failure is the gate's own message, not a manifest-not-found error."""
     event_slug = "2026_wyndham_championship"
     venue_slug = "sedgefield_country_club"
     _write_manifest(
         tmp_path, event_slug=event_slug, venue_slug=venue_slug,
         event_name="Wyndham Championship", venue_name="Sedgefield Country Club",
     )
-    event = SyntheticEvent(tmp_path, event_slug=event_slug)
-    event.write_all([("Doe, John", "100")])
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    assert not (event.input_dir / "source_manifest.json").exists()
 
     monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
     monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
@@ -1330,6 +1457,7 @@ def test_wyndham_like_manifest_fails_before_any_3m_or_tpc_input_read(
     assert exc_info.value.code != 0
     captured = capsys.readouterr()
     assert "Unsupported event/venue" in captured.err
+    assert "source_manifest" not in captured.err
     assert reader_spies["load_sg_csv"].calls == 0   # 3M-named similar-course reader
     assert reader_spies["load_ch"].calls == 0        # TPC course-history reader
     assert all(counter.calls == 0 for counter in reader_spies.values())
@@ -1371,7 +1499,7 @@ def test_supported_event_venue_reaches_worker_via_internal_seam_without_cli(
     assert not (tmp_path / "config" / "active_event.json").exists()
     event_slug = enrich_cards.SUPPORTED_EVENT_SLUG
     venue_slug = enrich_cards.SUPPORTED_VENUE_SLUG
-    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
     event.write_all([("Doe, John", "100")])
     context = _make_context(tmp_path, event_slug, venue_slug=venue_slug)
     _run_main(monkeypatch, tmp_path, event_slug, context=context)
@@ -1404,3 +1532,333 @@ def test_payload_shape_unchanged(tmp_path, monkeypatch):
         "schemaVersion", "formulaMetadata", "generatedAt", "event", "venue",
         "fieldSize", "players",
     }
+
+
+# ── Source-manifest producer integration (Phase 4.2) ────────────────────────
+#
+# Proves engine/enrich_cards.py binds all thirteen logical source roles
+# through a validated source_manifest.json (never a hardcoded physical
+# filename or a filename constructed from event_slug/venue_slug), blocks
+# release before any load or write on a manifest defect, and preserves
+# standards/02 §7.5 missing-data doctrine when a manifest declares a role
+# absent. Synthetic tmp_path trees only -- never a real event or archive.
+
+ARBITRARY_ROLE_FILES: dict[str, str] = {
+    "field": "roster_export.csv",
+    "neutral_skill.sg_total.6m": "skill_baseline_6.csv",
+    "neutral_skill.sg_total.12m": "skill_baseline_12.csv",
+    "neutral_skill.sg_total.24m": "skill_baseline_24.csv",
+    "venue_fit.similar_sg.6m": "venue_comp_6.csv",
+    "venue_fit.similar_sg.12m": "venue_comp_12.csv",
+    "venue_fit.similar_sg.24m": "venue_comp_24.csv",
+    "traits.approach.sg_per_shot.12m": "approach_detail.csv",
+    "traits.approach.proximity.12m": "approach_proximity.csv",
+    "performance.sg_categories.season": "season_performance.csv",
+    "benchmark.decomposition": "benchmark_export.csv",
+    "venue_history": "history_export.csv",
+    "recent_form.trending": "trend_export.csv",
+}
+
+
+def _write_arbitrary_named_event(event: "SyntheticEvent", names: list[tuple[str, str]]) -> None:
+    """Writes the same thirteen-role content SyntheticEvent.write_all()
+    would, but under ARBITRARY_ROLE_FILES's non-legacy filenames -- proving
+    role binding, not filename convention, is what the producer depends on."""
+    player_names = [n for n, _ in names]
+    event._write(ARBITRARY_ROLE_FILES["field"], ["player_name", "dg_id"], [list(r) for r in names])
+    for role in ("neutral_skill.sg_total.6m", "neutral_skill.sg_total.12m", "neutral_skill.sg_total.24m",
+                 "venue_fit.similar_sg.6m", "venue_fit.similar_sg.12m", "venue_fit.similar_sg.24m"):
+        event._write(
+            ARBITRARY_ROLE_FILES[role], ["player_name", "rounds_played", "total_mean"],
+            [[n, "10", "1.0"] for n in player_names],
+        )
+    event._write(
+        ARBITRARY_ROLE_FILES["traits.approach.sg_per_shot.12m"],
+        ["stat", "player_name", "50_100_fw_value", "100_150_fw_value",
+         "150_200_fw_value", "over_200_fw_value"],
+        [["SG Per Shot", n, "0.1", "0.1", "0.1", "0.1"] for n in player_names],
+    )
+    event._write(
+        ARBITRARY_ROLE_FILES["traits.approach.proximity.12m"],
+        ["stat", "player_name", "150_200_fw_value"],
+        [["Proximity (ft)", n, "28"] for n in player_names],
+    )
+    event._write(
+        ARBITRARY_ROLE_FILES["performance.sg_categories.season"],
+        ["player_name", "putt_true", "arg_true", "app_true", "ott_true"],
+        [[n, "0.1", "0.1", "0.3", "0.2"] for n in player_names],
+    )
+    event._write(
+        ARBITRARY_ROLE_FILES["benchmark.decomposition"],
+        ["player_name", "driving_acc_adj", "driving_dist_adj", "std_dev"],
+        [[n, "0.0", "0.0", "3.0"] for n in player_names],
+    )
+    event._write(
+        ARBITRARY_ROLE_FILES["venue_history"],
+        ["player_name", "ch_adjustment", "experience_adjustment"],
+        [[n, "0.05", "0.0"] for n in player_names],
+    )
+    event._write(
+        ARBITRARY_ROLE_FILES["recent_form.trending"],
+        ["player_name", "dg_id", "true_sg_l20", "l5_starts"],
+        [[n, dg_id, "0.2", ""] for n, dg_id in names],
+    )
+    event.write_source_manifest(role_files=ARBITRARY_ROLE_FILES)
+
+
+# ── 1. Manifest path binding ────────────────────────────────────────────────
+
+def test_manifest_binds_all_thirteen_roles_with_arbitrary_non_legacy_filenames(
+    tmp_path, monkeypatch,
+):
+    """A manifest declaring wholly non-3M/non-TPC filenames for all thirteen
+    roles succeeds end-to-end, and none of the legacy filenames exist on
+    disk at all -- proving the producer never needs them once a manifest is
+    present."""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_arbitrary_filenames")
+    names = [("Doe, John", "100"), ("Smith, Sam", "200")]
+    _write_arbitrary_named_event(event, names)
+
+    for legacy_name in DEFAULT_MANIFEST_ROLE_FILES.values():
+        assert not (event.input_dir / legacy_name).exists()
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    assert payload["fieldSize"] == 2
+    players = {p["player"]: p for p in payload["players"]}
+    assert players["Doe, John"]["dg_id"] == "100"
+    assert players["Doe, John"]["scoring_status"] == "SCORED"
+    assert players["Smith, Sam"]["scoring_status"] == "SCORED"
+
+
+# ── 2. No implicit fallback ─────────────────────────────────────────────────
+
+def test_manifest_omitted_field_role_blocks_before_any_load_or_write_and_legacy_file_does_not_rescue(
+    tmp_path, monkeypatch, capsys,
+):
+    event = SyntheticEvent(tmp_path, event_slug="manifest_missing_field_role")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    # Legacy pga_field.csv exists on disk, but the manifest omits the
+    # `field` role entirely -- it must never be rescued by the legacy
+    # file's mere presence.
+    assert (event.input_dir / "pga_field.csv").exists()
+    event.write_source_manifest(omit_roles=("field",))
+    reader_spies = _spy_event_bound_readers(monkeypatch)
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "SOURCE MANIFEST RELEASE BLOCKED" in captured.err
+    assert all(counter.calls == 0 for counter in reader_spies.values())
+    assert not (tmp_path / "events" / event.event_slug / "output").exists()
+    assert not (tmp_path / "events" / event.event_slug / "deploy").exists()
+
+
+def test_manifest_path_safety_violation_on_optional_role_blocks_release(
+    tmp_path, monkeypatch,
+):
+    """A path-safety violation (traversal) on an *optional* role still
+    blocks release -- path-safety findings are never downgraded by a
+    role's own non-blocking missing_behavior."""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_path_traversal")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    overrides = dict(DEFAULT_MANIFEST_ROLE_FILES)
+    overrides["benchmark.decomposition"] = "../outside_input_root.csv"
+    event.write_source_manifest(role_files=overrides)
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event.event_slug)
+    assert exc_info.value.code != 0
+    assert not _output_path(tmp_path, event.event_slug).exists()
+    assert not _deploy_path(tmp_path, event.event_slug).exists()
+
+
+def test_manifest_with_explicit_legacy_filename_remains_valid(tmp_path, monkeypatch):
+    """A manifest that explicitly declares a legacy 3M/TPC-shaped filename
+    (rather than an arbitrary one) is fully valid when that file exists --
+    the no-fallback rule forbids implicit rescue, not explicit legacy
+    declaration."""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_explicit_legacy")
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    assert payload["fieldSize"] == 2
+
+
+# ── 3. Block-before-side-effects ordering ───────────────────────────────────
+
+def test_missing_source_manifest_file_blocks_before_dirs_or_artifacts(tmp_path, monkeypatch, capsys):
+    event = SyntheticEvent(tmp_path, event_slug="manifest_file_missing")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    assert not (event.input_dir / "source_manifest.json").exists()
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "source_manifest.json could not be read" in captured.err
+    assert not (tmp_path / "events" / event.event_slug / "output").exists()
+    assert not (tmp_path / "events" / event.event_slug / "deploy").exists()
+
+
+def test_malformed_source_manifest_json_blocks_before_dirs_or_artifacts(tmp_path, monkeypatch, capsys):
+    event = SyntheticEvent(tmp_path, event_slug="manifest_malformed_json")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    (event.input_dir / "source_manifest.json").write_text("{not valid json", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "not valid JSON" in captured.err
+    assert not (tmp_path / "events" / event.event_slug / "output").exists()
+    assert not (tmp_path / "events" / event.event_slug / "deploy").exists()
+
+
+def test_manifest_sha256_mismatch_blocks_before_any_output_or_deploy_artifact(tmp_path, monkeypatch, capsys):
+    event = SyntheticEvent(tmp_path, event_slug="manifest_sha256_mismatch")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    event.write_source_manifest(integrity_overrides={"field": {"sha256": "0" * 64}})
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "SOURCE MANIFEST RELEASE BLOCKED" in captured.err
+    assert not (tmp_path / "events" / event.event_slug / "output").exists()
+    assert not (tmp_path / "events" / event.event_slug / "deploy").exists()
+
+
+def test_manifest_row_count_mismatch_blocks_before_any_output_or_deploy_artifact(tmp_path, monkeypatch, capsys):
+    event = SyntheticEvent(tmp_path, event_slug="manifest_row_count_mismatch")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    event.write_source_manifest(integrity_overrides={"field": {"row_count": 999}})
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "SOURCE MANIFEST RELEASE BLOCKED" in captured.err
+    assert not (tmp_path / "events" / event.event_slug / "output").exists()
+    assert not (tmp_path / "events" / event.event_slug / "deploy").exists()
+
+
+def test_manifest_with_correct_integrity_assertions_succeeds(tmp_path, monkeypatch):
+    """A non-null, correctly-computed sha256/row_count assertion is
+    ``verified`` and must never block -- only a genuine mismatch does."""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_integrity_verified")
+    event.write_all([("Doe, John", "100")], write_manifest=False)
+    field_path = event.input_dir / "pga_field.csv"
+    event.write_source_manifest(integrity_overrides={
+        "field": {"sha256": _sha256_of(field_path), "row_count": _row_count_of(field_path)},
+    })
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    assert _output_path(tmp_path, event.event_slug).exists()
+
+
+# ── 4. Missing-data behavior (standards/02 §7.5) ────────────────────────────
+
+def test_manifest_omitted_neutral_skill_horizon_preserves_two_horizon_renormalization(
+    tmp_path, monkeypatch,
+):
+    """Omitting the 6m NeutralSkill role from the manifest -- even though a
+    6m file with wildly different content exists on disk under its legacy
+    name -- must never be read; NeutralSkillRaw must still be computed as
+    the renormalized average of the remaining two valid horizons per
+    standards/02 §7.5, never treated as observed zero and never leaking in
+    the unread 99.0 value. (The omitted 6m role also removes VenueFit's
+    required 6m base horizon, so the overall player becomes UNSCORED via
+    VenueFit's own separate non-renormalization rule -- §7.5 explicitly
+    keeps these two outcomes independent: NeutralSkillRaw is still returned
+    as a real, correctly-renormalized value even when the player's overall
+    status is UNSCORED for an unrelated reason.)"""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_neutral_skill_horizon_missing")
+    event.write_all([("Renorm, Rae", "100")], write_manifest=False)
+    event._write(
+        "pga_sg_query_allcourses_l6.csv", ["player_name", "rounds_played", "total_mean"],
+        [["Renorm, Rae", "20", "99.0"]],
+    )
+    event.write_source_manifest(omit_roles=("neutral_skill.sg_total.6m",))
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    player = payload["players"][0]
+    assert player["neutral_skill_raw"] == pytest.approx(1.0)
+    assert player["confidence_by_source"]["neutral_skill"] == "THIN"
+    assert player["scoring_status"] == "UNSCORED"
+    assert player["venue_fit_delta_raw"] is None
+
+
+def test_manifest_omitted_venue_fit_horizon_yields_non_computable_and_unscored(
+    tmp_path, monkeypatch,
+):
+    """Omitting one of the three venue_fit.similar_sg horizons makes
+    VenueFitDeltaRaw non-computable (never renormalized across the
+    remaining two) per standards/02 §7.5 -- the whole player becomes
+    UNSCORED even though every NeutralSkill horizon is present and valid."""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_venue_fit_horizon_missing")
+    event.write_all([("Incomplete, Ivy", "100")], write_manifest=False)
+    event.write_source_manifest(omit_roles=("venue_fit.similar_sg.6m",))
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    player = payload["players"][0]
+    assert player["scoring_status"] == "UNSCORED"
+    assert player["venue_fit_delta_raw"] is None
+    assert player["neutral_skill_raw"] == pytest.approx(1.0)
+    assert player["vts_final"] is None
+    assert player["rank"] is None
+
+
+def test_manifest_omitted_venue_history_role_does_not_alter_venue_history_delta_semantics(
+    tmp_path, monkeypatch,
+):
+    """Omitting the optional venue_history role must not fabricate observed
+    venue-history evidence: venue_history_delta_raw remains the same
+    doctrine-neutral 0.0 and venue_history confidence remains THIN, exactly
+    as it already is when the role's file is present (main() does not wire
+    CH rows into VenueHistoryEvidence -- that remains separate, out-of-
+    scope technical debt for this task, per the task's own instruction)."""
+    event = SyntheticEvent(tmp_path, event_slug="manifest_venue_history_missing")
+    event.write_all([("NoHistory, Ned", "100")], write_manifest=False)
+    event.write_source_manifest(omit_roles=("venue_history",))
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    player = payload["players"][0]
+    assert player["scoring_status"] == "SCORED"
+    assert player["venue_history_delta_raw"] == 0.0
+    assert player["confidence_by_source"]["venue_history"] == "THIN"
+
+
+# ── 5. Compatibility and preservation ───────────────────────────────────────
+
+def test_manifest_driven_build_preserves_canonical_formula_metadata_and_payload_shape(
+    tmp_path, monkeypatch,
+):
+    event = SyntheticEvent(tmp_path, event_slug="manifest_compat_check")
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    assert payload["schemaVersion"] == "3m-enriched-v2.0"
+    assert payload["formulaMetadata"] == {
+        "formula_id": "venuedna_dual_vector_decomposed",
+        "formula_version": "2.0.0",
+        "scoring_spec_version": "2.0-draft",
+        "comparable_score_family": "dual_vector_sg_per_round_v2",
+        "penalty_gate_set_id": "venuedna_v2_none",
+    }
+    assert set(payload.keys()) == {
+        "schemaVersion", "formulaMetadata", "generatedAt", "event", "venue",
+        "fieldSize", "players",
+    }
+    p = payload["players"][0]
+    assert "identity_provenance" in p
+    assert p["dg_id"] == p["player_id"]

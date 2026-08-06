@@ -53,6 +53,10 @@ pga_sg_query_{slug}_similar_l24.csv — Similar Courses, last 24 months
 
 Missing `total_mean` is missing data, not numeric `0.0`. Valid numeric zero remains a valid measurement.
 
+### 2A. Source-manifest path binding (Phase 4.2 implementation)
+
+The filenames listed above remain current, accurate documentation of what the historical, event-hardcoded 3M Open export shape looks like — they are legacy-producer/export documentation, not a naming convention any current or future event must follow. Following the narrow, event-neutral resolver/validator contract defined in `standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md` §9 (schema `source_manifest` v1.0) and the approved resolver at `engine/source_manifest_resolver.py`, `engine/enrich_cards.py` now binds every physical source path — including these six SG-horizon files, the field roster, and every other one of the thirteen required logical source roles — through a validated `source_manifest.json` at the active event's own `input/` root, after `EventContext` validation and the existing capability gate succeed. Physical filenames remain arbitrary and are never inferred, constructed, or guessed from `event_slug` or `venue_slug`; the manifest's own declared `path` per role is the sole authority. This is a path-binding mechanism change only. It does not alter the formula, composite weights, §7.5 missing-data doctrine, tiers, probabilities, penalties, gates, benchmark isolation (§14), or any other scoring rule in this document, and it does not imply this producer is generalized to another venue — see `engine/event_context.py`'s `require_supported_context()` capability gate, which remains unchanged and still scopes this producer to `2026_3m_open` / `tpc_twin_cities` only.
+
 ---
 
 ## 3. NAME NORMALIZATION
