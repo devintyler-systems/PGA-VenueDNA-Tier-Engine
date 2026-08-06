@@ -35,6 +35,8 @@ FIXTURE_FILES = (
     "standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md",
     "standards/05_PGA_VENUEDNA_MODEL_COUNCIL_GOVERNANCE.md",
     "engine/scoring_decomposition.py",
+    "engine/venuedna_scoring.py",
+    "engine/enrich_cards.py",
     "config/active_event.json",
 )
 
@@ -88,6 +90,12 @@ def _rule_ids(repo: Path, *, strict: bool = False) -> set[str]:
 
 def _errors(repo: Path, *, strict: bool = False):
     return [f for f in _findings(repo, strict=strict) if f.severity == "error"]
+
+
+def _assert_alias_finding(repo: Path, rule_id: str, alias_name: str) -> None:
+    finding = next(finding for finding in _findings(repo) if finding.rule_id == rule_id)
+    assert "protected alias" in finding.reason
+    assert alias_name in finding.reason
 
 
 def test_current_repository_success() -> None:
@@ -357,14 +365,14 @@ def test_missing_operator_authorization(doctrine_repo: Path) -> None:
     assert "GOV_ROCKET_OPERATOR_AUTHORIZATION" in _rule_ids(doctrine_repo)
 
 
-def test_migration_implicitly_authorized(doctrine_repo: Path) -> None:
+def test_canonical_producer_migration_status_regression(doctrine_repo: Path) -> None:
     _replace(
         doctrine_repo,
         FIXTURE_FILES[0],
-        "this specification does not authorize that migration",
-        "this specification authorizes that migration",
+        "Historical 3M formulas remain diagnostic-only",
+        "Historical 3M formulas remain official",
     )
-    assert "GOV_MIGRATION_SEPARATE_AUTHORIZATION" in _rule_ids(doctrine_repo)
+    assert "GOV_PRODUCER_MIGRATION_STATUS" in _rule_ids(doctrine_repo)
 
 
 def test_historical_rewrite_allowed(doctrine_repo: Path) -> None:
@@ -381,8 +389,8 @@ def test_wyndham_block_removed(doctrine_repo: Path) -> None:
     _replace(
         doctrine_repo,
         FIXTURE_FILES[0],
-        "is a Wyndham initialization blocker",
-        "is not a Wyndham initialization blocker",
+        "Wyndham initialization remains blocked",
+        "Wyndham initialization is allowed",
     )
     assert "GOV_WYNDHAM_BLOCK" in _rule_ids(doctrine_repo)
 
@@ -450,6 +458,730 @@ def test_no_production_module_imports() -> None:
     assert "engine.enrich_cards" not in imported
     assert "scoring_decomposition" not in imported
     assert "enrich_cards" not in imported
+    assert "engine.venuedna_scoring" not in imported
+    assert "venuedna_scoring" not in imported
+
+
+# ── Canonical v2 pure-implementation metadata drift (P3 migration) ─────────
+
+def test_v2_implementation_formula_version_drift_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/venuedna_scoring.py",
+        'FORMULA_VERSION = "2.0.0"',
+        'FORMULA_VERSION = "9.9.9"',
+    )
+    assert "V2IMPL_FORMULA_VERSION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_implementation_formula_id_drift_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/venuedna_scoring.py",
+        'FORMULA_ID = "venuedna_dual_vector_decomposed"',
+        'FORMULA_ID = "some_other_formula"',
+    )
+    assert "V2IMPL_FORMULA_ID" in _rule_ids(doctrine_repo)
+
+
+def test_v2_implementation_scoring_spec_version_drift_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/venuedna_scoring.py",
+        'SCORING_SPEC_VERSION = "2.0-draft"',
+        'SCORING_SPEC_VERSION = "9.9-draft"',
+    )
+    assert "V2IMPL_SCORING_SPEC_VERSION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_implementation_legacy_addend_reentering_core_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/venuedna_scoring.py",
+        'CORE_INPUTS: tuple[str, ...] = ("SG_Base_Comp", "Delta_Fit_Comp", "VenueHistoryDeltaRaw")',
+        'CORE_INPUTS: tuple[str, ...] = ("SG_Base_Comp", "Delta_Fit_Comp", "VenueHistoryDeltaRaw", "trait_approach_raw")',
+    )
+    assert "V2IMPL_COMPONENT_OVERLAP" in _rule_ids(doctrine_repo)
+
+
+def test_v2_implementation_unapproved_active_gate_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/venuedna_scoring.py",
+        "ACTIVE_GATE_IDS: tuple[str, ...] = ()",
+        'ACTIVE_GATE_IDS: tuple[str, ...] = ("SOME_NEW_GATE",)',
+    )
+    assert "V2IMPL_ACTIVE_GATES" in _rule_ids(doctrine_repo)
+
+
+def test_v2_implementation_unapproved_active_penalty_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/venuedna_scoring.py",
+        "ACTIVE_PENALTY_IDS: tuple[str, ...] = ()",
+        'ACTIVE_PENALTY_IDS: tuple[str, ...] = ("SOME_NEW_PENALTY",)',
+    )
+    assert "V2IMPL_ACTIVE_PENALTIES" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_missing_canonical_scorer_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "projection = compute_player_projection(",
+        "projection = legacy_projection(",
+    )
+    assert "V2PROD_CANONICAL_SCORER" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_unused_projection_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '"_post_gate_raw":       projection.post_gate_raw,',
+        '"_post_gate_raw":       sg_sim_comp,',
+    )
+    assert "V2PROD_POST_GATE_LINEAGE" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_legacy_raw_pool_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'canonical_raw_scores = [record["post_gate_raw"] for record in scored_players]',
+        'canonical_raw_scores = [record["_d_form"] for record in scored_players]',
+    )
+    assert "V2PROD_FINALIZER_RAW_POOL" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_legacy_normalization_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "normalized_scores = canonical_z_score_scale(canonical_raw_scores)",
+        'normalized_scores = canonical_z_score_scale([record["_d_form"] for record in scored_players])',
+    )
+    assert "V2PROD_FINALIZER_NORMALIZATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_legacy_probability_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "probability_vectors = canonical_compute_probability_vectors(canonical_raw_scores)",
+        'probability_vectors = canonical_compute_probability_vectors([record["_d_form"] for record in scored_players])',
+    )
+    assert "V2PROD_FINALIZER_PROBABILITIES" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_historical_probability_helper_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "probability_vectors = canonical_compute_probability_vectors(canonical_raw_scores)",
+        "probability_vectors = tempered_softmax(canonical_raw_scores, 3.5, 1)",
+    )
+    ids = _rule_ids(doctrine_repo)
+    assert "V2PROD_FINALIZER_PROBABILITIES" in ids
+    assert "V2PROD_LEGACY_PROBABILITIES" in ids
+
+
+def test_v2_producer_integration_official_score_redirect_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '"vts_final": canonical_vts,',
+        '"vts_final": prepared["_d_form"],',
+    )
+    assert "V2PROD_FINALIZER_OFFICIAL_OUTPUT" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_rank_tier_redirect_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'key=lambda record: record["vts_final"],',
+        'key=lambda record: record["_d_form"],',
+    )
+    assert "V2PROD_FINALIZER_SORT" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_later_official_score_overwrite_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'canonical_vts = round(normalized_scores[scored_index], 1)',
+        'canonical_vts = round(normalized_scores[scored_index], 1)\n            canonical_vts = prepared["_d_form"]',
+    )
+    assert "V2PROD_FINALIZER_INTERMEDIATE_REBIND" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_arbitrary_alias_score_overwrite_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'canonical_vts = round(normalized_scores[scored_index], 1)',
+        'canonical_vts = round(normalized_scores[scored_index], 1)\n'
+        '            p["vts_final"] = canonical_vts\n'
+        '            p["vts_final"] = p["_d_form"]',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_update_score_overwrite_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '                **probabilities,\n            }\n        else:',
+        '                **probabilities,\n            }\n'
+        '            record.update({"vts_final": prepared["_d_form"]})\n'
+        '        else:',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_earlier_branch_score_writer_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'canonical_vts = round(normalized_scores[scored_index], 1)',
+        'if prepared["player"] == "legacy":\n'
+        '                canonical_vts = prepared["_d_form"]\n'
+        '            else:\n'
+        '                canonical_vts = round(normalized_scores[scored_index], 1)',
+    )
+    assert "V2PROD_FINALIZER_INTERMEDIATE_REBIND" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_later_probability_overwrite_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'for key, value in probability_vectors[scored_index].items()\n            }',
+        'for key, value in probability_vectors[scored_index].items()\n            }\n'
+        '            probabilities["winPct"] = 0.0',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_probability_mapping_rebind_to_zeroes_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'for key, value in probability_vectors[scored_index].items()\n            }',
+        'for key, value in probability_vectors[scored_index].items()\n            }\n'
+        '            probabilities = {\n'
+        '                key: 0.0\n'
+        '                for key in CANONICAL_PROBABILITY_FIELDS\n'
+        '            }',
+    )
+    assert "V2PROD_PROBABILITY_REBIND" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_probability_mapping_rebind_from_legacy_data_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'for key, value in probability_vectors[scored_index].items()\n            }',
+        'for key, value in probability_vectors[scored_index].items()\n            }\n'
+        '            probabilities = {"winPct": prepared["_d_form"]}',
+    )
+    assert "V2PROD_PROBABILITY_REBIND" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_update_overwrites_each_probability_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'for key, value in probability_vectors[scored_index].items()\n            }',
+        'for key, value in probability_vectors[scored_index].items()\n            }\n'
+        '            probabilities.update({"winPct": 0.0, "top5Pct": 0.0, "top10Pct": 0.0, '
+        '"top20Pct": 0.0, "makeCutPct": 0.0, "missCutPct": 0.0})',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_later_rank_overwrite_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'ordered_records = [reorder_record(record) for record in final_records]',
+        'ordered_records = [reorder_record(record) for record in final_records]\n    final_records.append({})',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_later_tier_overwrite_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '{"rank": rank, **record, "tier": canonical_assign_tier(rank)}',
+        '{"rank": rank, **record, "tier": "T5"}',
+    )
+    assert "V2PROD_FINALIZER_TIER" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_dynamic_update_is_fail_closed(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        'engine/enrich_cards.py',
+        'canonical_vts = round(normalized_scores[scored_index], 1)',
+        'canonical_vts = round(normalized_scores[scored_index], 1)\n            record |= some_mapping',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_second_noncanonical_sort_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        reverse=True,\n    )\n    unscored_records',
+        '        reverse=True,\n    )\n'
+        '    ordered_scored_records.sort(key=lambda record: record["_d_form"], reverse=True)\n'
+        '    unscored_records',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_ordered_record_mutation_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    return ordered_records",
+        '    ordered_records[0]["vts_final"] = legacy_value\n    return ordered_records',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_dictionary_union_update_is_fail_closed(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'canonical_vts = round(normalized_scores[scored_index], 1)',
+        'canonical_vts = round(normalized_scores[scored_index], 1)\n            p |= some_mapping',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_probability_alias_mutation_is_fail_closed(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'for key, value in probability_vectors[scored_index].items()\n            }',
+        'for key, value in probability_vectors[scored_index].items()\n            }\n'
+        '            probs["winPct"] = legacy_value',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_ordered_alias_mutation_is_fail_closed(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    return ordered_records",
+        '    ordered[0]["vts_final"] = legacy_value\n    return ordered_records',
+    )
+    assert "V2PROD_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_mutates_finalizer_return_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "        live_r1_sg=live_r1_sg,\n    )\n\n    # ── Write outputs",
+        '        live_r1_sg=live_r1_sg,\n    )\n'
+        '    ordered_records[0]["vts_final"] = legacy_value\n\n'
+        '    # ── Write outputs',
+    )
+    assert "V2PROD_MAIN_POST_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_rebinds_finalizer_return_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "        live_r1_sg=live_r1_sg,\n    )\n\n    # ── Write outputs",
+        '        live_r1_sg=live_r1_sg,\n    )\n'
+        '    ordered_records = other_records\n\n'
+        '    # ── Write outputs',
+    )
+    assert "V2PROD_MAIN_POST_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_resorts_finalizer_return_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "        live_r1_sg=live_r1_sg,\n    )\n\n    # ── Write outputs",
+        '        live_r1_sg=live_r1_sg,\n    )\n'
+        '    ordered_records.sort(key=lambda record: record["_d_form"], reverse=True)\n\n'
+        '    # ── Write outputs',
+    )
+    assert "V2PROD_MAIN_POST_FINALIZER_MUTATION" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_payload_players_replacement_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        "players":       ordered_records,\n    }\n    json_str = json.dumps(payload, indent=2)',
+        '        "players":       ordered_records,\n    }\n'
+        '    payload["players"] = players_raw\n'
+        '    json_str = json.dumps(payload, indent=2)',
+    )
+    assert "V2PROD_PAYLOAD_PLAYERS_REPLACED" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_payload_players_update_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        "players":       ordered_records,\n    }\n    json_str = json.dumps(payload, indent=2)',
+        '        "players":       ordered_records,\n    }\n'
+        '    payload.update({"players": players_raw})\n'
+        '    json_str = json.dumps(payload, indent=2)',
+    )
+    assert "V2PROD_PAYLOAD_PLAYERS_REPLACED" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_payload_players_union_update_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        "players":       ordered_records,\n    }\n    json_str = json.dumps(payload, indent=2)',
+        '        "players":       ordered_records,\n    }\n'
+        '    payload |= {"players": players_raw}\n'
+        '    json_str = json.dumps(payload, indent=2)',
+    )
+    assert "V2PROD_PAYLOAD_PLAYERS_REPLACED" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_payload_rebind_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        "players":       ordered_records,\n    }\n    json_str = json.dumps(payload, indent=2)',
+        '        "players":       ordered_records,\n    }\n'
+        '    payload = other_payload\n'
+        '    json_str = json.dumps(payload, indent=2)',
+    )
+    assert "V2PROD_PAYLOAD_REBIND" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_noncanonical_payload_serialization_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'json_str = json.dumps(payload, indent=2)',
+        'json_str = json.dumps(other_payload, indent=2)',
+    )
+    assert "V2PROD_MAIN_SERIALIZATION_HANDOFF" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_unknown_ordered_records_mutator_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    return ordered_records",
+        "    ordered_records.scramble()\n    return ordered_records",
+    )
+    assert "V2PROD_UNKNOWN_MUTATOR" in _rule_ids(doctrine_repo)
+
+
+def test_v2_finalizer_unknown_probability_mutator_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        'for key, value in probability_vectors[scored_index].items()\n            }',
+        'for key, value in probability_vectors[scored_index].items()\n            }\n'
+        '            probabilities.scramble()',
+    )
+    assert "V2PROD_UNKNOWN_MUTATOR" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_unknown_payload_mutator_is_rejected(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        "players":       ordered_records,\n    }\n    json_str = json.dumps(payload, indent=2)',
+        '        "players":       ordered_records,\n    }\n'
+        '    payload.scramble()\n'
+        '    json_str = json.dumps(payload, indent=2)',
+    )
+    assert "V2PROD_UNKNOWN_MUTATOR" in _rule_ids(doctrine_repo)
+
+
+def test_v2_main_unknown_payload_player_collection_mutator_is_rejected(
+    doctrine_repo: Path,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        '        "players":       ordered_records,\n    }\n    json_str = json.dumps(payload, indent=2)',
+        '        "players":       ordered_records,\n    }\n'
+        '    payload["players"].scramble()\n'
+        '    json_str = json.dumps(payload, indent=2)',
+    )
+    assert "V2PROD_UNKNOWN_MUTATOR" in _rule_ids(doctrine_repo)
+
+
+@pytest.mark.parametrize(
+    ("snippet", "rule_id", "alias_name"),
+    (
+        ("    ordered_alias = ordered_records\n    ordered_alias.clear()", "V2PROD_PROTECTED_ALIAS_MUTATION", "ordered_alias"),
+        ("    alias_1 = ordered_records\n    alias_2 = alias_1\n    alias_2.reverse()", "V2PROD_PROTECTED_ALIAS_MUTATION", "alias_2"),
+        ("    ordered_alias = ordered_records\n    ordered_alias.scramble()", "V2PROD_PROTECTED_ALIAS_MUTATION", "ordered_alias"),
+        ("    ordered_alias = ordered_records\n    ordered_alias = []", "V2PROD_PROTECTED_ALIAS_REBIND", "ordered_alias"),
+    ),
+    ids=("clear", "chain_reverse", "unknown_method", "rebind"),
+)
+def test_v2_protected_ordered_records_aliases_are_rejected(
+    doctrine_repo: Path, snippet: str, rule_id: str, alias_name: str,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    return ordered_records",
+        snippet + "\n    return ordered_records",
+    )
+    _assert_alias_finding(doctrine_repo, rule_id, alias_name)
+
+
+@pytest.mark.parametrize(
+    ("snippet", "rule_id", "alias_name"),
+    (
+        ("    payload_alias = payload\n    payload_alias.update({\"players\": players_raw})", "V2PROD_PROTECTED_ALIAS_MUTATION", "payload_alias"),
+        ("    payload_alias = payload\n    payload_alias[\"players\"] = players_raw", "V2PROD_PROTECTED_ALIAS_MUTATION", "payload_alias"),
+        ("    payload_alias = payload\n    payload_alias |= {\"players\": players_raw}", "V2PROD_PROTECTED_ALIAS_MUTATION", "payload_alias"),
+        ("    payload_alias = payload\n    payload_alias.clear()", "V2PROD_PROTECTED_ALIAS_MUTATION", "payload_alias"),
+        ("    payload_alias = payload\n    payload_alias.scramble()", "V2PROD_PROTECTED_ALIAS_MUTATION", "payload_alias"),
+        ("    payload_alias = payload\n    payload_alias = other_payload", "V2PROD_PROTECTED_ALIAS_REBIND", "payload_alias"),
+    ),
+    ids=("update", "subscript", "union", "clear", "unknown_method", "rebind"),
+)
+def test_v2_protected_payload_aliases_are_rejected(
+    doctrine_repo: Path, snippet: str, rule_id: str, alias_name: str,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    json_str = json.dumps(payload, indent=2)",
+        snippet + "\n    json_str = json.dumps(payload, indent=2)",
+    )
+    _assert_alias_finding(doctrine_repo, rule_id, alias_name)
+
+
+@pytest.mark.parametrize(
+    ("snippet", "rule_id", "alias_name"),
+    (
+        ("    players_alias = payload[\"players\"]\n    players_alias.clear()", "V2PROD_PROTECTED_ALIAS_MUTATION", "players_alias"),
+        ("    players_alias = payload[\"players\"]\n    players_alias.append(noncanonical_record)", "V2PROD_PROTECTED_ALIAS_MUTATION", "players_alias"),
+        ("    players_alias_1 = payload[\"players\"]\n    players_alias_2 = players_alias_1\n    players_alias_2.reverse()", "V2PROD_PROTECTED_ALIAS_MUTATION", "players_alias_2"),
+        ("    players_alias = payload[\"players\"]\n    players_alias.scramble()", "V2PROD_PROTECTED_ALIAS_MUTATION", "players_alias"),
+        ("    players_alias = payload[\"players\"]\n    players_alias = players_raw", "V2PROD_PROTECTED_ALIAS_REBIND", "players_alias"),
+    ),
+    ids=("clear", "append", "chain_reverse", "unknown_method", "rebind"),
+)
+def test_v2_protected_payload_players_aliases_are_rejected(
+    doctrine_repo: Path, snippet: str, rule_id: str, alias_name: str,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    json_str = json.dumps(payload, indent=2)",
+        snippet + "\n    json_str = json.dumps(payload, indent=2)",
+    )
+    _assert_alias_finding(doctrine_repo, rule_id, alias_name)
+
+
+@pytest.mark.parametrize(
+    "snippet",
+    (
+        '            probability_alias = probabilities\n            probability_alias["winPct"] = 0.0',
+        '            probability_alias = probabilities\n            probability_alias.update({"winPct": 0.0})',
+        '            probability_alias_1 = probabilities\n            probability_alias_2 = probability_alias_1\n            probability_alias_2.clear()',
+    ),
+    ids=("subscript", "update", "chain_clear"),
+)
+def test_v2_protected_probability_aliases_are_rejected(
+    doctrine_repo: Path, snippet: str,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "            record = {",
+        snippet + "\n            record = {",
+    )
+    _assert_alias_finding(doctrine_repo, "V2PROD_PROTECTED_ALIAS_MUTATION", "probability_alias")
+
+
+def test_v2_read_only_protected_alias_is_allowed(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    json_str = json.dumps(payload, indent=2)",
+        "    payload_alias = payload\n    json_str = json.dumps(payload, indent=2)",
+    )
+    assert not _errors(doctrine_repo)
+
+
+@pytest.mark.parametrize(
+    ("snippet", "rule_id", "alias_name"),
+    (
+        (
+            '    payload_alias = payload\n'
+            '    players_alias = payload_alias["players"]\n'
+            '    players_alias.clear()',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias",
+        ),
+        (
+            '    payload_alias_1 = payload\n'
+            '    payload_alias_2 = payload_alias_1\n'
+            '    players_alias = payload_alias_2["players"]\n'
+            '    players_alias.clear()',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias",
+        ),
+        (
+            '    payload_alias = payload\n'
+            '    players_alias_1 = payload_alias["players"]\n'
+            '    players_alias_2 = players_alias_1\n'
+            '    players_alias_2.reverse()',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias_2",
+        ),
+        (
+            '    payload_alias_1 = payload\n'
+            '    payload_alias_2 = payload_alias_1\n'
+            '    players_alias_1 = payload_alias_2["players"]\n'
+            '    players_alias_2 = players_alias_1\n'
+            '    players_alias_2.clear()',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias_2",
+        ),
+        (
+            '    payload_alias = payload\n'
+            '    players_alias = payload_alias["players"]\n'
+            '    players_alias[0] = noncanonical_record',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias",
+        ),
+        (
+            '    payload_alias = payload\n'
+            '    players_alias = payload_alias["players"]\n'
+            '    players_alias.append(noncanonical_record)',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias",
+        ),
+        (
+            '    payload_alias = payload\n'
+            '    players_alias = payload_alias["players"]\n'
+            '    players_alias += [noncanonical_record]',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias",
+        ),
+        (
+            '    payload_alias = payload\n'
+            '    players_alias = payload_alias["players"]\n'
+            '    players_alias.scramble()',
+            "V2PROD_PROTECTED_ALIAS_MUTATION",
+            "players_alias",
+        ),
+        (
+            '    payload_alias = payload\n'
+            '    players_alias = payload_alias["players"]\n'
+            '    players_alias = players_raw',
+            "V2PROD_PROTECTED_ALIAS_REBIND",
+            "players_alias",
+        ),
+    ),
+    ids=(
+        "direct_clear",
+        "payload_chain_clear",
+        "player_chain_reverse",
+        "combined_chain_clear",
+        "subscript_replace",
+        "append",
+        "augmented_assignment",
+        "unknown_method",
+        "rebind",
+    ),
+)
+def test_v2_derived_payload_player_aliases_are_rejected(
+    doctrine_repo: Path, snippet: str, rule_id: str, alias_name: str,
+) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    json_str = json.dumps(payload, indent=2)",
+        snippet + "\n    json_str = json.dumps(payload, indent=2)",
+    )
+    _assert_alias_finding(doctrine_repo, rule_id, alias_name)
+
+
+def test_v2_read_only_derived_payload_player_alias_is_allowed(doctrine_repo: Path) -> None:
+    _replace(
+        doctrine_repo,
+        "engine/enrich_cards.py",
+        "    json_str = json.dumps(payload, indent=2)",
+        '    payload_alias = payload\n'
+        '    players_alias = payload_alias["players"]\n'
+        "    count = len(players_alias)\n"
+        "    json_str = json.dumps(payload, indent=2)",
+    )
+    assert not _errors(doctrine_repo)
+
+
+def test_v2_finalizer_and_main_handoff_are_approved(doctrine_repo: Path) -> None:
+    assert not _errors(doctrine_repo)
+
+
+def test_v2_producer_integration_precanonical_none_default_is_allowed(doctrine_repo: Path) -> None:
+    assert not _errors(doctrine_repo)
+
+
+def test_v2_producer_integration_unscored_null_defaults_are_allowed(doctrine_repo: Path) -> None:
+    assert not _errors(doctrine_repo)
+
+
+def test_v2_producer_integration_legacy_raw_call_is_rejected(doctrine_repo: Path) -> None:
+    path = _path(doctrine_repo, "engine/enrich_cards.py")
+    text = path.read_text(encoding="utf-8")
+    marker = "    # ── Canonical finalization boundary"
+    assert marker in text
+    path.write_text(
+        text.replace(marker, "    combine_raw_score(1, 1, 1, 1, 1, 1)\n" + marker, 1),
+        encoding="utf-8",
+    )
+    assert "V2PROD_MAIN_SCORING_AUTHORITY" in _rule_ids(doctrine_repo)
+
+
+def test_v2_producer_integration_legacy_gate_call_is_rejected(doctrine_repo: Path) -> None:
+    path = _path(doctrine_repo, "engine/enrich_cards.py")
+    text = path.read_text(encoding="utf-8")
+    marker = "    # ── Canonical finalization boundary"
+    path.write_text(
+        text.replace(marker, "    apply_gates(1, {}, {})\n" + marker, 1),
+        encoding="utf-8",
+    )
+    assert "V2PROD_MAIN_SCORING_AUTHORITY" in _rule_ids(doctrine_repo)
 
 
 def test_no_repository_writes(doctrine_repo: Path) -> None:

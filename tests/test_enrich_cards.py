@@ -17,14 +17,18 @@ from enrich_cards import (
     compute_horizon,
     make_composites,
     combine_raw_score,
+    apply_gates,
     z_score_scale,
     tempered_softmax,
     enforce_monotonicity,
     assign_tier,
     make_cut_prob,
+    adapt_to_v2_neutral_skill_horizons,
+    adapt_to_v2_similar_course_rows,
 )
 from identity_resolver import SourceRow
 from identity_resolver import normalize_name as _canonical_normalize_name
+from venuedna_scoring import SimilarCourseRow
 
 
 def test_normalize_name_strips_quotes():
@@ -85,6 +89,29 @@ def test_load_sg_csv_preserves_duplicate_rows(tmp_path):
     assert [r.source_name for r in result] == ["Doe, John", "Doe, John"]
     assert [r.payload["total_mean"] for r in result] == [2.5, 1.0]
     assert [r.row_number for r in result] == [1, 2]
+
+
+@pytest.mark.parametrize(
+    ("rounds", "total_mean", "expected_rounds", "expected_mean"),
+    (
+        ("", "", None, None),
+        ("null", "none", None, None),
+        ("bad", "not-a-number", None, None),
+        ("0", "0", 0, 0.0),
+        ("0.0", "0.0", 0, 0.0),
+    ),
+)
+def test_load_sg_csv_preserves_missingness_and_valid_zero(
+    tmp_path, rounds, total_mean, expected_rounds, expected_mean
+):
+    csv_file = tmp_path / "test.csv"
+    csv_file.write_text(
+        f'player_name,rounds_played,total_mean\n"Doe, John",{rounds},{total_mean}\n',
+        encoding="utf-8",
+    )
+    row = load_sg_csv(csv_file)[0].payload
+    assert row["rounds"] == expected_rounds
+    assert row["total_mean"] == expected_mean
 
 
 def test_debut_row():
@@ -546,27 +573,40 @@ def test_golden_score_parity_for_unchanged_identity_mappings(tmp_path, monkeypat
     assert doe["anti_pattern_flags"] == ["INACCURATE_BOMBER"]
     assert smith["anti_pattern_flags"] == []
 
-    # ── Z-scored fields: with exactly two nonzero raw values, the z-score
+    # ── Z-scored fields: with exactly two nonzero canonical PostGateRaw values, the z-score
     # formula (50 + 15*(v-mu)/sd) always resolves to exactly (35.0, 65.0)
     # regardless of the raw magnitudes, since mu is their midpoint and sd
     # equals half their spread -- independently verifiable arithmetic, not
-    # a call into z_score_scale(). neutralSkillIndex uses pre-gate,
-    # pre-delta sg_base_composite (1.0 vs 3.0); vts_final uses the
-    # post-gate combined raw (1.2*0.92=1.104 vs 3.0); prepenalty_vts uses
-    # the pre-gate combined raw (1.2 vs 3.0) and is only populated when a
-    # gate fired.
+    # a call into the producer's scoring helpers. neutralSkillIndex uses
+    # SG_Base_Comp (1.0 vs 3.0); vts_final and prepenalty_vts use canonical
+    # PostGateRaw/PrePenaltyRaw (1.2 vs 3.0). The historical bomber flag
+    # remains visible but has no score effect.
     assert doe["neutralSkillIndex"] == pytest.approx(35.0)
     assert smith["neutralSkillIndex"] == pytest.approx(65.0)
     assert doe["vts_final"] == pytest.approx(35.0)
     assert smith["vts_final"] == pytest.approx(65.0)
     assert doe["prepenalty_vts"] == pytest.approx(35.0)
-    assert smith["prepenalty_vts"] is None
+    assert smith["prepenalty_vts"] == pytest.approx(65.0)
+    assert doe["post_gate_raw"] == pytest.approx(1.2)
+    assert smith["post_gate_raw"] == pytest.approx(3.0)
+    assert doe["formula_id"] == "venuedna_dual_vector_decomposed"
+    assert doe["formula_version"] == "2.0.0"
+    assert doe["scoring_spec_version"] == "2.0-draft"
+    assert doe["penalties_applied"] == []
+    assert doe["gates_applied"] == []
+    assert payload["formulaMetadata"] == {
+        "formula_id": "venuedna_dual_vector_decomposed",
+        "formula_version": "2.0.0",
+        "scoring_spec_version": "2.0-draft",
+        "comparable_score_family": "dual_vector_sg_per_round_v2",
+        "penalty_gate_set_id": "venuedna_v2_none",
+    }
 
     # ── Probability + ranking: win uses tempered_softmax(T=3.5, n_pos=1) on
-    # the post-gate raw scores [1.104, 3.0] -- recomputed here via bare
+    # canonical PostGateRaw scores [1.2, 3.0] -- recomputed here via bare
     # math.exp, not by calling tempered_softmax(). top5/10/20 use n_pos
     # large relative to a 2-player field, so both hit the 99.9 cap.
-    raw_scores = [1.2 * 0.92, 3.0]
+    raw_scores = [1.2, 3.0]
     max_s = max(raw_scores)
     exps = [math.exp((s - max_s) / 3.5) for s in raw_scores]
     total = sum(exps)
@@ -823,3 +863,199 @@ def test_field_ownership_conflict_preserves_existing_output_bytes_and_mtime(
     assert out_path.stat().st_mtime_ns == before_out_mtime
     assert deploy_path.read_bytes() == before_deploy_bytes
     assert deploy_path.stat().st_mtime_ns == before_deploy_mtime
+
+
+# ── Canonical-v2 root-producer integration boundary ───────────────────────
+#
+# These adapters translate the already-resolved, pre-debut_row()-fallback
+# per-horizon rows (each either a row dict or None when a source family has
+# no row for that player) into engine/venuedna_scoring.py's canonical input
+# shape. The tests below verify that main() invokes them and preserves the
+# missing-row versus valid zero-round DEBUT distinction required by the
+# canonical producer integration.
+
+def test_adapt_to_v2_neutral_skill_horizons_preserves_missing_vs_present():
+    result = adapt_to_v2_neutral_skill_horizons({
+        "6m": {"rounds": 20, "total_mean": 2.5},
+        "12m": None,
+        "24m": {"rounds": 20, "total_mean": 0.0},
+    })
+    assert result == {"6m": 2.5, "12m": None, "24m": 0.0}
+
+
+def test_adapt_to_v2_similar_course_rows_preserves_missing_vs_debut():
+    result = adapt_to_v2_similar_course_rows({
+        "6m": {"rounds": 0, "total_mean": 0.0},
+        "12m": None,
+        "24m": {"rounds": 15, "total_mean": 1.2},
+    })
+    assert result["6m"] == SimilarCourseRow(0, 0.0)
+    assert result["12m"] is None
+    assert result["24m"] == SimilarCourseRow(15, 1.2)
+
+
+def test_v2_adapters_are_called_by_main_runtime(tmp_path, monkeypatch):
+    event = SyntheticEvent(tmp_path)
+    event.write_all([("Doe, John", "100")])
+    calls = {"neutral": 0, "similar": 0}
+    real_neutral = enrich_cards.adapt_to_v2_neutral_skill_horizons
+    real_similar = enrich_cards.adapt_to_v2_similar_course_rows
+
+    def neutral_adapter(rows):
+        calls["neutral"] += 1
+        return real_neutral(rows)
+
+    def similar_adapter(rows):
+        calls["similar"] += 1
+        return real_similar(rows)
+
+    monkeypatch.setattr(enrich_cards, "adapt_to_v2_neutral_skill_horizons", neutral_adapter)
+    monkeypatch.setattr(enrich_cards, "adapt_to_v2_similar_course_rows", similar_adapter)
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    assert calls == {"neutral": 1, "similar": 1}
+
+
+def test_main_canonical_outputs_ignore_extreme_legacy_addends_and_historical_gates(tmp_path, monkeypatch):
+    """Runtime proof: legacy inputs would reverse the old 3M order, but not
+    the migrated official canonical v2 ordering (Alpha, then Bravo)."""
+    event = SyntheticEvent(tmp_path, event_slug="canonical_isolation")
+    names = [("Alpha, Ann", "100"), ("Bravo, Bob", "200")]
+    event.write_all(names)
+    for filename in (
+        "pga_sg_query_allcourses_l6.csv", "pga_sg_query_allcourses_l12.csv",
+        "pga_sg_query_allcourses_l24.csv",
+    ):
+        event._write(filename, ["player_name", "rounds_played", "total_mean"], [
+            ["Alpha, Ann", "20", "3.0"], ["Bravo, Bob", "20", "2.0"],
+        ])
+    for filename in (
+        "pga_sg_query_3Mopen_similar_l6.csv", "pga_sg_query_3Mopen_similar_l12.csv",
+        "pga_sg_query_3Mopen_similar_l24.csv",
+    ):
+        event._write(filename, ["player_name", "rounds_played", "total_mean"], [
+            ["Alpha, Ann", "20", "3.0"], ["Bravo, Bob", "20", "2.0"],
+        ])
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    baseline = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+
+    # These changes would make Bravo overwhelmingly first under the old
+    # five-addend formula, while Alpha's historical bomber gate would further
+    # reduce its old raw score. Canonical raw scores remain 3.0 and 2.0.
+    event._write("app_skill_l12_sg.csv", ["stat", "player_name", "50_100_fw_value", "100_150_fw_value", "150_200_fw_value", "over_200_fw_value"], [
+        ["SG Per Shot", "Alpha, Ann", "0", "0", "0", "0"],
+        ["SG Per Shot", "Bravo, Bob", "100", "100", "100", "100"],
+    ])
+    event._write("dg_performance_2026.csv", ["player_name", "putt_true", "arg_true", "app_true", "ott_true"], [
+        ["Alpha, Ann", "0", "0", "0", "0"], ["Bravo, Bob", "0", "0", "100", "100"],
+    ])
+    event._write("dg_decomposition.csv", [
+        "player_name", "driving_acc_adj", "driving_dist_adj", "std_dev",
+        "fit_other_adj", "course_history_adj", "timing_adj",
+    ], [
+        ["Alpha, Ann", "-1", "1", "3", "-100", "-100", "-100"],
+        ["Bravo, Bob", "0", "0", "3", "100", "100", "100"],
+    ])
+    event._write("tpc_twin_cities_CH.csv", ["player_name", "ch_adjustment", "experience_adjustment"], [
+        ["Alpha, Ann", "0", "0"], ["Bravo, Bob", "100", "0"],
+    ])
+    event._write("pga_field_trending_table.csv", ["player_name", "dg_id", "true_sg_l20", "l5_starts"], [
+        ["Alpha, Ann", "100", "0", ""], ["Bravo, Bob", "200", "100", ""],
+    ])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    changed = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+
+    official_keys = ("vts_final", "rank", "tier", "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct", "post_gate_raw")
+    baseline_players = {p["player"]: p for p in baseline["players"]}
+    changed_players = {p["player"]: p for p in changed["players"]}
+    assert [p["player"] for p in changed["players"]] == ["Alpha, Ann", "Bravo, Bob"]
+    for player in baseline_players:
+        assert {key: changed_players[player][key] for key in official_keys} == {
+            key: baseline_players[player][key] for key in official_keys
+        }
+    assert changed_players["Alpha, Ann"]["anti_pattern_flags"] == ["INACCURATE_BOMBER"]
+    historical_alpha, _ = apply_gates(
+        combine_raw_score(3.0, 0.0, 0.0, 0.0, 0.0, 0.0)["pre_gate_raw_total"],
+        {"putt_true": 0.0, "arg_true": 0.0, "app_true": 0.0, "ott_true": 0.0},
+        {"driving_acc_adj": -1.0, "driving_dist_adj": 1.0},
+    )
+    historical_bravo, _ = apply_gates(
+        combine_raw_score(2.0, 100.0, 65.0, 100.0, 100.0, 100.0)["pre_gate_raw_total"],
+        {"putt_true": 0.0, "arg_true": 0.0, "app_true": 100.0, "ott_true": 100.0},
+        {"driving_acc_adj": 0.0, "driving_dist_adj": 0.0},
+    )
+    assert historical_bravo > historical_alpha  # Old official order: Bravo, Alpha.
+
+
+def test_main_preserves_csv_missingness_and_excludes_unscored_from_official_field(tmp_path, monkeypatch):
+    event = SyntheticEvent(tmp_path, event_slug="canonical_missingness")
+    names = [
+        ("Scored, Sue", "100"), ("Debut, Dee", "200"), ("Missing Sim, Mia", "300"),
+        ("Missing All, Ari", "400"), ("Bad Base, Bea", "500"), ("Bad Rounds, Ray", "600"),
+    ]
+    event.write_all(names)
+    all_names = [name for name, _ in names if name != "Missing All, Ari"]
+    for filename in (
+        "pga_sg_query_allcourses_l6.csv", "pga_sg_query_allcourses_l12.csv",
+        "pga_sg_query_allcourses_l24.csv",
+    ):
+        rows = [[name, "20", "1.0"] for name in all_names]
+        if filename.endswith("l6.csv"):
+            rows = [[name, "20", "null" if name == "Bad Base, Bea" else "1.0"] for name in all_names]
+        event._write(filename, ["player_name", "rounds_played", "total_mean"], rows)
+    for filename in (
+        "pga_sg_query_3Mopen_similar_l6.csv", "pga_sg_query_3Mopen_similar_l12.csv",
+        "pga_sg_query_3Mopen_similar_l24.csv",
+    ):
+        rows = []
+        for name, _ in names:
+            if name == "Missing Sim, Mia":
+                continue
+            rounds, mean = ("0", "") if name == "Debut, Dee" else ("20", "1.0")
+            if name == "Bad Rounds, Ray" and filename.endswith("l6.csv"):
+                rounds = "bad"
+            rows.append([name, rounds, mean])
+        event._write(filename, ["player_name", "rounds_played", "total_mean"], rows)
+
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    players = {
+        p["player"]: p
+        for p in json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))["players"]
+    }
+    assert players["Scored, Sue"]["scoring_status"] == "SCORED"
+    assert players["Debut, Dee"]["scoring_status"] == "SCORED"
+    assert players["Debut, Dee"]["data_depth"] == "DEBUT"
+    assert players["Debut, Dee"]["venue_fit_delta_raw"] == 0.0
+    for name in ("Scored, Sue", "Debut, Dee"):
+        assert players[name]["penalties_applied"] == []
+        assert players[name]["gates_applied"] == []
+        assert players[name]["scoring_spec_version"] == "2.0-draft"
+    for name in ("Missing Sim, Mia", "Missing All, Ari", "Bad Base, Bea", "Bad Rounds, Ray"):
+        assert players[name]["scoring_status"] == "UNSCORED"
+        assert players[name]["vts_final"] is None
+        assert players[name]["rank"] is None
+        assert players[name]["tier"] is None
+        assert players[name]["post_gate_raw"] is None
+        assert all(players[name][key] is None for key in (
+            "winPct", "top5Pct", "top10Pct", "top20Pct", "makeCutPct", "missCutPct",
+        ))
+        assert players[name]["penalties_applied"] == []
+        assert players[name]["gates_applied"] == []
+        assert players[name]["scoring_spec_version"] == "2.0-draft"
+    assert players["Scored, Sue"]["rank"] == 1
+
+
+def test_main_handles_an_entirely_unscored_field_without_probability_pool_errors(tmp_path, monkeypatch):
+    event = SyntheticEvent(tmp_path, event_slug="all_unscored")
+    event.write_all([("Missing, Moe", "100")])
+    for filename in SyntheticEvent.SIX_SOURCE_FILES:
+        event._write(filename, ["player_name", "rounds_played", "total_mean"], [])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    player = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))["players"][0]
+    assert player["scoring_status"] == "UNSCORED"
+    assert player["vts_final"] is None
+    assert player["rank"] is None
+    assert player["tier"] is None
+    assert player["winPct"] is None
+    assert player["penalties_applied"] == []
+    assert player["gates_applied"] == []

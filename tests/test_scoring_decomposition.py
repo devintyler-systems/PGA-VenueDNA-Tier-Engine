@@ -1,6 +1,5 @@
-"""Tests for engine/scoring_decomposition.py -- the P1 score-decomposition
-parity harness for the root-level, event-hardcoded 3M Open enrichment
-pathway (engine/enrich_cards.py).
+"""Tests for engine/scoring_decomposition.py -- the historical 3M
+score-decomposition parity harness retained for archived diagnostics.
 
 Every expected numeric value below is either (a) independently hand-derived
 arithmetic that does not call the function under test, or (b) a direct read
@@ -59,10 +58,9 @@ _ARCHIVED_3M_PAYLOAD = (
 
 # ── Formula descriptor: no duplicated constants ─────────────────────────────
 
-def test_descriptor_component_weights_match_production_constants():
-    """The descriptor must report the exact same numbers enrich_cards.py
-    uses to score -- proven here by comparing against the production module's
-    own attributes, not a second hardcoded copy."""
+def test_historical_descriptor_component_weights_match_historical_constants():
+    """The archival descriptor reports the historical helper constants without
+    becoming an official canonical producer input."""
     cw = FORMULA.component_weights
     assert cw["approach"]       == enrich_cards.VW_APPROACH
     assert cw["long_iron"]      == enrich_cards.VW_LONG_IRON
@@ -72,7 +70,7 @@ def test_descriptor_component_weights_match_production_constants():
     assert cw["sg_similar_composite"] == 1.0
 
 
-def test_descriptor_horizon_weights_match_production_constants():
+def test_historical_descriptor_horizon_weights_match_historical_constants():
     assert FORMULA.base_horizon_weights == {
         "6m": enrich_cards.BASE_WEIGHT_6M,
         "12m": enrich_cards.BASE_WEIGHT_12M,
@@ -86,7 +84,7 @@ def test_descriptor_horizon_weights_match_production_constants():
     assert FORMULA.delta_clamp == enrich_cards.DELTA_CLAMP
 
 
-def test_descriptor_gate_multipliers_match_production_penalties():
+def test_historical_descriptor_gate_multipliers_match_historical_penalties():
     assert GATE_MULTIPLIERS["INACCURATE_BOMBER"]  == enrich_cards.PENALTY_BOMBER
     assert GATE_MULTIPLIERS["SHORT_GAME_RELIANT"] == enrich_cards.PENALTY_SG_DEP
 
@@ -138,7 +136,7 @@ def test_event_specificity_flags_root_producer_as_event_hardcoded():
     assert "not a reusable canonical engine" in FORMULA.event_specificity.lower()
 
 
-# ── Doctrine v2.0.0 is intentionally distinct from production parity ───────
+# ── Doctrine v2.0.0 is intentionally distinct from historical parity ───────
 
 def _scoring_doctrine_v2_metadata() -> dict[str, str]:
     """Read only the deliberately stable metadata marker, never broad prose."""
@@ -172,7 +170,7 @@ def test_canonical_doctrine_marker_identifies_exact_v2_contract():
     assert metadata["penalty_gate_set_id"] == "venuedna_v2_none"
 
 
-def test_current_production_descriptor_remains_nonconforming_to_doctrine_v2():
+def test_historical_descriptor_remains_nonconforming_to_doctrine_v2():
     metadata = _scoring_doctrine_v2_metadata()
     assert FORMULA.formula_identifier == "3m-enriched-v2.0"
     assert FORMULA.formula_identifier != metadata["formula_id"]
@@ -219,7 +217,7 @@ def test_no_legacy_addend_is_authorized_as_v2_core_input():
     assert FORMULA.as_dict()["canonical_core_inputs"] == list(CANONICAL_V2_CORE_INPUTS)
 
 
-def test_current_producer_has_structured_nonconformance_reasons():
+def test_historical_descriptor_has_structured_nonconformance_reasons():
     assert FORMULA.production_divergence_reason_codes == (
         "FORMULA_IDENTITY_MISMATCH",
         "LEGACY_NONCORE_ADDITIVE_COMPONENTS",

@@ -157,8 +157,31 @@ try {
                 "--basetemp", (Join-Path $tempRoot "pytest_enrich"),
                 "tests\test_enrich_cards.py"
             )
+        },
+        [PSCustomObject]@{
+            Index = 5
+            Label = "Canonical v2 scoring tests"
+            RequiredPath = "tests\test_venuedna_scoring.py"
+            Arguments = @(
+                "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                "--basetemp", (Join-Path $tempRoot "pytest_venuedna_scoring"),
+                "tests\test_venuedna_scoring.py"
+            )
+        },
+        [PSCustomObject]@{
+            Index = 6
+            Label = "Runtime producer-integration tests"
+            RequiredPath = "tests\test_enrich_cards.py"
+            Arguments = @(
+                "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                "--basetemp", (Join-Path $tempRoot "pytest_producer_integration"),
+                "tests\test_enrich_cards.py",
+                "-k", "canonical_outputs_ignore_extreme_legacy_addends or preserves_csv_missingness or handles_an_entirely_unscored_field or v2_adapters_are_called_by_main_runtime"
+            )
         }
     )
+
+    $stepCount = $steps.Count
 
     foreach ($step in $steps) {
         $requiredPath = Join-Path $resolvedRepoRoot $step.RequiredPath
@@ -166,26 +189,26 @@ try {
             throw "Required path is missing: $requiredPath"
         }
 
-        Write-Output ("[{0}/4] START {1}" -f $step.Index, $step.Label)
+        Write-Output ("[{0}/{1}] START {2}" -f $step.Index, $stepCount, $step.Label)
         $childArguments = $step.Arguments
         try {
             & $pythonExecutable @childArguments
             $childExitCode = $LASTEXITCODE
         } catch {
-            Write-Output ("[{0}/4] FAIL  {1} (exit code 2)" -f $step.Index, $step.Label)
+            Write-Output ("[{0}/{1}] FAIL  {2} (exit code 2)" -f $step.Index, $stepCount, $step.Label)
             throw "Unable to execute $($step.Label): $($_.Exception.Message)"
         }
 
         if ($childExitCode -ne 0) {
             Write-Output (
-                "[{0}/4] FAIL  {1} (exit code {2})" -f
-                $step.Index, $step.Label, $childExitCode
+                "[{0}/{1}] FAIL  {2} (exit code {3})" -f
+                $step.Index, $stepCount, $step.Label, $childExitCode
             )
             $exitCode = $childExitCode
             break
         }
 
-        Write-Output ("[{0}/4] PASS  {1}" -f $step.Index, $step.Label)
+        Write-Output ("[{0}/{1}] PASS  {2}" -f $step.Index, $stepCount, $step.Label)
         Write-Output ""
     }
 } catch {
