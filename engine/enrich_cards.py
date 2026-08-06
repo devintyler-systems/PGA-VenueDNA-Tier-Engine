@@ -1,5 +1,9 @@
 """engine/enrich_cards.py
-VenueDNA 3M Open 2026 — monolithic dual-vector + venue-trait enrichment pipeline.
+VenueDNA pre-event dual-vector + venue-trait enrichment pipeline. Normal
+command-line execution takes no arguments and always runs against the
+manifest-bound active event (config/active_event.json); an internal,
+argparse-invisible keyword-only seam on main() exists solely for isolated
+test injection and can never be reached from the command line.
 
 Sections
   §1  Imports & constants
@@ -35,6 +39,12 @@ from identity_resolver import (  # noqa: E402
     build_release_report,
 )
 from identity_resolver import normalize_name as _canonical_normalize_name  # noqa: E402
+from event_context import (  # noqa: E402
+    EventContext,
+    EventContextError,
+    load_pre_event_context,
+    require_supported_context,
+)
 from venuedna_scoring import (  # noqa: E402
     FORMULA_METADATA as CANONICAL_FORMULA_METADATA,
     assign_tier as canonical_assign_tier,
@@ -44,6 +54,15 @@ from venuedna_scoring import (  # noqa: E402
 )
 
 # ── §1  Constants ──────────────────────────────────────────────────────────────
+
+# Temporary capability gate (see require_supported_context() call in main()):
+# SIM_COURSES_FILES below and the tpc_twin_cities_CH.csv loader, plus the
+# narrative copy in build_headline()/build_win_case(), remain hardcoded to
+# this one event/venue pending a separately authorized venue-generalization
+# migration. Do not run this producer's remaining logic for another event or
+# venue by editing these two constants alone.
+SUPPORTED_EVENT_SLUG = "2026_3m_open"
+SUPPORTED_VENUE_SLUG = "tpc_twin_cities"
 
 ALL_COURSES_FILES = {
     "6m":  "pga_sg_query_allcourses_l6.csv",
@@ -1023,14 +1042,49 @@ def finalize_canonical_official_records(
 
 # ── §10  Main Pipeline ─────────────────────────────────────────────────────────
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="VenueDNA enrichment pipeline")
-    parser.add_argument("--event", default="2026_3m_open")
-    parser.add_argument("--live", default=None, choices=["r1", "r2", "r3", "r4"],
-                        help="Enable live-round enrichment mode")
-    args = parser.parse_args()
+def main(*, _context: EventContext | None = None, _live_mode: str | None = None) -> None:
+    """Production entry point.
 
-    event_dir  = _ROOT / "events" / args.event
+    Normal command-line execution (``python engine/enrich_cards.py``) takes
+    no arguments. Any argument -- including a former ``--event`` or
+    ``--live`` -- is unrecognized and causes argparse's own error handling
+    to print usage and exit nonzero before any event-bound path is
+    constructed. ``config/active_event.json`` is the sole source of event
+    context for normal execution; there is no CLI flag, environment
+    variable, or fallback that selects an event without it.
+
+    ``_context``/``_live_mode`` are keyword-only and never populated by
+    argparse -- they exist solely so isolated tests can inject an explicit,
+    already-validated ``EventContext`` (and, where legitimate, an explicit
+    live-round mode) without writing a real manifest file or going through
+    the command line. No command-line invocation can set either parameter.
+    """
+    if _context is not None:
+        context = _context
+        live_mode = _live_mode
+    else:
+        parser = argparse.ArgumentParser(description="VenueDNA enrichment pipeline")
+        parser.parse_args()  # no flags are defined -- any argument exits nonzero here
+
+        try:
+            context = load_pre_event_context(
+                _ROOT / "config" / "active_event.json", repo_root=_ROOT,
+            )
+            require_supported_context(
+                context,
+                supported_event_slug=SUPPORTED_EVENT_SLUG,
+                supported_venue_slug=SUPPORTED_VENUE_SLUG,
+            )
+        except EventContextError as exc:
+            print(f"[enrich_cards] ERROR — {exc}", file=sys.stderr)
+            sys.exit(1)
+        live_mode = None
+
+    event_slug = context.event_slug
+    event_name = context.event_name
+    venue_name = context.venue_name
+    event_dir  = context.event_root
+
     input_dir  = event_dir / "input"
     output_dir = event_dir / "output"
     deploy_dir = event_dir / "deploy" / "data"
@@ -1215,7 +1269,7 @@ def main() -> None:
     live_tee_times: dict = {}
     live_r1_sg: dict     = {}
 
-    if args.live == "r1":
+    if live_mode == "r1":
         print("[enrich_cards] Live R1 mode — loading round data…")
         live_tee_times = load_tee_times(
             event_dir / "output" / "round1" / "round2_tee_times.csv")
@@ -1225,16 +1279,16 @@ def main() -> None:
 
     ordered_records = finalize_canonical_official_records(
         players_raw,
-        live_mode=args.live,
+        live_mode=live_mode,
         live_tee_times=live_tee_times,
         live_r1_sg=live_r1_sg,
     )
 
     # ── Write outputs (only after identity validation succeeded above) ─────────
     _live_suffix = {"r1": "rd1", "r2": "rd2", "r3": "rd3", "r4": "rd4"}
-    file_base = (f"2026_3m_open_{_live_suffix[args.live]}_payload.json"
-                 if args.live else "2026_3m_open_event_payload.json")
-    schema_ver = f"3m-live-{args.live}-v1.0" if args.live else "3m-enriched-v2.0"
+    file_base = (f"{event_slug}_{_live_suffix[live_mode]}_payload.json"
+                 if live_mode else f"{event_slug}_event_payload.json")
+    schema_ver = f"3m-live-{live_mode}-v1.0" if live_mode else "3m-enriched-v2.0"
 
     payload = {
         "schemaVersion": schema_ver,
@@ -1246,8 +1300,8 @@ def main() -> None:
             )
         },
         "generatedAt":   datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "event":         "2026 3M Open",
-        "venue":         "TPC Twin Cities",
+        "event":         event_name,
+        "venue":         venue_name,
         "fieldSize":     len(ordered_records),
         "players":       ordered_records,
     }

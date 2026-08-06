@@ -29,6 +29,7 @@ from enrich_cards import (
 from identity_resolver import SourceRow
 from identity_resolver import normalize_name as _canonical_normalize_name
 from venuedna_scoring import SimilarCourseRow
+from event_context import EventContext
 
 
 def test_normalize_name_strips_quotes():
@@ -337,23 +338,47 @@ class SyntheticEvent:
         )
 
 
-def _run_main(monkeypatch, tmp_path, event_slug, argv_extra=None):
+def _make_context(tmp_path, event_slug, *, venue_slug="synthetic_test_venue",
+                   event_name=None, venue_name=None):
+    """Build an in-memory EventContext for the internal test seam. This
+    never writes a manifest file and never touches the real repository --
+    it is the isolated-test equivalent of an already-validated production
+    context, injected directly via main()'s keyword-only _context param."""
+    event_root = tmp_path / "events" / event_slug
+    return EventContext(
+        event_slug=event_slug,
+        event_name=event_name or event_slug,
+        venue_slug=venue_slug,
+        venue_name=venue_name or venue_slug,
+        year=2026,
+        event_root=event_root,
+        venue_profile=(
+            tmp_path / "library" / "venues" / venue_slug / f"{venue_slug}_venue_profile.md"
+        ),
+        deploy_root=event_root / "deploy",
+        audit_root=event_root / "audit",
+    )
+
+
+def _run_main(monkeypatch, tmp_path, event_slug, *, live_mode=None, context=None):
+    """Invoke main() through the internal, argparse-invisible test seam --
+    never through --event or any other CLI flag, which no longer exist on
+    the normal production entry point."""
     monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
-    argv = ["enrich_cards.py", "--event", event_slug] + (argv_extra or [])
-    monkeypatch.setattr(sys, "argv", argv)
-    enrich_cards.main()
+    context = context or _make_context(tmp_path, event_slug)
+    enrich_cards.main(_context=context, _live_mode=live_mode)
 
 
 def _output_path(tmp_path, event_slug):
     return (
-        tmp_path / "events" / event_slug / "output" / "2026_3m_open_event_payload.json"
+        tmp_path / "events" / event_slug / "output" / f"{event_slug}_event_payload.json"
     )
 
 
 def _deploy_path(tmp_path, event_slug):
     return (
         tmp_path / "events" / event_slug / "deploy" / "data"
-        / "2026_3m_open_event_payload.json"
+        / f"{event_slug}_event_payload.json"
     )
 
 
@@ -1059,3 +1084,323 @@ def test_main_handles_an_entirely_unscored_field_without_probability_pool_errors
     assert player["winPct"] is None
     assert player["penalties_applied"] == []
     assert player["gates_applied"] == []
+
+
+# ── Manifest-driven event context (production entry point, no CLI flags) ───
+#
+# These tests exercise main() with no keyword-only _context injected -- the
+# actual production default path -- against a synthetic config/active_event.
+# json under tmp_path. They never touch the real config/active_event.json or
+# any real events/ or library/ directory.
+#
+# The only event/venue slug pairing that clears the capability gate is the
+# one this producer's remaining input files are still hardcoded to:
+# SUPPORTED_EVENT_SLUG / SUPPORTED_VENUE_SLUG ("2026_3m_open" /
+# "tpc_twin_cities"). Manifests below default to that pairing so the
+# "valid manifest" tests reach the pipeline; the unsupported-venue tests
+# further down deliberately use a different pairing.
+
+def _write_manifest(tmp_path, *, status="PRE_EVENT",
+                     event_slug=enrich_cards.SUPPORTED_EVENT_SLUG,
+                     venue_slug=enrich_cards.SUPPORTED_VENUE_SLUG,
+                     event_name="Test-Only Manifest Event Label",
+                     venue_name="Test-Only Manifest Venue Label",
+                     overrides=None):
+    manifest = {
+        "schema_version": "1.0",
+        "status": status,
+        "event_slug": event_slug,
+        "event_name": event_name,
+        "venue_slug": venue_slug,
+        "venue_name": venue_name,
+        "year": 2026,
+        "event_root": f"events/{event_slug}",
+        "venue_profile": f"library/venues/{venue_slug}/{venue_slug}_venue_profile.md",
+        "deploy_root": f"events/{event_slug}/deploy",
+        "audit_root": f"events/{event_slug}/audit",
+    }
+    if overrides:
+        manifest.update(overrides)
+    config_dir = tmp_path / "config"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (config_dir / "active_event.json").write_text(json.dumps(manifest), encoding="utf-8")
+    return manifest
+
+
+def _run_main_from_manifest(monkeypatch, tmp_path):
+    """Invoke main() through the real production path: no _context
+    injected, argv carries no flags, config/active_event.json (under
+    tmp_path) is the sole source of event context."""
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
+    enrich_cards.main()
+
+
+class _CallCounter:
+    """Wraps a callable and records how many times it was invoked, while
+    still delegating through to the original so wrapped tests that do
+    expect calls keep working. Used to prove a rejected argument or a
+    failed manifest/gate check performs zero event-bound reads or writes."""
+
+    def __init__(self, wrapped):
+        self.calls = 0
+        self._wrapped = wrapped
+
+    def __call__(self, *args, **kwargs):
+        self.calls += 1
+        return self._wrapped(*args, **kwargs)
+
+
+_EVENT_BOUND_READERS = (
+    "load_field_rows", "load_sg_csv", "load_app_skill", "load_app_prox",
+    "load_performance", "load_decomp", "load_ch", "load_trending",
+)
+
+
+def _spy_event_bound_readers(monkeypatch):
+    spies = {}
+    for name in _EVENT_BOUND_READERS:
+        counter = _CallCounter(getattr(enrich_cards, name))
+        monkeypatch.setattr(enrich_cards, name, counter)
+        spies[name] = counter
+    return spies
+
+
+def _spy_path_write_text(monkeypatch):
+    return_counter = _CallCounter(Path.write_text)
+    monkeypatch.setattr(Path, "write_text", return_counter)
+    return return_counter
+
+
+# ── Production CLI safety (Finding A / Finding B) ───────────────────────────
+
+def test_event_flag_no_longer_accepted(tmp_path, monkeypatch):
+    """--event no longer exists on the normal CLI -- argparse's own
+    unrecognized-argument handling must reject it, before any event-bound
+    read, directory creation, or write."""
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py", "--event", "some_event"])
+    reader_spies = _spy_event_bound_readers(monkeypatch)
+
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+
+    assert exc_info.value.code != 0
+    assert all(counter.calls == 0 for counter in reader_spies.values())
+    assert not (tmp_path / "events").exists()
+    assert not (tmp_path / "config").exists()
+
+
+@pytest.mark.parametrize("live_value", ["r1", "r2", "r3", "r4"])
+def test_live_flag_no_longer_accepted_for_every_former_value(tmp_path, monkeypatch, live_value):
+    """This PRE_EVENT producer no longer accepts --live in any form -- every
+    formerly-supported round value must exit nonzero before any event-bound
+    I/O, and must never create a live-named output or deploy artifact."""
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py", "--live", live_value])
+    reader_spies = _spy_event_bound_readers(monkeypatch)
+
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+
+    assert exc_info.value.code != 0
+    assert all(counter.calls == 0 for counter in reader_spies.values())
+    assert not (tmp_path / "events").exists()
+    assert not (tmp_path / "config").exists()
+
+
+def test_unrecognized_cli_argument_of_any_kind_exits_nonzero(tmp_path, monkeypatch):
+    """No CLI argument at all is accepted by the normal entry point -- there
+    is no hidden flag, environment-variable convention, or fallback that
+    selects an event without the manifest."""
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py", "--anything-else"])
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+    assert exc_info.value.code != 0
+    assert not (tmp_path / "events").exists()
+
+
+# ── Manifest-only execution (Finding A / Finding B, requirements 7-13) ──────
+
+def test_no_active_event_fails_before_all_event_bound_readers_and_writers(
+    tmp_path, monkeypatch, capsys
+):
+    """NO_ACTIVE_EVENT must fail closed before any event-bound reader is
+    called and before Path.write_text is ever invoked -- proven with call-
+    counting spies, not just directory-absence inference."""
+    _write_manifest(tmp_path, status="NO_ACTIVE_EVENT",
+                     overrides={"event_slug": None, "event_name": None,
+                                "venue_slug": None, "venue_name": None,
+                                "event_root": None, "venue_profile": None,
+                                "deploy_root": None, "audit_root": None})
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
+    reader_spies = _spy_event_bound_readers(monkeypatch)
+    write_counter = _spy_path_write_text(monkeypatch)
+
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "NO_ACTIVE_EVENT" in captured.err or "No active event" in captured.err
+    assert all(counter.calls == 0 for counter in reader_spies.values())
+    assert write_counter.calls == 0
+    assert not (tmp_path / "events").exists()
+
+
+def test_valid_manifest_derives_paths_and_metadata(tmp_path, monkeypatch):
+    """A valid synthetic PRE_EVENT manifest for the supported event/venue
+    pairing drives event_root/output/deploy paths and event/venue metadata
+    from the manifest itself -- not from a hardcoded literal."""
+    manifest = _write_manifest(tmp_path)
+    event_slug = manifest["event_slug"]
+    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+
+    _run_main_from_manifest(monkeypatch, tmp_path)
+
+    out_path = _output_path(tmp_path, event_slug)
+    deploy_path = _deploy_path(tmp_path, event_slug)
+    assert out_path.exists()
+    assert deploy_path.exists()
+
+    payload = json.loads(out_path.read_text(encoding="utf-8"))
+    assert payload["event"] == manifest["event_name"] == "Test-Only Manifest Event Label"
+    assert payload["venue"] == manifest["venue_name"] == "Test-Only Manifest Venue Label"
+    assert payload["event"] != "2026 3M Open"
+    assert payload["venue"] != "TPC Twin Cities"
+
+
+def test_existing_output_unchanged_after_context_validation_failure(tmp_path, monkeypatch):
+    """Once a valid manifest-driven payload exists on disk, a subsequent run
+    against a manifest that fails context validation must not touch it --
+    same bytes, same mtime, for both the output and deploy copies."""
+    manifest = _write_manifest(tmp_path)
+    event_slug = manifest["event_slug"]
+    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+    _run_main_from_manifest(monkeypatch, tmp_path)
+
+    out_path = _output_path(tmp_path, event_slug)
+    deploy_path = _deploy_path(tmp_path, event_slug)
+    before_out_bytes = out_path.read_bytes()
+    before_out_mtime = out_path.stat().st_mtime_ns
+    before_deploy_bytes = deploy_path.read_bytes()
+    before_deploy_mtime = deploy_path.stat().st_mtime_ns
+
+    # Corrupt the manifest so deploy_root no longer matches events/{slug}/deploy.
+    _write_manifest(tmp_path, overrides={"deploy_root": f"events/{event_slug}/wrong_deploy"})
+
+    with pytest.raises(SystemExit):
+        _run_main_from_manifest(monkeypatch, tmp_path)
+
+    assert out_path.read_bytes() == before_out_bytes
+    assert out_path.stat().st_mtime_ns == before_out_mtime
+    assert deploy_path.read_bytes() == before_deploy_bytes
+    assert deploy_path.stat().st_mtime_ns == before_deploy_mtime
+
+
+# ── Unsupported venue containment (Finding D, requirements 14-20) ──────────
+
+def test_wyndham_like_manifest_fails_before_any_3m_or_tpc_input_read(
+    tmp_path, monkeypatch, capsys
+):
+    """A valid-shaped PRE_EVENT manifest for a completely different event
+    and venue must be rejected by the capability gate before any 3M-named
+    similar-course reader or TPC course-history reader is invoked, and must
+    create no output or deploy artifact."""
+    event_slug = "2026_wyndham_championship"
+    venue_slug = "sedgefield_country_club"
+    _write_manifest(
+        tmp_path, event_slug=event_slug, venue_slug=venue_slug,
+        event_name="Wyndham Championship", venue_name="Sedgefield Country Club",
+    )
+    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event.write_all([("Doe, John", "100")])
+
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
+    reader_spies = _spy_event_bound_readers(monkeypatch)
+
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "Unsupported event/venue" in captured.err
+    assert reader_spies["load_sg_csv"].calls == 0   # 3M-named similar-course reader
+    assert reader_spies["load_ch"].calls == 0        # TPC course-history reader
+    assert all(counter.calls == 0 for counter in reader_spies.values())
+    assert not (tmp_path / "events" / event_slug / "output").exists()
+    assert not (tmp_path / "events" / event_slug / "deploy").exists()
+
+
+def test_supported_event_unsupported_venue_pair_fails(tmp_path, monkeypatch):
+    event_slug = enrich_cards.SUPPORTED_EVENT_SLUG
+    venue_slug = "some_other_venue"
+    _write_manifest(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+    assert exc_info.value.code != 0
+    assert not (tmp_path / "events" / event_slug / "output").exists()
+
+
+def test_unsupported_event_supported_venue_pair_fails(tmp_path, monkeypatch):
+    event_slug = "some_other_event"
+    venue_slug = enrich_cards.SUPPORTED_VENUE_SLUG
+    _write_manifest(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
+    with pytest.raises(SystemExit) as exc_info:
+        enrich_cards.main()
+    assert exc_info.value.code != 0
+    assert not (tmp_path / "events" / event_slug / "output").exists()
+
+
+def test_supported_event_venue_reaches_worker_via_internal_seam_without_cli(
+    tmp_path, monkeypatch
+):
+    """The correctly supported event/venue pairing can still reach the
+    existing worker through the internal _context seam -- with no CLI flag
+    and no manifest file involved at all -- proving the seam, not a CLI
+    bypass, is what makes isolated testing possible."""
+    assert not (tmp_path / "config" / "active_event.json").exists()
+    event_slug = enrich_cards.SUPPORTED_EVENT_SLUG
+    venue_slug = enrich_cards.SUPPORTED_VENUE_SLUG
+    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event.write_all([("Doe, John", "100")])
+    context = _make_context(tmp_path, event_slug, venue_slug=venue_slug)
+    _run_main(monkeypatch, tmp_path, event_slug, context=context)
+    assert _output_path(tmp_path, event_slug).exists()
+
+
+# ── Contract preservation (Finding C, requirements 21-24) ──────────────────
+
+def test_pre_event_schema_version_restored_to_3m_enriched_v2(tmp_path, monkeypatch):
+    event = SyntheticEvent(tmp_path, event_slug="schema_check_event")
+    event.write_all([("Doe, John", "100")])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    assert payload["schemaVersion"] == "3m-enriched-v2.0"
+    assert payload["schemaVersion"] != "venuedna-enriched-v2.0"
+
+
+def test_no_production_line_emits_venuedna_schema_identifier():
+    source = Path(enrich_cards.__file__).read_text(encoding="utf-8")
+    assert "venuedna-enriched-v2.0" not in source
+    assert "venuedna-live-" not in source
+
+
+def test_payload_shape_unchanged(tmp_path, monkeypatch):
+    event = SyntheticEvent(tmp_path, event_slug="shape_check_event")
+    event.write_all([("Doe, John", "100")])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    assert set(payload.keys()) == {
+        "schemaVersion", "formulaMetadata", "generatedAt", "event", "venue",
+        "fieldSize", "players",
+    }
