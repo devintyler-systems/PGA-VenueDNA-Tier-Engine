@@ -30,6 +30,7 @@ A historical payload is not canonical merely because an older board consumed it.
 | Producer | Consumer | Contract | Rule |
 |---|---|---|---|
 | DataGolf API or manual source | Ingestion scripts | Raw source data | Preserve source files; never edit raw data in place |
+| Event operator / ingestion tooling (proposed, not yet implemented) | Pre-event engine (proposed, not yet implemented) | `events/{event_slug}/input/source_manifest.json` | See "Source Manifest Contract" below and `standards/04` §9; contract only, no producer reads this today |
 | Ingestion scripts | SQLite and processed datasets | Normalized player, field, tournament, SG, and conditions records | DataGolf ID is canonical player identity |
 | Venue library | Pre-event engine | Venue profile and supporting venue files | `library/venues/` is canonical |
 | Pre-event engine | Event output | Immutable pre-event projection artifact | Lock before Round 1 |
@@ -297,6 +298,37 @@ For an active event, the manifest must point to:
 - audit root
 - pre-event artifact once live work begins
 - current live round and live artifact when applicable
+
+## Source Manifest Contract (Phase 4.1 — contract defined, not yet implemented)
+
+**Status: schema only.** This section defines the contract boundary and rules for `source_manifest`, a proposed `events/{event_slug}/input/source_manifest.json` artifact mapping event-neutral logical source roles to physical event input files. The exact schema (top-level shape, per-source-entry fields, the thirteen required roles, and all cross-field rules) is canonical in `standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md` §9 — this section states only the interface-boundary and ownership rules, per this document's own scope.
+
+No parser, resolver, or producer change exists for this schema yet. `engine/enrich_cards.py` continues to read every input file by its current hardcoded physical filename. No `source_manifest.json` file may be created under any real event as part of defining this contract.
+
+| Producer | Consumer | Contract | Rule |
+|---|---|---|---|
+| Event operator / ingestion tooling (future) | Pre-event engine (future) | `events/{event_slug}/input/source_manifest.json` | Maps logical source role → physical input filename; never the reverse inference |
+
+Rules (see `standards/04` §9.6 for full normative text; §9.5A for the deterministic per-role `required`/`missing_behavior` table):
+
+1. Physical filenames are arbitrary and never inferred from event or venue names.
+2. Every declared `path` is relative to `events/{event_slug}/input/`.
+3. Absolute, traversal, archived-event, and repository-escape paths are invalid, checked lexically and again on the resolved path. The resolved target must additionally be a regular file that stays inside `EventContext.event_root / "input"` specifically — the same `resolve()` + `relative_to()` containment approach `engine/event_context.py` already applies to manifest path fields, extended with this schema's own source-file containment root, so a symlink or junction escape is rejected on the resolved physical path, not the declared text.
+4. A manifest's `event_slug`/`venue_slug` must match the active `EventContext`.
+5. Logical roles are unique within one manifest.
+6. All three `venue_fit.similar_sg.*` horizon entries must share one `similar_course_set_id`, `set_version`, and `set_provenance`, and each must declare its own `horizon_months` (`6`, `12`, or `24`) matching its role suffix.
+7. `venue_history` metadata must carry a `venue_slug` sub-field equal to the manifest's top-level `venue_slug`, exactly — no alternate or equivalent field is a substitute.
+8. `required`/`missing_behavior` combinations are fixed per role (`standards/04` §9.5A), not chosen per event. Only `field` uses `block_release`; the six NeutralSkill/VenueFit horizon roles resolve at the composite level under `standards/02` §7.5 instead of blocking on a single missing horizon.
+9. The six `required: false` roles (`venue_history`, both `traits.approach.*` roles, `performance.sg_categories.season`, `benchmark.decomposition`, `recent_form.trending`) each affect only their own declared confidence or context component; `skip_layer`/`warn_only` are not permitted for any of the thirteen roles.
+10. Missing data is never numeric zero.
+11. `dg_id` remains the preferred identity key; player name remains fallback only — this contract does not alter `engine/identity_resolver.py`'s resolution precedence.
+12. No API credential or secret key may appear in a manifest.
+13. Existing archived 3M physical files remain immutable.
+14. Legacy filenames require an explicit manifest entry; no implicit 3M-shaped fallback is authorized for any event.
+15. This contract does not change the current producer's payload shape, `schemaVersion`, deploy filenames, formula metadata, ranks, tiers, probabilities, penalties, gates, or scoring.
+16. `sha256`/`row_count` integrity fields are `null` (not supplied — never a validated success) or an exact-match assertion a future validator must check byte-for-byte / row-for-row; no validator exists yet.
+
+**Naming caution:** do not confuse this schema with the unrelated `"source_manifest": {}` key already listed inside `standards/04` §3D's aspirational `{slug}_event_payload.json` output shape, or with `engine/build_event_package.py`'s separate `source_manifest` object — a per-literal-filename `"EXISTS"`/`"MISSING"` presence map that producer already assembles and writes verbatim into its own `{slug}_event_payload.json`'s `source_manifest` key today. Reconciling either with this schema is an explicitly deferred decision. `engine/enrich_cards.py` continues to read every input file by its current hardcoded physical filename; the physical-filename references in `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §2 remain accurate documentation of that current behavior, and nothing here implies any current producer reads a `source_manifest.json` file.
 
 ## Venue Contract
 

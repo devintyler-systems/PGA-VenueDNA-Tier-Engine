@@ -443,3 +443,163 @@ All three must be `True` for a player to be ELIGIBLE. UNSCORED players (`data_de
 - When a `deploy/data/` mirror of the audit companion exists, the validated output audit and the deploy copy must have identical SHA-256 hashes before release.
 - Deploy copies are read-only mirrors. Verification must not silently rewrite or synchronize them — hash mismatch is a release-blocking artifact-integrity failure and must be investigated manually.
 - Run `verify_tripod_audit_parity.py` as part of every release validation sequence.
+
+---
+
+## 9. SOURCE MANIFEST CONTRACT (schema_version 1.0) — Phase 4.1, CONTRACT ONLY
+
+**Status: defined here, not yet implemented.** No parser, resolver, producer change, event package, or artifact exists for this schema as of this section's authoring. `engine/enrich_cards.py` continues to read event input files by hardcoded physical filename (`ALL_COURSES_FILES`, `SIM_COURSES_FILES`, `tpc_twin_cities_CH.csv`, etc.) exactly as before. This section defines the target contract a future, separately-authorized phase may implement; it changes no current producer behavior, payload shape, `schemaVersion`, deploy filename, formula metadata, rank, tier, probability, penalty, gate, or scoring rule. The physical input-file references in `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §2 remain accurate, current documentation of what `engine/enrich_cards.py` actually reads today; nothing in this section implies that any current producer reads a `source_manifest.json` file. Reconciling this contract with either pre-existing use of the term "source_manifest" (below) happens only inside a separately authorized resolver-migration decision — not here.
+
+**Naming note — do not confuse with two pre-existing, unrelated uses of "source_manifest":**
+1. This document's own §3D lists a `"source_manifest": {}` key inside the aspirational `{slug}_event_payload.json` *output* shape. That key, if ever implemented, is an output-side summary embedded in the payload. It is not this schema and is not required to have this shape.
+2. `engine/build_event_package.py` (a separate, non-`enrich_cards.py` producer) already emits a payload-side `source_manifest` object: a per-literal-hardcoded-filename `"EXISTS"`/`"MISSING"` presence map, assembled in memory and then written verbatim into the `source_manifest` key of its own output `{slug}_event_payload.json` (the same key named in §3D above). It carries no logical role, identity, encoding, integrity, or provenance metadata, is keyed by literal filename rather than logical role, and is not this schema.
+
+Reconciling either of those with this schema is an explicitly deferred, separately-authorized decision — not resolved here.
+
+### 9.1 Purpose
+
+A `source_manifest` maps event-neutral **logical source roles** (what the scoring pipeline needs) to **physical event input files** (what a specific event's DataGolf/manual export happens to be named). Physical filenames are event-specific and historically accreted ad hoc (`pga_sg_query_3Mopen_similar_l6.csv`, `tpc_twin_cities_CH.csv`); logical roles are not. A source manifest is the seam a future producer would read instead of a hardcoded filename dict, without requiring every event's exports to share one venue's naming convention.
+
+### 9.2 Location (proposed, not yet authorized)
+
+```text
+events/{event_slug}/input/source_manifest.json
+```
+
+No file of this name may be created under any real `events/` directory as part of defining this contract. Creation of an actual manifest instance is a separate, explicitly authorized step.
+
+### 9.3 Top-level shape
+
+```json
+{
+  "schema_version": "1.0",
+  "event_slug": "2026_3m_open",
+  "venue_slug": "tpc_twin_cities",
+  "as_of": "2026-08-05T00:00:00Z",
+  "sources": []
+}
+```
+
+| Field | Type | Rule |
+|---|---|---|
+| `schema_version` | string | Exactly `"1.0"` for this contract. |
+| `event_slug` | string | Lowercase snake_case. Must equal the active `EventContext.event_slug` at build time (Rule 4). |
+| `venue_slug` | string | Lowercase snake_case. Must equal the active `EventContext.venue_slug` at build time (Rule 4). |
+| `as_of` | string | ISO 8601 UTC timestamp of manifest authoring — diagnostic provenance only, never a freshness gate on its own. |
+| `sources` | array | One entry per physical input file declared below. |
+
+### 9.4 Source entry shape
+
+```json
+{
+  "role":              "venue_fit.similar_sg.6m",
+  "path":              "pga_sg_query_3Mopen_similar_l6.csv",
+  "required":          true,
+  "missing_behavior":  "block_release",
+  "schema_id":         "venuedna.source.sg_total_horizon.v1",
+  "identity_key":      "player_name",
+  "encoding":          "utf-8",
+  "sha256":            null,
+  "row_count":         null,
+  "metadata": {
+    "similar_course_set_id": "tpc_twin_cities_similar_v1",
+    "set_version":            1,
+    "set_provenance":         "manual_datagolf_export_2026",
+    "horizon_months":         6
+  }
+}
+```
+
+| Field | Type | Rule |
+|---|---|---|
+| `role` | string | One of the required logical roles (§9.5) or a documented additional role. Unique within `sources` (Rule 5). |
+| `path` | string | Relative to `events/{event_slug}/input/` (Rule 2). Never absolute, never containing a backslash, never containing `..`, never containing an archived/finished-event path segment (Rule 3) — checked lexically before resolution, then again on the resolved path. The resolved target must additionally be a regular file that stays inside `EventContext.event_root / "input"` specifically (not merely somewhere inside the repository) — validated with the same path-safety approach `engine/event_context.py` already applies to manifest path fields (`resolve()` + `relative_to()`, never string prefixes), extended with this schema's own source-file containment root. A resolved target reached through a symlink or filesystem junction is rejected on the same basis as `engine/event_context.py` already rejects one for its own manifest fields: containment is checked against the resolved physical path, never the declared textual path alone. |
+| `required` | boolean | `true` when the pipeline cannot produce a valid scored record for the affected layer without this source. |
+| `missing_behavior` | string enum | `"block_release"` \| `"neutral_skill_horizon_incomplete"` \| `"venue_fit_horizon_incomplete"` \| `"venue_history_missing"` \| `"widen_confidence"` \| `"skip_layer"` \| `"warn_only"`. Each of the thirteen required logical roles (§9.5) has exactly one permitted `required`/`missing_behavior` combination, fixed by the table in §9.5A — it is not an open per-event choice. `"skip_layer"` and `"warn_only"` are reserved for a documented additional role beyond the thirteen; neither is permitted for any of the thirteen, because neither maps to a defined `standards/02` §7.5 outcome and both risk implying an unauthorized cross-layer or core-rank effect. Every label in this enum is a documentation pointer that delegates its actual effect to `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §7.5 — this schema defines no missing-data arithmetic of its own. |
+| `schema_id` | string | Versioned identifier for this source's expected row/column shape, so a future column-shape change can be detected without renaming the manifest itself. |
+| `identity_key` | string enum | `"dg_id"` \| `"player_name"` \| `"dg_id+player_name"` — declares which identity column(s) this physical source actually carries. Documentation only; does not alter `engine/identity_resolver.py`'s resolution precedence (Rule 11). |
+| `encoding` | string | `"utf-8"` or `"utf-8-sig"`, matching the CSV Rules already declared in `docs/data_contracts.md`. |
+| `sha256` | string \| null | `null`, or a lowercase 64-character hexadecimal raw-byte SHA-256 digest of the physical file. `null` means the integrity assertion was not supplied — diagnostic absence, never a validated success. When a non-null value is supplied, a future validator must compute the physical regular file's raw-byte SHA-256 digest and require an exact match; any mismatch is a validation failure, not a warning. A validator never silently recomputes and patches a stale value back into the manifest, consistent with the existing deploy-profile integrity convention in `docs/data_contracts.md`. No validator exists yet — this row defines future validation semantics only. |
+| `row_count` | integer \| null | `null`, or a non-negative integer count of data rows, excluding the header row. `null` means the integrity assertion was not supplied — diagnostic absence, never a validated success. When a non-null value is supplied, a future validator must count the physical file's data rows deterministically (excluding its header, under this entry's declared `encoding`) and require an exact match against the supplied value; any mismatch is a validation failure, not a warning. No validator exists yet — this row defines future validation semantics only. |
+| `metadata` | object | Free-form, source-specific. Must never contain an API credential or secret key of any kind (Rule 12). Required sub-fields for specific roles are listed in §9.5/§9.6. |
+
+### 9.5 Required logical roles
+
+Every valid `source_manifest` must declare exactly these thirteen roles (each `required: true` unless the event's own scoring depth genuinely cannot supply it, per Rule 9):
+
+```text
+field
+neutral_skill.sg_total.6m
+neutral_skill.sg_total.12m
+neutral_skill.sg_total.24m
+venue_fit.similar_sg.6m
+venue_fit.similar_sg.12m
+venue_fit.similar_sg.24m
+traits.approach.sg_per_shot.12m
+traits.approach.proximity.12m
+performance.sg_categories.season
+benchmark.decomposition
+venue_history
+recent_form.trending
+```
+
+Illustrative (non-authoritative, backward-compatibility-only) mapping of these roles onto the current archived `2026_3m_open` input files, shown to prove the thirteen roles are sufficient to describe the current producer's actual inputs without inventing a new one:
+
+| Role | Current physical file (`events/2026_Finished_Events/2026_3m_open/input/`) |
+|---|---|
+| `field` | `pga_field.csv` |
+| `neutral_skill.sg_total.6m` | `pga_sg_query_allcourses_l6.csv` |
+| `neutral_skill.sg_total.12m` | `pga_sg_query_allcourses_l12.csv` |
+| `neutral_skill.sg_total.24m` | `pga_sg_query_allcourses_l24.csv` |
+| `venue_fit.similar_sg.6m` | `pga_sg_query_3Mopen_similar_l6.csv` |
+| `venue_fit.similar_sg.12m` | `pga_sg_query_3Mopen_similar_l12.csv` |
+| `venue_fit.similar_sg.24m` | `pga_sg_query_3Mopen_similar_l24.csv` |
+| `traits.approach.sg_per_shot.12m` | `app_skill_l12_sg.csv` |
+| `traits.approach.proximity.12m` | `app_skill_l12_prox.csv` |
+| `performance.sg_categories.season` | `dg_performance_2026.csv` |
+| `benchmark.decomposition` | `dg_decomposition.csv` |
+| `venue_history` | `tpc_twin_cities_CH.csv` |
+| `recent_form.trending` | `pga_field_trending_table.csv` |
+
+This table is documentation evidence only. No file named `source_manifest.json` may be added to this or any other event directory as part of this contract phase, and none of the listed archived physical files may be renamed, copied, or moved.
+
+### 9.5A Deterministic role contract — required and missing_behavior
+
+Every logical role's `required` value and `missing_behavior` value are fixed by this table, not chosen per event or per manifest author. The "§7.5-delegated outcome" column restates the controlling rule already stated in `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` §7.5; this table creates no new scoring rule, changes no missing-data arithmetic, and authorizes no scorer change.
+
+| Logical role | `required` | `missing_behavior` | §7.5-delegated outcome |
+|---|---|---|---|
+| `field` | `true` | `block_release` | No field roster, no build. Release blocks before identity resolution or any artifact write. |
+| `neutral_skill.sg_total.6m` | `true` | `neutral_skill_horizon_incomplete` | This source's own absence never blocks release by itself and is never treated as numeric zero. Per §7.5, whether the player can still be scored is a NeutralSkill-composite-level determination: with two valid horizons, the missing horizon is omitted and the remaining weights renormalize within NeutralSkill; with fewer than two valid horizons, the player is `UNSCORED`. |
+| `neutral_skill.sg_total.12m` | `true` | `neutral_skill_horizon_incomplete` | Same §7.5 composite-level rule as the 6m entry above. |
+| `neutral_skill.sg_total.24m` | `true` | `neutral_skill_horizon_incomplete` | Same §7.5 composite-level rule as the 6m entry above. |
+| `venue_fit.similar_sg.6m` | `true` | `venue_fit_horizon_incomplete` | VenueFit has a fixed three-horizon formula (§7.5). Incomplete VenueFit evidence is non-computable — never weight-renormalized, never silently converted to a zero `VenueFitDeltaRaw`. A valid similar-course row reporting zero rounds is the distinct `DEBUT` state, not missing data. |
+| `venue_fit.similar_sg.12m` | `true` | `venue_fit_horizon_incomplete` | Same §7.5 rule as the 6m entry above. |
+| `venue_fit.similar_sg.24m` | `true` | `venue_fit_horizon_incomplete` | Same §7.5 rule as the 6m entry above. |
+| `venue_history` | `false` | `venue_history_missing` | Missing raw venue-history data remains missing — never synthesized, zero-filled, or marked present. Only `venue_history` confidence may widen (`THIN` below eight relevant starts or when structured evidence is absent, per §7.5). The canonical `VenueHistoryDeltaRaw = 0.0` is a separate, explicit neutral model contribution under §7.5 pending an approved bounded transform — it does not satisfy source presence and does not convert missing evidence into observed data. |
+| `traits.approach.sg_per_shot.12m` | `false` | `widen_confidence` | Scoped only to this role's own approach-trait evidence/confidence outcome. Missing optional trait data does not redistribute weight into `NeutralSkillRaw`, `VenueFitDeltaRaw`, or `VenueHistoryDeltaRaw`, and never substitutes for core rank. |
+| `traits.approach.proximity.12m` | `false` | `widen_confidence` | Same scoping rule as the row above, limited to this role's own proximity-evidence outcome. |
+| `performance.sg_categories.season` | `false` | `widen_confidence` | Scoped only to this role's own performance-context outcome; never redistributed into a scored layer or core rank. |
+| `benchmark.decomposition` | `false` | `widen_confidence` | Scoped only to this role's own benchmark-context outcome (DG benchmark fields render `"unknown"` per §6). DG fields remain read-only context under `standards/02` §14 and never determine official rank regardless of this source's presence. |
+| `recent_form.trending` | `false` | `widen_confidence` | Scoped only to this role's own recent-form-context outcome; never redistributed into a scored layer or core rank. |
+
+This table is the sole authority for `required`/`missing_behavior` combinations on the thirteen roles. A manifest declaring a different combination for one of these thirteen roles is a release-blocking manifest defect.
+
+### 9.6 Cross-field rules
+
+1. **Physical filenames are arbitrary and never inferred from event names.** A conforming resolver must read `path` literally from the manifest; it must never construct a filename by string-substituting `event_slug` or `venue_slug` into a pattern (the exact defect `SIM_COURSES_FILES`'s `3Mopen`-named literals represent today).
+2. **Paths are relative to the active event input directory** (`events/{event_slug}/input/`), never to the repository root or any other directory.
+3. **Absolute, traversal, archived, and repository-escape paths are invalid; the resolved target must be a regular file inside the event's own input root.** A conforming resolver must reject `path` under the same path-safety approach `engine/event_context.py` already applies to manifest path fields — no leading `/`, no drive prefix, no backslash, no `..` segment, no `2026_Finished_Events`/`Finished_Events` segment, checked lexically (before resolution) and again on the resolved path (after resolution) — plus this schema's own additional requirement that the resolved target (a) is a regular file, not a directory or other filesystem object, and (b) stays inside `EventContext.event_root / "input"` specifically, not merely somewhere inside the repository. Containment is established with `resolve()` + `relative_to()` against that input root, exactly as `engine/event_context.py` already does against the repository root, so a symlink or filesystem junction that resolves outside `EventContext.event_root / "input"` is rejected on the same basis, not merely on its declared textual path. This is the existing `EventContext` safety approach extended with source-file containment, not a separate path-safety system.
+4. **`event_slug` and `venue_slug` must match `EventContext`.** A source manifest's declared `event_slug`/`venue_slug` must equal the values already validated by `engine/event_context.py`'s `EventContext` for the active build; a mismatch is release-blocking, the same way `require_supported_context()` already blocks a mismatched event/venue pairing today.
+5. **Logical roles are unique.** Two entries declaring the same `role` in one manifest is a release-blocking manifest defect.
+6. **All three similar-course horizons must share one provenance identity and declare their own horizon.** The `metadata` of `venue_fit.similar_sg.6m`, `venue_fit.similar_sg.12m`, and `venue_fit.similar_sg.24m` must each declare `similar_course_set_id`, `set_version`, `set_provenance`, and `horizon_months`. All three entries must declare the identical `similar_course_set_id`, `set_version`, and `set_provenance` — three horizons of one inconsistent similar-course methodology is a data-integrity defect, not three independent choices. `horizon_months` must be an integer equal to `6`, `12`, or `24`, matching that entry's own role suffix (`venue_fit.similar_sg.6m` → `6`, and so on) — a mismatch between `horizon_months` and the role suffix is a release-blocking manifest defect.
+7. **`venue_history` metadata must match the active venue.** The `venue_history` entry's `metadata` must carry a `venue_slug` sub-field equal to the manifest's top-level `venue_slug`, exactly. This field is mandatory and deterministic — no alternate or equivalent field is a substitute — so a resolver checks it by direct equality rather than inferring venue identity from prose; a course-history file for the wrong venue must never be silently accepted.
+8. **`missing_behavior: block_release` sources block before identity resolution or artifact writes; the six composite-deferred horizon roles resolve at the composite level instead.** For any source whose fixed `missing_behavior` (§9.5A) is `block_release` — currently only `field` — a conforming resolver must stop before `engine/identity_resolver.py` runs and before any output or deploy write, the same fail-closed ordering `engine/event_context.py` already enforces for manifest/context validation. The six `neutral_skill.sg_total.*` and `venue_fit.similar_sg.*` roles are `required: true` but their fixed `missing_behavior` is `neutral_skill_horizon_incomplete` or `venue_fit_horizon_incomplete` (§9.5A), not `block_release`; a single missing horizon among these six does not by itself stop the build — the composite-level §7.5 outcome (renormalize, `UNSCORED`, or non-computable `VenueFitDeltaRaw`) governs instead.
+9. **`required: false` sources affect only their own declared confidence or context component.** Per §9.5A, `venue_history`, both `traits.approach.*` roles, `performance.sg_categories.season`, `benchmark.decomposition`, and `recent_form.trending` are `required: false` with a fixed `missing_behavior` of `venue_history_missing` or `widen_confidence`. A missing source among these six widens only its own named confidence or context component; it must never widen an unrelated component's confidence, redistribute weight into a scored layer, substitute for core rank, or block an otherwise-scorable player.
+10. **Missing data is not numeric zero.** Consistent with §2C of this document: an absent or unparseable source value remains missing (`null` / documented null-equivalent), never a silently substituted `0.0`.
+11. **`dg_id` remains the preferred identity key; names remain fallback only.** `identity_key` is descriptive metadata about what a physical source carries — it does not change, override, or duplicate `engine/identity_resolver.py`'s existing exact-`dg_id` → crosswalk → exact-name → encoding-fallback precedence.
+12. **No credentials.** `metadata` (or any other manifest field) must never contain a DataGolf API key, token, or other secret. A manifest containing one is a release-blocking security defect, not a warning.
+13. **Existing archived 3M physical files remain immutable.** Nothing in this contract authorizes renaming, copying, or moving any file under `events/2026_Finished_Events/2026_3m_open/input/` or `library/venues/tpc_twin_cities/`.
+14. **Backward compatibility uses explicit manifest entries for legacy filenames; no implicit 3M fallback is authorized.** If a manifest is ever authored for the archived `2026_3m_open` event, every `path` must explicitly name the existing legacy file (for example `"pga_sg_query_3Mopen_similar_l6.csv"`) verbatim. A resolver must never infer that filename from `event_slug` or `venue_slug` — the explicit `path` value is the only authority, precisely so a future non-3M event's manifest cannot accidentally inherit a 3M-shaped filename pattern.
+15. **This contract does not change the current producer.** It defines schema only. `engine/enrich_cards.py`'s payload shape, `schemaVersion` values, deploy filenames, `formulaMetadata`, ranks, tiers, probabilities, penalties, gates, and scoring arithmetic are unaffected until a separately authorized implementation phase.
+16. **`required` and `missing_behavior` are fixed per role, not chosen per event.** Every entry's `required` value and `missing_behavior` value must match §9.5A exactly for its role. A manifest declaring a different combination for one of the thirteen roles is a release-blocking manifest defect, and `skip_layer`/`warn_only` are not permitted for any of the thirteen (see the `missing_behavior` field rule in §9.4).
