@@ -30,13 +30,20 @@ from enrich_cards import (
 from identity_resolver import SourceRow
 from identity_resolver import normalize_name as _canonical_normalize_name
 from venuedna_scoring import SimilarCourseRow
-from event_context import EventContext
+from event_context import (
+    CAPABILITY_PRODUCTION_SUPPORTED,
+    CAPABILITY_TEST_ONLY_SUPPORTED,
+    CAPABILITY_UNSUPPORTED,
+    EventContext,
+    resolve_capability,
+)
 from source_manifest_resolver import (
     ROLE_MISSING_BEHAVIOR,
     ROLE_REQUIRED,
     REQUIRED_ROLES,
     SIMILAR_SG_HORIZON_MONTHS,
 )
+from venue_config import SEDGEFIELD_COUNTRY_CLUB, TPC_TWIN_CITIES
 
 
 def test_normalize_name_strips_quotes():
@@ -1944,3 +1951,162 @@ def test_sedgefield_venue_config_loads_and_is_structurally_distinct(tmp_path, mo
     assert isinstance(strength, list) and strength
     assert isinstance(weakness, list) and weakness
     assert isinstance(win_case, str) and win_case
+
+
+# ── Phase 4.4: Capability policy + two-venue regression harness ────────────
+#
+# These tests exercise engine/event_context.py's capability policy through
+# the real production/CLI path of main() (no `_context` kwarg -- the same
+# path a real `python engine/enrich_cards.py` invocation takes) by
+# monkeypatching only enrich_cards._ROOT to tmp_path and sys.argv to a
+# no-flags invocation, then writing a synthetic config/active_event.json
+# under that root. The real repository config/active_event.json is never
+# read, and no real events/ or library/ directory is touched.
+
+def _write_active_event_manifest(
+    tmp_path: Path, *, event_slug: str, venue_slug: str,
+    event_name: str | None = None, venue_name: str | None = None,
+) -> None:
+    manifest = {
+        "schema_version": "1.0",
+        "status": "PRE_EVENT",
+        "event_slug": event_slug,
+        "event_name": event_name or event_slug,
+        "venue_slug": venue_slug,
+        "venue_name": venue_name or venue_slug,
+        "year": 2026,
+        "event_root": f"events/{event_slug}",
+        "venue_profile": f"library/venues/{venue_slug}/{venue_slug}_venue_profile.md",
+        "deploy_root": f"events/{event_slug}/deploy",
+        "audit_root": f"events/{event_slug}/audit",
+    }
+    config_dir = tmp_path / "config"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (config_dir / "active_event.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+
+def _run_main_via_real_cli_path(monkeypatch, tmp_path) -> None:
+    """Invoke main() through its real, non-test-seam production entry point
+    -- no `_context`/`_live_mode` -- exactly as `python engine/enrich_cards.py`
+    would, reading config/active_event.json from monkeypatched _ROOT."""
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["enrich_cards.py"])
+    enrich_cards.main()
+
+
+def test_cli_production_path_admits_tpc_capability_supported_pair(tmp_path, monkeypatch):
+    """TPC production parity through the real CLI path (not the `_context`
+    test seam): a PRE_EVENT manifest for the one PRODUCTION_SUPPORTED pair
+    reaches full pipeline completion and writes output."""
+    event_slug = "2026_3m_open"
+    _write_active_event_manifest(tmp_path, event_slug=event_slug, venue_slug="tpc_twin_cities")
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug="tpc_twin_cities")
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+
+    _run_main_via_real_cli_path(monkeypatch, tmp_path)
+
+    payload = json.loads(_output_path(tmp_path, event_slug).read_text(encoding="utf-8"))
+    assert len(payload["players"]) == 2
+    assert resolve_capability(event_slug, "tpc_twin_cities").status == CAPABILITY_PRODUCTION_SUPPORTED
+
+
+def test_cli_production_path_rejects_sedgefield_test_only_pair(tmp_path, monkeypatch, capsys):
+    """A Wyndham/Sedgefield manifest must fail closed through the real CLI
+    path before any source file is read or any directory is created -- even
+    though real Sedgefield source files exist on disk for this event, since
+    the rejection happens at the capability gate, strictly before the
+    source-manifest read that would otherwise locate them."""
+    event_slug = "2026_wyndham_championship"
+    venue_slug = "sedgefield_country_club"
+    _write_active_event_manifest(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main_via_real_cli_path(monkeypatch, tmp_path)
+    assert exc_info.value.code != 0
+
+    captured = capsys.readouterr()
+    assert "Unsupported event/venue" in captured.err
+    assert "TEST_ONLY_SUPPORTED" in captured.err
+
+    assert resolve_capability(event_slug, venue_slug).status == CAPABILITY_TEST_ONLY_SUPPORTED
+    output_dir = tmp_path / "events" / event_slug / "output"
+    deploy_dir = tmp_path / "events" / event_slug / "deploy"
+    assert not output_dir.exists()
+    assert not deploy_dir.exists()
+
+
+def test_cli_production_path_rejects_unknown_pair(tmp_path, monkeypatch, capsys):
+    event_slug = "2099_unknown_event"
+    venue_slug = "unknown_venue"
+    _write_active_event_manifest(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main_via_real_cli_path(monkeypatch, tmp_path)
+    assert exc_info.value.code != 0
+
+    captured = capsys.readouterr()
+    assert "Unsupported event/venue" in captured.err
+    assert resolve_capability(event_slug, venue_slug).status == CAPABILITY_UNSUPPORTED
+    assert not (tmp_path / "events" / event_slug).exists()
+
+
+def test_sedgefield_test_only_context_drives_sedgefield_trait_weights_not_tpc(
+    tmp_path, monkeypatch
+):
+    """Full pipeline run reached only through main()'s internal `_context`
+    test-injection seam (never the CLI path proven blocked above), entirely
+    inside tmp_path. Proves venue-config selection binds SEDGEFIELD_COUNTRY_CLUB's
+    own trait weights -- not a TPC fallback -- to the produced payload."""
+    event_slug = "wyndham_test_fixture"
+    venue_slug = "sedgefield_country_club"
+    event = SyntheticEvent(tmp_path, event_slug=event_slug, venue_slug=venue_slug)
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+
+    context = _make_context(tmp_path, event_slug, venue_slug=venue_slug)
+    _run_main(monkeypatch, tmp_path, event_slug, context=context)
+
+    payload = json.loads(_output_path(tmp_path, event_slug).read_text(encoding="utf-8"))
+    approach_trait = next(
+        t for t in payload["players"][0]["trait_scores"] if t["label"] == "SG: Approach"
+    )
+    assert approach_trait["weight"] == pytest.approx(SEDGEFIELD_COUNTRY_CLUB.trait_weights.approach)
+    assert approach_trait["weight"] != pytest.approx(TPC_TWIN_CITIES.trait_weights.approach)
+
+    # This same (event_slug, venue_slug) pair -- reachable above only through
+    # the internal test seam -- is not production-admitted.
+    assert resolve_capability(event_slug, venue_slug).status == CAPABILITY_UNSUPPORTED
+
+
+def test_sedgefield_test_only_context_without_sources_creates_no_artifacts(tmp_path, monkeypatch):
+    """A test-only Sedgefield context injected via the seam, with no source
+    files or manifest written, must fail closed at the missing-manifest
+    check -- before any directory is created -- exactly like any other
+    missing-source production run. Proves the test seam does not bypass
+    missing-source conditions for a registered-but-non-production venue."""
+    event_slug = "wyndham_missing_sources"
+    venue_slug = "sedgefield_country_club"
+    event_root = tmp_path / "events" / event_slug
+    event_root.mkdir(parents=True)  # input/ deliberately not created
+
+    context = _make_context(tmp_path, event_slug, venue_slug=venue_slug)
+    with pytest.raises(SystemExit) as exc_info:
+        _run_main(monkeypatch, tmp_path, event_slug, context=context)
+    assert exc_info.value.code != 0
+
+    assert not (event_root / "output").exists()
+    assert not (event_root / "deploy").exists()
+
+
+def test_placeholder_synthetic_venue_pair_never_resolves_production_supported():
+    """The overwhelming majority of this suite's tests inject `_context`
+    with the placeholder venue_slug="synthetic_test_venue" (see _make_context's
+    default), relying on main()'s VenueConfigError->TPC_TWIN_CITIES diagnostic
+    fallback so those fixtures need no real venue registration. This proves
+    that fallback can never be leveraged into capability admission: the
+    capability policy resolves this pair independently of, and before, any
+    venue_config fallback, and it is UNSUPPORTED regardless of which
+    VenueConfig main() ends up using for narrative/diagnostic display."""
+    decision = resolve_capability("synthetic_event", "synthetic_test_venue")
+    assert decision.status == CAPABILITY_UNSUPPORTED

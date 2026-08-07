@@ -365,12 +365,34 @@ Event-local venue copies may exist for reproducibility. They do not supersede th
 Rules:
 
 1. This contract has no dependency on and no effect on `engine/venuedna_scoring.py`'s canonical `NeutralSkillRaw`/`VenueFitDeltaRaw`/`VenueHistoryDeltaRaw`/`PostGateRaw` formula (standards/02 §7.2-7.4). `vts_final`, `neutralSkillIndex`, rank, tier, and every probability field are unaffected by any `VenueConfig` value.
-2. Registering a `VenueConfig` does not admit a venue through `engine/event_context.py`'s `require_supported_context()` capability gate. The two mechanisms are independent; only the capability gate decides whether a venue may drive a live producer run. `sedgefield_country_club` has a registered, validated `VenueConfig` and is not admitted by that gate.
+2. Registering a `VenueConfig` does not admit a venue through `engine/event_context.py`'s production capability gate (`require_supported_context()` through Phase 4.3; `require_production_capability()`/the capability policy from Phase 4.4 — see below). The two mechanisms are independent; only the capability gate decides whether a venue may drive a live producer run. `sedgefield_country_club` has a registered, validated `VenueConfig` and is not admitted by that gate.
 3. A `VenueConfig` is validated at construction (numeric range and type checks on every field); an invalid value raises `VenueConfigError` rather than silently clamping, defaulting, or falling back.
 4. TPC Twin Cities' `VenueConfig` values are numerically identical to the constants `engine/enrich_cards.py` hardcoded before this phase; every function that consumes `venue_config` defaults to `TPC_TWIN_CITIES`, so unchanged call sites (including the entire pre-Phase-4.3 test suite) are byte-identical.
 5. `debut_framework.ch_haircut` and `variance_class` are declared for schema completeness and are not currently consumed by any score — `VenueHistoryDeltaRaw` remains `0.0` per standards/02 §7.2/§7.4 regardless of this contract.
 6. No `VenueConfig` field is a formula-v2.0.0 core addend, penalty, or gate (`penalty_gate_set_id` remains `venuedna_v2_none` for every venue).
 7. A `RECONSTRUCTED` `status` value marks a doctrine-derived, provisional configuration not yet validated against real per-player venue-history evidence; treat its trait/threshold values as a hypothesis, not doctrine, until validated.
+
+## Capability Policy Contract (Phase 4.4)
+
+**Status: implemented — two explicit (event_slug, venue_slug) pairs registered; the producer's real CLI path admits only one of them.** `engine/event_context.py` defines a three-state capability policy — `PRODUCTION_SUPPORTED`, `TEST_ONLY_SUPPORTED`, `UNSUPPORTED` — replacing the prior single-pair-only gate concept with an explicit, testable pair registry (`resolve_capability()`) and a fail-closed production/CLI admission function (`require_production_capability()`). `engine/enrich_cards.py`'s `main()` calls `require_production_capability()` on its real, non-test-seam production path. Full rationale, the two-venue regression proof, and promotion criteria are canonical in `docs/decisions/2026_08_06_capability_policy_two_venue_regression.md`.
+
+| Producer | Consumer | Contract | Rule |
+|---|---|---|---|
+| Capability-policy author (adds an explicit `CapabilityPolicyEntry`; no automated promotion path exists) | `engine/enrich_cards.py` via `engine/event_context.require_production_capability()` | `engine/event_context.py`'s in-module `_CAPABILITY_POLICY` table | Maps an explicit `(event_slug, venue_slug)` pair → one of three capability states; never a wildcard or "any registered venue" rule |
+
+States:
+
+- **`PRODUCTION_SUPPORTED`** — may be admitted by normal producer CLI execution once the normal active-event, source-manifest, input, and release validations also pass. Today this is exactly one pair: `(2026_3m_open, tpc_twin_cities)`.
+- **`TEST_ONLY_SUPPORTED`** — may be admitted only through `engine/enrich_cards.py main()`'s internal, argparse-invisible `_context` test-injection seam, for deterministic regression testing. Never satisfies `require_production_capability()`; never reachable from CLI arguments, environment variables, or `config/active_event.json` values. Today this is exactly one pair: `(2026_wyndham_championship, sedgefield_country_club)`.
+- **`UNSUPPORTED`** — fails closed. Includes every pair absent from the policy table, a registered venue paired with the wrong event (or vice versa), and a policy entry whose named venue has no valid, registered `VenueConfig`.
+
+Rules:
+
+1. `resolve_capability(event_slug, venue_slug)` is a pure lookup against the explicit policy table plus a `load_venue_config()` existence/validity check; it performs no filesystem I/O beyond that in-module registry call and never reads an event-bound path.
+2. A registered `VenueConfig` is never by itself production authorization, and a policy-table entry naming an unregistered venue is never a silent grant — both conditions (matching policy entry *and* valid `VenueConfig`) must hold for a non-`UNSUPPORTED` result.
+3. `require_production_capability()` raises `EventContextError` for anything other than `PRODUCTION_SUPPORTED`, including `TEST_ONLY_SUPPORTED` — it is called after `EventContext` validation and strictly before any event-bound input read, directory creation, or write.
+4. `TEST_ONLY_SUPPORTED` does not authorize event initialization, producer CLI use, source-manifest authoring, scoring, output, deploy, or release for that pair. Passing the two-venue regression harness (`tests/test_event_context.py`, `tests/test_enrich_cards.py`) does not claim Sedgefield/Wyndham source readiness.
+5. This contract has no dependency on and no effect on `engine/venuedna_scoring.py`'s canonical formula, `standards/02`'s missing-data doctrine, or `standards/04`/`standards/VENUEDNA_CODEX_SCHEMA.md`'s artifact schemas.
 
 ## Core Projection Contract
 

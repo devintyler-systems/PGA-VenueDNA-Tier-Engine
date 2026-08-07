@@ -14,13 +14,20 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "engine"))
 
 from event_context import (  # noqa: E402
+    CAPABILITY_PRODUCTION_SUPPORTED,
+    CAPABILITY_TEST_ONLY_SUPPORTED,
+    CAPABILITY_UNSUPPORTED,
+    CapabilityPolicyEntry,
     EventContext,
     EventContextError,
     load_pre_event_context,
+    require_production_capability,
     require_supported_context,
+    resolve_capability,
     _resolve_within_repo,
     _archived_segment_present,
 )
+import event_context as event_context_module  # noqa: E402
 
 
 def _write_manifest(repo_root: Path, manifest: dict) -> Path:
@@ -406,3 +413,112 @@ def test_require_supported_context_rejects_both_wrong():
         require_supported_context(
             context, supported_event_slug="2026_3m_open", supported_venue_slug="tpc_twin_cities"
         )
+
+
+# ── Capability Policy (Phase 4.4) ───────────────────────────────────────────
+#
+# resolve_capability()/require_production_capability() are pure functions --
+# no test here creates a directory, writes a file, initializes an event, or
+# touches config/active_event.json. Every EventContext below is a synthetic,
+# in-memory dataclass instance (via _make_context), identical in kind to the
+# fixtures already used above for require_supported_context().
+
+def test_resolve_capability_tpc_is_production_supported():
+    decision = resolve_capability("2026_3m_open", "tpc_twin_cities")
+    assert decision.status == CAPABILITY_PRODUCTION_SUPPORTED
+    assert decision.event_slug == "2026_3m_open"
+    assert decision.venue_slug == "tpc_twin_cities"
+    assert decision.reason
+
+
+def test_resolve_capability_sedgefield_is_test_only_supported():
+    decision = resolve_capability("2026_wyndham_championship", "sedgefield_country_club")
+    assert decision.status == CAPABILITY_TEST_ONLY_SUPPORTED
+    assert decision.reason
+
+
+def test_resolve_capability_unknown_pair_is_unsupported():
+    decision = resolve_capability("2099_unknown_event", "unknown_venue")
+    assert decision.status == CAPABILITY_UNSUPPORTED
+    assert "No capability policy entry" in decision.reason
+
+
+def test_resolve_capability_known_event_wrong_venue_is_unsupported():
+    """The 2026_3m_open event_slug is policy-registered, but only paired
+    with tpc_twin_cities -- pairing it with Sedgefield must not partially
+    match or fall back to the TPC entry."""
+    decision = resolve_capability("2026_3m_open", "sedgefield_country_club")
+    assert decision.status == CAPABILITY_UNSUPPORTED
+
+
+def test_resolve_capability_known_venue_wrong_event_is_unsupported():
+    """sedgefield_country_club is policy-registered, but only paired with
+    2026_wyndham_championship -- pairing it with the 3M event must not
+    match either registered entry."""
+    decision = resolve_capability("2026_3m_open_wrong", "sedgefield_country_club")
+    assert decision.status == CAPABILITY_UNSUPPORTED
+
+
+def test_resolve_capability_tpc_venue_wrong_event_is_unsupported():
+    decision = resolve_capability("2026_wyndham_championship", "tpc_twin_cities")
+    assert decision.status == CAPABILITY_UNSUPPORTED
+
+
+def test_resolve_capability_registered_pair_with_missing_venue_config_fails_closed(monkeypatch):
+    """A capability-policy entry naming a venue_slug that has no registered
+    VenueConfig (a policy/registry drift) must fail closed to UNSUPPORTED,
+    never silently grant its declared status. Uses a synthetic policy table
+    via monkeypatch -- the real, committed _CAPABILITY_POLICY is untouched."""
+    fake_entry = CapabilityPolicyEntry(
+        event_slug="test_event_x", venue_slug="phantom_venue",
+        status=CAPABILITY_PRODUCTION_SUPPORTED,
+    )
+    monkeypatch.setattr(event_context_module, "_CAPABILITY_POLICY", (fake_entry,))
+    decision = resolve_capability("test_event_x", "phantom_venue")
+    assert decision.status == CAPABILITY_UNSUPPORTED
+    assert "no valid VenueConfig is registered" in decision.reason
+
+
+def test_capability_policy_table_has_no_duplicate_pairs():
+    """Regression guard: the committed policy table must remain a set of
+    distinct explicit pairs, never two entries resolving the same lookup."""
+    seen = set()
+    for entry in event_context_module._CAPABILITY_POLICY:
+        key = (entry.event_slug, entry.venue_slug)
+        assert key not in seen, f"duplicate capability policy entry: {key}"
+        seen.add(key)
+
+
+def test_require_production_capability_accepts_tpc_context():
+    context = _make_context(event_slug="2026_3m_open", venue_slug="tpc_twin_cities")
+    decision = require_production_capability(context)  # must not raise
+    assert decision.status == CAPABILITY_PRODUCTION_SUPPORTED
+
+
+def test_require_production_capability_rejects_sedgefield_test_only_context():
+    """TEST_ONLY_SUPPORTED must not satisfy the production/CLI gate -- this
+    is the exact function engine/enrich_cards.py's main() calls on its real
+    command-line path, so this proves a Sedgefield/Wyndham context cannot
+    reach production admission through it."""
+    context = _make_context(
+        event_slug="2026_wyndham_championship", venue_slug="sedgefield_country_club"
+    )
+    with pytest.raises(EventContextError, match="Unsupported event/venue"):
+        require_production_capability(context)
+
+
+def test_require_production_capability_rejects_unsupported_context():
+    context = _make_context(event_slug="2099_unknown_event", venue_slug="unknown_venue")
+    with pytest.raises(EventContextError, match="Unsupported event/venue"):
+        require_production_capability(context)
+
+
+def test_require_production_capability_error_names_capability_status():
+    """The raised error must surface the resolved capability_status/reason,
+    not merely a generic mismatch message, so an operator can distinguish
+    TEST_ONLY_SUPPORTED from a genuinely unknown pair."""
+    context = _make_context(
+        event_slug="2026_wyndham_championship", venue_slug="sedgefield_country_club"
+    )
+    with pytest.raises(EventContextError, match="TEST_ONLY_SUPPORTED"):
+        require_production_capability(context)

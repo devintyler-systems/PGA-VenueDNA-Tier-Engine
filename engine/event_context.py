@@ -12,8 +12,13 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from venue_config import VenueConfigError, load_venue_config  # noqa: E402
 
 REQUIRED_MANIFEST_FIELDS = (
     "status",
@@ -285,3 +290,133 @@ def require_supported_context(
             f"separately authorized migration before this producer can run for "
             f"another event or venue."
         )
+
+
+# ── Capability Policy (Phase 4.4) ───────────────────────────────────────────
+#
+# Generalizes the single-pair gate above into three explicit states so a
+# second venue (Sedgefield Country Club) can be registered and deterministically
+# regression-tested without being admitted to production. Registering a pair
+# here is never itself production authorization -- see resolve_capability().
+
+CAPABILITY_PRODUCTION_SUPPORTED = "PRODUCTION_SUPPORTED"
+CAPABILITY_TEST_ONLY_SUPPORTED = "TEST_ONLY_SUPPORTED"
+CAPABILITY_UNSUPPORTED = "UNSUPPORTED"
+
+
+@dataclass(frozen=True)
+class CapabilityPolicyEntry:
+    """One explicit, named (event_slug, venue_slug) pair and its capability
+    status. Pair records only -- this policy never admits a pair through a
+    wildcard or an "any registered venue" rule; an unlisted pair (including
+    a listed venue paired with the wrong event, or vice versa) is not looked
+    up at all and falls through resolve_capability() to UNSUPPORTED."""
+
+    event_slug: str
+    venue_slug: str
+    status: str
+
+
+# Explicit two-venue policy table. TPC Twin Cities / 2026 3M Open is this
+# producer's only production-admitted pair (matches SUPPORTED_EVENT_SLUG /
+# SUPPORTED_VENUE_SLUG in engine/enrich_cards.py and require_supported_context()
+# above). Sedgefield Country Club is registered as TEST_ONLY_SUPPORTED: no
+# Wyndham Championship event exists or is initialized by this policy entry
+# -- the string below is a capability-lookup key, not an event-initialization
+# action -- and TEST_ONLY_SUPPORTED never satisfies require_production_capability()
+# (see docs/decisions/2026_08_06_capability_policy_two_venue_regression.md).
+_CAPABILITY_POLICY: tuple[CapabilityPolicyEntry, ...] = (
+    CapabilityPolicyEntry(
+        event_slug="2026_3m_open", venue_slug="tpc_twin_cities",
+        status=CAPABILITY_PRODUCTION_SUPPORTED,
+    ),
+    CapabilityPolicyEntry(
+        event_slug="2026_wyndham_championship", venue_slug="sedgefield_country_club",
+        status=CAPABILITY_TEST_ONLY_SUPPORTED,
+    ),
+)
+
+
+@dataclass(frozen=True)
+class CapabilityDecision:
+    """Testable outcome of one resolve_capability() lookup."""
+
+    status: str
+    event_slug: str
+    venue_slug: str
+    reason: str
+
+
+def resolve_capability(event_slug: str, venue_slug: str) -> CapabilityDecision:
+    """Pure, fail-closed capability lookup for one explicit (event_slug,
+    venue_slug) pair. Performs no filesystem I/O of its own beyond the
+    already-imported, in-module engine/venue_config.py registry lookup --
+    never reads an event-bound path, creates a directory, or writes.
+
+    Resolves UNSUPPORTED -- never a partial or inferred match -- for: a pair
+    absent from the explicit policy table; a known venue paired with an
+    unlisted event; a known event paired with an unlisted venue; or a policy
+    entry whose named venue_slug has no valid, registered VenueConfig (a
+    policy/registry drift, treated as a configuration defect rather than a
+    silent grant). A matched entry's declared status (PRODUCTION_SUPPORTED or
+    TEST_ONLY_SUPPORTED) is returned only once that VenueConfig existence
+    check passes -- a registered VenueConfig alone is never sufficient
+    without a matching policy entry, and a policy entry alone is never
+    sufficient without a valid VenueConfig.
+    """
+    entry = next(
+        (e for e in _CAPABILITY_POLICY if e.event_slug == event_slug and e.venue_slug == venue_slug),
+        None,
+    )
+    if entry is None:
+        return CapabilityDecision(
+            status=CAPABILITY_UNSUPPORTED, event_slug=event_slug, venue_slug=venue_slug,
+            reason=(
+                f"No capability policy entry for event_slug={event_slug!r}, "
+                f"venue_slug={venue_slug!r}."
+            ),
+        )
+    try:
+        load_venue_config(venue_slug)
+    except VenueConfigError as exc:
+        return CapabilityDecision(
+            status=CAPABILITY_UNSUPPORTED, event_slug=event_slug, venue_slug=venue_slug,
+            reason=(
+                f"Capability policy names venue_slug={venue_slug!r} as "
+                f"{entry.status}, but no valid VenueConfig is registered: {exc}"
+            ),
+        )
+    return CapabilityDecision(
+        status=entry.status, event_slug=event_slug, venue_slug=venue_slug,
+        reason=f"Matched explicit capability policy entry (status={entry.status}).",
+    )
+
+
+def require_production_capability(context: EventContext) -> CapabilityDecision:
+    """Fail-closed production/CLI admission gate -- the sole authority
+    engine/enrich_cards.py's main() calls on its real command-line path.
+
+    Raises EventContextError unless resolve_capability() resolves
+    PRODUCTION_SUPPORTED for (context.event_slug, context.venue_slug). A
+    TEST_ONLY_SUPPORTED pair -- including Sedgefield Country Club -- is
+    explicitly rejected here, identically to an UNSUPPORTED pair:
+    TEST_ONLY_SUPPORTED status only ever reaches deterministic test
+    assertions through main()'s internal `_context` test-injection seam,
+    never through this production entry point. Call this after
+    load_pre_event_context() succeeds and before any event-bound input
+    read, directory creation, or write.
+    """
+    decision = resolve_capability(context.event_slug, context.venue_slug)
+    if decision.status != CAPABILITY_PRODUCTION_SUPPORTED:
+        raise EventContextError(
+            "Unsupported event/venue context for this producer: "
+            f"got event_slug={context.event_slug!r}, venue_slug={context.venue_slug!r}; "
+            f"capability_status={decision.status} ({decision.reason}) This producer "
+            f"requires an explicit PRODUCTION_SUPPORTED capability policy entry to run "
+            f"for an event/venue pair. A TEST_ONLY_SUPPORTED pair does not authorize "
+            f"event initialization, producer CLI use, source-manifest authoring, "
+            f"scoring, output, deploy, or release. Venue generalization requires a "
+            f"separately authorized migration before this producer can run for "
+            f"another event or venue."
+        )
+    return decision

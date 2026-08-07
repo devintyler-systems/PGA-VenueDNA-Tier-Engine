@@ -43,7 +43,7 @@ from event_context import (  # noqa: E402
     EventContext,
     EventContextError,
     load_pre_event_context,
-    require_supported_context,
+    require_production_capability,
 )
 from venuedna_scoring import (  # noqa: E402
     FORMULA_METADATA as CANONICAL_FORMULA_METADATA,
@@ -66,12 +66,15 @@ from venue_config import (  # noqa: E402
 
 # ── §1  Constants ──────────────────────────────────────────────────────────────
 
-# Temporary capability gate (see require_supported_context() call in main()):
-# the narrative copy in build_headline()/build_win_case() and the venue
-# trait weights below remain hardcoded to this one event/venue pending a
-# separately authorized venue-generalization migration. Do not run this
+# Documentation/back-compat constants only (Phase 4.4): the actual production
+# admission gate is engine/event_context.py's capability policy, called below
+# as require_production_capability(context). These two values describe --
+# but no longer themselves drive -- that policy's sole PRODUCTION_SUPPORTED
+# entry; the narrative copy in build_headline()/build_win_case() and the
+# venue trait weights below remain hardcoded to this one event/venue pending
+# a separately authorized venue-generalization migration. Do not run this
 # producer's remaining logic for another event or venue by editing these
-# two constants alone.
+# two constants alone -- that would not change the capability policy table.
 SUPPORTED_EVENT_SLUG = "2026_3m_open"
 SUPPORTED_VENUE_SLUG = "tpc_twin_cities"
 
@@ -1171,31 +1174,42 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
             context = load_pre_event_context(
                 _ROOT / "config" / "active_event.json", repo_root=_ROOT,
             )
-            require_supported_context(
-                context,
-                supported_event_slug=SUPPORTED_EVENT_SLUG,
-                supported_venue_slug=SUPPORTED_VENUE_SLUG,
-            )
+            require_production_capability(context)
         except EventContextError as exc:
             print(f"[enrich_cards] ERROR — {exc}", file=sys.stderr)
             sys.exit(1)
         live_mode = None
 
-    # ── Venue configuration resolution (Phase 4.3) ──────────────────────────
+    # ── Venue configuration resolution (Phase 4.3; policy-independence note
+    # added Phase 4.4) ────────────────────────────────────────────────────
     #
-    # require_supported_context() above is the sole authority on which
-    # event/venue combination this producer may run for in production; every
-    # CLI-invoked run reaches this point only after passing it with
-    # venue_slug == SUPPORTED_VENUE_SLUG ("tpc_twin_cities"), a registered
-    # VenueConfig. The internal test-injection seam (the `_context` branch
-    # above) intentionally bypasses that gate and may inject an arbitrary
-    # placeholder venue_slug unrelated to any registered VenueConfig, so an
+    # require_production_capability() above -- engine/event_context.py's
+    # capability policy -- is the sole authority on which event/venue
+    # combination this producer may run for in production; every CLI-invoked
+    # run reaches this point only after resolving PRODUCTION_SUPPORTED for
+    # (context.event_slug, context.venue_slug), which today matches exactly
+    # one pair: event_slug=SUPPORTED_EVENT_SLUG, venue_slug=SUPPORTED_VENUE_SLUG
+    # ("tpc_twin_cities"), a registered VenueConfig. The internal
+    # test-injection seam (the `_context` branch above) intentionally
+    # bypasses that gate and may inject an arbitrary placeholder venue_slug
+    # unrelated to any registered VenueConfig (see tests/test_enrich_cards.py's
+    # SyntheticEvent/_make_context default of "synthetic_test_venue"), so an
     # unregistered venue_slug here falls back to TPC_TWIN_CITIES -- the same
     # constants every caller (including that test seam) already used before
-    # this venue-config layer existed. This fallback never changes which
-    # venue may reach a real production run; it only keeps unrelated test
-    # venue labels from tripping a second, narrower registry-membership
-    # check that require_supported_context() does not itself enforce.
+    # this venue-config layer existed. This fallback affects only the
+    # diagnostic/narrative trait_scores, anti_pattern_flags, and
+    # strength/weakness-tag values written to a test-seam-produced payload
+    # under tmp_path; it can never grant CAPABILITY_PRODUCTION_SUPPORTED --
+    # resolve_capability()/require_production_capability() run only in the
+    # non-`_context` CLI branch above, are computed independently of this
+    # fallback, and are never consulted or re-run down here. A registered
+    # venue whose (event_slug, venue_slug) pair is not itself
+    # PRODUCTION_SUPPORTED (Sedgefield Country Club today) resolves its own
+    # real VenueConfig here -- load_venue_config("sedgefield_country_club")
+    # succeeds and returns SEDGEFIELD_COUNTRY_CLUB directly, never hitting
+    # this except branch -- so this fallback can never substitute TPC's
+    # configuration for a different, validly-registered venue's own values
+    # (tests/test_enrich_cards.py proves this end to end).
     try:
         venue_config = load_venue_config(context.venue_slug)
     except VenueConfigError:
