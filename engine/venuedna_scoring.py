@@ -93,17 +93,27 @@ CONFIDENCE_SOURCES: tuple[str, ...] = (
     "data_completeness", "conditions",
 )
 
+# ``total_mean`` keeps its raw nullable value.  This state records whether a
+# null came from a documented source-native null sentinel or from invalid
+# input, so a zero-observation DEBUT cannot be confused with malformed data.
+TOTAL_MEAN_FINITE = "finite"
+TOTAL_MEAN_SOURCE_NULL = "source_null"
+TOTAL_MEAN_INVALID = "invalid"
+
 
 @dataclass(frozen=True)
 class SimilarCourseRow:
     """A valid, present similar-course source row for one horizon.
-    ``rounds_played == 0`` is the legitimate DEBUT state, not missing data.
+    ``rounds_played == 0`` is a legitimate DEBUT state when ``total_mean`` is
+    finite or ``total_mean_state`` records a source-native null sentinel.
+    The raw source null remains ``None``; it is never converted to ``0.0``.
     A horizon with no row at all is represented by ``None``, never by this
     type with a fabricated zero.
     """
 
     rounds_played: Optional[int]
     total_mean: Optional[float]
+    total_mean_state: str = TOTAL_MEAN_FINITE
 
 
 @dataclass(frozen=True)
@@ -176,13 +186,34 @@ def compute_venue_fit(
     Formula v2 has a fixed three-horizon VenueFit vector.  Unlike
     NeutralSkill, doctrine does *not* authorize renormalizing the delta
     weights when a horizon is incomplete: every horizon therefore has to be
-    present and valid before this component is computable.  A present row
-    reporting zero rounds is a valid DEBUT observation; its total mean is
-    intentionally irrelevant because the regression weight is zero.
+    present and valid before this component is computable. A present row
+    reporting zero rounds is a valid DEBUT observation only when its mean is
+    finite or is the preserved source-native null sentinel; its total mean is
+    intentionally irrelevant because the regression weight is zero. A
+    malformed or non-finite mean is not a DEBUT observation.
     """
     rows = tuple(similar_course_rows.get(h) for h in HORIZONS)
     bases = tuple(base_horizons.get(h) for h in HORIZONS)
-    all_zero_rounds = all(row is not None and row.rounds_played == 0 for row in rows)
+
+    def valid_rounds(rounds: object) -> bool:
+        return isinstance(rounds, int) and not isinstance(rounds, bool) and rounds >= 0
+
+    def finite_mean(row: SimilarCourseRow) -> bool:
+        return (
+            row.total_mean_state == TOTAL_MEAN_FINITE
+            and isinstance(row.total_mean, (int, float))
+            and not isinstance(row.total_mean, bool)
+            and math.isfinite(row.total_mean)
+        )
+
+    def valid_zero_observation_debut(row: Optional[SimilarCourseRow]) -> bool:
+        if row is None or row.rounds_played != 0 or not valid_rounds(row.rounds_played):
+            return False
+        return finite_mean(row) or (
+            row.total_mean is None and row.total_mean_state == TOTAL_MEAN_SOURCE_NULL
+        )
+
+    all_zero_rounds = all(valid_zero_observation_debut(row) for row in rows)
 
     if all_zero_rounds and all(base is not None for base in bases):
         return VenueFitResult(
@@ -196,9 +227,8 @@ def compute_venue_fit(
         h for h in HORIZONS
         if (
             similar_course_rows.get(h) is not None
-            and similar_course_rows[h].rounds_played is not None
-            and similar_course_rows[h].rounds_played >= 0
-            and similar_course_rows[h].total_mean is not None
+            and valid_rounds(similar_course_rows[h].rounds_played)
+            and finite_mean(similar_course_rows[h])
             and base_horizons.get(h) is not None
         )
     )
@@ -214,7 +244,7 @@ def compute_venue_fit(
     for h in HORIZONS:
         row = similar_course_rows[h]
         base = base_horizons[h]
-        assert row is not None and row.rounds_played is not None and row.total_mean is not None
+        assert row is not None and valid_rounds(row.rounds_played) and finite_mean(row)
         assert base is not None
         w = min(1.0, row.rounds_played / 20.0)
         sg_sim_reg = w * row.total_mean + (1 - w) * base

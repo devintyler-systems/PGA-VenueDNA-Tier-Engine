@@ -293,6 +293,12 @@ def test_debut_regression(doctrine_repo: Path) -> None:
     assert "GOV_DEBUT_REQUIRES_VALID_ROW" in _rule_ids(doctrine_repo)
 
 
+def test_source_native_zero_observation_debut_regression(doctrine_repo: Path) -> None:
+    spec = _path(doctrine_repo, FIXTURE_FILES[0]).read_text(encoding="utf-8")
+    assert "it is a zero-observation DEBUT state, retains `total_mean: null`" in spec
+    assert "is never converted to `0.0`" in spec
+
+
 def test_venue_history_neutral_zero_regression(doctrine_repo: Path) -> None:
     _replace(
         doctrine_repo,

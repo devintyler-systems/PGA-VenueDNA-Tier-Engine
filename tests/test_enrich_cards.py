@@ -27,7 +27,7 @@ from enrich_cards import (
     adapt_to_v2_neutral_skill_horizons,
     adapt_to_v2_similar_course_rows,
 )
-from identity_resolver import SourceRow
+from identity_resolver import SourceRow, build_field_index, build_release_report, resolve_source_family
 from identity_resolver import normalize_name as _canonical_normalize_name
 from venuedna_scoring import SimilarCourseRow
 from event_context import (
@@ -42,6 +42,8 @@ from source_manifest_resolver import (
     ROLE_REQUIRED,
     REQUIRED_ROLES,
     SIMILAR_SG_HORIZON_MONTHS,
+    SourceManifestContext,
+    resolve_source_manifest,
 )
 from venue_config import SEDGEFIELD_COUNTRY_CLUB, TPC_TWIN_CITIES
 
@@ -71,7 +73,11 @@ def test_load_sg_csv_reads_csv(tmp_path):
     assert len(result) == 1
     assert result[0].source_name == "Scheffler, Scottie"
     assert result[0].dg_id is None
-    assert result[0].payload == {"rounds": 20, "total_mean": 2.5}
+    assert result[0].payload == {
+        "rounds": 20,
+        "total_mean": 2.5,
+        "total_mean_state": "finite",
+    }
     assert result[0].row_number == 1
 
 
@@ -87,6 +93,75 @@ def test_load_sg_csv_skips_blank_names(tmp_path):
     )
     result = load_sg_csv(csv_file)
     assert result == []
+
+
+def test_load_sg_csv_preserves_source_null_and_rejects_malformed_mean(tmp_path):
+    csv_file = tmp_path / "similar.csv"
+    csv_file.write_text(
+        "player_name,rounds_played,total_mean\n"
+        '"Null, Nina",0,null\n'
+        '"Blank, Bea",0,\n'
+        '"Bad, Ben",0,not-a-number\n'
+        '"Inf, Ian",1,inf\n',
+        encoding="utf-8",
+    )
+    rows = load_sg_csv(csv_file)
+    payloads = {row.source_name: row.payload for row in rows}
+    assert payloads["Null, Nina"] == {
+        "rounds": 0, "total_mean": None, "total_mean_state": "source_null",
+    }
+    assert payloads["Blank, Bea"] == {
+        "rounds": 0, "total_mean": None, "total_mean_state": "source_null",
+    }
+    assert payloads["Bad, Ben"] == {
+        "rounds": 0, "total_mean": None, "total_mean_state": "invalid",
+    }
+    assert payloads["Inf, Ian"] == {
+        "rounds": 1, "total_mean": None, "total_mean_state": "invalid",
+    }
+
+
+def test_field_source_coverage_surfaces_skinns_name_gap_without_mapping():
+    field_index = build_field_index([{"player_name": "David Skinns", "dg_id": "123"}])
+    source = resolve_source_family(
+        "similar_6m", field_index, [{"player_name": "Skinns, David"}],
+    )
+    report = build_release_report(field_index, [source])
+    assert len(source.unresolved) == 1
+    assert source.unresolved[0].field_display_name == "David Skinns"
+    assert source.unused_source_rows == ("Skinns, David",)
+    assert any(d.code == "missing_source" for d in report.warnings)
+    assert any(d.code == "unused_source" for d in report.warnings)
+
+
+def test_similar_course_manifest_metadata_must_match_across_horizons(tmp_path):
+    event_root = tmp_path / "events" / "metadata_contract"
+    input_dir = event_root / "input"
+    input_dir.mkdir(parents=True)
+    write_synthetic_source_manifest(
+        input_dir, event_slug="metadata_contract", venue_slug="tpc_twin_cities",
+    )
+    manifest_path = input_dir / "source_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    entry = next(
+        source for source in manifest["sources"]
+        if source["role"] == "venue_fit.similar_sg.12m"
+    )
+    entry["metadata"]["set_version"] = 2
+    entry["metadata"]["horizon_months"] = 6
+
+    resolution = resolve_source_manifest(
+        manifest,
+        context=SourceManifestContext(
+            event_slug="metadata_contract",
+            venue_slug="tpc_twin_cities",
+            event_root=event_root,
+            repo_root=tmp_path,
+        ),
+    )
+    codes = {finding.code for finding in resolution.blockers}
+    assert "SIMILAR_COURSE_HORIZON_MONTHS_MISMATCH" in codes
+    assert "SIMILAR_COURSE_PROVENANCE_MISMATCH" in codes
 
 
 def test_load_sg_csv_preserves_duplicate_rows(tmp_path):
@@ -1047,6 +1122,17 @@ def test_adapt_to_v2_similar_course_rows_preserves_missing_vs_debut():
     assert result["6m"] == SimilarCourseRow(0, 0.0)
     assert result["12m"] is None
     assert result["24m"] == SimilarCourseRow(15, 1.2)
+
+
+def test_adapt_to_v2_similar_course_rows_preserves_source_null_state():
+    result = adapt_to_v2_similar_course_rows({
+        "6m": {"rounds": 0, "total_mean": None, "total_mean_state": "source_null"},
+        "12m": None,
+        "24m": {"rounds": 15, "total_mean": 1.2, "total_mean_state": "finite"},
+    })
+    assert result["6m"] == SimilarCourseRow(0, None, "source_null")
+    assert result["6m"].total_mean is None
+    assert result["12m"] is None
 
 
 def test_v2_adapters_are_called_by_main_runtime(tmp_path, monkeypatch):

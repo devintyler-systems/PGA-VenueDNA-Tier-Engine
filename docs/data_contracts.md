@@ -250,6 +250,18 @@ CSV rows it is given. A future internal-ID migration (replacing the
 every producer and every consumer together in one coordinated change, not
 piecemeal.
 
+## Similar-course zero-observation semantics
+
+For a future source-manifest role `venue_fit.similar_sg.{6m,12m,24m}`, a
+present source row with `rounds_played = 0` may retain `total_mean = null`
+(including the documented normalized CSV null sentinel or blank cell) as a
+source-native zero-observation DEBUT. The producer preserves that null and
+classifies it separately from malformed input; it never converts the value to
+numeric `0.0`. This exception does not apply to a missing source row or to a
+positive-round row with null, blank, malformed, or non-finite `total_mean`.
+Those remain incomplete VenueFit evidence. VenueFit still requires all three
+horizons and never renormalizes its horizon weights.
+
 ## Event State
 
 `config/active_event.json` is the only machine-readable pointer to the current event.

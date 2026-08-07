@@ -38,7 +38,9 @@ Six CSV files are required. All use the same three-column schema:
 ```
 player_name   — string; normalized to "Last, First" format; strip surrounding quotes and whitespace
 rounds_played — integer; number of qualifying rounds in the horizon window
-total_mean    — float; mean strokes gained per round across the horizon
+total_mean    — float; mean strokes gained per round across the horizon; only a
+                similar-course zero-observation row may preserve a documented
+                source-native null sentinel
 ```
 
 Files (relative to `events/{slug}/input/`):
@@ -51,7 +53,7 @@ pga_sg_query_{slug}_similar_l12.csv — Similar Courses, last 12 months
 pga_sg_query_{slug}_similar_l24.csv — Similar Courses, last 24 months
 ```
 
-Missing `total_mean` is missing data, not numeric `0.0`. Valid numeric zero remains a valid measurement.
+Missing `total_mean` is missing data, not numeric `0.0`. Valid numeric zero remains a valid measurement. The only exception is a present similar-course row with `rounds_played: 0` and a documented source-native null sentinel (`null`, `NULL`, or an empty source cell under the normalized missing-value convention): it is a zero-observation DEBUT state, retains `total_mean: null`, and is never converted to `0.0`.
 
 ### 2A. Source-manifest path binding (Phase 4.2 implementation)
 
@@ -72,7 +74,7 @@ Canonical format: `"Last, First"` (DataGolf convention). All lookups use normali
 
 ## 4. PLAYER UNIVERSE
 
-The player universe is the union of names appearing in source files. A missing source row is not synthesized as `{rounds: 0, total_mean: 0.0}`. A valid similar-course row with `rounds_played: 0` is the distinct, legitimate `DEBUT` state.
+The player universe is the union of names appearing in source files. A missing source row is not synthesized as `{rounds: 0, total_mean: 0.0}`. A valid similar-course row with `rounds_played: 0` is the distinct, legitimate `DEBUT` state when its `total_mean` is finite or it preserves the documented source-native null sentinel. A missing source row, a positive-round row with null/blank/malformed/non-finite `total_mean`, and a zero-round row with malformed or non-finite non-null `total_mean` are incomplete evidence, not `DEBUT`.
 
 ---
 
@@ -190,7 +192,7 @@ The five named production addends are visible diagnostic evidence in the legacy 
 
 - Missing values must not be represented as legitimate numeric zero.
 - With two valid NeutralSkill horizons, omit the missing horizon and renormalize within NeutralSkill; with fewer than two, the player is `UNSCORED`.
-- A valid similar-course row with zero rounds is `DEBUT`, produces `VenueFitDeltaRaw = 0.0`, and has `THIN` venue-fit confidence.
+- A valid similar-course row with zero rounds is `DEBUT`, produces `VenueFitDeltaRaw = 0.0`, and has `THIN` venue-fit confidence. Validity requires a finite `total_mean` or the preserved documented source-native null sentinel; the null is never converted to numeric `0.0`.
 - VenueFitDelta has a fixed three-horizon formula. Incomplete VenueFit evidence is non-computable and is not weight-renormalized.
 - Missing raw venue-history data remains missing and produces `THIN` venue-history confidence; the canonical `VenueHistoryDeltaRaw = 0.0` is an explicit neutral contribution pending an approved bounded transform, not conversion of raw-source missingness into observed zero data.
 - Venue-history confidence is `THIN` below eight relevant starts or when that structured evidence is absent; the neutral-zero contribution is not high-confidence evidence.

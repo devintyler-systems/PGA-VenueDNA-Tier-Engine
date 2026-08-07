@@ -47,6 +47,9 @@ from event_context import (  # noqa: E402
 )
 from venuedna_scoring import (  # noqa: E402
     FORMULA_METADATA as CANONICAL_FORMULA_METADATA,
+    TOTAL_MEAN_FINITE,
+    TOTAL_MEAN_INVALID,
+    TOTAL_MEAN_SOURCE_NULL,
     assign_tier as canonical_assign_tier,
     compute_player_projection,
     compute_probability_vectors as canonical_compute_probability_vectors,
@@ -201,6 +204,28 @@ def optional_float(v: object) -> float | None:
         return None
 
 
+_SOURCE_NULL_TOTAL_MEAN_TOKENS = frozenset(("", "null", "none", "n/a", "nan"))
+
+
+def parse_total_mean(v: object) -> tuple[float | None, str]:
+    """Preserve a source-native null separately from malformed mean input.
+
+    The accepted null tokens are exactly the existing normalized missing-value
+    conventions. The caller keeps the raw null as ``None`` and passes its
+    state to the canonical VenueFit scorer; no source value is zero-filled.
+    """
+    token = str(v).strip().lower()
+    if token in _SOURCE_NULL_TOTAL_MEAN_TOKENS:
+        return None, TOTAL_MEAN_SOURCE_NULL
+    try:
+        value = float(v)
+    except (ValueError, TypeError):
+        return None, TOTAL_MEAN_INVALID
+    if not math.isfinite(value):
+        return None, TOTAL_MEAN_INVALID
+    return value, TOTAL_MEAN_FINITE
+
+
 def optional_rounds(v: object) -> int | None:
     """Parse a non-negative integral round count while preserving missingness."""
     value = optional_float(v)
@@ -235,7 +260,8 @@ def load_sg_csv(path: Path) -> list[SourceRow]:
 
     Duplicate rows (same or colliding raw/normalized names) are preserved
     intact -- the identity resolver, not this loader, decides whether a
-    duplicate is a release blocker. ``payload`` is ``{rounds, total_mean}``.
+    duplicate is a release blocker. ``payload`` preserves ``rounds``, raw
+    nullable ``total_mean``, and the mean's parse state.
     """
     rows: list[SourceRow] = []
     if not path.exists():
@@ -245,12 +271,14 @@ def load_sg_csv(path: Path) -> list[SourceRow]:
             name = row.get("player_name", "").strip().strip('"')
             if not name:
                 continue
+            total_mean, total_mean_state = parse_total_mean(row.get("total_mean"))
             rows.append(SourceRow(
                 source_name=name,
                 dg_id=None,
                 payload={
                     "rounds":     optional_rounds(row.get("rounds_played")),
-                    "total_mean": optional_float(row.get("total_mean")),
+                    "total_mean": total_mean,
+                    "total_mean_state": total_mean_state,
                 },
                 row_number=i,
             ))
@@ -509,14 +537,21 @@ def adapt_to_v2_similar_course_rows(sim_resolved_raw: dict) -> dict:
 
     Takes per-horizon rows exactly as returned by ``_matched_value()`` and
     adapts them into ``compute_venue_fit()``'s input shape: a present row
-    becomes a ``SimilarCourseRow`` (rounds 0 is a valid DEBUT row), a
-    missing row stays ``None``.  Blank and malformed source cells remain
-    ``None`` inside a present row for the canonical scorer to evaluate.
+    becomes a ``SimilarCourseRow`` (rounds 0 is a valid DEBUT row only with
+    a finite mean or a documented source-native null sentinel), a missing
+    row stays ``None``. Raw nullness and malformed-cell state remain distinct
+    for the canonical scorer to evaluate.
     """
     from venuedna_scoring import SimilarCourseRow
 
     return {
-        h: (SimilarCourseRow(row["rounds"], row["total_mean"]) if row is not None else None)
+        h: (
+            SimilarCourseRow(
+                row["rounds"], row["total_mean"],
+                row.get("total_mean_state", TOTAL_MEAN_FINITE),
+            )
+            if row is not None else None
+        )
         for h, row in sim_resolved_raw.items()
     }
 

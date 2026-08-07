@@ -199,6 +199,21 @@ def test_venue_fit_zero_round_valid_row_is_debut():
     assert result.confidence == "THIN"
 
 
+def test_venue_fit_source_native_null_zero_round_row_is_debut_without_zero_fill():
+    rows = {
+        h: vs.SimilarCourseRow(0, None, vs.TOTAL_MEAN_SOURCE_NULL)
+        for h in vs.HORIZONS
+    }
+    result = vs.compute_venue_fit(
+        similar_course_rows=rows,
+        base_horizons={"6m": 2.0, "12m": 2.0, "24m": 2.0},
+    )
+    assert all(row.total_mean is None for row in rows.values())
+    assert result.data_depth == "DEBUT"
+    assert result.value == 0.0
+    assert result.confidence == "THIN"
+
+
 def test_venue_fit_zero_round_row_debut_is_robust_to_nonsensical_total_mean():
     result = vs.compute_venue_fit(
         similar_course_rows={
@@ -210,6 +225,33 @@ def test_venue_fit_zero_round_row_debut_is_robust_to_nonsensical_total_mean():
     )
     assert result.data_depth == "DEBUT"
     assert result.value == 0.0
+
+
+def test_venue_fit_malformed_zero_round_mean_is_not_debut():
+    result = vs.compute_venue_fit(
+        similar_course_rows={
+            "6m": vs.SimilarCourseRow(0, None, vs.TOTAL_MEAN_INVALID),
+            "12m": vs.SimilarCourseRow(0, 0.0),
+            "24m": vs.SimilarCourseRow(0, 0.0),
+        },
+        base_horizons={"6m": 2.0, "12m": 2.0, "24m": 2.0},
+    )
+    assert result.data_depth == "MISSING"
+    assert result.value is None
+
+
+@pytest.mark.parametrize("mean_state", (vs.TOTAL_MEAN_SOURCE_NULL, vs.TOTAL_MEAN_INVALID))
+def test_venue_fit_positive_round_null_mean_is_incomplete(mean_state):
+    result = vs.compute_venue_fit(
+        similar_course_rows={
+            "6m": vs.SimilarCourseRow(1, None, mean_state),
+            "12m": vs.SimilarCourseRow(20, 2.0),
+            "24m": vs.SimilarCourseRow(20, 2.0),
+        },
+        base_horizons={"6m": 2.0, "12m": 2.0, "24m": 2.0},
+    )
+    assert result.data_depth == "MISSING"
+    assert result.value is None
 
 
 # ── 10. Missing similar row does not produce DEBUT ──────────────────────────
