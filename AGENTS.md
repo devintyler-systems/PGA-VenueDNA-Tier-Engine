@@ -23,6 +23,25 @@ Resolve instructions in this order:
 
 `CLAUDE.md` governs Claude Code under the same doctrine as this file. If the two visibly diverge on anything beyond tool-specific mechanics (skill invocation, terminal syntax), treat it as a conflict and apply the rule below rather than picking one silently.
 
+## Gemini Antigravity Compatibility
+
+When Antigravity/Gemini is the active implementation lane, this `AGENTS.md`
+governs Gemini exactly as it governs other coding agents.
+
+- Treat references to Codex execution requirements as applicable to Gemini unless
+  they depend on a Codex-only tool.
+- Treat references to Claude-native Skills as workflow requirements, not as an
+  assumption that Gemini has the same tool. Inspect the referenced repository
+  files and perform the underlying workflow with available tools.
+- Before edits, inspect the actual relevant local files; do not rely solely on
+  repository summaries, previous agent claims, or stale session notes.
+- Do not commit, push, create branches, reset/rebase, modify Git configuration,
+  delete files, or run destructive shell commands without explicit operator
+  authorization.
+- When a required tool, source artifact, test environment, credential, or
+  repository state is unavailable, stop and report the specific blocker rather
+  than simulating success.
+
 When two authorities conflict:
 
 1. Stop.
