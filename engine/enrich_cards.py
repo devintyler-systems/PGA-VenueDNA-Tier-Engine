@@ -1181,7 +1181,12 @@ def _resolved_source_path(
     return input_root / f".unresolved_source_manifest_role__{role.replace('.', '_')}"
 
 
-def main(*, _context: EventContext | None = None, _live_mode: str | None = None) -> None:
+def main(
+    *,
+    _context: EventContext | None = None,
+    _live_mode: str | None = None,
+    _capture_only: bool = False,
+) -> list[dict] | None:
     """Production entry point.
 
     Normal command-line execution (``python engine/enrich_cards.py``) takes
@@ -1197,7 +1202,25 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
     already-validated ``EventContext`` (and, where legitimate, an explicit
     live-round mode) without writing a real manifest file or going through
     the command line. No command-line invocation can set either parameter.
+
+    ``_capture_only`` is keyword-only, like ``_context``/``_live_mode``, and
+    is honored only together with an injected ``_context`` -- passing
+    ``_capture_only=True`` without ``_context`` raises ``ValueError`` before
+    any event-bound path is touched, so it can never become a generic
+    dry-run bypass reachable from the production CLI branch below (argparse
+    defines no flag for it, and the CLI branch never sets it). When honored,
+    ``main()`` runs the full canonical pipeline -- source-manifest
+    resolution, identity resolution, per-player scoring, and finalization --
+    exactly as the production path does, then returns the in-memory
+    ``ordered_records`` list immediately after finalization instead of
+    creating ``output``/``deploy`` directories or writing any payload file.
     """
+    if _capture_only and _context is None:
+        raise ValueError(
+            "_capture_only is honored only together with an injected _context "
+            "(the internal test-injection path); it is never valid on the "
+            "production CLI path."
+        )
     if _context is not None:
         context = _context
         live_mode = _live_mode
@@ -1512,6 +1535,9 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
     )
 
     # ── Write outputs (only after identity validation succeeded above) ─────────
+    if _capture_only:
+        return ordered_records
+
     _live_suffix = {"r1": "rd1", "r2": "rd2", "r3": "rd3", "r4": "rd4"}
     file_base = (f"{event_slug}_{_live_suffix[live_mode]}_payload.json"
                  if live_mode else f"{event_slug}_event_payload.json")

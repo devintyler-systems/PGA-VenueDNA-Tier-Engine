@@ -2196,3 +2196,40 @@ def test_placeholder_synthetic_venue_pair_never_resolves_production_supported():
     VenueConfig main() ends up using for narrative/diagnostic display."""
     decision = resolve_capability("synthetic_event", "synthetic_test_venue")
     assert decision.status == CAPABILITY_UNSUPPORTED
+
+
+# ── Phase 6.2: internal `_capture_only` test seam ───────────────────────────
+
+def test_capture_only_without_context_raises_before_any_io():
+    """`_capture_only=True` is honored only together with an injected
+    `_context` -- it must never become a generic production dry-run bypass.
+    Calling it alone raises before argparse, before config/active_event.json
+    is read, and before any event-bound path is touched."""
+    with pytest.raises(ValueError, match="_capture_only"):
+        enrich_cards.main(_capture_only=True)
+
+
+def test_capture_only_returns_records_and_writes_no_artifact(tmp_path, monkeypatch):
+    """The internal `_capture_only` seam runs the full canonical pipeline
+    (source-manifest resolution, identity resolution, per-player scoring,
+    finalization) and returns the in-memory ordered_records list, but never
+    creates output/ or deploy/ under the injected context's event_root."""
+    monkeypatch.setattr(enrich_cards, "_ROOT", tmp_path)
+    event_slug = "capture_only_fixture"
+    event = SyntheticEvent(tmp_path, event_slug=event_slug)
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+    context = _make_context(tmp_path, event_slug)
+
+    records = enrich_cards.main(_context=context, _capture_only=True)
+
+    assert isinstance(records, list)
+    assert len(records) == 2
+    assert {r["player"] for r in records} == {"Doe, John", "Smith, Sam"}
+    for record in records:
+        assert record["scoring_status"] == "SCORED"
+        assert record["vts_final"] is not None
+        assert record["tier"] is not None
+
+    event_root = tmp_path / "events" / event_slug
+    assert not (event_root / "output").exists()
+    assert not (event_root / "deploy").exists()
