@@ -57,6 +57,12 @@ from source_manifest_resolver import (  # noqa: E402
     SourceManifestResolution,
     resolve_source_manifest,
 )
+from venue_config import (  # noqa: E402
+    VenueConfig,
+    VenueConfigError,
+    TPC_TWIN_CITIES,
+    load_venue_config,
+)
 
 # ── §1  Constants ──────────────────────────────────────────────────────────────
 
@@ -99,23 +105,35 @@ N_POSITIONS = {"win": 1,   "top5": 5,   "top10": 10,  "top20": 20}
 
 ZNORM_MEAN, ZNORM_STD = 50.0, 15.0
 
-# Venue trait weights (TPC Twin Cities venue profile §6)
-VW_APPROACH  = 0.40
-VW_LONG_IRON = 0.25
-VW_OTT       = 0.20
-VW_CH        = 0.10
-VW_FORM      = 0.05
+# Venue trait weights, anti-pattern thresholds, and the debut haircut below
+# are sourced from engine/venue_config.py's TPC_TWIN_CITIES VenueConfig
+# (Phase 4.3) rather than being independent literals -- their values are
+# unchanged from the pre-Phase-4.3 hardcoded TPC Twin Cities constants (see
+# docs/decisions/2026_08_06_venue_config_contract.md). They remain
+# module-level constants under their historical names because
+# engine/scoring_decomposition.py imports them directly by name: this
+# remains the single source of truth for both this diagnostic/narrative
+# pathway and that read-only parity/reporting layer. main() additionally
+# resolves a VenueConfig explicitly at runtime (see below) and threads it
+# through the functions that consume these values, so these module-level
+# constants now describe TPC Twin Cities' default behavior specifically,
+# not a venue-generic default.
+VW_APPROACH  = TPC_TWIN_CITIES.trait_weights.approach
+VW_LONG_IRON = TPC_TWIN_CITIES.trait_weights.long_iron
+VW_OTT       = TPC_TWIN_CITIES.trait_weights.ott
+VW_CH        = TPC_TWIN_CITIES.trait_weights.ch
+VW_FORM      = TPC_TWIN_CITIES.trait_weights.form
 
 # Anti-pattern gate thresholds
-BOMB_DIST_THRESH = 0.15     # driving_dist_adj above
-BOMB_ACC_THRESH  = -0.05    # driving_acc_adj below
-SG_APP_THRESH    = 0.20     # app_true below = weak approach
-SG_SUM_THRESH    = 1.00     # putt_true + arg_true above = short-game reliant
-PENALTY_BOMBER   = 0.92
-PENALTY_SG_DEP   = 0.90
+BOMB_DIST_THRESH = TPC_TWIN_CITIES.anti_pattern_thresholds.bomb_dist_thresh  # driving_dist_adj above
+BOMB_ACC_THRESH  = TPC_TWIN_CITIES.anti_pattern_thresholds.bomb_acc_thresh   # driving_acc_adj below
+SG_APP_THRESH    = TPC_TWIN_CITIES.anti_pattern_thresholds.sg_app_thresh     # app_true below = weak approach
+SG_SUM_THRESH    = TPC_TWIN_CITIES.anti_pattern_thresholds.sg_sum_thresh     # putt_true + arg_true above = short-game reliant
+PENALTY_BOMBER   = TPC_TWIN_CITIES.anti_pattern_thresholds.penalty_bomber
+PENALTY_SG_DEP   = TPC_TWIN_CITIES.anti_pattern_thresholds.penalty_sg_dep
 
 # Debut course-history haircut (venue profile §12)
-DEBUT_CH_HAIRCUT = -0.25
+DEBUT_CH_HAIRCUT = TPC_TWIN_CITIES.debut_framework.ch_haircut
 
 # Live-round wave modifier (±VTS points on 0-100 scale)
 WAVE_MODIFIER      = 1.5
@@ -125,29 +143,40 @@ LATE_WAVE_CONTEXT  = "facing tougher 11-14 mph afternoon winds."
 # std_dev → VTS floor/ceil: 1 stroke ≈ 5 VTS points
 STD_VTS_SCALE = 5.0
 
-# Narrative thresholds (all per-round stroke units)
-THRESH_ELITE_APP   = 1.00
-THRESH_STRONG_APP  = 0.60
-THRESH_VENUE_FIT   = 0.15   # delta_fit
-THRESH_CTRL_POWER  = 0.60   # ott_true
-THRESH_COURSE_PED  = 0.04   # ch_adjustment
-THRESH_HOT_FORM    = 1.50   # true_sg_l20
-THRESH_APP_DEFICIT = 0.00
-THRESH_LI_GAP      = -0.05  # trait_long_iron_raw
+# Narrative thresholds (all per-round stroke units) -- sourced from
+# TPC_TWIN_CITIES.narrative_thresholds; see the block comment above VW_APPROACH.
+THRESH_ELITE_APP   = TPC_TWIN_CITIES.narrative_thresholds.elite_app
+THRESH_STRONG_APP  = TPC_TWIN_CITIES.narrative_thresholds.strong_app
+THRESH_VENUE_FIT   = TPC_TWIN_CITIES.narrative_thresholds.venue_fit    # delta_fit
+THRESH_CTRL_POWER  = TPC_TWIN_CITIES.narrative_thresholds.ctrl_power   # ott_true
+THRESH_COURSE_PED  = TPC_TWIN_CITIES.narrative_thresholds.course_ped   # ch_adjustment
+THRESH_HOT_FORM    = TPC_TWIN_CITIES.narrative_thresholds.hot_form     # true_sg_l20
+THRESH_APP_DEFICIT = TPC_TWIN_CITIES.narrative_thresholds.app_deficit
+THRESH_LI_GAP      = TPC_TWIN_CITIES.narrative_thresholds.li_gap       # trait_long_iron_raw
+
+
+def _build_trait_display_cfg(venue_config: VenueConfig) -> list[tuple[str, float]]:
+    """(label, venue_weight) pairs in order matching d_keys, for one
+    VenueConfig's trait_weights. The five weighted rows mirror
+    combine_raw_score()'s five diagnostic addends; the remaining rows are
+    display-only (weight 0.00) in every venue, matching current behavior."""
+    w = venue_config.trait_weights
+    return [
+        ("SG: Approach",     w.approach),
+        ("App 150-200",      w.long_iron),
+        ("Total Driving",    w.ott),
+        ("Course History",   w.ch),
+        ("Recent Form",      w.form),
+        ("Par 5 Scoring",    0.00),
+        ("Driving Accuracy", 0.00),
+        ("Driving Distance", 0.00),
+        ("SG: Putting",      0.00),
+        ("Closing Holes",    0.00),
+    ]
+
 
 # Display trait config — (label, venue_weight) in order matching d_keys
-TRAIT_DISPLAY_CFG = [
-    ("SG: Approach",     VW_APPROACH),
-    ("App 150-200",      VW_LONG_IRON),
-    ("Total Driving",    VW_OTT),
-    ("Course History",   VW_CH),
-    ("Recent Form",      VW_FORM),
-    ("Par 5 Scoring",    0.00),
-    ("Driving Accuracy", 0.00),
-    ("Driving Distance", 0.00),
-    ("SG: Putting",      0.00),
-    ("Closing Holes",    0.00),
-]
+TRAIT_DISPLAY_CFG = _build_trait_display_cfg(TPC_TWIN_CITIES)
 
 # ── §2  CSV Loaders ────────────────────────────────────────────────────────────
 
@@ -501,16 +530,21 @@ def make_composites(all_resolved: dict, sim_resolved: dict) -> tuple[float, floa
     return sg_base, sg_base + delta, delta
 
 
-def historical_gate_diagnostics(perf: dict, decomp: dict) -> list[str]:
-    """Expose historical 3M anti-pattern labels for narrative diagnostics only.
+def historical_gate_diagnostics(
+    perf: dict, decomp: dict, venue_config: VenueConfig = TPC_TWIN_CITIES,
+) -> list[str]:
+    """Expose historical anti-pattern labels for narrative diagnostics only.
 
     This intentionally does not call ``apply_gates`` and never changes a
-    canonical score, rank, tier, or probability.
+    canonical score, rank, tier, or probability. Thresholds come from
+    ``venue_config.anti_pattern_thresholds`` (default: TPC Twin Cities,
+    preserving prior behavior for unchanged call sites).
     """
+    t = venue_config.anti_pattern_thresholds
     flags: list[str] = []
-    if decomp.get("driving_dist_adj", 0.0) > BOMB_DIST_THRESH and decomp.get("driving_acc_adj", 0.0) < BOMB_ACC_THRESH:
+    if decomp.get("driving_dist_adj", 0.0) > t.bomb_dist_thresh and decomp.get("driving_acc_adj", 0.0) < t.bomb_acc_thresh:
         flags.append("INACCURATE_BOMBER")
-    if perf.get("app_true", 0.0) < SG_APP_THRESH and (perf.get("putt_true", 0.0) + perf.get("arg_true", 0.0)) > SG_SUM_THRESH:
+    if perf.get("app_true", 0.0) < t.sg_app_thresh and (perf.get("putt_true", 0.0) + perf.get("arg_true", 0.0)) > t.sg_sum_thresh:
         flags.append("SHORT_GAME_RELIANT")
     return flags
 
@@ -542,28 +576,34 @@ def combine_raw_score(
     ott_true: float,
     ch_adj: float,
     true_sg_l20: float,
+    venue_config: VenueConfig = TPC_TWIN_CITIES,
 ) -> dict:
     """Decomposition of the pre-gate combined-raw VTS input.
 
     ``pre_gate_raw_total`` is calculated through the same direct,
     left-associated ``a + b + c + d + e + f`` expression -- same operand
-    order, same grouping, same numeric literals -- as the addends
-    previously inlined in ``main()``. It is calculated directly from the
-    six terms below, never through the returned dict, ``sum()``, a loop,
-    or any other reduction over a (re)ordered collection: those paths
-    insert an implicit leading ``0 + …`` that silently normalizes an
-    all-``-0.0`` input's signed-zero result to ``+0.0``, which the literal
-    expression does not do. The per-component values are exposed in the
-    returned dict for diagnostics/reporting only; that dict does not
-    itself compute or alter the production total. Consumed directly by
-    ``main()`` and by the read-only parity layer in
-    ``engine/scoring_decomposition.py``; contains no I/O.
+    order, same grouping -- as the addends previously inlined in
+    ``main()``. It is calculated directly from the six terms below, never
+    through the returned dict, ``sum()``, a loop, or any other reduction
+    over a (re)ordered collection: those paths insert an implicit leading
+    ``0 + …`` that silently normalizes an all-``-0.0`` input's signed-zero
+    result to ``+0.0``, which the literal expression does not do. The
+    per-component values are exposed in the returned dict for
+    diagnostics/reporting only; that dict does not itself compute or alter
+    the production total. Trait weights come from ``venue_config.trait_weights``
+    (default: TPC Twin Cities, preserving prior behavior -- including the
+    same numeric literals -- for unchanged call sites). Consumed by the
+    read-only parity layer in ``engine/scoring_decomposition.py`` and by
+    tests; never called by ``main()`` or ``finalize_canonical_official_records()``,
+    which derive official output only from
+    ``engine.venuedna_scoring.compute_player_projection()``. Contains no I/O.
     """
-    approach_term       = VW_APPROACH  * trait_approach_raw
-    long_iron_term      = VW_LONG_IRON * trait_long_iron_raw
-    ott_term            = VW_OTT       * ott_true
-    course_history_term = VW_CH        * ch_adj
-    recent_form_term    = VW_FORM      * true_sg_l20
+    w = venue_config.trait_weights
+    approach_term       = w.approach  * trait_approach_raw
+    long_iron_term      = w.long_iron * trait_long_iron_raw
+    ott_term            = w.ott       * ott_true
+    course_history_term = w.ch        * ch_adj
+    recent_form_term    = w.form      * true_sg_l20
 
     pre_gate_raw_total = (
         sg_sim_comp
@@ -587,8 +627,16 @@ def combine_raw_score(
 
 # ── §6  Anti-Pattern Gates ─────────────────────────────────────────────────────
 
-def apply_gates(raw: float, perf: dict, decomp: dict) -> tuple[float, list[str]]:
-    """Multiplicative penalties before z-score. Returns (adjusted_raw, flags)."""
+def apply_gates(
+    raw: float, perf: dict, decomp: dict, venue_config: VenueConfig = TPC_TWIN_CITIES,
+) -> tuple[float, list[str]]:
+    """Multiplicative penalties before z-score. Returns (adjusted_raw, flags).
+
+    Thresholds and penalty multipliers come from
+    ``venue_config.anti_pattern_thresholds`` (default: TPC Twin Cities,
+    preserving prior behavior for unchanged call sites).
+    """
+    t = venue_config.anti_pattern_thresholds
     flags: list[str] = []
     dist_adj = decomp.get("driving_dist_adj", 0.0)
     acc_adj  = decomp.get("driving_acc_adj",  0.0)
@@ -596,12 +644,12 @@ def apply_gates(raw: float, perf: dict, decomp: dict) -> tuple[float, list[str]]
     putt     = perf.get("putt_true", 0.0)
     arg      = perf.get("arg_true",  0.0)
 
-    if dist_adj > BOMB_DIST_THRESH and acc_adj < BOMB_ACC_THRESH:
-        raw *= PENALTY_BOMBER
+    if dist_adj > t.bomb_dist_thresh and acc_adj < t.bomb_acc_thresh:
+        raw *= t.penalty_bomber
         flags.append("INACCURATE_BOMBER")
 
-    if app_true < SG_APP_THRESH and (putt + arg) > SG_SUM_THRESH:
-        raw *= PENALTY_SG_DEP
+    if app_true < t.sg_app_thresh and (putt + arg) > t.sg_sum_thresh:
+        raw *= t.penalty_sg_dep
         flags.append("SHORT_GAME_RELIANT")
 
     return raw, flags
@@ -729,21 +777,23 @@ def load_r1_sg(path: Path) -> dict[str, dict]:
     return result
 
 def build_strength_tags(app_true: float, delta_fit: float, ott_true: float,
-                        ch_adj: float, true_sg_l20: float) -> list[str]:
+                        ch_adj: float, true_sg_l20: float,
+                        venue_config: VenueConfig = TPC_TWIN_CITIES) -> list[str]:
+    n = venue_config.narrative_thresholds
     tags: list[str] = []
-    if app_true > THRESH_ELITE_APP:
+    if app_true > n.elite_app:
         tags.append(f"Elite Iron Play (+{app_true:.2f})")
-    elif app_true > THRESH_STRONG_APP:
+    elif app_true > n.strong_app:
         tags.append(f"Strong Approach Play (+{app_true:.2f})")
-    if delta_fit > THRESH_VENUE_FIT:
+    if delta_fit > n.venue_fit:
         tags.append(f"Strong Venue Fit (+{delta_fit:.2f})")
     elif delta_fit > 0.05:
         tags.append(f"Positive Venue Fit (+{delta_fit:.2f})")
-    if ott_true > THRESH_CTRL_POWER:
+    if ott_true > n.ctrl_power:
         tags.append("Controlled Power")
-    if ch_adj > THRESH_COURSE_PED:
+    if ch_adj > n.course_ped:
         tags.append("Proven Course Pedigree")
-    if true_sg_l20 > THRESH_HOT_FORM:
+    if true_sg_l20 > n.hot_form:
         tags.append(f"Red-Hot Form ({true_sg_l20:.2f} SG L20)")
     if not tags:
         tags.append("Field-Average Profile")
@@ -752,15 +802,17 @@ def build_strength_tags(app_true: float, delta_fit: float, ott_true: float,
 
 def build_weakness_tags(app_true: float, trait_long_iron_raw: float,
                         data_depth: str, course_debut: bool,
-                        gate_flags: list[str]) -> list[str]:
+                        gate_flags: list[str],
+                        venue_config: VenueConfig = TPC_TWIN_CITIES) -> list[str]:
+    n = venue_config.narrative_thresholds
     tags: list[str] = []
-    if app_true < THRESH_APP_DEFICIT:
+    if app_true < n.app_deficit:
         tags.append("Approach Deficit")
     if "INACCURATE_BOMBER" in gate_flags:
         tags.append("Accuracy Risk")
     if course_debut:
         tags.append("Venue Debut")
-    if trait_long_iron_raw < THRESH_LI_GAP:
+    if trait_long_iron_raw < n.li_gap:
         tags.append("Long-Iron Gap")
     if not tags:
         tags.append("No Clear Structural Risk")
@@ -784,19 +836,29 @@ def build_headline(strength_tags: list[str], weakness_tags: list[str]) -> str:
 
 def build_win_case(player: str, app_true: float, delta_fit: float,
                    ott_true: float, strength_tags: list[str],
-                   weakness_tags: list[str]) -> str:
+                   weakness_tags: list[str],
+                   venue_config: VenueConfig = TPC_TWIN_CITIES) -> str:
+    # Narrative copy below remains TPC Twin Cities-specific prose: the
+    # capability gate (engine/event_context.py require_supported_context())
+    # only ever runs this producer for tpc_twin_cities in this phase, so
+    # generalizing the mechanism/risk/par-5 sentence templates to other
+    # venues is out of scope here (see docs/decisions/
+    # 2026_08_06_venue_config_contract.md). Only the numeric mechanism
+    # thresholds are venue_config-driven, matching the task's "narrative
+    # thresholds" scope.
+    n = venue_config.narrative_thresholds
     # Primary mechanism
-    if app_true > THRESH_ELITE_APP:
+    if app_true > n.elite_app:
         mech = (f"elite approach play (+{app_true:.2f} SG: App). "
                 "TPC Twin Cities has crowned 6 of 7 winners since 2019 who ranked "
                 "top-10 in approach for the week.")
-    elif app_true > THRESH_STRONG_APP:
+    elif app_true > n.strong_app:
         mech = (f"above-average approach play (+{app_true:.2f} SG: App) at a venue "
                 "where 46% of approaches arrive from 175+ yards.")
-    elif delta_fit > THRESH_VENUE_FIT:
+    elif delta_fit > n.venue_fit:
         mech = (f"a historically strong fit for similar-course scoring environments "
                 f"(delta fit +{delta_fit:.2f}).")
-    elif ott_true > THRESH_CTRL_POWER:
+    elif ott_true > n.ctrl_power:
         mech = ("controlled total driving — water threatens 9 of 14 driving holes "
                 "and the combination of distance with directional control is the structural edge.")
     else:
@@ -880,14 +942,21 @@ def finalize_canonical_official_records(
     live_mode: str | None,
     live_tee_times: dict[str, dict],
     live_r1_sg: dict[str, dict],
+    venue_config: VenueConfig = TPC_TWIN_CITIES,
 ) -> list[dict]:
     """Pure canonical finalization boundary for prepared player records.
 
     The caller supplies already-resolved player evidence and display-only
     trait scores.  This helper owns every official score, probability, rank,
     tier, and final-record decision; it neither reads external state nor
-    mutates the caller-owned prepared records.
+    mutates the caller-owned prepared records. ``venue_config`` drives only
+    the display trait_scores weights and the narrative strength/weakness
+    tags and win_case thresholds below (default: TPC Twin Cities, preserving
+    prior behavior for unchanged callers) -- it has no effect on
+    vts_final/rank/tier/probabilities, which derive solely from
+    ``compute_player_projection().post_gate_raw`` upstream in main().
     """
+    trait_display_cfg = _build_trait_display_cfg(venue_config)
     scored_players = [record for record in prepared_records if record["post_gate_raw"] is not None]
     canonical_raw_scores = [record["post_gate_raw"] for record in scored_players]
     normalized_scores = canonical_z_score_scale(canonical_raw_scores)
@@ -951,7 +1020,7 @@ def finalize_canonical_official_records(
                 "weight": weight,
                 "score": round(display_scores[display_keys[index]][raw_index], 1),
             }
-            for index, (label, weight) in enumerate(TRAIT_DISPLAY_CFG)
+            for index, (label, weight) in enumerate(trait_display_cfg)
         ]
 
         arc_dist = display_scores["_d_drv_dist"][raw_index]
@@ -978,18 +1047,19 @@ def finalize_canonical_official_records(
 
         strength = build_strength_tags(
             record["app_true"], record["delta_fit"] or 0.0, record["ott_true"],
-            record["ch_adjustment"], record["true_sg_l20"]
+            record["ch_adjustment"], record["true_sg_l20"], venue_config
         )
         weakness = build_weakness_tags(
             record["app_true"], record["trait_long_iron_raw"],
-            record["data_depth"], record["course_debut"], record["gate_flags"]
+            record["data_depth"], record["course_debut"], record["gate_flags"],
+            venue_config
         )
         record["strength_tags"] = strength
         record["weakness_tags"] = weakness
         record["headline"] = build_headline(strength, weakness)
         record["win_case"] = build_win_case(
             record["player"], record["app_true"], record["delta_fit"] or 0.0,
-            record["ott_true"], strength, weakness
+            record["ott_true"], strength, weakness, venue_config
         )
         record["anti_pattern_flags"] = record["gate_flags"]
         record["player_name"] = record["player"]
@@ -1110,6 +1180,26 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
             print(f"[enrich_cards] ERROR — {exc}", file=sys.stderr)
             sys.exit(1)
         live_mode = None
+
+    # ── Venue configuration resolution (Phase 4.3) ──────────────────────────
+    #
+    # require_supported_context() above is the sole authority on which
+    # event/venue combination this producer may run for in production; every
+    # CLI-invoked run reaches this point only after passing it with
+    # venue_slug == SUPPORTED_VENUE_SLUG ("tpc_twin_cities"), a registered
+    # VenueConfig. The internal test-injection seam (the `_context` branch
+    # above) intentionally bypasses that gate and may inject an arbitrary
+    # placeholder venue_slug unrelated to any registered VenueConfig, so an
+    # unregistered venue_slug here falls back to TPC_TWIN_CITIES -- the same
+    # constants every caller (including that test seam) already used before
+    # this venue-config layer existed. This fallback never changes which
+    # venue may reach a real production run; it only keeps unrelated test
+    # venue labels from tripping a second, narrower registry-membership
+    # check that require_supported_context() does not itself enforce.
+    try:
+        venue_config = load_venue_config(context.venue_slug)
+    except VenueConfigError:
+        venue_config = TPC_TWIN_CITIES
 
     # ── Source-manifest resolution (standards/04 §9) ────────────────────────
     #
@@ -1288,7 +1378,7 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
         # Historical 3M anti-pattern labels remain diagnostic only.  Canonical
         # v2 declares an identity penalty/gate set and derives all official
         # score outputs below from projection.post_gate_raw.
-        gate_flags = historical_gate_diagnostics(perf, decomp)
+        gate_flags = historical_gate_diagnostics(perf, decomp, venue_config)
 
         # Raw values for display trait z-scoring (after full field collected)
         par5_raw      = 0.55 * ott_true + 0.45 * app_true
@@ -1368,6 +1458,7 @@ def main(*, _context: EventContext | None = None, _live_mode: str | None = None)
         players_raw,
         live_mode=live_mode,
         live_tee_times=live_tee_times,
+        venue_config=venue_config,
         live_r1_sg=live_r1_sg,
     )
 

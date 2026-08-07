@@ -354,6 +354,24 @@ Potential supporting venue files:
 
 Event-local venue copies may exist for reproducibility. They do not supersede the venue library unless an approved event-specific override names the conflict and expiry.
 
+## Venue Configuration Contract (Phase 4.3)
+
+**Status: implemented for two venues (`tpc_twin_cities`, `sedgefield_country_club`); not wired into the producer's capability gate for any venue beyond TPC Twin Cities.** `engine/venue_config.py` defines a `VenueConfig` schema — trait weights, anti-pattern thresholds, a debut-framework record, a variance classification, and narrative thresholds — that drives `engine/enrich_cards.py`'s diagnostic/narrative pathway (the historical five-addend trait display, `INACCURATE_BOMBER`/`SHORT_GAME_RELIANT` anti-pattern flags, and narrative strength/weakness-tag/win-case thresholds). Full rationale and rules are canonical in `docs/decisions/2026_08_06_venue_config_contract.md`.
+
+| Producer | Consumer | Contract | Rule |
+|---|---|---|---|
+| Venue profile author (hand-derives config from the venue profile; no automated parser exists) | `engine/enrich_cards.py` via `engine/venue_config.load_venue_config()` | `engine/venue_config.py`'s in-module registry | Maps `venue_slug` → validated `VenueConfig`; never the reverse inference |
+
+Rules:
+
+1. This contract has no dependency on and no effect on `engine/venuedna_scoring.py`'s canonical `NeutralSkillRaw`/`VenueFitDeltaRaw`/`VenueHistoryDeltaRaw`/`PostGateRaw` formula (standards/02 §7.2-7.4). `vts_final`, `neutralSkillIndex`, rank, tier, and every probability field are unaffected by any `VenueConfig` value.
+2. Registering a `VenueConfig` does not admit a venue through `engine/event_context.py`'s `require_supported_context()` capability gate. The two mechanisms are independent; only the capability gate decides whether a venue may drive a live producer run. `sedgefield_country_club` has a registered, validated `VenueConfig` and is not admitted by that gate.
+3. A `VenueConfig` is validated at construction (numeric range and type checks on every field); an invalid value raises `VenueConfigError` rather than silently clamping, defaulting, or falling back.
+4. TPC Twin Cities' `VenueConfig` values are numerically identical to the constants `engine/enrich_cards.py` hardcoded before this phase; every function that consumes `venue_config` defaults to `TPC_TWIN_CITIES`, so unchanged call sites (including the entire pre-Phase-4.3 test suite) are byte-identical.
+5. `debut_framework.ch_haircut` and `variance_class` are declared for schema completeness and are not currently consumed by any score — `VenueHistoryDeltaRaw` remains `0.0` per standards/02 §7.2/§7.4 regardless of this contract.
+6. No `VenueConfig` field is a formula-v2.0.0 core addend, penalty, or gate (`penalty_gate_set_id` remains `venuedna_v2_none` for every venue).
+7. A `RECONSTRUCTED` `status` value marks a doctrine-derived, provisional configuration not yet validated against real per-player venue-history evidence; treat its trait/threshold values as a hypothesis, not doctrine, until validated.
+
 ## Core Projection Contract
 
 The core projection is decomposed. Do not treat one composite display score as the only source of truth.

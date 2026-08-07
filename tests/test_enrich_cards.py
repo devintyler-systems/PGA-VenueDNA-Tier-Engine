@@ -1862,3 +1862,85 @@ def test_manifest_driven_build_preserves_canonical_formula_metadata_and_payload_
     p = payload["players"][0]
     assert "identity_provenance" in p
     assert p["dg_id"] == p["player_id"]
+
+
+# ── 6. Venue-configuration integration (Phase 4.3) ──────────────────────────
+#
+# engine/venue_config.py's dedicated test suite (tests/test_venue_config.py)
+# covers schema validation and registry lookups. These tests confirm the
+# runtime wiring: main() resolves a VenueConfig and threads it through the
+# diagnostic/narrative pathway (trait_scores weights, anti_pattern_flags,
+# strength/weakness tags) without perturbing vts_final/rank/tier/probabilities,
+# which the golden-parity tests above (unmodified by Phase 4.3) already prove
+# byte-identical for TPC Twin Cities.
+
+def test_trait_scores_weights_match_tpc_venue_config(tmp_path, monkeypatch):
+    from venue_config import TPC_TWIN_CITIES
+
+    event = SyntheticEvent(tmp_path, event_slug="venue_config_trait_weights")
+    event.write_all([("Doe, John", "100")])
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    trait_scores = payload["players"][0]["trait_scores"]
+    weights_by_label = {row["label"]: row["weight"] for row in trait_scores}
+
+    w = TPC_TWIN_CITIES.trait_weights
+    assert weights_by_label["SG: Approach"] == pytest.approx(w.approach)
+    assert weights_by_label["App 150-200"] == pytest.approx(w.long_iron)
+    assert weights_by_label["Total Driving"] == pytest.approx(w.ott)
+    assert weights_by_label["Course History"] == pytest.approx(w.ch)
+    assert weights_by_label["Recent Form"] == pytest.approx(w.form)
+
+
+def test_anti_pattern_flags_unchanged_by_venue_config_refactor(tmp_path, monkeypatch):
+    """The INACCURATE_BOMBER historical diagnostic flag still fires from the
+    same perf/decomp thresholds now sourced through venue_config -- proving
+    the Phase 4.3 refactor did not change historical_gate_diagnostics()'s
+    behavior for the default (TPC Twin Cities) configuration."""
+    event = SyntheticEvent(tmp_path, event_slug="venue_config_gate_parity")
+    event.write_all([("Doe, John", "100"), ("Smith, Sam", "200")])
+    event._write(
+        "dg_decomposition.csv",
+        ["player_name", "driving_acc_adj", "driving_dist_adj", "std_dev"],
+        [["Doe, John", "-0.10", "0.20", "3.0"], ["Smith, Sam", "0.0", "0.0", "3.0"]],
+    )
+    _run_main(monkeypatch, tmp_path, event.event_slug)
+
+    payload = json.loads(_output_path(tmp_path, event.event_slug).read_text(encoding="utf-8"))
+    players = {p["player"]: p for p in payload["players"]}
+    assert players["Doe, John"]["anti_pattern_flags"] == ["INACCURATE_BOMBER"]
+    assert players["Smith, Sam"]["anti_pattern_flags"] == []
+
+
+def test_sedgefield_venue_config_loads_and_is_structurally_distinct(tmp_path, monkeypatch):
+    """Sedgefield is not reachable through this producer's capability gate
+    in this phase, but its VenueConfig loads, validates, and can drive the
+    same diagnostic/narrative computation path as any other venue -- this
+    exercises that path directly (not through main()'s capability-gated
+    CLI entry) to prove the config is structurally usable ahead of a future
+    capability-gate activation."""
+    from venue_config import SEDGEFIELD_COUNTRY_CLUB, TPC_TWIN_CITIES as _TPC
+    from enrich_cards import (
+        build_strength_tags, build_weakness_tags, build_win_case,
+        historical_gate_diagnostics, combine_raw_score,
+    )
+
+    assert SEDGEFIELD_COUNTRY_CLUB.trait_weights.approach != _TPC.trait_weights.approach
+
+    perf = {"putt_true": 0.5, "arg_true": 0.5, "app_true": 0.05, "ott_true": 0.1}
+    decomp = {"driving_dist_adj": 0.0, "driving_acc_adj": 0.0}
+    flags = historical_gate_diagnostics(perf, decomp, SEDGEFIELD_COUNTRY_CLUB)
+    assert isinstance(flags, list)
+
+    decomposition = combine_raw_score(
+        1.0, 0.1, 0.1, 0.2, 0.05, 0.1, SEDGEFIELD_COUNTRY_CLUB,
+    )
+    assert "pre_gate_raw_total" in decomposition
+
+    strength = build_strength_tags(1.2, 0.2, 0.5, 0.1, 1.6, SEDGEFIELD_COUNTRY_CLUB)
+    weakness = build_weakness_tags(1.2, -0.1, "SCORED", False, [], SEDGEFIELD_COUNTRY_CLUB)
+    win_case = build_win_case("Test Player", 1.2, 0.2, 0.5, strength, weakness, SEDGEFIELD_COUNTRY_CLUB)
+    assert isinstance(strength, list) and strength
+    assert isinstance(weakness, list) and weakness
+    assert isinstance(win_case, str) and win_case
