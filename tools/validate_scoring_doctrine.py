@@ -104,6 +104,19 @@ RETROSPECTIVE_FIXTURE_APPROVED_ENTRIES = frozenset(
 )
 RETROSPECTIVE_FIXTURE_SUCCESS_RULE = "RETROSPECTIVE_WYNDHAM_FIXTURE_FENCED"
 
+# Phase 6.3: the exact fenced retrospective board-shell allowance. Only these
+# three local, non-deployable board-shell assets may exist as direct children
+# of deploy/ alongside the required empty data/ directory. This does not
+# authorize a deploy payload, official artifact, or any other file or
+# subdirectory -- see
+# docs/decisions/2026_08_06_wyndham_retrospective_fixture_authorization.md.
+RETROSPECTIVE_FIXTURE_BOARD_SHELL_FILES = frozenset(
+    {"index.html", "app.js", "styles.css"}
+)
+RETROSPECTIVE_FIXTURE_APPROVED_DEPLOY_ENTRIES = (
+    RETROSPECTIVE_FIXTURE_BOARD_SHELL_FILES | frozenset({"data"})
+)
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -2046,16 +2059,32 @@ def _validate_wyndham_retrospective_fixture(
 
     deploy_dir = fixture_root / "deploy"
     if deploy_dir.is_dir():
+        deploy_entries = list(deploy_dir.iterdir())
         unapproved_deploy = sorted(
-            entry.name for entry in deploy_dir.iterdir() if entry.name != "data"
+            entry.name for entry in deploy_entries
+            if entry.name not in RETROSPECTIVE_FIXTURE_APPROVED_DEPLOY_ENTRIES
         )
         if unapproved_deploy:
             findings.append(
                 _finding(
                     "RETROSPECTIVE_FIXTURE_DEPLOY_CONTENT",
                     RETROSPECTIVE_FIXTURE_EVENT_ROOT,
-                    "Retrospective fixture deploy/ must contain only an empty data/ "
-                    "directory: " + ", ".join(unapproved_deploy) + ".",
+                    "Retrospective fixture deploy/ must contain only the local "
+                    "board-shell files (index.html, app.js, styles.css) and an "
+                    "empty data/ directory: " + ", ".join(unapproved_deploy) + ".",
+                )
+            )
+        misplaced_shell = sorted(
+            entry.name for entry in deploy_entries
+            if entry.name in RETROSPECTIVE_FIXTURE_BOARD_SHELL_FILES and not entry.is_file()
+        )
+        if misplaced_shell:
+            findings.append(
+                _finding(
+                    "RETROSPECTIVE_FIXTURE_BOARD_SHELL_NOT_A_FILE",
+                    RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                    "Retrospective fixture board-shell entries must be plain files, "
+                    "not directories: " + ", ".join(misplaced_shell) + ".",
                 )
             )
         deploy_data_dir = deploy_dir / "data"

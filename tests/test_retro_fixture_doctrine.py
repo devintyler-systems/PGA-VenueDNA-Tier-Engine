@@ -197,10 +197,16 @@ def test_deploy_data_payload_fails_closed(doctrine_repo: Path) -> None:
     assert FENCED not in ids
 
 
-# ── 6. Any official board artifact fails closed ──────────────────────────────
+# ── 6. Any unapproved deploy artifact fails closed ───────────────────────────
+#
+# Phase 6.3 permits the exact local board-shell files (index.html, app.js,
+# styles.css) as direct children of deploy/ -- see
+# tests/test_retro_fixture_board_shell_doctrine.py for that dedicated
+# coverage. A genuine official/publish artifact under deploy/ that is not one
+# of those three filenames must still fail closed.
 
 def test_official_board_artifact_fails_closed(doctrine_repo: Path) -> None:
-    _write_wyndham_fixture(doctrine_repo, deploy_root_files=("index.html",))
+    _write_wyndham_fixture(doctrine_repo, deploy_root_files=("board_export.json",))
     ids = _rule_ids(doctrine_repo)
     assert "RETROSPECTIVE_FIXTURE_DEPLOY_CONTENT" in ids
     assert ABSENT in ids
