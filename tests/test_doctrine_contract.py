@@ -99,8 +99,16 @@ def _assert_alias_finding(repo: Path, rule_id: str, alias_name: str) -> None:
 
 
 def test_current_repository_success() -> None:
-    assert validator.validate_repository(ROOT).findings == ()
-    assert validator.validate_repository(ROOT, strict=True).findings == ()
+    # The repository may legitimately contain the authorized Wyndham
+    # retrospective-development fixture (Phase 6.1); when present it must
+    # surface only the RETROSPECTIVE_WYNDHAM_FIXTURE_FENCED info finding,
+    # never ACTIVE_EVENT_WYNDHAM_ABSENT and never a doctrine error.
+    for strict in (False, True):
+        report = validator.validate_repository(ROOT, strict=strict)
+        assert report.errors == ()
+        rule_ids = {finding.rule_id for finding in report.findings}
+        assert "ACTIVE_EVENT_WYNDHAM_ABSENT" not in rule_ids
+        assert rule_ids <= {"RETROSPECTIVE_WYNDHAM_FIXTURE_FENCED"}
 
 
 def test_public_parsers_read_marker_and_diagnostics_without_importing_engine() -> None:
@@ -448,7 +456,8 @@ def test_valid_json_output() -> None:
     )
     assert completed.returncode == 0, completed.stderr or completed.stdout
     payload = json.loads(completed.stdout)
-    assert payload["findings"] == []
+    rule_ids = {finding["rule_id"] for finding in payload["findings"]}
+    assert rule_ids <= {"RETROSPECTIVE_WYNDHAM_FIXTURE_FENCED"}
     assert payload["status"] == "pass"
 
 

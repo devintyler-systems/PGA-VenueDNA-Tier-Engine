@@ -1,13 +1,15 @@
 """tests/test_source_manifest_resolver.py
 Synthetic-fixture test suite for engine/source_manifest_resolver.py.
 
-Every test operates exclusively on tmp_path-constructed manifests and
-files. No test creates a real events/{slug}/input/source_manifest.json,
-reads an archived 3M physical file, or writes any output/deploy artifact.
+The retrospective Wyndham fixture tests below are the sole exception to the
+otherwise tmp_path-only rule. They read its explicitly authorized inputs and
+assert no output or deploy artifact is created.
 """
 from __future__ import annotations
 
+import csv
 import hashlib
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +21,12 @@ if str(_ENGINE_DIR) not in sys.path:
     sys.path.insert(0, str(_ENGINE_DIR))
 
 import source_manifest_resolver as smr  # noqa: E402
+from venuedna_scoring import SimilarCourseRow, compute_player_projection  # noqa: E402
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+WYNDHAM_FIXTURE_ROOT = REPO_ROOT / "events" / "2026_wyndham_championship"
+WYNDHAM_INPUT_ROOT = WYNDHAM_FIXTURE_ROOT / "input"
 
 
 def _make_directory_link(link_path: Path, target: Path) -> None:
@@ -731,3 +739,130 @@ def test_resolver_makes_no_repository_writes_outside_tmp_path(tmp_path):
     assert not (context.event_root / "input" / "source_manifest.json").exists()
     assert not (context.event_root / "output").exists()
     assert not (context.event_root / "deploy").exists()
+
+
+# ── 17. Authorized Wyndham retrospective-development fixture ────────────────
+
+def _fixture_snapshot() -> dict[str, str]:
+    return {
+        path.relative_to(WYNDHAM_FIXTURE_ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in WYNDHAM_FIXTURE_ROOT.rglob("*")
+        if path.is_file()
+    }
+
+
+def _fixture_manifest() -> dict:
+    return json.loads((WYNDHAM_INPUT_ROOT / "source_manifest.json").read_text(encoding="utf-8"))
+
+
+def _fixture_source_path(manifest: dict, role: str) -> Path:
+    entry = next(source for source in manifest["sources"] if source["role"] == role)
+    return WYNDHAM_INPUT_ROOT / entry["path"]
+
+
+def _fixture_player_row(manifest: dict, role: str, player_name: str) -> dict | None:
+    with _fixture_source_path(manifest, role).open(newline="", encoding="utf-8") as handle:
+        return next((row for row in csv.DictReader(handle) if row["player_name"] == player_name), None)
+
+
+def test_wyndham_retrospective_fixture_resolves_all_integrity_asserted_roles_read_only():
+    manifest = _fixture_manifest()
+    context = smr.SourceManifestContext(
+        event_slug="2026_wyndham_championship",
+        venue_slug="sedgefield_country_club",
+        event_root=WYNDHAM_FIXTURE_ROOT,
+        repo_root=REPO_ROOT,
+    )
+    before = _fixture_snapshot()
+    result = smr.resolve_source_manifest(manifest, context=context)
+    after = _fixture_snapshot()
+
+    assert after == before
+    assert manifest["schema_version"] == "1.0"
+    assert set(result.resolved_sources) == set(smr.REQUIRED_ROLES)
+    assert not result.is_release_blocked, [finding.message for finding in result.blockers]
+    for role, source in result.resolved_sources.items():
+        assert source.resolved_path.is_relative_to(WYNDHAM_INPUT_ROOT), role
+        assert source.sha256_outcome.state == smr.INTEGRITY_VERIFIED, role
+        assert source.row_count_outcome.state == smr.INTEGRITY_VERIFIED, role
+
+    similar_metadata = [
+        next(source for source in manifest["sources"] if source["role"] == role)["metadata"]
+        for role in smr.SIMILAR_SG_ROLES
+    ]
+    assert {metadata["similar_course_set_id"] for metadata in similar_metadata} == {
+        "sedgefield_country_club_similarity_top21"
+    }
+    assert {metadata["set_version"] for metadata in similar_metadata} == {"1.0"}
+    assert len({metadata["set_provenance"] for metadata in similar_metadata}) == 1
+    assert [metadata["horizon_months"] for metadata in similar_metadata] == [6, 12, 24]
+    venue_history = next(source for source in manifest["sources"] if source["role"] == "venue_history")
+    assert venue_history["metadata"]["venue_slug"] == "sedgefield_country_club"
+
+
+def test_wyndham_fixture_preserves_field_and_source_only_identity_coverage():
+    manifest = _fixture_manifest()
+    field_names = {
+        row["player_name"]
+        for row in csv.DictReader((WYNDHAM_INPUT_ROOT / "pga_field_teetimes.csv").open(encoding="utf-8"))
+    }
+    all_course_roles = (
+        "neutral_skill.sg_total.6m", "neutral_skill.sg_total.12m", "neutral_skill.sg_total.24m",
+    )
+    similar_roles = (
+        "venue_fit.similar_sg.6m", "venue_fit.similar_sg.12m", "venue_fit.similar_sg.24m",
+    )
+
+    assert "Skinns, David" in field_names
+    assert all(_fixture_player_row(manifest, role, "Skinns, David") is not None for role in all_course_roles)
+    assert all(_fixture_player_row(manifest, role, "Skinns, David") is None for role in similar_roles)
+
+    assert "Moore, Taylor" in field_names
+    assert all(_fixture_player_row(manifest, role, "Moore, Taylor") is None for role in all_course_roles)
+    assert all(_fixture_player_row(manifest, role, "Moore, Taylor") is not None for role in similar_roles)
+
+    assert "Berger, Daniel" not in field_names
+    assert all(_fixture_player_row(manifest, role, "Berger, Daniel") is None for role in all_course_roles)
+    assert all(_fixture_player_row(manifest, role, "Berger, Daniel") is not None for role in similar_roles)
+
+    assert "Merritt, Troy" not in field_names
+    assert any(_fixture_player_row(manifest, role, "Merritt, Troy") is not None for role in all_course_roles)
+
+
+def test_wyndham_fixture_missing_source_statuses_are_unscored_in_memory_only():
+    """Exercise the pure player-preparation function only: no rank, tier,
+    probability, output, deploy payload, or artifact is generated or written.
+    """
+    manifest = _fixture_manifest()
+    before = _fixture_snapshot()
+
+    def player_inputs(player_name: str):
+        neutral = {}
+        similar = {}
+        for horizon in ("6m", "12m", "24m"):
+            all_row = _fixture_player_row(manifest, f"neutral_skill.sg_total.{horizon}", player_name)
+            neutral[horizon] = float(all_row["total_mean"]) if all_row is not None else None
+            similar_row = _fixture_player_row(manifest, f"venue_fit.similar_sg.{horizon}", player_name)
+            similar[horizon] = (
+                None if similar_row is None else SimilarCourseRow(
+                    rounds_played=int(similar_row["rounds_played"]),
+                    total_mean=float(similar_row["total_mean"]),
+                )
+            )
+        return neutral, similar
+
+    skinns = compute_player_projection(*player_inputs("Skinns, David"))
+    moore = compute_player_projection(*player_inputs("Moore, Taylor"))
+    after = _fixture_snapshot()
+
+    assert after == before
+    assert skinns.status == "UNSCORED"
+    assert skinns.neutral_skill_raw is not None
+    assert skinns.venue_fit_delta_raw is None
+    assert skinns.pre_penalty_raw is None
+    assert moore.status == "UNSCORED"
+    assert moore.neutral_skill_raw is None
+    assert moore.venue_fit_delta_raw is None
+    assert moore.pre_penalty_raw is None
+    assert not list((WYNDHAM_FIXTURE_ROOT / "output").iterdir())
+    assert not list((WYNDHAM_FIXTURE_ROOT / "deploy" / "data").iterdir())

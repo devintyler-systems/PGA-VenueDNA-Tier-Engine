@@ -87,6 +87,23 @@ NULL_EVENT_BINDINGS = (
     "audit_root",
 )
 
+# Phase 6.1: the sole authorized Wyndham retrospective-development fixture.
+# This is a hardcoded exact-path exception, not a generic fixture-mode
+# bypass -- see docs/decisions/2026_08_06_wyndham_retrospective_fixture_authorization.md.
+RETROSPECTIVE_FIXTURE_EVENT_ROOT = "events/2026_wyndham_championship"
+RETROSPECTIVE_FIXTURE_README = "RETROSPECTIVE_FIXTURE_README.md"
+RETROSPECTIVE_FIXTURE_MARKERS = (
+    "RETROSPECTIVE_DEVELOPMENT_FIXTURE",
+    "NOT OFFICIAL",
+    "NOT PRE_EVENT",
+    "NOT LIVE",
+    "NOT DEPLOYABLE",
+)
+RETROSPECTIVE_FIXTURE_APPROVED_ENTRIES = frozenset(
+    {RETROSPECTIVE_FIXTURE_README, "input", "output", "audit", "deploy"}
+)
+RETROSPECTIVE_FIXTURE_SUCCESS_RULE = "RETROSPECTIVE_WYNDHAM_FIXTURE_FENCED"
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -1944,6 +1961,117 @@ def _validate_governance(texts: dict[str, str]) -> list[Finding]:
     return findings
 
 
+def _validate_wyndham_retrospective_fixture(
+    fixture_root: Path, manifest: dict[str, Any]
+) -> list[Finding]:
+    """Report every deviation from the sole authorized Wyndham
+    retrospective-development fixture.
+
+    This check applies only to the exact, hardcoded fixture root the caller
+    passes in. It never widens into a generic "fixture mode" bypass: any
+    deviation is returned to the caller, which keeps its blanket
+    ACTIVE_EVENT_WYNDHAM_ABSENT rule in force.
+    """
+    findings: list[Finding] = []
+
+    if manifest.get("status") != "NO_ACTIVE_EVENT":
+        findings.append(
+            _finding(
+                "RETROSPECTIVE_FIXTURE_ACTIVE_EVENT_STATUS",
+                RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                "The retrospective fixture exception requires config/active_event.json "
+                "status to remain 'NO_ACTIVE_EVENT'.",
+            )
+        )
+
+    readme_path = fixture_root / RETROSPECTIVE_FIXTURE_README
+    if not readme_path.is_file():
+        findings.append(
+            _finding(
+                "RETROSPECTIVE_FIXTURE_README_MISSING",
+                RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                f"Retrospective fixture requires {RETROSPECTIVE_FIXTURE_README}.",
+            )
+        )
+    else:
+        try:
+            readme_text = readme_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            readme_text = ""
+            findings.append(
+                _finding(
+                    "RETROSPECTIVE_FIXTURE_README_UNREADABLE",
+                    RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                    f"Cannot read {RETROSPECTIVE_FIXTURE_README}: {exc}",
+                )
+            )
+        missing_markers = [
+            marker for marker in RETROSPECTIVE_FIXTURE_MARKERS if marker not in readme_text
+        ]
+        if missing_markers:
+            findings.append(
+                _finding(
+                    "RETROSPECTIVE_FIXTURE_MARKER_MISSING",
+                    RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                    "Retrospective fixture README is missing required fence markers: "
+                    + ", ".join(missing_markers)
+                    + ".",
+                )
+            )
+
+    top_level = {entry.name for entry in fixture_root.iterdir()} if fixture_root.is_dir() else set()
+    unapproved = sorted(top_level - RETROSPECTIVE_FIXTURE_APPROVED_ENTRIES)
+    if unapproved:
+        findings.append(
+            _finding(
+                "RETROSPECTIVE_FIXTURE_UNAPPROVED_CONTENT",
+                RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                "Retrospective fixture contains unapproved top-level paths: "
+                + ", ".join(unapproved)
+                + ".",
+            )
+        )
+
+    for name in ("output", "audit"):
+        directory = fixture_root / name
+        if directory.is_dir() and any(directory.rglob("*")):
+            findings.append(
+                _finding(
+                    f"RETROSPECTIVE_FIXTURE_NONEMPTY_{name.upper()}",
+                    RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                    f"Retrospective fixture {name}/ must remain empty; no output, "
+                    "deploy, or live artifact may exist in this phase.",
+                )
+            )
+
+    deploy_dir = fixture_root / "deploy"
+    if deploy_dir.is_dir():
+        unapproved_deploy = sorted(
+            entry.name for entry in deploy_dir.iterdir() if entry.name != "data"
+        )
+        if unapproved_deploy:
+            findings.append(
+                _finding(
+                    "RETROSPECTIVE_FIXTURE_DEPLOY_CONTENT",
+                    RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                    "Retrospective fixture deploy/ must contain only an empty data/ "
+                    "directory: " + ", ".join(unapproved_deploy) + ".",
+                )
+            )
+        deploy_data_dir = deploy_dir / "data"
+        if deploy_data_dir.is_dir() and any(deploy_data_dir.rglob("*")):
+            findings.append(
+                _finding(
+                    "RETROSPECTIVE_FIXTURE_NONEMPTY_DEPLOY_DATA",
+                    RETROSPECTIVE_FIXTURE_EVENT_ROOT,
+                    "Retrospective fixture deploy/data/ must remain empty; no deploy "
+                    "payload may exist in this phase.",
+                )
+            )
+
+    return findings
+
+
 def _validate_active_event(repo_root: Path, text: str) -> list[Finding]:
     try:
         manifest = json.loads(text)
@@ -2004,13 +2132,28 @@ def _validate_active_event(repo_root: Path, text: str) -> list[Finding]:
 
     wyndham = repo_root / "events" / "2026_wyndham_championship"
     if wyndham.exists():
-        findings.append(
-            _finding(
-                "ACTIVE_EVENT_WYNDHAM_ABSENT",
-                "events/2026_wyndham_championship",
-                "Wyndham event directory must not exist during the doctrine-only phase.",
+        fixture_findings = _validate_wyndham_retrospective_fixture(wyndham, manifest)
+        if fixture_findings:
+            findings.extend(fixture_findings)
+            findings.append(
+                _finding(
+                    "ACTIVE_EVENT_WYNDHAM_ABSENT",
+                    "events/2026_wyndham_championship",
+                    "Wyndham event directory must not exist during the doctrine-only phase.",
+                )
             )
-        )
+        else:
+            findings.append(
+                _finding(
+                    RETROSPECTIVE_FIXTURE_SUCCESS_RULE,
+                    "events/2026_wyndham_championship",
+                    "Wyndham event directory recognized as the sole authorized "
+                    "retrospective-development fixture: NO_ACTIVE_EVENT is preserved, "
+                    "all required fence markers are present, and no output, deploy, "
+                    "or live artifact exists under the fixture root.",
+                    severity="info",
+                )
+            )
     return findings
 
 

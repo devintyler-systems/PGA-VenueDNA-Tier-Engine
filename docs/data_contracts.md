@@ -406,6 +406,22 @@ Rules:
 4. `TEST_ONLY_SUPPORTED` does not authorize event initialization, producer CLI use, source-manifest authoring, scoring, output, deploy, or release for that pair. Passing the two-venue regression harness (`tests/test_event_context.py`, `tests/test_enrich_cards.py`) does not claim Sedgefield/Wyndham source readiness.
 5. This contract has no dependency on and no effect on `engine/venuedna_scoring.py`'s canonical formula, `standards/02`'s missing-data doctrine, or `standards/04`/`standards/VENUEDNA_CODEX_SCHEMA.md`'s artifact schemas.
 
+## Retrospective Fixture Doctrine-Validation Carve-Out (Phase 6.1)
+
+**Status: implemented — one hardcoded exact-path exception in `tools/validate_scoring_doctrine.py`.** Phase 6.0 authorized one governed, event-local development fixture at `events/2026_wyndham_championship/` (see `docs/decisions/2026_08_06_wyndham_retrospective_fixture_authorization.md`). Before Phase 6.1, the doctrine validator's `ACTIVE_EVENT_WYNDHAM_ABSENT` rule treated any existence of that directory as a doctrine failure, with no way to distinguish an authorized fixture from unauthorized Wyndham initialization.
+
+| Producer | Consumer | Contract | Rule |
+|---|---|---|---|
+| Operator-authorized retrospective fixture at `events/2026_wyndham_championship/` | `tools/validate_scoring_doctrine.py`'s `_validate_wyndham_retrospective_fixture()` | The fixture's `RETROSPECTIVE_FIXTURE_README.md`, top-level directory contents, and `config/active_event.json` | Recognized only when every fence criterion below holds; any deviation falls back to the pre-existing blanket block |
+
+Rules:
+
+1. The exception applies only to the exact path `events/2026_wyndham_championship/`; it is not a wildcard, a rename-tolerant match, or a generic "fixture mode" flag. A differently named or relocated event root gets no exception.
+2. Recognition requires all of: `config/active_event.json` status remains `NO_ACTIVE_EVENT`; `RETROSPECTIVE_FIXTURE_README.md` exists and contains the five required fence markers (`RETROSPECTIVE_DEVELOPMENT_FIXTURE`, `NOT OFFICIAL`, `NOT PRE_EVENT`, `NOT LIVE`, `NOT DEPLOYABLE`); the event root's only top-level entries are the README plus `input/`, `output/`, `audit/`, and `deploy/`; `output/` and `audit/` are empty; and `deploy/` contains only an empty `data/` directory.
+3. When every criterion holds, the validator reports the informational finding `RETROSPECTIVE_WYNDHAM_FIXTURE_FENCED` and suppresses `ACTIVE_EVENT_WYNDHAM_ABSENT` for that run only. This finding never has `error` severity and never blocks `validate_repository()`.
+4. When any criterion fails, `ACTIVE_EVENT_WYNDHAM_ABSENT` still fires alongside the specific fixture-deviation finding — the exception fails closed, it does not partially relax the blanket block.
+5. This carve-out does not change `GOV_WYNDHAM_BLOCK` (`standards/02_PGA_VENUEDNA_SCORING_SPEC.md`'s prose requirement that official Wyndham initialization remains blocked), does not alter `config/active_event.json`, and does not authorize a score, rank, tier, probability, board export, or deploy payload for Wyndham.
+
 ## Core Projection Contract
 
 The core projection is decomposed. Do not treat one composite display score as the only source of truth.
