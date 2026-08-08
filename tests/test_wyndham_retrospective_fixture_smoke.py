@@ -46,6 +46,14 @@ FIXTURE_ROOT = REPO_ROOT / "events" / EVENT_SLUG
 
 FENCE_DIRS = ("output", "audit", "deploy", "deploy/data")
 
+# Phase 6.3 authorized exactly these three local, non-deployable board-shell
+# files as direct children of deploy/ (tools/validate_scoring_doctrine.py;
+# RETROSPECTIVE_FIXTURE_README.md "Phase 6.3 board-shell allowance"). They
+# are excluded from the ``deploy`` fence-emptiness check below only --
+# ``deploy/data`` and every other fence directory remain fully empty with no
+# allowance.
+BOARD_SHELL_ALLOWED_FILES = frozenset({"index.html", "app.js", "styles.css"})
+
 
 def _fixture_context() -> EventContext:
     """The real, committed fixture directory as the producer's event_root --
@@ -71,16 +79,22 @@ def _fixture_context() -> EventContext:
 
 def _fence_inventory() -> dict[str, list[str]]:
     """Recursive inventory of every fenced directory's file contents,
-    relative paths only, deterministically sorted."""
+    relative paths only, deterministically sorted. The Phase 6.3-authorized
+    board-shell files are excluded from the ``deploy`` entry only; every
+    other fence directory, including ``deploy/data``, is reported in full
+    with no allowance."""
     inventory: dict[str, list[str]] = {}
     for rel in FENCE_DIRS:
         target = FIXTURE_ROOT / rel
         if not target.exists():
             inventory[rel] = []
             continue
-        inventory[rel] = sorted(
+        files = sorted(
             str(p.relative_to(target)) for p in target.rglob("*") if p.is_file()
         )
+        if rel == "deploy":
+            files = [f for f in files if f not in BOARD_SHELL_ALLOWED_FILES]
+        inventory[rel] = files
     return inventory
 
 

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VenueDNA — Wyndham Retrospective Fixture (NOT OFFICIAL)</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     RETROSPECTIVE FIXTURE FENCE BANNER
+     Must remain visible without scrolling, desktop and mobile.
+     This banner is not decorative — it is the primary safety
+     signal that this shell is not an official VenueDNA board.
+══════════════════════════════════════════════════════ -->
+<div class="fixture-banner" role="alert">
+  <div class="fixture-banner-inner">
+    <svg class="fixture-banner-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 5.5 7.5 12.9h-15L12 7.5ZM11 10v5h2v-5h-2Zm0 6.5v2h2v-2h-2Z"/>
+    </svg>
+    <div class="fixture-banner-text">
+      <strong>RETROSPECTIVE DEVELOPMENT FIXTURE</strong>
+      <span>NOT OFFICIAL &bull; NOT PRE-EVENT &bull; NOT LIVE &bull; NOT DEPLOYABLE</span>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <p class="header-eyebrow">VenueDNA &mdash; UI validation shell</p>
+    <h1>2026 Wyndham Championship</h1>
+    <p class="venue-name">Sedgefield Country Club</p>
+    <p class="header-subtitle">Static UI validation only &mdash; no official scoring payload loaded</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="fixture-note" aria-label="Fixture disclosure">
+    <h2 class="sr-only">Fixture disclosure</h2>
+    <p>
+      This board renders a small, synthetic, in-memory UI fixture only. No
+      source data, output artifact, or deploy payload has been read or
+      generated. Every scored row below is labeled
+      <span class="badge-synthetic">Synthetic UI fixture values</span>
+      and must not be interpreted as an actual Wyndham ranking, score, or
+      probability.
+    </p>
+    <p>
+      Four fixture records are intentionally <strong>UNSCORED</strong> to
+      demonstrate the required distinction between a scored record and one
+      with incomplete required evidence. An UNSCORED record never receives a
+      rank, tier, score, or probability &mdash; it reflects missing or
+      non-computable evidence, never poor performance.
+    </p>
+  </section>
+
+  <div class="controls-bar" role="group" aria-label="Fixture display controls">
+    <div class="control-group">
+      <label for="tier-select">Tier</label>
+      <select id="tier-select">
+        <option value="all">All</option>
+        <option value="official">Official tiers</option>
+        <option value="T1">T1</option>
+        <option value="T2">T2</option>
+        <option value="T3">T3</option>
+        <option value="T4">T4</option>
+        <option value="T5">T5</option>
+        <option value="unscored">UNSCORED / incomplete evidence</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="sort-select">Sort</label>
+      <select id="sort-select">
+        <option value="default">Default (rank)</option>
+        <option value="score">VenueDNA Score (high&nbsp;&rarr;&nbsp;low)</option>
+        <option value="rank">Rank (low&nbsp;&rarr;&nbsp;high)</option>
+      </select>
+    </div>
+    <p id="result-status" class="result-status" role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="table-wrap">
+    <table class="player-table">
+      <caption class="sr-only">Fixture player list &mdash; scored and UNSCORED synthetic records</caption>
+      <thead>
+        <tr>
+          <th scope="col">Rank</th>
+          <th scope="col">Player</th>
+          <th scope="col">Tier</th>
+          <th scope="col">VenueDNA Score</th>
+          <th scope="col">Win</th>
+          <th scope="col">Top 5</th>
+          <th scope="col">Top 10</th>
+          <th scope="col">Top 20</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody id="player-tbody">
+        <!-- Rendered entirely client-side from an in-memory fixture in app.js -->
+      </tbody>
+    </table>
+  </div>
+
+  <section class="legend" aria-label="Legend">
+    <div class="legend-item">
+      <span class="tier-chip tier-chip-t1">T1</span>
+      <span class="tier-chip tier-chip-t2">T2</span>
+      <span class="tier-chip tier-chip-t3">T3</span>
+      <span class="tier-chip tier-chip-t4">T4</span>
+      <span class="tier-chip tier-chip-t5">T5</span>
+      <span class="legend-label">Synthetic scored tiers (fixture only)</span>
+    </div>
+    <div class="legend-item">
+      <span class="status-chip status-chip-unscored">
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M11 7h2v7h-2V7Zm0 8.5h2v2h-2v-2ZM12 2 1 21h22L12 2Z"/></svg>
+        UNSCORED
+      </span>
+      <span class="legend-label">Incomplete required evidence &mdash; never a rank, tier, score, or probability</span>
+    </div>
+  </section>
+
+</main>
+
+<footer class="fixture-footer">
+  <p>RETROSPECTIVE DEVELOPMENT FIXTURE &mdash; NOT OFFICIAL &mdash; NOT PRE-EVENT &mdash; NOT LIVE &mdash; NOT DEPLOYABLE</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
