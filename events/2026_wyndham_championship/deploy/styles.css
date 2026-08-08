@@ -13,10 +13,10 @@
   --accent: #38bdf8;
 
   --fixture: #f59e0b;
-  --fixture-dark: #78350f;
+  --fixture-dark: #c8700f;
   --fixture-text: #1c1206;
 
-  --unscored: #64748b;
+  --unscored: #b3c0d1;
   --unscored-bg: #1e293b;
 
   --t1: #22c55e;
@@ -36,6 +36,9 @@
     --border: #cbd5e1;
     --text: #0f172a;
     --muted: #475569;
+    --accent: #0369a1;
+    --unscored: #475569;
+    --focus-ring: #0284c7;
   }
 }
 
@@ -171,6 +174,9 @@ main {
   border-radius: 999px;
   padding: .1rem .55rem;
   white-space: nowrap;
+}
+@media (prefers-color-scheme: light) {
+  .badge-synthetic { color: #92400e; }
 }
 
 /* ── Controls ───────────────────────────────────────────────────────────── */
@@ -343,7 +349,7 @@ td[data-col="top20"] {
 /* ── Footer ─────────────────────────────────────────────────────────────── */
 .fixture-footer {
   background: var(--fixture-dark);
-  color: #fde68a;
+  color: #1c1206;
   text-align: center;
   font-size: .72rem;
   font-weight: 700;
