@@ -264,3 +264,78 @@ Spearman rho below 0.20 for two consecutive rounds is a model health flag requir
 - Formula v2.0.0 is not overridden by Rocket observations. The evidence may support future bounded research but does not directly alter canonical v2 scoring.
 - Council governance tracks whether these hypotheses improve Tier 1/T2 accuracy and whether ceiling/variance handling reduces "winner from T4/T5 with no conviction" misses.
 - Rocket Classic 2027 (if played) is the primary test venue for these Detroit-specific learnings; other medium–high variance, approach-driven venues are secondary test beds.
+
+---
+
+## 11. FINAL-AUDIT AND PROPOSED WRITE-BACK DISCIPLINE
+
+This section governs the final accountability review after the R4/final analysis is available. It complements, and does not replace, the round cadence and artifact rules above. The canonical pre-event projection and each prior-round artifact remain read-only evidence; an audit never rewrites them.
+
+### 11.1 Tier accountability review
+
+Review Tier 1 and Tier 2 against final outcomes, including their final position or finish band, made-cut status where applicable, and the model evidence actually available in the frozen artifacts. Review tier shape as well as the winner: Tier 1 Top-10 coverage, Tier 2 contender/Top-20 coverage, and material underperformance or overperformance must be assessed without inventing an outcome band, probability, or player evidence that was not emitted.
+
+An audit finding may identify whether the available evidence supports a structural confirmation, a structural miss, an incomplete-evidence finding, or variance. It must not retroactively change the official pre-event rank, tier, score, or probability.
+
+### 11.2 Material-miss classification
+
+Each material miss must receive one primary classification and may receive a secondary contributing classification. Use the narrowest layer supported by the evidence:
+
+- `NeutralSkill`
+- `VenueFitDelta`
+- `VenueHistoryDelta`
+- `penalty_gate`
+- `debut_framework`
+- `data_completeness`
+- `conditions`
+- `variance`
+- `Model_Council`
+
+`penalty_gate` is a classification layer, not authority to activate a penalty or gate. Under formula v2.0.0, `penalty_gate_set_id: venuedna_v2_none` remains in force unless a separately approved scoring change updates the canonical formula. Likewise, `VenueHistoryDelta` review must preserve its current approved neutral contribution until a bounded transform is separately authorized.
+
+Classify `data_completeness` when source absence, identity resolution, sample sufficiency, or unavailable structured evidence prevents a reliable layer verdict. Classify `conditions` when realized weather or setup materially differs from the documented conditions evidence; do not turn a conditions finding into an unsupported score adjustment. A finding that cannot be classified from available evidence must be recorded as incomplete evidence rather than inferred from reputation, market, salary, or generic form.
+
+### 11.3 Anti-pattern and risk-mechanism review
+
+Review an anti-pattern only when a documented flag, structural mechanism, or conditions-sensitive modifier exists in the frozen event evidence. For each reviewed case, record:
+
+- direction: whether the stated mechanism was supported, contradicted, or indeterminate;
+- magnitude: whether the recorded effect or non-effect was proportionate to the evidence available;
+- setup and conditions: whether documented firmness, weather, routing, rough, green speed, or other approved modifier evidence materially affected the mechanism; and
+- uncertainty: whether sample size, data quality, or confounding variance prevents a stable conclusion.
+
+No audit may create an anti-pattern, penalty magnitude, score adjustment, or gate from an outcome alone. The same rule applies to named risk mechanisms: review whether the mechanism was evidenced and whether the existing emitted probability or confidence treatment was appropriately calibrated, but do not invent probabilities or rerank players after the fact.
+
+### 11.4 Probability-calibration review
+
+Where the canonical artifacts emitted probability vectors, compare their stated bands with realized frequencies by tier and conditions class. Review calibration separately from rank ordering and distinguish an overconfident or underconfident distribution from a scoring-layer miss. Do not use derivative-market, odds, salary, ownership, DFS, or betting outcomes as core-model evidence, and do not infer probability values that the producer did not emit.
+
+### 11.5 Finding decisions and proposed actions
+
+Every material finding must end with exactly one recorded decision status:
+
+| Status | Meaning |
+|---|---|
+| `confirm` | Evidence supports the existing structural interpretation. |
+| `downgrade` | Evidence lowers confidence in a documented interpretation or hypothesis; it does not retroactively alter a frozen projection. |
+| `promote` | Evidence elevates a documented hypothesis for bounded future research; it does not activate an engine rule. |
+| `hold` | Evidence is mixed, insufficient, or materially confounded; retain the current doctrine unchanged. |
+| `proposed_venue_write_back` | Evidence supports a venue-specific candidate change, pending operator approval. |
+| `proposed_engine_rule_research` | Evidence supports a cross-venue research flag, not an engine change. |
+| `logged_no_change` | The finding was reviewed and recorded with no doctrine or venue action proposed. |
+
+The decision status records the audit ruling only. It does not authorize a rewrite of frozen artifacts, an immediate venue-profile edit, a scoring change, or a new payload field.
+
+### 11.6 Evidence thresholds and write-back separation
+
+Every material finding must state its evidence basis, applicable evidence threshold, confidence or uncertainty, and whether it is venue-specific or potentially cross-venue. One-event anecdotes do not change venue doctrine or engine doctrine.
+
+Venue-specific evidence may produce only a `proposed_venue_write_back`; it must identify the proposed target layer and remain unimplemented until operator approval. Cross-venue evidence may produce only a `proposed_engine_rule_research` flag. Any scoring, weight, tier, penalty, gate, probability, or schema change must follow the applicable evidence threshold and change authority in `standards/02_PGA_VENUEDNA_SCORING_SPEC.md` and `standards/05_PGA_VENUEDNA_MODEL_COUNCIL_GOVERNANCE.md`, including the required Council review and operator authorization.
+
+These are policy requirements for final-audit content, not a new JSON or CSV schema. Existing artifact locations, field names, source-manifest behavior, identity handling, and deploy contracts remain governed by `standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md` and their current implementations.
+
+### 11.7 Model Council role at audit
+
+At final audit, the Model Council is a challenge layer. It pressure-tests evidence quality, duplicate reasoning, uncertainty, and proposed venue or engine research; it does not replace canonical scoring, cure missing evidence, or turn consensus, DG benchmark, market, salary, ownership, DFS, or betting information into core-rank changes.
+
+The Council may record a challenge, confirmation, or no-change ruling and may require a proposal to remain in `hold` status. It may not apply a write-back or alter formula v2.0.0 without the separately required authority and approval path.
