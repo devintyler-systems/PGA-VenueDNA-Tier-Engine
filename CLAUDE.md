@@ -21,6 +21,8 @@ Resolve instructions in this order:
 6. Repository implementation, tests, and deploy contracts
 7. Historical artifacts and archived event files
 
+PERPLEXITY_OPERATING_PROTOCOL.md governs Perplexity's execution behavior — planning, doctrine adjudication, and direct file creation and GitHub commits for non-code artifacts (event folders, manifests, handoff prompts, live/audit artifacts). Perplexity generates every Claude Code/Codex handoff as a committed .md file in chatgpt_codex/ or scripts/handoffs/ before either agent is invoked. Claude Code does not originate its own event-bound task scope; it executes against the handoff Perplexity commits.
+
 `AGENTS.md` governs Codex under the same doctrine as this file. If the two visibly diverge on anything beyond tool-specific mechanics (skill invocation, terminal syntax), treat it as a conflict and apply the rule below rather than picking one silently.
 
 When two authorities conflict:

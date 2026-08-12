@@ -13,6 +13,10 @@ VenueDNA scores each player's fit for a specific PGA Tour venue using 10 weighte
 3. After each round, ingests official round results and produces a trait audit layer (how well did the model's trait predictions hold up?)
 4. Accumulates round-over-round signal data so the model's quality improves across the event week
 
+## Automation Layer
+
+Weekly event setup, source manifests, Claude Code/Codex handoff prompts, live round artifacts, and audit write-backs are created and committed directly to this repo by Perplexity via the GitHub connector, per PERPLEXITY_OPERATING_PROTOCOL.md. Manual folder creation and copy-paste handoffs described in the runbooks below are being phased out as this automation rolls out event-by-event.
+
 ---
 
 ## Folder Structure
