@@ -5,16 +5,30 @@
 
 ## SYSTEM ROLES
 
-### ChatGPT Project
-Owns:
+### ChatGPT Project and Perplexity
+
+Shared reasoning and control plane. Either may serve as the active planning lane for doctrine interpretation, Model Council reasoning, projection synthesis, audit classification, task scoping, and code-review framing.
+
+Both own:
 - VenueDNA doctrine
-- Scoring and artifact contract interpretation
+- Scoring and artifact-contract interpretation
 - Model Council reasoning
 - Projection synthesis
 - Audit classification
-- Codex task scoping and code-review framing
+- Task scoping and code-review framing
 
-Does not own:
+Both must:
+- Follow the repository authority hierarchy, active-event lifecycle, canonical standards, and data contracts.
+- Treat committed GitHub state as the durable shared source of truth.
+- Verify `config/active_event.json` before event-bound planning, projections, live work, audits, or implementation guidance.
+- Keep NeutralSkill, VenueFitDelta, VenueHistoryDelta, penalties and gates, uncertainty/confidence, and derivatives separate.
+- Not make silent code changes or mutate canonical venue intelligence without an approved write-back artifact.
+
+When Perplexity is the active operating lane, `PERPLEXITY_OPERATING_PROTOCOL.md` additionally governs its direct creation and GitHub commit of approved non-code artifacts, including manifests, handoff prompts, live/audit artifacts, and documentation.
+
+When ChatGPT is the active operating lane, it may plan, review, and draft those artifacts, but it must verify their committed GitHub state before instructing a local implementation agent to use them.
+
+Neither owns:
 - Undocumented repository facts
 - Silent code changes
 - Direct mutation of canonical venue intelligence without an approved write-back artifact
@@ -74,6 +88,14 @@ Every implementation task handed to Claude Code or Codex must state:
 - Stop condition
 
 If any item is unknown, inspect first. Do not infer repository paths or payload shapes.
+
+## HANDOFF PUBLICATION AND SYNC
+
+A Claude Code or Codex task must be based on a complete handoff artifact committed to GitHub, normally in `chatgpt_codex/` or `scripts/handoffs/`, before execution begins.
+
+Before local execution, the operator or implementation agent must verify that the local worktree contains the referenced handoff file and is synchronized with the intended remote commit. A remote GitHub commit is not available to a local agent until the local repository fetches or pulls it.
+
+If the referenced handoff is absent locally, the implementation agent must stop, report the missing path and any local/remote divergence, and make no substitute handoff file or unrelated worktree changes.
 
 ## HANDOFF OUTPUT CONTRACT
 
