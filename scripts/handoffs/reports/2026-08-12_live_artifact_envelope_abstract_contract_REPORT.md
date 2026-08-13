@@ -1,8 +1,8 @@
 # Live Artifact Envelope Abstract Contract — Decision D Report
 
-**Date:** 2026-08-12  
-**Decision:** D — define the generic Live Artifact envelope abstractly before an active consumer exists.  
-**Active event:** `NO_ACTIVE_EVENT` confirmed from `config/active_event.json`.  
+**Date:** 2026-08-12
+**Decision:** D — define the generic Live Artifact envelope abstractly before an active consumer exists.
+**Active event:** `NO_ACTIVE_EVENT` confirmed from `config/active_event.json`.
 **Local / remote commit before changes:** `d711a99bdf4eb0ab92587a9b878bfc8861675561` for both local `HEAD` and `origin/main`; initial worktree was clean.
 
 ## Result
