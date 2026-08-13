@@ -65,7 +65,10 @@ rho < 0.20   — No meaningful correlation
 rho < 0.00   — Inverse (flag for council review)
 ```
 
-Rho is written into `{slug}_r{N}_analysis.json` under `spearman_rho` and into `cumulative_learning.json` under `rho_by_round`.
+Rho must be preserved in the applicable round-analysis and cumulative-learning
+artifacts according to their detailed, independently versioned interface contract in
+`standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md`. This learning-loop standard does not
+prescribe its field placement or nesting.
 
 ---
 
@@ -105,81 +108,42 @@ Note: `VenueDNA_trait_debut_adjustment` is flagging context only and is not dire
 
 ---
 
-## 5. ROUND ANALYSIS ARTIFACT SCHEMA
+## 5. ROUND-ANALYSIS INTERFACE AUTHORITY
 
-`{slug}_r{N}_analysis.json`:
-```json
-{
-  "schema_version": "1.1",
-  "event": "2026 3M Open",
-  "round": 1,
-  "generated_at": "<ISO 8601 UTC>",
-  "spearman_rho": 0.4821,
-  "spearman_p_value": 0.0012,
-  "rho_interpretation": "moderate",
-  "players_in_correlation": 156,
-  "board": [
-    {
-      "VenueDNA_rank": 1,
-      "player_name": "Scheffler, Scottie",
-      "VenueDNA_tier": "T1",
-      "VenueDNA_final_projection": 87.4,
-      "r1_score": -6,
-      "r1_position": 3,
-      "r1_sg_total": 4.21,
-      "status": "active"
-    }
-  ],
-  "trait_validation": {
-    "VenueDNA_trait_approach": "validated",
-    "VenueDNA_trait_long_iron_150_225": "mixed",
-    "VenueDNA_trait_total_driving": "neutral"
-  },
-  "round_notes": []
-}
-```
+Round-analysis artifacts are produced after each completed round and preserve the
+learning-loop evidence described in this standard. Their detailed, independently
+versioned interface — including field names, types, nesting, missing-value behavior,
+and compatibility rules — is governed by
+`standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md`.
+
+This standard governs cadence, interpretation, and audit use of those artifacts; it
+does not independently prescribe a detailed round-analysis JSON payload. Current
+producer payloads and the README-linked library schema remain compatibility evidence
+pending a separately authorized versioned migration. Archived consumers are evidence
+only and do not establish present consumer compatibility or adapter requirements.
 
 ---
 
-## 6. CUMULATIVE LEARNING SCHEMA
+## 6. CUMULATIVE-LEARNING INTERFACE AUTHORITY
 
-`{slug}_cumulative_learning.json` is appended after each round and finalized after R4:
-```json
-{
-  "schema_version": "1.1",
-  "event": "2026 3M Open",
-  "generated_at": "<ISO 8601 UTC>",
-  "rounds_complete": 4,
-  "rho_by_round": {
-    "R1": 0.48,
-    "R2": 0.51,
-    "R3": 0.55,
-    "R4": 0.52
-  },
-  "trait_validation_summary": {
-    "VenueDNA_trait_approach": {
-      "R1": "validated", "R2": "validated", "R3": "validated", "R4": "validated",
-      "consensus": "validated"
-    },
-    "VenueDNA_trait_easy_green_putting": {
-      "R1": "neutral", "R2": "mixed", "R3": "neutral", "R4": "neutral",
-      "consensus": "neutral"
-    }
-  },
-  "tier_hit_rates": {
-    "T1": { "top10_rate": 0.60, "top20_rate": 0.80, "made_cut_rate": 1.00 },
-    "T2": { "top10_rate": 0.29, "top20_rate": 0.57, "made_cut_rate": 0.86 }
-  },
-  "model_accuracy_notes": [],
-  "council_flags": []
-}
-```
+The cumulative-learning artifact records round-over-round learning and is updated
+through the tournament lifecycle. Its detailed, independently versioned interface —
+including field names, types, nesting, missing-value behavior, and compatibility
+rules — is governed by `standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md`.
+
+This standard governs what the learning loop must assess and when it runs; it does
+not independently prescribe a detailed cumulative-learning JSON payload. No
+field-level schema decision, current schema-version compatibility decision,
+producer-output migration, adapter/wrapper, or consumer implementation requirement
+is made by this authority assignment.
 
 ---
 
 ## 7. FINAL ANALYSIS ARTIFACT
 
-`{slug}_final_analysis.json` is produced after R4 and contains:
+The detailed, independently versioned final-analysis interface is governed by
+`standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md`. Functionally, the final analysis is
+produced after R4 and contains:
 - Final Spearman rho across all 4 rounds
 - Tier hit rate summary
 - Top-10 coverage: fraction of actual top-10 finishers who were VenueDNA T1 or T2

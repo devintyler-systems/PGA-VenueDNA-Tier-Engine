@@ -256,6 +256,29 @@ Path: `events/{slug}/output/{slug}_links.json`
 
 ---
 
+### 3E. Detailed Live Artifact Interface Authority (Decision D)
+
+This standard is the canonical detailed, versioned-interface authority for
+round-analysis (`rN_analysis`), final-analysis, and `cumulative_learning` artifact
+types. Each type is independently versioned; a future versioned migration must
+declare its own required and optional fields, nesting, missing-value behavior,
+producer obligations, compatibility policy, and consumer validation.
+
+The generic Live Artifact envelope in `docs/data_contracts.md` is an abstract
+interface class, not a requirement that these detailed artifact types directly emit
+one shared top-level JSON shape. A future consumer that requires that generic
+envelope must use an explicitly versioned adapter/wrapper or an approved producer
+change. This authority assignment does not create either mechanism, select
+field-level content, select a current schema-version compatibility policy, or alter
+any current producer output.
+
+Current producer payloads and the README-linked
+`library/engine/ROUND_ANALYSIS_SCHEMA.md` remain compatibility evidence pending a
+separately authorized versioned migration. Archived consumers are evidence only and
+cannot establish present consumer compatibility or adapter requirements.
+
+---
+
 ## 4. DEPLOY DATA CONTRACTS
 
 Files copied from `output/` to `deploy/data/`:

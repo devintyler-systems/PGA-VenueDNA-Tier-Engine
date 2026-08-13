@@ -482,25 +482,30 @@ It must preserve:
 
 Do not overwrite it to create a live update.
 
-## Live Artifact
+## Live Artifact Envelope (Abstract Interface Class)
 
-A live artifact is a new round-specific output joined to the immutable pre-event projection spine.
+A live artifact is a new round-specific output joined to the immutable pre-event
+projection spine. The Live Artifact envelope is a logical wrapper/interface class
+for that relationship; it is **not** an assertion that every live producer directly
+emits the following members as one top-level JSON object.
 
-### Required Live Metadata
+The logical envelope identifies these concerns: `event_slug`, `round`,
+`generated_at`, `pre_event_artifact`, `authoritative_spine`, `player_updates`,
+`conditions_context`, `scenario_fencing`, and `diagnostics`. A detailed live
+artifact type may represent those concerns with its own explicitly versioned fields,
+nesting, or references.
 
-```json
-{
-  "event_slug": "string",
-  "round": 2,
-  "generated_at": "ISO8601",
-  "pre_event_artifact": "relative/path/to/pre_event_artifact.json",
-  "authoritative_spine": "relative/path/to/leaderboard_or_round_spine.csv",
-  "player_updates": [],
-  "conditions_context": {},
-  "scenario_fencing": {},
-  "diagnostics": {}
-}
-```
+Detailed, independently versioned interfaces for `rN_analysis`, final-analysis, and
+`cumulative_learning` artifacts are governed by
+`standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md`. This abstract envelope does not
+select their field-level content, current schema-version compatibility, or a direct
+producer shape.
+
+If a future consumer requires the generic envelope as an actual JSON boundary, it
+must use an explicitly versioned adapter/wrapper or an approved producer change.
+Neither an adapter/wrapper nor a producer change is authorized by this contract
+definition. Archived consumers are compatibility evidence only and cannot establish
+present consumer compatibility or adapter requirements.
 
 ### Live Rules
 
