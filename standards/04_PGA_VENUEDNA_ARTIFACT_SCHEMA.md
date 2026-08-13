@@ -279,6 +279,151 @@ cannot establish present consumer compatibility or adapter requirements.
 
 ---
 
+### 3F. Detailed Round, Final, and Cumulative Interface Policy
+
+This section is the canonical detailed-interface policy for the three Live Artifact
+families below. They remain beneath the abstract Live Artifact envelope in
+`docs/data_contracts.md`; that envelope does not require a shared producer wire
+format. This policy does not create a typed contract, adapter/wrapper, producer
+change, migration, deploy change, or README/library transition.
+
+The general schema-version policy in §1 applies within each artifact family. It does
+not require independently versioned families in this section to use the same version
+identifier. No new schema-version identifier is selected here. The current producer
+versions are compatibility baselines only: round/final output is currently `"1.1"`
+and cumulative-learning state is currently `"1.0"`.
+
+#### 3F.1 Family boundary and authority
+
+| Family | Detailed interface role | Current compatibility locations |
+|---|---|---|
+| `rN_analysis` | One detailed round-analysis family for R1 through R4. | `events/{slug}/output/{slug}_r{N}_analysis.json`; `events/{slug}/deploy/data/r{N}_analysis.json` |
+| `final_analysis` | An independently versioned terminal-analysis family. It is not an alias for `r4_analysis`, even though the current producer constructs it from the same base payload. | `events/{slug}/output/{slug}_final_analysis.json`; `events/{slug}/deploy/data/final_analysis.json` |
+| `cumulative_learning` | An independently versioned, persistent state document, not a collection of interchangeable round artifacts. | `events/{slug}/output/{slug}_cumulative_learning.json`; `events/{slug}/deploy/data/cumulative_learning.json` |
+
+This standard owns the detailed fields, types, nesting, requiredness,
+source-contingent missing behavior, family versions, compatibility/deprecation and
+translation rules, producer obligations, and consumer-validation requirements for
+these families. `standards/03_PGA_VENUEDNA_LEARNING_LOOP.md` owns cadence,
+interpretation, audit, Council, and write-back behavior. `docs/data_contracts.md`
+owns the producer-consumer boundary, immutable pre-event spine, abstract envelope,
+and general JSON rules.
+
+#### 3F.2 Member-treatment vocabulary
+
+Every detailed member in this section is classified as one of the following:
+
+| Treatment | Rule |
+|---|---|
+| Required | Always present with the specified type/shape. |
+| Optional but stable | May be absent only where this section says so; its name, type, and meaning are compatibility commitments when present. |
+| Source-contingent | Presence or value depends on documented input evidence. Unavailable optional scalars use `null`, no-result collections use `[]`, and an unavailable tagged object uses its declared `available: false` form. A member is absent only where this section expressly permits absence. |
+| Legacy compatibility member | A current member whose name or shape is preserved for compatibility pending an approved replacement/deprecation window. |
+| Unresolved | No field-level choice is made. A later explicit decision is required before a producer or consumer change. |
+
+#### 3F.3 `rN_analysis` interface
+
+R1 through R4 share one detailed `rN_analysis` version line. The required integer
+`round` and stable metadata identify the round instance. A future split is allowed
+only when a round requires a different required member, type, nesting,
+missing-value rule, or consumer obligation that cannot be represented as an optional
+stable or source-contingent member without obscuring meaning. Different source
+values, an event condition, or a new optional diagnostic do not by themselves justify
+a version-line split.
+
+| Member or member group | Treatment | Detailed policy |
+|---|---|---|
+| `schema_version`, `generated_at`, `build_timestamp`, `round`, `event_slug` | Required | Top-level metadata. `round` is an integer. A later versioned contract must specify timestamp representation without changing the current baseline by implication. |
+| `enrichment_used`, `course_insights_loaded`, `round_sources` | Required | The first two are booleans. `round_sources` is an array of source identifiers. |
+| `metadata` | Required object | Required members: `event_name`, `course_name`, `par`, `round_label`, `is_final`, `is_full_tournament`, `favored_wave`, `wx_speed_kts`, `wx_direction`, `wx_wave_delta`, and `wx_tide`. Current unknown weather direction/tide use `"N/A"`; their detailed domains remain a compatibility commitment pending later refinement. |
+| `enrichment_summary` | Source-contingent | Always present as either `null` when course insights are unavailable/unmatched, or an object with `source`, `player_match_n`, `player_total`, `traits_upgraded`, and `traits_confirmed`. |
+| `live_lean_notes` | Required object | Required members: `round`, `next_round`, `lean_up_traits`, `lean_down_traits`, `putt_caution`, `putt_outliers`, `watch_next_round`, `wave_risk_annotation`, `wave_scoring_averages`, and `rho_note`. `next_round` is `null` for final state; no-result collections are `[]`. Conditions-specific lean records may add optional-stable members such as `multiplier`. |
+| `match_summary` | Required object | Required members: `matched`, `total_r1`, `unmatched`, and `match_rate_pct`. `unmatched` is `[]` when empty. `total_r1` is a legacy compatibility member, including outside R1. |
+| `model_performance` | Required object | Required `spearman_rho` and `groups`. `groups` has fixed current keys `pt_top10`, `pt_top20`, `tier1`, `tier2`, `tier1_2`, and `all_field`; each has `n`, `avg_r1_pos`, `avg_r1_score`, `in_r1_top10`, and `in_r1_top20`. The `r1`-prefixed group names are legacy compatibility members. |
+| `sg_leader_averages` | Required object | Required `top10`, `top18`, and `full_field` SG maps. Their SG scalar values are source-contingent and may be `null`. |
+| `trait_audit` | Required object | All ten canonical trait keys are required, including padded not-testable entries. Per-trait base members are `venue_weight`, `top10_trait_avg`, `field_trait_avg`, `trait_delta`, `sg_proxy`, `sg_top10`, `sg_field`, `sg_delta`, `signal`, `sample_n_top10`, `sample_n_field`, `source_confidence`, and `enrichment`. Evidence scalars may be `null`; padded entries retain their current zero/null/not-testable behavior. |
+| `trait_audit[*].enrichment` | Source-contingent tagged object | The member is present. Unavailable form is `{ "available": false, "reason": "..." }`; available form carries its primary/secondary values and signal fields. Do not substitute `null` for this tagged-object state. |
+| `trait_audit[*].brie_z` | Source-contingent absent member | Present only when the applicable trait/source provides it. Its failure form remains an object with `available: false`, current nested version evidence, and `error`; successful form carries availability, counts, averages, penalty, and note evidence. |
+| `trait_audit[*]` live-proxy and upgrade detail | Source-contingent absent/null members | `proxy_source`, `live_proxy_label`, `live_proxy_top10_avg`, `live_proxy_field_avg`, and `signal_upgraded_by_enrichment` remain optional source evidence. `proxy_source` is `null` when the live source is absent; upgrade flag is absent unless an upgrade occurs. |
+| `risers`, `slippage`, `weekend_risers`, `slippage_risk` | Required arrays | No-result behavior is `[]`. Item base members are source-contingent joined-record fields. `weekend_risers` may add `thesis_score`/`thesis_note`; `slippage_risk` may add `risk_flags`. |
+| `leaderboard_snapshot` | Required array | Each record retains current identity, position, pre-event, SG, and wave evidence when available. `player_id` and `vs_proj` may be `null`. `r1_name`, `wave`, and `wave_penalty` are current consumer compatibility evidence. |
+| `leaderboard_snapshot[*]` live extensions | Optional but stable | `live_win_pct`, `live_top5_pct`, `live_top10_pct`, `live_top20_pct`, `v_p_t`, `cumulative_sg_tot`, `wave_draw`, and `wave_penalty` retain their current meanings; unavailable numeric values may be `null`. |
+| `dimension_leaders` | Required object | Fixed SG keys `sg_app`, `sg_putt`, `sg_ott`, and `sg_arg`; each maps to an array, possibly `[]`, of current leader records. |
+| `live_probability_engine` | Required compatibility object | Required current members are `round`, `gamma`, `field_vts_mean`, `field_avg_cum_sg`, `temperatures`, `prior_rounds_used`, `population_anchor_size`, `active_field_size`, `eliminated_frozen_count`, and `wave_penalty_params`; the latter retains its current parameter members. Exact scalar domains are unresolved pending a later explicit decision. |
+| `course_stats`, `easiest_holes`, `hardest_holes` | Required source-contingent arrays | Each is `[]` when course-stat input is absent. When present, course-stat records retain current hole, par, yardage, scoring, and result fields. |
+
+#### 3F.4 `final_analysis` terminal interface
+
+`final_analysis` is independently versioned because it is the terminal family, even
+though its current producer reuses the `rN_analysis` construction. Unless and until a
+later detailed decision states otherwise, all `rN_analysis` member treatments apply
+to the current final baseline, plus these required terminal metadata rules:
+
+| Member | Treatment | Rule |
+|---|---|---|
+| `round` | Required | Must be integer `4`. |
+| `metadata.is_final` | Required | Must be `true`. |
+| `metadata.is_full_tournament` | Required final-family discriminator | Must be `true` for `final_analysis`; current `r4_analysis` retains `false`. |
+| `metadata.round_label` | Legacy compatibility member | Current final value is `"Final Tournament"`; current R4 value is `"Final Round"`. Preserve both until a later vocabulary decision. |
+| Final-only summary/audit members | Unresolved | `standards/03` describes final analytical purpose but does not select detailed placement. This section does not add terminal-only summary, audit, or cross-reference members. |
+
+The current R4-parity boundary is exact: current final output has the same base shape
+as current round output except filename/location and
+`metadata.is_full_tournament`/`metadata.round_label`. Whether future final analysis
+must retain full shape parity, require terminal-only summaries, or reference a
+separate audit artifact is unresolved and requires a later explicit decision.
+
+#### 3F.5 `cumulative_learning` state interface
+
+`cumulative_learning` is a persistent state document. Its compatibility obligations
+include initialization and read/update/write behavior, not only JSON member shape.
+
+| Member or behavior | Treatment | Rule |
+|---|---|---|
+| `schema_version`, `event_slug`, `created_at`, `per_round`, `cumulative_signals` | Required initialization members | A fresh state begins with these members. `per_round` is an object and `cumulative_signals` contains the canonical trait state records. |
+| Read precedence | Required state behavior | Read existing output state first; if absent, read deploy fallback; if both are absent, initialize fresh state. A future change must preserve or explicitly replace this precedence. |
+| `last_updated`, `updated_at`, `rounds_completed`, `is_final`, `rounds_present` | Required persisted members | Update on every write. `rounds_present` is a sorted unique integer history; `is_final` records terminal state. |
+| `per_round["N"]` | Required processed-round entry | Each processed round entry has `round`, `generated_at`, `spearman_rho`, `trait_signals`, `model_hits`, `risers`, `slippage`, and `wave_annotation_n`. Riser/slippage are `[]` when empty. |
+| `per_round[*].trait_signals[*]` | Required per observed canonical trait | Required members are `signal`, `source_confidence`, `trait_delta`, `sg_delta`, and `enrichment_signal`; evidence scalar values may be `null`. |
+| `per_round[*].model_hits` | Required | Retains `pt_top10_in_top10`, `pt_top10_in_top20`, and `tier1_2_in_top20`. The `r1`-prefixed source terminology is legacy compatibility semantics. |
+| `cumulative_signals[*]` | Required canonical trait state | Required members are `rounds_observed`, `signal_history`, `confidence_history`, `delta_history`, `consensus`, and `consensus_confidence`. Fresh consensus values are `null`; after update, consensus values are the latest corresponding history values. |
+| Reprocessed round | Required update behavior | If a round is already observed, replace its history values at that existing index rather than append duplicates. |
+| Final state | Required terminal behavior | Terminal state sets `is_final: true`, terminal `rounds_completed`, and persists the terminal-round snapshot. Whether final analysis links, embeds, or only coexists with state is unresolved. |
+| State upgrade | Required migration prerequisite | No unversioned in-place reinterpretation is allowed. A future versioned migration must specify source-version detection, version-dispatched upgrade/translation, history preservation or deterministic reconstruction, idempotence/retry, and validation before write. No upgrade mechanism is created here. |
+
+#### 3F.6 Independent compatibility policy
+
+| Policy | Rule |
+|---|---|
+| Non-breaking | Add a documented optional-stable member with exact absent/null/empty behavior, or clarify prose without semantic change. For cumulative state, old state must remain valid and read/update results unchanged. |
+| Breaking | Removing, renaming, retyping, moving/nesting, changing requiredness, enum semantics, or null/empty/absent behavior of a compatibility member is breaking. For final it also includes changing terminal/R4 discriminators; for cumulative it also includes read precedence, keying, histories, consensus derivation, or update behavior. |
+| Deprecation | Retain the legacy member during an approved compatibility window, document a replacement mapping, and validate selected non-archived consumers. Cumulative deprecation must not silently discard history. |
+| Translation | A translator/adapter requires an explicitly versioned source/target mapping and a verified consumer or approved migration need. A cumulative translator must be idempotent, preserve or deterministically reconstruct history, and validate before persistence. |
+| Future migration prerequisites | Freeze current producer field inventory and representative samples; identify non-archived consumers; approve detailed contract/test/producer scope; settle final-versus-R4 parity; and, for cumulative state, validate fresh initialization, output/deploy fallback, repeated-round update, partial history, terminal state, and version upgrade. |
+
+#### 3F.7 Consumer, typed-contract, and adapter boundaries
+
+Current producer payloads, the README-linked
+`library/engine/ROUND_ANALYSIS_SCHEMA.md`, non-archived validators/shims, and
+non-archived runtime/template consumers remain compatibility evidence. They do not
+authorize changing producer output or deprecating the library/README reference. Any
+future preservation, transition, or deprecation requires an approved complete
+detailed replacement, resolved producer/documentation deltas, explicit disposition of
+each non-archived consumer/template, compatibility validation, and a separately
+authorized README/library task.
+
+`standards/VENUEDNA_CODEX_SCHEMA.md` may later mirror this detailed authority only
+after fields, types, enum/null behavior, final discriminator, cumulative
+state/update/upgrade rules, naming, and validation cases are approved. No typed
+definition is established here.
+
+**NO ADAPTER CURRENTLY JUSTIFIED.** No verified non-archived runtime consumer
+requires the abstract envelope as an actual JSON boundary. A future adapter/wrapper
+requires an explicit versioned contract and either verified consumer need or approved
+producer change. This section designs and creates neither.
+
+---
+
 ## 4. DEPLOY DATA CONTRACTS
 
 Files copied from `output/` to `deploy/data/`:
