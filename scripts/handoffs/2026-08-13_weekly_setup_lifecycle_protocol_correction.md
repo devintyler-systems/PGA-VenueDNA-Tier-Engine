@@ -1,8 +1,8 @@
 # Weekly Event Setup Lifecycle Protocol Correction
 
-**Date:** 2026-08-13  
-**Task type:** Narrow governance correction  
-**Required branch:** `main`  
+**Date:** 2026-08-13
+**Task type:** Narrow governance correction
+**Required branch:** `main`
 **Required active-event state:** `NO_ACTIVE_EVENT`
 
 ## Objective
