@@ -77,7 +77,11 @@ Push all files in a single commit with message:
 - Commit with message: `feat: source manifest — [Event Name]`
 
 ### Step 5 — active_event.json Update
-- Update `config/active_event.json` to reflect the new event: `status: INITIALIZED`, event slug, venue, and window dates.
+- The only permitted persisted lifecycle transition is `NO_ACTIVE_EVENT -> PRE_EVENT`; do not retain, introduce, alias, or temporarily persist `INITIALIZED`.
+- Transition `config/active_event.json` to `PRE_EVENT` only after separate explicit operator authorization for the selected future event setup and publication of a separate event-specific setup handoff.
+- Before that transition, fully bind the active manifest with event identity, venue identity, year, event root, venue profile, all required context/source references, deploy root, audit root, and every other applicable preflight/context binding.
+- Before that transition, ensure the required event structure already exists and satisfies applicable path and canonical-profile validation.
+- This lifecycle correction alone does not authorize event or venue selection, folder creation, source-manifest creation, source acquisition or ingestion, producer execution, projection or artifact creation, deploy output, or audit work.
 - Commit with message: `chore: activate event — [Event Name]`
 
 ### Step 6 — Confirm and Report
