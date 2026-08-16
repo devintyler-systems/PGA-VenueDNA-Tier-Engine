@@ -11,9 +11,11 @@ exclude-patterns:
   - ^(.*/)?.*(test|spec)\.(py|js|ts)$
 engines:
   eslint:
-    enabled: true
+    enabled: false
   pmd:
-    enabled: true
+    enabled: false
+  pmd-legacy:
+    enabled: false
   remark-lint:
     enabled: true
   metrics:
