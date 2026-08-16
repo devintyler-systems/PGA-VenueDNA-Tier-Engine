@@ -8,11 +8,9 @@ exclude-paths:
 engines:
   exclude-paths:
     - '**/*.min.*'
-
-tools:
+  eslint:
+    enabled: false
   pmd:
     enabled: false
   pmd-legacy:
-    enabled: false
-  eslint:
     enabled: false
