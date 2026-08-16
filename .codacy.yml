@@ -12,5 +12,7 @@ engines:
 tools:
   pmd:
     enabled: false
+  pmd-legacy:
+    enabled: false
   eslint:
     enabled: false
