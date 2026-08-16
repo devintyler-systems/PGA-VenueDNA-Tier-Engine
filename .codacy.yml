@@ -1,16 +1,20 @@
+---
 exclude-paths:
-  - '**/*.min.js'
-  - '**/*.min.css'
   - node_modules
   - dist
   - build
-
+  - vendor
+  - .venv
+  - venv
+exclude-patterns:
+  - ^(.*/)?.*\.min\.(js|css)$
+  - ^(.*/)?.*(test|spec)\.(py|js|ts)$
 engines:
-  exclude-paths:
-    - '**/*.min.*'
   eslint:
-    enabled: false
+    enabled: true
   pmd:
-    enabled: false
-  pmd-legacy:
-    enabled: false
+    enabled: true
+  remark-lint:
+    enabled: true
+  metrics:
+    enabled: true
