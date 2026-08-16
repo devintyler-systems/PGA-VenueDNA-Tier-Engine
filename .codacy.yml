@@ -1,0 +1,16 @@
+exclude-paths:
+  - '**/*.min.js'
+  - '**/*.min.css'
+  - node_modules
+  - dist
+  - build
+
+engines:
+  exclude-paths:
+    - '**/*.min.*'
+
+tools:
+  pmd:
+    enabled: false
+  eslint:
+    enabled: false
