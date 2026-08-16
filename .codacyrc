@@ -1,0 +1,7 @@
+{
+  "tools": {
+    "stylelint": {
+      "enabled": false
+    }
+  }
+}
