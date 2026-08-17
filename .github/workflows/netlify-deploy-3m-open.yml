@@ -1,5 +1,8 @@
 name: Deploy 3M Open Board to Netlify
 
+permissions:
+  contents: read
+
 # Auto-deploys events/2026_Finished_Events/2026_3m_open/deploy/ to Netlify
 # whenever that folder changes on main. Replaces manual app.netlify.com/drop
 # drag-and-drop.

@@ -96,7 +96,7 @@ def _rate_limited_get(url: str, params: dict) -> Any:
     try:
         resp.raise_for_status()
     except requests.exceptions.HTTPError:
-        log.error("HTTP %s  %s  body: %s", resp.status_code, url, resp.text[:400])
+        log.error("HTTP %s while requesting DataGolf API endpoint", resp.status_code)
         raise
     return resp.json()
 
