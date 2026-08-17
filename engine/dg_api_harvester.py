@@ -104,7 +104,11 @@ def _rate_limited_get(url: str, params: dict) -> Any:
 def _fetch(endpoint: str, api_key: str, extra: dict | None = None) -> Any:
     url    = f"{DG_BASE}/{endpoint.lstrip('/')}"
     params = {"key": api_key, "file_format": "json", **(extra or {})}
-    log.info("GET  /%s  %s", endpoint, {k: v for k, v in params.items() if k != "key"})
+    log.info(
+        "GET /%s (file_format=json, extra_params=%s)",
+        endpoint,
+        sorted((extra or {}).keys()),
+    )
     return _rate_limited_get(url, params)
 
 # ── name normalisation ────────────────────────────────────────────────────────
