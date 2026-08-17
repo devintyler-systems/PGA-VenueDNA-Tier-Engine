@@ -38,10 +38,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Debugging helper (commands are commented out). Uncomment the commands
+      # below if you need to collect locale/java/file information to diagnose
+      # encoding issues.
+      - name: Debug locale and files (commented)
+        run: |
+          # Debugging helpers - uncomment commands below if you need to debug encoding issues
+          # locale
+          # java -version
+          # env | sort
+          # find . -maxdepth 3 -type f -exec file -i {} \;
+
       # Execute Codacy Analysis CLI and generate a SARIF output with the security issues identified during the analysis
       - name: Run Codacy Analysis CLI
         uses: codacy/codacy-analysis-cli-action@d840f886c4bd4edc059706d09c6a1586111c540b
         env:
+          JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
           JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
         with:
           # Check https://github.com/codacy/codacy-analysis-cli#project-token to get your project token from your Codacy repository
@@ -54,7 +68,7 @@ jobs:
           gh-code-scanning-compat: true
           # Force 0 exit code to allow SARIF file generation
           # This will handover control about PR rejection to the GitHub side
-          max-allowed-issues: 2147483647
+          max-allowed-issues: 100
 
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
