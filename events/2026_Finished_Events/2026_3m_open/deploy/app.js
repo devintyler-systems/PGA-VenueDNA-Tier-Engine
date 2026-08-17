@@ -2700,11 +2700,18 @@ function renderTagPills() {
     zone.innerHTML = '';
     return;
   }
-  zone.innerHTML = S.activeTagFilters.map(tag =>
-    `<button class="pill" onclick="toggleTagFilter('${tag.replace(/'/g,"\\'")}')">
-      ${esc(tag)} <span style="margin-left:.3rem;color:var(--muted)">✕</span>
-    </button>`
-  ).join('');
+  const pills = S.activeTagFilters.map(tag => {
+    const pill = document.createElement('button');
+    pill.className = 'pill';
+    pill.addEventListener('click', () => toggleTagFilter(tag));
+    pill.append(document.createTextNode(`${tag} `));
+    const icon = document.createElement('span');
+    icon.style.cssText = 'margin-left:.3rem;color:var(--muted)';
+    icon.textContent = '✕';
+    pill.append(icon);
+    return pill;
+  });
+  zone.replaceChildren(...pills);
 }
 
 // ── Tier block click → board filter ────────────────────────────────────────────
@@ -2746,7 +2753,8 @@ function clearFilters() {
 
 // ── Scroll Full Field table to a player row ────────────────────────────────────
 function scrollToPlayer(name) {
-  const tr = document.querySelector(`#board-tbody tr[data-player="${name.replace(/"/g, '\\"')}"]`);
+  const tr = Array.from(document.querySelectorAll('#board-tbody tr[data-player]'))
+    .find(row => row.dataset.player === String(name));
   if (!tr) return;
   tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -2773,7 +2781,11 @@ function reindexRankColumn() {
     if (isByRank) {
       rankEl.textContent = orig;
     } else {
-      rankEl.innerHTML = `${i + 1}<span class="badge sans" style="font-size:9px;padding:1px 4px;margin-left:4px;vertical-align:middle;opacity:.75">VTS:#${orig}</span>`;
+      const badge = document.createElement('span');
+      badge.className = 'badge sans';
+      badge.style.cssText = 'font-size:9px;padding:1px 4px;margin-left:4px;vertical-align:middle;opacity:.75';
+      badge.textContent = `VTS:#${orig}`;
+      rankEl.replaceChildren(String(i + 1), badge);
     }
   });
 }

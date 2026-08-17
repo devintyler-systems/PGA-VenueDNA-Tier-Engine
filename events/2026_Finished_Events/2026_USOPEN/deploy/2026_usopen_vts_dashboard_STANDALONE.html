@@ -20898,12 +20898,15 @@ const sg2=n=>n>=0?'+'+f2(n):f2(n);
 const cl=n=>n>0?'pos':n<0?'neg':'neu';
 const TL=['','Architects','Contention','Top-10 Range','Cut-Line','Course Mismatches'];
 const APS={bomb_and_spray:'B&S',short_and_wild:'S&W',long_iron_liability:'LI',weak_tight_runoff:'WkRO',poor_lag_putting:'LagP'};
+const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const safeTier=v=>{const n=Number(v);return Number.isInteger(n)&&n>=1&&n<=5?n:5;};
+const safeRank=v=>{const n=Number(v);return Number.isFinite(n)?n:0;};
 
-function pill(t){return `<span class="tpill tp${t}">T${t}: ${TL[t]||''}</span>`;}
+function pill(t){const tier=safeTier(t);return `<span class="tpill tp${tier}">T${tier}: ${TL[tier]||''}</span>`;}
 function chips(fl,rfg,dc){
-  let s=(fl||[]).map(f=>`<span class="fchip">${APS[f]||f}</span>`).join('');
+  let s=(fl||[]).map(f=>`<span class="fchip">${esc(APS[f]||f)}</span>`).join('');
   if(rfg) s+=`<span class="fchip form">Gate</span>`;
-  if(dc&&dc!=='none') s+=`<span class="fchip debut">Dbt</span>`;
+  if(dc&&dc!=='none') s+=`<span class="fchip debut">${esc(dc)}</span>`;
   return s;
 }
 
@@ -20919,7 +20922,7 @@ function buildSidebar(){
   const pun=['Bomb & Spray','Long Iron Liab','Short & Wild','Wk Runoff','Lag Putt Gap'];
   $('dna-r').innerHTML='<div class="dna-chips">'+rew.map(r=>`<span class="chip-pos">${r}</span>`).join('')+'</div>';
   $('dna-p').innerHTML='<div class="dna-chips">'+pun.map(r=>`<span class="chip-neg">${r}</span>`).join('')+'</div>';
-  $('wx').innerHTML=PAYLOAD.venue.weather.map(w=>`<div class="wx-row${w.stars>=3?' hard':''}"><span class="wx-rd">${w.rd} ${w.day}</span><span class="wx-w">${w.wind}</span></div>`).join('');
+  $('wx').innerHTML=PAYLOAD.venue.weather.map(w=>`<div class="wx-row${w.stars>=3?' hard':''}"><span class="wx-rd">${esc(w.rd)} ${esc(w.day)}</span><span class="wx-w">${esc(w.wind)}</span></div>`).join('');
 }
 
 function buildHero(){
@@ -20931,22 +20934,24 @@ function buildHero(){
     {l:'Biggest AP Fade',c:hc.biggest_fade},
     {l:'Safest Cut',c:hc.safest_cut},
   ];
+  const winnerRank=safeRank(wc.model_rank);
   let h=`<div class="hgrid">
-    <div class="hw" onclick="odr(${wc.model_rank})">
+    <div class="hw" onclick="odr(${winnerRank})">
       <div class="hw-lbl">⟡ Model Top Pick</div>
-      <div class="hw-name">${wc.player_name}</div>
+      <div class="hw-name">${esc(wc.player_name)}</div>
       <div class="hw-vts">${f1(wc.vts_final)} <small style="font-size:13px;color:var(--tx2)">VTS</small></div>
       <div class="hw-sub">Win: ${fp(wc.win_pct)} · MC: ${fp(wc.make_cut_pct)} · ${pill(wc.tier)}</div>
-      <div class="hw-why">${wc.reason}</div>
+      <div class="hw-why">${esc(wc.reason)}</div>
     </div>`;
   cards.forEach(x=>{
     const c=x.c;
-    h+=`<div class="hcard" onclick="odr(${c.model_rank})">
+    const cardRank=safeRank(c.model_rank);
+    h+=`<div class="hcard" onclick="odr(${cardRank})">
       <div class="hc-lbl">${x.l}</div>
       ${pill(c.tier)}
-      <div class="hc-name">${c.player_name}</div>
+      <div class="hc-name">${esc(c.player_name)}</div>
       <div class="hc-vts">${f1(c.vts_final)} VTS</div>
-      <div class="hc-why">${c.reason}</div>
+      <div class="hc-why">${esc(c.reason)}</div>
     </div>`;
   });
   $('hero').innerHTML=h+'</div>';
@@ -21026,12 +21031,15 @@ function srt(arr){
 function renderTable(){
   const data=srt(getFilt());
   $('n-showing').textContent=data.length;
-  $('tbody').innerHTML=data.map(p=>`
-    <tr class="t${p.tier}" onclick="odr(${p.model_rank})">
-      <td class="td-rank">${p.model_rank}</td>
-      <td class="td-name">${p.player_name}<span class="td-sub">${p.tour||''}</span></td>
-      <td>${pill(p.tier)}</td>
-      <td class="num" style="color:var(--t${p.tier});font-family:var(--fn);font-size:13px;font-weight:600">${f1(p.vts_final)}</td>
+  $('tbody').innerHTML=data.map(p=>{
+    const tier=safeTier(p.tier);
+    const rank=safeRank(p.model_rank);
+    return `
+    <tr class="t${tier}" onclick="odr(${rank})">
+      <td class="td-rank">${rank}</td>
+      <td class="td-name">${esc(p.player_name)}<span class="td-sub">${esc(p.tour||'')}</span></td>
+      <td>${pill(tier)}</td>
+      <td class="num" style="color:var(--t${tier});font-family:var(--fn);font-size:13px;font-weight:600">${f1(p.vts_final)}</td>
       <td class="num ${cl(p.neutral_skill_sg)}">${sg1(p.neutral_skill_sg)}</td>
       <td class="num ${cl(p.venue_fit_delta)}">${sg1(p.venue_fit_delta)}</td>
       <td class="num ${cl(p.venue_history_delta)}">${p.venue_history_delta===0?'—':sg1(p.venue_history_delta)}</td>
@@ -21041,8 +21049,9 @@ function renderTable(){
       <td class="num">${fp(p.top10_pct)}</td>
       <td class="num ${p.make_cut_pct>=70?'pos':p.make_cut_pct<=40?'neg':'neu'}">${fp(p.make_cut_pct)}</td>
       <td class="num">${f2(p.volatility_index)}</td>
-      <td style="font-family:var(--fn);font-size:11px;color:var(--tx2);white-space:nowrap">${p.tee_time_rd1||'—'}</td>
-    </tr>`).join('');
+      <td style="font-family:var(--fn);font-size:11px;color:var(--tx2);white-space:nowrap">${esc(p.tee_time_rd1||'—')}</td>
+    </tr>`;
+  }).join('');
 }
 
 function odr(rank){
@@ -21064,6 +21073,8 @@ function db(val,max,cls){
 }
 
 function buildDrawer(p){
+  const tier=safeTier(p.tier);
+  const rank=safeRank(p.model_rank);
   const apmap=[
     ['Bomb & Spray',p.ap_bomb_and_spray],['Short & Wild',p.ap_short_and_wild],
     ['Long Iron',p.ap_long_iron_liability],['Weak Runoff',p.ap_weak_tight_runoff],['Lag Putt',p.ap_poor_lag_putting]
@@ -21072,14 +21083,14 @@ function buildDrawer(p){
   
   let h=`
   <div class="d-meta">
-    <span class="d-rank">#${p.model_rank}</span>
-    ${pill(p.tier)}
+    <span class="d-rank">#${rank}</span>
+    ${pill(tier)}
     ${p.recent_form_gate_applied?'<span class="fchip form">Form Gate</span>':''}
-    ${p.debut_class&&p.debut_class!=='none'?`<span class="fchip debut">Debut ${p.debut_class}</span>`:''}
+    ${p.debut_class&&p.debut_class!=='none'?`<span class="fchip debut">Debut ${esc(p.debut_class)}</span>`:''}
   </div>
-  <div class="d-name">${p.player_name}</div>
-  <div class="d-tour">World Rank <span>#${p.world_rank}</span> · <span>${p.tour||'Unknown'}</span></div>
-  ${p.tee_time_rd1?`<div class="tee-row"><span class="tee-lbl">R1 Tee Time</span><span class="tee-val">${p.tee_time_rd1}</span></div>`:''}
+  <div class="d-name">${esc(p.player_name)}</div>
+  <div class="d-tour">World Rank <span>#${esc(p.world_rank)}</span> · <span>${esc(p.tour||'Unknown')}</span></div>
+  ${p.tee_time_rd1?`<div class="tee-row"><span class="tee-lbl">R1 Tee Time</span><span class="tee-val">${esc(p.tee_time_rd1)}</span></div>`:''}
   
   <div class="pstrip">
     <div class="pcell"><div class="plbl">Win</div><div class="pval">${fp(p.win_pct)}</div></div>
@@ -21105,28 +21116,28 @@ function buildDrawer(p){
 
   <div class="dsec">
     <div class="dstitle">Trait Profile</div>
-    <div class="trbadges"><span class="trb trb-p">${p.primary_trait_driver||'—'}</span><span class="trb trb-n">Risk: ${p.primary_risk_trait||'—'}</span></div>
-    <div class="dtxt">${p.trait_summary_label||''}</div>
+    <div class="trbadges"><span class="trb trb-p">${esc(p.primary_trait_driver||'—')}</span><span class="trb trb-n">Risk: ${esc(p.primary_risk_trait||'—')}</span></div>
+    <div class="dtxt">${esc(p.trait_summary_label||'')}</div>
   </div>
 
-  ${p.brief_text?`<div class="dsec"><div class="dstitle">Player Brief</div><div class="dtxt brief">${p.brief_text.split('\n').join('<br>')}</div></div>`:''}
+  ${p.brief_text?`<div class="dsec"><div class="dstitle">Player Brief</div><div class="dtxt brief">${esc(p.brief_text).replace(/\n/g,'<br>')}</div></div>`:''}
 
-  <div class="dsec"><div class="dstitle">Neutral Skill</div><div class="dtxt">${p.neutral_skill_summary}</div></div>
-  <div class="dsec"><div class="dstitle">Shinnecock Venue Fit</div><div class="dtxt">${p.venue_fit_summary}</div></div>
-  <div class="dsec"><div class="dstitle">Venue History</div><div class="dtxt">${p.venue_history_summary}</div></div>
-  <div class="dsec"><div class="dstitle">Recent Form — ${fi}</div><div class="dtxt">${p.form_summary}</div></div>
+  <div class="dsec"><div class="dstitle">Neutral Skill</div><div class="dtxt">${esc(p.neutral_skill_summary)}</div></div>
+  <div class="dsec"><div class="dstitle">Shinnecock Venue Fit</div><div class="dtxt">${esc(p.venue_fit_summary)}</div></div>
+  <div class="dsec"><div class="dstitle">Venue History</div><div class="dtxt">${esc(p.venue_history_summary)}</div></div>
+  <div class="dsec"><div class="dstitle">Recent Form — ${fi}</div><div class="dtxt">${esc(p.form_summary)}</div></div>
 
   ${p.anti_pattern_flags&&p.anti_pattern_flags.length?`<div class="dsec">
     <div class="dstitle">Anti-Pattern Analysis</div>
-    <div class="dtxt">${p.anti_pattern_summary}</div>
+    <div class="dtxt">${esc(p.anti_pattern_summary)}</div>
     ${apmap.length?`<div class="apbr">${apmap.map(([l,v])=>`<div class="aprow"><span class="aplbl">${l}</span><span class="apval">${sg1(v)} VTS</span></div>`).join('')}</div>`:''}
   </div>`:''}
 
-  <div class="dsec"><div class="dstitle">Penalties & Gates</div><div class="dtxt">${p.penalties_summary}</div></div>
-  <div class="dsec"><div class="dstitle">Risk Vector</div><div class="dtxt warn">${p.risk_vector}</div></div>
-  <div class="dsec"><div class="dstitle">Conviction</div><div class="cbox"><div class="dtxt">${p.conviction_statement}</div></div></div>
-  <div class="dsec"><div class="dstitle">Failure Condition</div><div class="fbox"><div class="dtxt">${p.failure_condition}</div></div></div>
-  ${p.trace_notes?`<div class="dsec"><div class="dstitle">Model Trace</div><div class="dtxt" style="font-family:var(--fn);font-size:11px;color:var(--tx3)">${p.trace_notes}</div></div>`:''}
+  <div class="dsec"><div class="dstitle">Penalties & Gates</div><div class="dtxt">${esc(p.penalties_summary)}</div></div>
+  <div class="dsec"><div class="dstitle">Risk Vector</div><div class="dtxt warn">${esc(p.risk_vector)}</div></div>
+  <div class="dsec"><div class="dstitle">Conviction</div><div class="cbox"><div class="dtxt">${esc(p.conviction_statement)}</div></div></div>
+  <div class="dsec"><div class="dstitle">Failure Condition</div><div class="fbox"><div class="dtxt">${esc(p.failure_condition)}</div></div></div>
+  ${p.trace_notes?`<div class="dsec"><div class="dstitle">Model Trace</div><div class="dtxt" style="font-family:var(--fn);font-size:11px;color:var(--tx3)">${esc(p.trace_notes)}</div></div>`:''}
   `;
   $('dc').innerHTML=h;
 }
