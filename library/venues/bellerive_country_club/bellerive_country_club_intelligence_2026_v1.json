@@ -1,0 +1,381 @@
+{
+  "schema_version": "1.1",
+  "venue_id": "bellerive_country_club",
+  "venue_name": "Bellerive Country Club",
+  "venue_slug": "bellerive_country_club",
+  "season": 2026,
+  "governance_version": "v1",
+  "generated_at": "2026-08-17T19:00:00-07:00",
+  "frozen_payload_policy": "READ_ONLY",
+  "scoring_rebuild_required_for_changes": true,
+  "artifact_status_note": "Draft for review only. Not yet committed to library/venues/. frozen_payload_policy must be changed to READ_ONLY by explicit operator action at commit time, per standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md section 8A.",
+
+  "_source_register_reference": {
+    "evidence_register_path": "library/venues/bellerive_country_club/bellerive_country_club_evidence_register_2026_v1.md",
+    "claim_id_policy": {
+      "UC": "User-verified source artifact — treated as factual unless arithmetic/source-identity protocol independently reconciles a conflict",
+      "DUR": "Durable external fact — verified via named first-party or authoritative secondary source",
+      "HIS": "Historical course evidence — first-party or major championship record; supports historical layer only, not assumed 2026 setup",
+      "INF": "Inference — derived from durable architecture; carries zero scoring impact; must not be relabelled as fact"
+    }
+  },
+
+  "dominant_tripod": {
+    "version": "DRAFT_HYPOTHESIS_V1",
+    "status": "PROPOSED_NOT_ACTIVE",
+    "effective_scope": "Library documentation only — no scoring, no player ranking, no tier assignment",
+    "scoring_impact": "NONE",
+    "retroactive_scoring_impact": "NONE",
+    "primary_trait": {
+      "key": "trait_approach",
+      "label": "Approach / Long-Iron Precision",
+      "weight": null,
+      "weight_note": "No weight assigned at library layer. Requires DataGolf course-fit validation, Model Council review, and explicit operator authorization before any weight is active."
+    },
+    "secondary_trait": {
+      "key": "trait_total_driving",
+      "label": "Total Driving (Distance + Accuracy)",
+      "weight": null,
+      "weight_note": "No weight assigned at library layer."
+    },
+    "tertiary_trait": {
+      "key": "trait_par5_scoring",
+      "label": "Par-5 and Long-Par-3 Scoring Efficiency",
+      "weight": null,
+      "weight_note": "No weight assigned at library layer."
+    },
+    "rationale": "[INF-001] 7,448-yard par-70 layout with two long par-5s and four above-average par-3s creates a structural demand cluster around total driving, aerial approach precision, and scoring on the long holes. This is an architecture-derived inference, not a validated scoring model.",
+    "evidence_notes": [
+      "[UC-001] Par 70, 7,448 yards — user-verified 2026 hole card",
+      "[DUR-001] Robert Trent Jones Sr. 'hard par, easy bogey' design doctrine",
+      "[DUR-002] Aerial-entry elevated bentgrass greens with false-front falloffs",
+      "[DUR-003] Deep, long greenside bunkers — marketed as 'longest bunker shots in championship golf'",
+      "[INF-002] Two-shot par-5 access conditional on wind/turf firmness — not default birdie holes at this length"
+    ]
+  },
+
+  "dominant_tripod_governance": {
+    "version": "PROPOSED_V1",
+    "status": "NOT_ACTIVE",
+    "activation_requirement": "DataGolf course-fit-tool / course-table cross-validation; minimum 3 relevant prior events per standards/02 §17.4; Model Council full review; explicit operator authorization; activated future formula/trait-submodel version",
+    "applies_to": "Future Bellerive Country Club engine runs only",
+    "penalty_gate_set_id": "venuedna_v2_none",
+    "scoring_impact": "NONE",
+    "rules": {
+      "tripod_qualified": {
+        "definition": "Approach/long-iron precision, Total Driving, and Par-5/long-par-3 efficiency each at or above 60th percentile versus eligible field.",
+        "current_use": "Documentation only",
+        "future_candidate_use": "Tier 1 support signal — not a stand-alone scoring override"
+      },
+      "tripod_supported": {
+        "definition": "Weighted tripod score at or above 65th percentile and at least two of three component traits at or above 60th percentile.",
+        "current_use": "Documentation only",
+        "future_candidate_use": "Balanced alternative to all-three hard gate"
+      },
+      "anti_pattern_gate": {
+        "definition": "Short hitter off tee (below-average Total Driving distance) or wild driver (below-average driving accuracy) who cannot compensate with approach precision.",
+        "status": "PROPOSED_NOT_ACTIVE",
+        "current_use": "Do not score, tier-cap, badge, or suppress any player at this stage",
+        "future_candidate_use": "Anti-pattern flag research only — requires multi-event validation"
+      },
+      "neutral_skill_exception": {
+        "status": "UNSPECIFIED_NOT_IMPLEMENTABLE",
+        "reason": "No numerical definition of exceptional NeutralSkill has been approved."
+      }
+    }
+  },
+
+  "durable_identity": {
+    "location": "[DUR-004] St. Louis, Missouri (Town and Country, MO)",
+    "architect_original": "[DUR-001] Robert Trent Jones Sr. (opened 1960)",
+    "architect_redesign": "[DUR-005] Rees Jones with Bryce Swanson — 2006–07 renovation; further 2013 pre-championship preparation work",
+    "major_championship_history": [
+      {"year": 1965, "event": "U.S. Open", "note": "Won by Gary Player", "claim_id": "HIS-001"},
+      {"year": 1992, "event": "PGA Championship", "note": "Won by Nick Price", "claim_id": "HIS-002"},
+      {"year": 2013, "event": "Senior PGA Championship", "claim_id": "HIS-003"},
+      {"year": 2018, "event": "PGA Championship (100th edition)", "claim_id": "HIS-004"}
+    ],
+    "design_philosophy": "[DUR-001] Robert Trent Jones 'hard par, easy bogey' doctrine: length combined with generous-but-crowned fairways, deep flanking bunkers, and large firm greens with sharp false-front falloffs.",
+    "evidence_classification": "VERIFIED_DURABLE_FACT"
+  },
+
+  "course_layout_2026": {
+    "par": 70,
+    "total_yardage": 7448,
+    "claim_id": "UC-001",
+    "evidence_classification": "USER_VERIFIED_CURRENT_LAYOUT",
+    "verification": {
+      "par_recomputation_method_1": {
+        "method": "Additive by nine",
+        "front_nine_expression": "4+4+3+4+4+3+4+5+4",
+        "front_nine_result": 35,
+        "back_nine_expression": "4+4+4+3+4+4+3+5+4",
+        "back_nine_result": 35,
+        "total": 70,
+        "confirmed": true
+      },
+      "par_recomputation_method_2": {
+        "method": "Count by par type",
+        "par_5_count": 2,
+        "par_5_contribution": 10,
+        "par_3_count": 4,
+        "par_3_contribution": 12,
+        "par_4_count": 12,
+        "par_4_contribution": 48,
+        "total_expression": "10+12+48",
+        "total": 70,
+        "confirmed": true
+      },
+      "yardage_recomputation_method_1": {
+        "method": "Additive by nine",
+        "front_nine_expression": "424+427+170+514+489+215+397+613+438",
+        "front_nine_result": 3687,
+        "back_nine_expression": "510+361+468+187+417+495+237+624+462",
+        "back_nine_result": 3761,
+        "total_expression": "3687+3761",
+        "total": 7448,
+        "confirmed": true
+      },
+      "yardage_recomputation_method_2": {
+        "method": "Direct sum all 18",
+        "expression": "424+427+170+514+489+215+397+613+438+510+361+468+187+417+495+237+624+462",
+        "grouped_pairs": "851+684+704+1010+948+829+604+732+1086",
+        "total": 7448,
+        "confirmed": true
+      },
+      "front_nine_yardage": 3687,
+      "back_nine_yardage": 3761,
+      "front_plus_back_equals_total": true,
+      "match_to_user_provided_figures": true
+    },
+    "par_5_holes": [8, 17],
+    "par_3_holes": [3, 6, 13, 16],
+    "par_4_holes": [1, 2, 4, 5, 7, 9, 10, 11, 12, 14, 15, 18],
+    "holes": [
+      {"hole": 1,  "par": 4, "yards": 424},
+      {"hole": 2,  "par": 4, "yards": 427},
+      {"hole": 3,  "par": 3, "yards": 170},
+      {"hole": 4,  "par": 4, "yards": 514},
+      {"hole": 5,  "par": 4, "yards": 489},
+      {"hole": 6,  "par": 3, "yards": 215},
+      {"hole": 7,  "par": 4, "yards": 397},
+      {"hole": 8,  "par": 5, "yards": 613},
+      {"hole": 9,  "par": 4, "yards": 438},
+      {"hole": 10, "par": 4, "yards": 510},
+      {"hole": 11, "par": 4, "yards": 361},
+      {"hole": 12, "par": 4, "yards": 468},
+      {"hole": 13, "par": 3, "yards": 187},
+      {"hole": 14, "par": 4, "yards": 417},
+      {"hole": 15, "par": 4, "yards": 495},
+      {"hole": 16, "par": 3, "yards": 237},
+      {"hole": 17, "par": 5, "yards": 624},
+      {"hole": 18, "par": 4, "yards": 462}
+    ]
+  },
+
+  "durable_mechanisms": {
+    "off_the_tee": {
+      "description": "[DUR-006] Zoysia fairways on a crowned landing profile pinched by deep laterally-arrayed bunkers; tall fescue rough punishes misses. Par-70 at 7,448 yards makes raw driving distance structurally valuable, but accuracy remains co-required — not a bomb-and-gouge-only track.",
+      "evidence_classification": "VERIFIED_DURABLE_FACT"
+    },
+    "approach": {
+      "description": "[DUR-002][DUR-003] Large, firm, elevated bentgrass greens rebuilt as 'fill pad' platforms with sharp false-front falloffs; entry is aerial only. Deep, long greenside bunkers are a documented architectural penalty feature for errant approaches.",
+      "approach_distance_skew": {
+        "claim_id": "INF-003",
+        "inference": "12 of 18 par-4s measure 397+ yards and two par-5s measure 613/624 yards; approach distances skew mid/long-iron rather than wedge-heavy. This is an architecture-derived inference, not an observed SG result.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+        "scoring_impact": "NONE"
+      },
+      "evidence_classification": "VERIFIED_DURABLE_FACT"
+    },
+    "par_5s": {
+      "description": "[UC-001][INF-002] Two par-5s — hole 8 at 613 yards, hole 17 at 624 yards. Two-shot access is conditional on wind/turf firmness at this length; not default birdie holes.",
+      "two_shot_access_inference": {
+        "claim_id": "INF-002",
+        "inference": "At 613 and 624 yards, reachability in two is conditional — not structurally guaranteed. Players who gain scoring access here hold a durable differentiator.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+        "scoring_impact": "NONE"
+      }
+    },
+    "par_3s": {
+      "description": "[UC-001] Four par-3s at 170, 215, 187, and 237 yards — all above-average Tour par-3 length. The 16th at 237 yards is a full long-iron/hybrid test.",
+      "long_hole_stress_clustering": {
+        "claim_id": "INF-004",
+        "inference": "The four par-3s average 202 yards, creating a distinct long-iron stress cluster separate from the par-4 grind. Players without reliable long-iron precision face compounding exposure.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+        "scoring_impact": "NONE"
+      }
+    },
+    "terrain": {
+      "description": "[DUR-007] Approximately 190 feet of elevation change concentrated on the back nine, adding uneven-lie and depth-perception difficulty on approach shots.",
+      "evidence_classification": "VERIFIED_DURABLE_FACT",
+      "setup_sensitivity_note": "Exact severity is conditions-dependent; elevation fact is durable, approach difficulty magnitude is setup-sensitive."
+    },
+    "placement_demand": {
+      "claim_id": "INF-005",
+      "inference": "Distance-plus-placement co-requirement: the course does not reward pure distance without accuracy. Fairway misses into fescue rough combined with aerial-only elevated greens compound scoring risk for wild drivers in a manner not present at typical bomber-friendly venues.",
+      "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+      "scoring_impact": "NONE"
+    },
+    "pure_bomber_punishment": {
+      "claim_id": "INF-006",
+      "inference": "A player generating above-average distance but below-average accuracy faces a structural double-penalty: fescue rough off tee AND longer approach from irregular lies into aerial-only greens. This is architecturally inferred, not statistically validated from Bellerive field data.",
+      "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+      "scoring_impact": "NONE"
+    }
+  },
+
+  "venue_fit_delta_inputs_durable": {
+    "candidate_traits_for_future_scoring": [
+      "trait_driving_distance",
+      "trait_driving_accuracy",
+      "trait_total_driving",
+      "trait_approach",
+      "trait_long_iron_150_225",
+      "trait_par5_scoring"
+    ],
+    "note": "Candidate VenueFitDelta trait inputs consistent with canonical trait vocabulary in standards/04_PGA_VENUEDNA_ARTIFACT_SCHEMA.md §3A. No weights assigned. Formula v2.0.0 core inputs remain SG_Base_Comp and Delta_Fit_Comp only; this section is documentation, not an authorized addend.",
+    "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+    "scoring_impact": "NONE"
+  },
+
+  "venue_history_delta_notes": {
+    "scoring_status": "THIN",
+    "scoring_status_reason": "No structured Bellerive course-history CSV has been sourced or ingested. VenueHistoryDelta is NOT player-scored for this profile.",
+    "structured_data_status": "NOT_YET_INGESTED",
+    "known_historical_context": "[HIS-001][HIS-002][HIS-003][HIS-004] Bellerive has hosted four professional championships — 1965 U.S. Open (Gary Player), 1992 PGA Championship (Nick Price), 2013 Senior PGA Championship, and 2018 PGA Championship. Historical field data exists but has not been ingested into the VenueDNA course-history pipeline.",
+    "confidence_if_scored_today": "THIN — below the 8-relevant-start threshold per scoring spec; course-history file not available",
+    "event_intake_obligation": "Source and ingest bellerive_country_club_CH.csv before VenueHistoryDelta can be player-scored at event initialization."
+  },
+
+  "penalties_and_gates_durable": {
+    "penalty_gate_set_id": "venuedna_v2_none",
+    "status": "PROPOSED_NOT_ACTIVE",
+    "scoring_impact": "NONE",
+    "candidate_gate_concepts": [
+      {
+        "claim_id": "INF-005",
+        "concept": "Distance-and-accuracy co-requirement gate",
+        "description": "Architecture punishes drivers who are long but wild more severely than a pure bomber's-paradise venue due to crowned/bunker-pinched fairways AND aerial-only elevated greens.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE"
+      },
+      {
+        "claim_id": "INF-003",
+        "concept": "Mid/long-iron approach demand — wedge shortfall risk",
+        "description": "With 12 of 18 par-4s at 397+ yards and two par-5s at 613/624, approach distances skew mid/long-iron rather than wedge-heavy. Players with strong wedge but weak long-iron are structurally exposed.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE"
+      }
+    ],
+    "note": "No penalty_gate_set is authorized at this stage. penalty_gate_set_id = venuedna_v2_none per canonical scoring spec until a future version activates one."
+  },
+
+  "anti_pattern_framework_durable": {
+    "status": "PROPOSED_NOT_ACTIVE",
+    "scoring_impact": "NONE",
+    "candidate_anti_patterns": [
+      {
+        "claim_id": "INF-006",
+        "type": "short_hitter_off_tee",
+        "mechanism": "Total yardage (7,448, par 70) and long par-5/par-3 mix structurally disadvantage below-average Total Driving distance regardless of accuracy.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE"
+      },
+      {
+        "claim_id": "INF-006",
+        "type": "wild_driver_no_accuracy",
+        "mechanism": "Crowned, bunker-pinched fairways with tall fescue rough punish pure distance without matching accuracy.",
+        "evidence_classification": "VENUE_MECHANISM_INFERENCE"
+      }
+    ],
+    "note": "Requires Model Council full review and multi-event evidence before any live scoring effect."
+  },
+
+  "debut_framework_durable": {
+    "note": "No PGA Tour field locked for 2026 BMW Championship at this writing. Debut treatment for any player without Bellerive-specific rounds follows the canonical DEBUT rule in standards/02_PGA_VENUEDNA_SCORING_SPEC.md (VenueFitDeltaRaw = 0.0, THIN venue-fit confidence). No venue-specific override is proposed.",
+    "evidence_classification": "VENUE_MECHANISM_INFERENCE",
+    "scoring_impact": "NONE"
+  },
+
+  "confidence_and_evidence_framework": {
+    "neutral_skill_confidence": "NOT_APPLICABLE — NeutralSkill is not calculated at the venue library layer",
+    "venue_fit_confidence": {
+      "status": "THIN",
+      "reason": "dominant_tripod is a proposed hypothesis only; no validated trait weighting; no DataGolf course-fit cross-validation completed"
+    },
+    "venue_history_confidence": {
+      "status": "THIN",
+      "reason": "Course-history CSV not yet ingested despite four prior championships on record"
+    },
+    "data_completeness_confidence": {
+      "status": "PARTIAL",
+      "reason": "Durable architecture and 2026 hole card confirmed (UC-001, DUR-001 through DUR-007); all agronomy/current-week fields remain unresolved (see gates)"
+    },
+    "conditions_confidence": {
+      "status": "NOT_APPLICABLE",
+      "reason": "Event not yet initialized; NO_ACTIVE_EVENT"
+    }
+  },
+
+  "derivatives_note": "No betting, DFS, salary, ownership, or market data is included or referenced in this file. This file contains no player-specific claims, scores, tiers, rankings, or probabilities.",
+
+  "unresolved_current_week_confirmation_gates": [
+    {
+      "gate": "agronomy",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "Fescue rough vs. bermuda transition, overseed status, and 2026-specific turf conditions not confirmed from PGA Tour agronomy."
+    },
+    {
+      "gate": "rough_height",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "2026 championship rough height/graduation not published."
+    },
+    {
+      "gate": "green_speed_and_firmness",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "Stimpmeter target and firmness plan for 2026 BMW Championship not released by PGA Tour agronomy as of this writing."
+    },
+    {
+      "gate": "exact_setup_intent",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "Tee marker plan (par 70 confirmed; daily hole locations/tee placements not published), scoring-difficulty intent by round not confirmed."
+    },
+    {
+      "gate": "weather",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "August 20–23, 2026 St. Louis forecast not confirmed at this writing. Must be sourced from weather.com per project source priority at event initialization."
+    },
+    {
+      "gate": "tee_times",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "Not published. Event has not reached PRE_EVENT tee-time release stage."
+    },
+    {
+      "gate": "official_field",
+      "status": "UNRESOLVED",
+      "event_intake_obligation": true,
+      "note": "2026 BMW Championship field (top-50 FedExCup after Wyndham Championship) not yet locked as of this writing."
+    }
+  ],
+
+  "known_limitations": [
+    {
+      "feature": "venue_history_delta",
+      "status": "THIN_NOT_PLAYER_SCORED",
+      "note": "No structured course-history CSV ingested. VenueHistoryDelta cannot be computed for any player at this stage.",
+      "scoring_impact": "NONE",
+      "future_action": "Source and ingest bellerive_country_club_CH.csv at event initialization."
+    },
+    {
+      "feature": "dominant_tripod_weights",
+      "status": "NOT_ASSIGNED",
+      "note": "No trait weights are assigned at the library layer. Tripod is a proposed hypothesis only.",
+      "scoring_impact": "NONE",
+      "future_action": "Requires DataGolf cross-validation, Model Council review, and operator authorization before any weight is active."
+    }
+  ]
+}
